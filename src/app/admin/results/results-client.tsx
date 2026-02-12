@@ -3,8 +3,13 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ResultEntryForm } from "@/components/admin/result-entry-form"
-import { getResultsForRace } from "./actions"
+import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
+import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
+import { getResultsForRace, getAuditTrail } from "./actions"
+import { PencilIcon } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -40,7 +45,10 @@ type Props = {
 export function ResultsClient({ races, riders }: Props) {
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null)
   const [existingResults, setExistingResults] = useState<any[] | null>(null)
+  const [auditTrail, setAuditTrail] = useState<any[] | null>(null)
   const [loading, setLoading] = useState(false)
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
+  const [selectedResult, setSelectedResult] = useState<any | null>(null)
 
   const selectedRace = races.find((r) => r.id === selectedRaceId)
 
@@ -50,10 +58,15 @@ export function ResultsClient({ races, riders }: Props) {
 
     const race = races.find((r) => r.id === raceId)
     if (race?.hasResults) {
-      const results = await getResultsForRace(raceId)
+      const [results, audit] = await Promise.all([
+        getResultsForRace(raceId),
+        getAuditTrail(raceId),
+      ])
       setExistingResults(results)
+      setAuditTrail(audit)
     } else {
       setExistingResults(null)
+      setAuditTrail(null)
     }
 
     setLoading(false)
@@ -61,11 +74,20 @@ export function ResultsClient({ races, riders }: Props) {
 
   const handleSuccess = async () => {
     if (!selectedRaceId) return
-    // Refresh results
-    const results = await getResultsForRace(selectedRaceId)
+    // Refresh results and audit trail
+    const [results, audit] = await Promise.all([
+      getResultsForRace(selectedRaceId),
+      getAuditTrail(selectedRaceId),
+    ])
     setExistingResults(results)
+    setAuditTrail(audit)
     // Update the races list to mark it as having results
     window.location.reload()
+  }
+
+  const handleEditResult = (result: any) => {
+    setSelectedResult(result)
+    setCorrectionDialogOpen(true)
   }
 
   // Group races by type
@@ -155,36 +177,76 @@ export function ResultsClient({ races, riders }: Props) {
             </CardContent>
           </Card>
         ) : existingResults ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>{selectedRace?.name} Results</CardTitle>
-              <CardDescription>Existing results for this race</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-20">Position</TableHead>
-                    <TableHead>Rider</TableHead>
-                    <TableHead>Team</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead className="text-right">Points</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {existingResults.map((result) => (
-                    <TableRow key={result.id}>
-                      <TableCell className="font-medium">{result.position}</TableCell>
-                      <TableCell>{result.riderName}</TableCell>
-                      <TableCell>{result.riderTeam}</TableCell>
-                      <TableCell className="text-muted-foreground">{result.time || "—"}</TableCell>
-                      <TableCell className="text-right">{result.points}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <>
+            <Tabs defaultValue="results" className="w-full">
+              <TabsList>
+                <TabsTrigger value="results">Results</TabsTrigger>
+                <TabsTrigger value="history">Change History</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="results" className="mt-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{selectedRace?.name} Results</CardTitle>
+                    <CardDescription>
+                      Click the edit button to correct any result
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-20">Position</TableHead>
+                          <TableHead>Rider</TableHead>
+                          <TableHead>Team</TableHead>
+                          <TableHead>Time</TableHead>
+                          <TableHead className="text-right">Points</TableHead>
+                          <TableHead className="w-20"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {existingResults.map((result) => (
+                          <TableRow key={result.id}>
+                            <TableCell className="font-medium">{result.position}</TableCell>
+                            <TableCell>{result.riderName}</TableCell>
+                            <TableCell>{result.riderTeam}</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {result.time || "—"}
+                            </TableCell>
+                            <TableCell className="text-right">{result.points}</TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditResult(result)}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="history" className="mt-4">
+                {auditTrail && <ResultAuditTrail auditEntries={auditTrail} />}
+              </TabsContent>
+            </Tabs>
+
+            {selectedResult && (
+              <ResultCorrectionDialog
+                result={selectedResult}
+                riders={riders}
+                raceType={selectedRace?.raceType || ""}
+                open={correctionDialogOpen}
+                onOpenChange={setCorrectionDialogOpen}
+                onSuccess={handleSuccess}
+              />
+            )}
+          </>
         ) : (
           <ResultEntryForm
             raceId={selectedRaceId}

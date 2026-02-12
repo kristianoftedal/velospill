@@ -235,3 +235,176 @@ export async function submitRaceResults(formData: ResultInput) {
     }
   }
 }
+
+export async function correctRaceResult(
+  resultId: number,
+  updates: { position?: number; riderId?: number; time?: string },
+  reason: string
+) {
+  const session = await checkAdminAuth()
+
+  if (!reason || reason.trim().length === 0) {
+    return {
+      success: false,
+      error: "Reason for correction is required",
+    }
+  }
+
+  try {
+    await db.transaction(async (tx) => {
+      // Fetch current state of the result
+      const currentResult = await tx.query.raceResults.findFirst({
+        where: eq(raceResults.id, resultId),
+      })
+
+      if (!currentResult) {
+        throw new Error("Result not found")
+      }
+
+      // Build the updated data
+      const updatedData = {
+        position: updates.position !== undefined ? updates.position : currentResult.position,
+        riderId: updates.riderId !== undefined ? updates.riderId : currentResult.riderId,
+        time: updates.time !== undefined ? updates.time : currentResult.time,
+      }
+
+      // Check for position conflicts if position is being changed
+      if (updates.position !== undefined && updates.position !== currentResult.position) {
+        const conflictingResult = await tx.query.raceResults.findFirst({
+          where: and(
+            eq(raceResults.raceId, currentResult.raceId),
+            eq(raceResults.position, updates.position)
+          ),
+        })
+
+        if (conflictingResult && conflictingResult.id !== resultId) {
+          throw new Error(`Position ${updates.position} is already taken by another rider`)
+        }
+      }
+
+      // Recalculate points for the updated result
+      const raceId = currentResult.raceId
+      const scoringPreview = await previewScoringImpact(raceId, [
+        { position: updatedData.position, riderId: updatedData.riderId },
+      ])
+      const newPoints = scoringPreview.preview[0]?.pointsAwarded || 0
+
+      // Insert audit entry
+      await tx.insert(resultAudit).values({
+        raceId: currentResult.raceId,
+        resultId: resultId,
+        changeType: "UPDATE",
+        changedBy: session.user.id,
+        oldData: {
+          position: currentResult.position,
+          riderId: currentResult.riderId,
+          time: currentResult.time,
+          points: currentResult.points,
+        } as any,
+        newData: {
+          position: updatedData.position,
+          riderId: updatedData.riderId,
+          time: updatedData.time,
+          points: newPoints,
+        } as any,
+        reason,
+      })
+
+      // Update the result
+      await tx
+        .update(raceResults)
+        .set({
+          position: updatedData.position,
+          riderId: updatedData.riderId,
+          time: updatedData.time || null,
+          points: newPoints,
+          updatedAt: new Date(),
+        })
+        .where(eq(raceResults.id, resultId))
+
+      // Update race's updatedAt timestamp
+      await tx
+        .update(races)
+        .set({ updatedAt: new Date() })
+        .where(eq(races.id, currentResult.raceId))
+    })
+
+    revalidatePath("/admin/results")
+    return { success: true }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: (error as Error).message,
+    }
+  }
+}
+
+export async function deleteRaceResult(resultId: number, reason: string) {
+  const session = await checkAdminAuth()
+
+  if (!reason || reason.trim().length === 0) {
+    return {
+      success: false,
+      error: "Reason for deletion is required",
+    }
+  }
+
+  try {
+    await db.transaction(async (tx) => {
+      // Fetch current state
+      const currentResult = await tx.query.raceResults.findFirst({
+        where: eq(raceResults.id, resultId),
+      })
+
+      if (!currentResult) {
+        throw new Error("Result not found")
+      }
+
+      // Insert audit entry
+      await tx.insert(resultAudit).values({
+        raceId: currentResult.raceId,
+        resultId: resultId,
+        changeType: "DELETE",
+        changedBy: session.user.id,
+        oldData: {
+          position: currentResult.position,
+          riderId: currentResult.riderId,
+          time: currentResult.time,
+          points: currentResult.points,
+        } as any,
+        reason,
+      })
+
+      // Delete the result
+      await tx.delete(raceResults).where(eq(raceResults.id, resultId))
+    })
+
+    revalidatePath("/admin/results")
+    return { success: true }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: (error as Error).message,
+    }
+  }
+}
+
+export async function getAuditTrail(raceId: number) {
+  await checkAdminAuth()
+
+  const auditEntries = await db
+    .select({
+      id: resultAudit.id,
+      changeType: resultAudit.changeType,
+      changedBy: resultAudit.changedBy,
+      changedAt: resultAudit.changedAt,
+      oldData: resultAudit.oldData,
+      newData: resultAudit.newData,
+      reason: resultAudit.reason,
+    })
+    .from(resultAudit)
+    .where(eq(resultAudit.raceId, raceId))
+    .orderBy(desc(resultAudit.changedAt))
+
+  return auditEntries
+}

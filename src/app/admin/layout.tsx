@@ -45,6 +45,18 @@ export default async function AdminLayout({
             >
               Results
             </Link>
+            <Link
+              href="/admin/transfers"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Transfers
+            </Link>
+            <Link
+              href="/admin/orders"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Orders
+            </Link>
           </nav>
           <Link
             href="/home"

@@ -1,15 +1,19 @@
 import { db } from "@/lib/db"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
+import { raceResults } from "@/db/schema/results"
+import { orderTypes } from "@/db/schema/config"
 import { count } from "drizzle-orm"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 export default async function AdminPage() {
-  const [ridersCount, racesCount] = await Promise.all([
+  const [ridersCount, racesCount, resultsCount, orderTypesCount] = await Promise.all([
     db.select({ count: count() }).from(riders).then((res) => res[0]?.count ?? 0),
     db.select({ count: count() }).from(races).then((res) => res[0]?.count ?? 0),
+    db.select({ count: count() }).from(raceResults).then((res) => res[0]?.count ?? 0),
+    db.select({ count: count() }).from(orderTypes).then((res) => res[0]?.count ?? 0),
   ])
 
   return (
@@ -17,7 +21,7 @@ export default async function AdminPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-muted-foreground mt-2">
-          Manage riders, races, and system configuration
+          Manage riders, races, results, transfers, and orders
         </p>
       </div>
 
@@ -46,6 +50,48 @@ export default async function AdminPage() {
             <p className="text-xs text-muted-foreground mt-2">Total races</p>
             <Button asChild className="mt-4 w-full" variant="outline">
               <Link href="/admin/races">Manage Races</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Results</CardTitle>
+            <CardDescription>Race results and scoring</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{resultsCount}</div>
+            <p className="text-xs text-muted-foreground mt-2">Results entered</p>
+            <Button asChild className="mt-4 w-full" variant="outline">
+              <Link href="/admin/results">Manage Results</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Transfers</CardTitle>
+            <CardDescription>Transfer management</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground mt-2">Pending transfers</p>
+            <Button asChild className="mt-4 w-full" variant="outline">
+              <Link href="/admin/transfers">View Transfers</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Orders</CardTitle>
+            <CardDescription>Strategic order validation</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{orderTypesCount}</div>
+            <p className="text-xs text-muted-foreground mt-2">Order types configured</p>
+            <Button asChild className="mt-4 w-full" variant="outline">
+              <Link href="/admin/orders">View Orders</Link>
             </Button>
           </CardContent>
         </Card>

@@ -39,6 +39,12 @@ export default async function AdminLayout({
             >
               Races
             </Link>
+            <Link
+              href="/admin/results"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Results
+            </Link>
           </nav>
           <Link
             href="/home"

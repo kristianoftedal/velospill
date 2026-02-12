@@ -16,9 +16,10 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults } from "@/app/admin/results/actions"
+import { submitRaceResults, previewResults } from "@/app/admin/results/actions"
 import { TrashIcon, PlusIcon } from "lucide-react"
 import { useState } from "react"
+import { ScoringPreview } from "@/components/admin/scoring-preview"
 
 const resultSchema = z.object({
   results: z
@@ -65,6 +66,8 @@ type Props = {
 
 export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) {
   const [serverError, setServerError] = useState<string | null>(null)
+  const [previewData, setPreviewData] = useState<any | null>(null)
+  const [isPreviewing, setIsPreviewing] = useState(false)
 
   // Filter riders by gender
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
@@ -107,6 +110,28 @@ export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) 
   const handleAddResult = () => {
     const nextPosition = fields.length + 1
     append({ position: nextPosition, riderId: 0, time: "" })
+  }
+
+  const handlePreview = async () => {
+    // Trigger form validation
+    const isValid = await form.trigger()
+    if (!isValid) {
+      toast.error("Please fix form errors before previewing")
+      return
+    }
+
+    const formData = form.getValues()
+
+    setIsPreviewing(true)
+    const result = await previewResults(raceId, formData.results)
+    setIsPreviewing(false)
+
+    if (result.success && result.data) {
+      setPreviewData(result.data)
+      toast.success("Preview loaded!")
+    } else {
+      toast.error(result.error || "Failed to load preview")
+    }
   }
 
   return (
@@ -229,10 +254,33 @@ export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) 
             Add Result
           </Button>
 
+          {/* Preview section */}
+          {previewData && (
+            <div className="pt-4">
+              <ScoringPreview
+                preview={previewData.preview}
+                totalPointsAwarded={previewData.totalPointsAwarded}
+                raceName={previewData.raceName}
+              />
+            </div>
+          )}
+
           {/* Submit */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save Results"}
+            <Button
+              type="button"
+              variant={previewData ? "outline" : "default"}
+              onClick={handlePreview}
+              disabled={isPreviewing || form.formState.isSubmitting}
+            >
+              {isPreviewing ? "Loading..." : "Preview Scoring"}
+            </Button>
+            <Button
+              type="submit"
+              variant={previewData ? "default" : "outline"}
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Saving..." : "Submit Results"}
             </Button>
           </div>
         </form>

@@ -9,6 +9,9 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { eq, isNull, sql, desc } from "drizzle-orm"
+import { previewScoringImpact, calculatePoints } from "@/lib/scoring-preview"
+import { scoringConfig } from "@/db/schema/config"
+import { and, lte, or, gt } from "drizzle-orm"
 
 async function checkAdminAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -104,6 +107,26 @@ export async function getResultsForRace(raceId: number) {
   return results
 }
 
+export async function previewResults(
+  raceId: number,
+  results: Array<{ position: number; riderId: number }>
+) {
+  await checkAdminAuth()
+
+  try {
+    const preview = await previewScoringImpact(raceId, results)
+    return {
+      success: true,
+      data: preview,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: (error as Error).message,
+    }
+  }
+}
+
 export async function submitRaceResults(formData: ResultInput) {
   const session = await checkAdminAuth()
 
@@ -164,16 +187,23 @@ export async function submitRaceResults(formData: ResultInput) {
       }
     }
 
+    // Calculate points for all results using the scoring preview logic
+    const scoringPreview = await previewScoringImpact(raceId, resultData)
+    const pointsMap = new Map(
+      scoringPreview.preview.map((p) => [p.riderId, p.pointsAwarded])
+    )
+
     // Use transaction to insert results and audit entry
     await db.transaction(async (tx) => {
-      // Insert all results
+      // Insert all results with calculated points
       for (const resultItem of resultData) {
+        const points = pointsMap.get(resultItem.riderId) || 0
         await tx.insert(raceResults).values({
           raceId,
           riderId: resultItem.riderId,
           position: resultItem.position,
           time: resultItem.time || null,
-          points: 0, // Will be calculated later
+          points,
         })
       }
 

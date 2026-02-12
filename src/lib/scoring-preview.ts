@@ -1,0 +1,132 @@
+import { db } from "@/lib/db"
+import { races } from "@/db/schema/races"
+import { riders } from "@/db/schema/riders"
+import { scoringConfig } from "@/db/schema/config"
+import { eq, and, lte, or, isNull, gt } from "drizzle-orm"
+
+/**
+ * Pure function to calculate points for a single position
+ * @param position - The finishing position (1, 2, 3, etc.)
+ * @param scoringRules - The rules object from scoringConfig.rules JSONB
+ * @returns Points awarded for that position, or 0 if position is not in scoring range
+ */
+export function calculatePoints(
+  position: number,
+  scoringRules: Record<string, number>
+): number {
+  const positionKey = String(position)
+  return scoringRules[positionKey] || 0
+}
+
+export type ScoringPreviewResult = {
+  position: number
+  riderId: number
+  riderName: string
+  pointsAwarded: number
+}
+
+export type ScoringPreview = {
+  preview: ScoringPreviewResult[]
+  totalPointsAwarded: number
+  raceType: string
+  raceName: string
+}
+
+/**
+ * Preview the scoring impact for a set of race results
+ * Reads scoring configuration from the database (data-driven, not hardcoded)
+ *
+ * @param raceId - The race ID
+ * @param results - Array of results with position and riderId
+ * @returns Preview data showing points per rider
+ */
+export async function previewScoringImpact(
+  raceId: number,
+  results: Array<{ position: number; riderId: number }>
+): Promise<ScoringPreview> {
+  // 1. Fetch the race to get its raceType and parentRaceId
+  const race = await db.query.races.findFirst({
+    where: eq(races.id, raceId),
+    with: {
+      parentRace: true,
+    },
+  })
+
+  if (!race) {
+    throw new Error("Race not found")
+  }
+
+  // 2. Determine the scoring category
+  // For stages (has parentRaceId): use parent's raceType + "stage_finish" category
+  // For one-day races: use "finish" category
+  let raceTypeForScoring = race.raceType
+  let category = "finish"
+
+  if (race.parentRaceId) {
+    // This is a stage - use parent's raceType
+    if (race.parentRace) {
+      raceTypeForScoring = race.parentRace.raceType
+    }
+    category = "stage_finish"
+  } else if (
+    race.raceType === "grand_tour" ||
+    race.raceType === "mini_tour" ||
+    race.raceType === "womens_grand_tour"
+  ) {
+    // Parent race for a multi-stage event
+    // Results should not be entered on parent races, but if they are, use "finish"
+    category = "finish"
+  }
+
+  // 3. Fetch the matching scoringConfig entry
+  const now = new Date()
+  const scoringRule = await db.query.scoringConfig.findFirst({
+    where: and(
+      eq(scoringConfig.raceType, raceTypeForScoring),
+      eq(scoringConfig.category, category),
+      lte(scoringConfig.validFrom, now),
+      or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
+    ),
+  })
+
+  if (!scoringRule) {
+    throw new Error(
+      `No scoring config found for raceType: ${raceTypeForScoring}, category: ${category}`
+    )
+  }
+
+  const scoringRules = scoringRule.rules as Record<string, number>
+
+  // 4. Fetch rider names for all results
+  const riderIds = results.map((r) => r.riderId)
+  const riderRecords = await db.query.riders.findMany({
+    where: (riders, { inArray }) => inArray(riders.id, riderIds),
+  })
+
+  const riderMap = new Map(riderRecords.map((r) => [r.id, r.name]))
+
+  // 5. Calculate points for each result
+  const preview: ScoringPreviewResult[] = results.map((result) => {
+    const pointsAwarded = calculatePoints(result.position, scoringRules)
+    const riderName = riderMap.get(result.riderId) || "Unknown Rider"
+
+    return {
+      position: result.position,
+      riderId: result.riderId,
+      riderName,
+      pointsAwarded,
+    }
+  })
+
+  // Sort by position
+  preview.sort((a, b) => a.position - b.position)
+
+  const totalPointsAwarded = preview.reduce((sum, r) => sum + r.pointsAwarded, 0)
+
+  return {
+    preview,
+    totalPointsAwarded,
+    raceType: raceTypeForScoring,
+    raceName: race.name,
+  }
+}

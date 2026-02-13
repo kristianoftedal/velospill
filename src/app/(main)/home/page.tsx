@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { db } from "@/lib/db"
 import { races } from "@/db/schema/races"
 import { gte, asc, isNull } from "drizzle-orm"
@@ -43,18 +44,18 @@ export default async function HomePage() {
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <p className="text-gray-600 mb-4">You haven&apos;t joined any leagues yet</p>
             <div className="flex gap-3">
-              <button
-                disabled
-                className="px-4 py-2 rounded-md bg-gray-100 text-gray-400 text-sm font-medium cursor-not-allowed"
+              <Link
+                href="/leagues/new"
+                className="px-4 py-2 rounded-md bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
               >
                 Create League
-              </button>
-              <button
-                disabled
-                className="px-4 py-2 rounded-md border border-gray-200 text-gray-400 text-sm font-medium cursor-not-allowed"
+              </Link>
+              <Link
+                href="/leagues"
+                className="px-4 py-2 rounded-md border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
               >
-                Join League
-              </button>
+                My Leagues
+              </Link>
             </div>
           </div>
         </section>

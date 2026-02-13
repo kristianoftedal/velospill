@@ -148,6 +148,7 @@ export async function joinLeague(
     })
 
     revalidatePath("/leagues")
+    revalidatePath(`/leagues/${leagueId}`)
     return { success: true, leagueId }
   } catch {
     // DB-level unique constraints (leagueId+userId, leagueId+name) catch race conditions

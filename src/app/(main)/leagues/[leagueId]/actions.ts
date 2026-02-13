@@ -65,9 +65,10 @@ export async function getMyLeagues() {
 export async function getLeagueDetails(leagueId: number) {
   const session = await checkAuth()
 
-  // Check membership
+  // Check membership or ownership
   const { isMember } = await checkLeagueMembership(session.user.id, leagueId)
-  if (!isMember) {
+  const isLeagueOwner = await checkLeagueOwnership(session.user.id, leagueId)
+  if (!isMember && !isLeagueOwner) {
     throw new Error("Not a member of this league")
   }
 
@@ -96,7 +97,7 @@ export async function getLeagueDetails(leagueId: number) {
     .where(eq(teams.leagueId, leagueId))
     .orderBy(teams.createdAt)
 
-  const isOwner = league.ownerId === session.user.id
+  const isOwner = isLeagueOwner
 
   // Get user's team
   const userTeam = teamList.find((t) => t.userId === session.user.id)

@@ -3,19 +3,19 @@
 ## Current Position
 
 - **Phase:** 04-live-draft-system
-- **Current Plan:** 02 (next to execute)
+- **Current Plan:** 03 (next to execute)
 - **Status:** In Progress
-- **Last session:** 2026-02-13T09:23:04Z
-- **Stopped at:** Completed 04-01-PLAN.md
+- **Last session:** 2026-02-13T09:27:52Z
+- **Stopped at:** Completed 04-02-PLAN.md
 
 ## Progress
 
 ```
-Phase 04: [#.......] 1/4 plans complete
+Phase 04: [##......] 2/4 plans complete
 ```
 
-Plans complete: 04-01
-Plans remaining: 04-02, 04-03, 04-04
+Plans complete: 04-01, 04-02
+Plans remaining: 04-03, 04-04
 
 ## Decisions
 
@@ -31,6 +31,8 @@ Plans remaining: 04-02, 04-03, 04-04
 10. **04-01:** Women's snake draft order resets independently from round 0 (not continuing men's absolute round count)
 11. **04-01:** Pusher presence channel auth validates both session AND league membership before authorizing
 12. **04-01:** draftSessions.leagueId is UNIQUE — one draft session per league enforced at DB level
+13. **04-02:** computeNextDraftState extracted to draft-queries.ts to share pick-advancing logic between makePick and auto-pick
+14. **04-02:** QStash Client dynamically imported in auto-pick route to avoid module-load instantiation
 
 ## Performance Metrics
 
@@ -39,6 +41,7 @@ Plans remaining: 04-02, 04-03, 04-04
 | 03    | 01   | ~2min    | 2     | 4     |
 | 03    | 02   | ~3min    | 2     | 5     |
 | 04    | 01   | ~3min    | 2     | 7     |
+| 04    | 02   | ~2min    | 2     | 3     |
 
 ## Blockers
 
@@ -52,3 +55,4 @@ None
 - Pusher and QStash env vars required before testing draft features (see 04-01-SUMMARY.md User Setup section)
 - pusher-client.ts must only be imported in "use client" components
 - Pusher presence channel naming pattern: presence-draft-{leagueId}
+- npm run build fails due to pre-existing drizzle-kit 0.18.x type error in drizzle.config.ts — all project source files compile cleanly

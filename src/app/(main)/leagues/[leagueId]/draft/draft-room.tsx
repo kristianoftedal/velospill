@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import { pusherClient } from "@/lib/pusher-client"
-import { makePick, refreshDraftState } from "./actions"
+import { makePick, skipPick, refreshDraftState } from "./actions"
 import { DraftBoard } from "./draft-board"
 import { RiderPicker } from "./rider-picker"
 import { DraftTimer } from "./timer"
@@ -78,6 +78,8 @@ interface DraftRoomProps {
   isOwner: boolean
 }
 
+const TIMER_MS = 60_000
+
 // Pusher event payloads
 interface DraftStartedPayload {
   status: "men" | "women"
@@ -94,6 +96,16 @@ interface PickMadePayload {
   timerExpiresAt: string | null
   status: "men" | "women" | "complete"
   wasAutomatic: boolean
+}
+
+interface PickSkippedPayload {
+  skippedTeamId: number
+  skippedTeamName: string
+  skippedPickIndex: number
+  nextTeamId: number | null
+  nextPickIndex: number
+  timerExpiresAt: string | null
+  status: "men" | "women" | "complete"
 }
 
 export function DraftRoom({
@@ -275,6 +287,26 @@ export function DraftRoom({
       }
     })
 
+    channel.bind("pick-skipped", (data: PickSkippedPayload) => {
+      const { skippedTeamName, nextTeamId, nextPickIndex, timerExpiresAt: nextTimer, status } = data
+
+      setCurrentTurn(nextTeamId)
+      setCurrentPickIndex(nextPickIndex)
+      setTimerExpiresAt(nextTimer ? new Date(nextTimer) : null)
+      lastPickIndexRef.current = nextPickIndex
+
+      if (status === "women") {
+        setCurrentGender("F")
+      }
+      setDraftStatus(status)
+
+      if (nextTeamId === currentTeamId && status !== "complete") {
+        triggerYourTurnNotification()
+      }
+
+      toast(`${skippedTeamName} ran out of time — turn skipped`)
+    })
+
     channel.bind("draft-complete", () => {
       setDraftStatus("complete")
       setCurrentTurn(null)
@@ -304,6 +336,29 @@ export function DraftRoom({
       if (yourTurnTimerRef.current) clearTimeout(yourTurnTimerRef.current)
     }
   }, [])
+
+  // Handle timer expiry — skip the current pick and advance to next team
+  const skipInProgressRef = useRef(false)
+  const handleTimerExpired = useCallback(async () => {
+    if (skipInProgressRef.current) return
+    if (draftStatus === "complete" || draftStatus === "pending") return
+    skipInProgressRef.current = true
+    try {
+      const result = await skipPick(leagueId)
+      if (result.success) {
+        // Optimistic update (Pusher event will also arrive)
+        setCurrentTurn(result.nextTeamId ?? null)
+        setCurrentPickIndex(result.nextPickIndex ?? currentPickIndex + 1)
+        setTimerExpiresAt(new Date(Date.now() + TIMER_MS))
+        if (result.status === "women") setCurrentGender("F")
+        if (result.status === "complete") setDraftStatus("complete")
+      }
+    } catch {
+      // Will be resolved by Pusher event or next tick
+    } finally {
+      skipInProgressRef.current = false
+    }
+  }, [leagueId, draftStatus, currentPickIndex])
 
   // Handle pick with optimistic updates
   const handlePick = useCallback(
@@ -436,7 +491,7 @@ export function DraftRoom({
             )}
           </div>
 
-          <DraftTimer expiresAt={timerExpiresAt} isMyTurn={isMyTurn} />
+          <DraftTimer expiresAt={timerExpiresAt} isMyTurn={isMyTurn} onExpired={handleTimerExpired} />
         </div>
 
         {/* Main layout: Board + Picker */}

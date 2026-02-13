@@ -1,14 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface DraftTimerProps {
   expiresAt: Date | null
   isMyTurn: boolean
+  onExpired?: () => void
 }
 
-export function DraftTimer({ expiresAt, isMyTurn }: DraftTimerProps) {
+export function DraftTimer({ expiresAt, isMyTurn, onExpired }: DraftTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState<number>(0)
+  const hasFiredRef = useRef(false)
+
+  useEffect(() => {
+    // Reset fired flag when expiresAt changes (new turn)
+    hasFiredRef.current = false
+  }, [expiresAt])
 
   useEffect(() => {
     if (!expiresAt) {
@@ -16,18 +23,22 @@ export function DraftTimer({ expiresAt, isMyTurn }: DraftTimerProps) {
       return
     }
 
-    // Initial calculation
     const computeSeconds = () =>
       Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000))
 
     setSecondsLeft(computeSeconds())
 
     const interval = setInterval(() => {
-      setSecondsLeft(computeSeconds())
+      const s = computeSeconds()
+      setSecondsLeft(s)
+      if (s === 0 && !hasFiredRef.current && onExpired) {
+        hasFiredRef.current = true
+        onExpired()
+      }
     }, 500)
 
     return () => clearInterval(interval)
-  }, [expiresAt])
+  }, [expiresAt, onExpired])
 
   if (!expiresAt) {
     return null

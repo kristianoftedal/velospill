@@ -24,13 +24,21 @@ function getQStashClient() {
 }
 
 async function scheduleAutoPick(leagueId: number, expectedPickIndex: number) {
-  const qstash = getQStashClient()
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/draft/auto-pick`
-  await qstash.publishJSON({
-    url,
-    body: { leagueId, expectedPickIndex },
-    delay: QSTASH_DELAY_S,
-  })
+  if (!process.env.QSTASH_TOKEN || !process.env.NEXT_PUBLIC_APP_URL) {
+    console.warn("QStash not configured — auto-pick timer disabled")
+    return
+  }
+  try {
+    const qstash = getQStashClient()
+    const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/draft/auto-pick`
+    await qstash.publishJSON({
+      url,
+      body: { leagueId, expectedPickIndex },
+      delay: QSTASH_DELAY_S,
+    })
+  } catch (e) {
+    console.error("Failed to schedule auto-pick via QStash:", e)
+  }
 }
 
 /**
@@ -99,18 +107,22 @@ export async function startDraft(leagueId: number) {
     insertedSession = s
   })
 
-  // After transaction: schedule QStash auto-pick
-  await scheduleAutoPick(leagueId, 0)
+  // After transaction: trigger Pusher event (before QStash so clients update immediately)
+  try {
+    await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-started", {
+      status: "men",
+      currentTeamId: firstTeamId,
+      currentPickIndex: 0,
+      timerExpiresAt,
+      teams: leagueTeams,
+      draftOrder,
+    })
+  } catch (e) {
+    console.error("Failed to trigger Pusher draft-started event:", e)
+  }
 
-  // After transaction: trigger Pusher event
-  await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-started", {
-    status: "men",
-    currentTeamId: firstTeamId,
-    currentPickIndex: 0,
-    timerExpiresAt,
-    teams: leagueTeams,
-    draftOrder,
-  })
+  // After transaction: schedule QStash auto-pick (non-fatal)
+  await scheduleAutoPick(leagueId, 0)
 
   revalidatePath(`/leagues/${leagueId}/draft`)
 
@@ -238,38 +250,134 @@ export async function makePick(leagueId: number, riderId: number) {
       .where(eq(draftSessions.leagueId, leagueId))
   })
 
-  // After transaction: schedule next auto-pick if draft not complete
-  if (!isComplete) {
-    await scheduleAutoPick(leagueId, nextPickIndex)
+  // After transaction: trigger Pusher events first (so clients update immediately)
+  try {
+    await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-made", {
+      pick: {
+        ...insertedPick!,
+        rider: {
+          name: rider.name,
+          team: rider.team,
+          specialty: rider.specialty,
+          nationality: rider.nationality,
+        },
+      },
+      nextTeamId,
+      nextPickIndex,
+      timerExpiresAt: nextTimerExpiresAt,
+      status: nextStatus,
+      wasAutomatic: false,
+    })
+
+    if (isComplete) {
+      await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-complete", {
+        leagueId,
+      })
+    }
+  } catch (e) {
+    console.error("Failed to trigger Pusher pick-made event:", e)
   }
 
-  // After transaction: trigger Pusher pick-made event (include rider info for client recap)
-  await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-made", {
-    pick: {
-      ...insertedPick!,
-      rider: {
-        name: rider.name,
-        team: rider.team,
-        specialty: rider.specialty,
-        nationality: rider.nationality,
-      },
-    },
-    nextTeamId,
-    nextPickIndex,
-    timerExpiresAt: nextTimerExpiresAt,
-    status: nextStatus,
-    wasAutomatic: false,
-  })
-
-  if (isComplete) {
-    await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-complete", {
-      leagueId,
-    })
+  // After transaction: schedule next auto-pick if draft not complete (non-fatal)
+  if (!isComplete) {
+    await scheduleAutoPick(leagueId, nextPickIndex)
   }
 
   revalidatePath(`/leagues/${leagueId}/draft`)
 
   return { success: true, pick: insertedPick! }
+}
+
+/**
+ * Skip the current pick (timer expired, no rider selected).
+ * Advances the draft to the next team without inserting a pick.
+ * Any league member can call this when the timer has expired.
+ */
+export async function skipPick(leagueId: number) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  const { isMember } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember) {
+    return { success: false, error: "You are not a member of this league" }
+  }
+
+  const [draftSession] = await db
+    .select()
+    .from(draftSessions)
+    .where(eq(draftSessions.leagueId, leagueId))
+    .limit(1)
+
+  if (!draftSession) {
+    return { success: false, error: "No active draft session" }
+  }
+
+  if (draftSession.status !== "men" && draftSession.status !== "women") {
+    return { success: false, error: "Draft is not currently active" }
+  }
+
+  // Only allow skip if timer has actually expired (with 2s grace)
+  if (draftSession.timerExpiresAt && new Date() < new Date(draftSession.timerExpiresAt.getTime() - 2000)) {
+    return { success: false, error: "Timer has not expired yet" }
+  }
+
+  const leagueTeams = await db
+    .select()
+    .from(teams)
+    .where(eq(teams.leagueId, leagueId))
+    .orderBy(asc(teams.createdAt))
+
+  const teamCount = leagueTeams.length
+  const currentPickIndex = draftSession.currentPickIndex
+  const { nextPickIndex, nextGender, nextTeamIndex, isComplete, isMenComplete } =
+    computeNextDraftState(currentPickIndex, teamCount, MEN_ROUNDS, WOMEN_ROUNDS)
+
+  const nextTeamId = isComplete ? null : leagueTeams[nextTeamIndex].id
+  const nextTimerExpiresAt = isComplete ? null : new Date(Date.now() + TIMER_MS)
+  const nextStatus = isComplete ? "complete" : isMenComplete ? "women" : draftSession.status
+  const completedAt = isComplete ? new Date() : null
+
+  await db
+    .update(draftSessions)
+    .set({
+      currentPickIndex: nextPickIndex,
+      currentTeamId: nextTeamId,
+      currentGender: nextGender,
+      timerExpiresAt: nextTimerExpiresAt,
+      status: nextStatus as "men" | "women" | "complete" | "pending" | "paused",
+      ...(completedAt ? { completedAt } : {}),
+    })
+    .where(eq(draftSessions.leagueId, leagueId))
+
+  // Trigger Pusher event
+  try {
+    const skippedTeam = leagueTeams.find(t => t.id === draftSession.currentTeamId)
+    await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-skipped", {
+      skippedTeamId: draftSession.currentTeamId,
+      skippedTeamName: skippedTeam?.name ?? "Unknown",
+      skippedPickIndex: currentPickIndex,
+      nextTeamId,
+      nextPickIndex,
+      timerExpiresAt: nextTimerExpiresAt,
+      status: nextStatus,
+    })
+
+    if (isComplete) {
+      await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-complete", {
+        leagueId,
+      })
+    }
+  } catch (e) {
+    console.error("Failed to trigger Pusher pick-skipped event:", e)
+  }
+
+  await scheduleAutoPick(leagueId, nextPickIndex)
+
+  revalidatePath(`/leagues/${leagueId}/draft`)
+
+  return { success: true, nextTeamId, nextPickIndex, status: nextStatus }
 }
 
 /**

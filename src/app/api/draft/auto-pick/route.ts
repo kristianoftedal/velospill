@@ -15,14 +15,22 @@ const TIMER_MS = 60_000
 const QSTASH_DELAY_S = 65
 
 async function scheduleAutoPick(leagueId: number, expectedPickIndex: number) {
-  const { Client } = await import("@upstash/qstash")
-  const qstash = new Client({ token: process.env.QSTASH_TOKEN! })
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/draft/auto-pick`
-  await qstash.publishJSON({
-    url,
-    body: { leagueId, expectedPickIndex },
-    delay: QSTASH_DELAY_S,
-  })
+  if (!process.env.QSTASH_TOKEN || !process.env.NEXT_PUBLIC_APP_URL) {
+    console.warn("QStash not configured — auto-pick timer disabled")
+    return
+  }
+  try {
+    const { Client } = await import("@upstash/qstash")
+    const qstash = new Client({ token: process.env.QSTASH_TOKEN! })
+    const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/draft/auto-pick`
+    await qstash.publishJSON({
+      url,
+      body: { leagueId, expectedPickIndex },
+      delay: QSTASH_DELAY_S,
+    })
+  } catch (e) {
+    console.error("Failed to schedule auto-pick via QStash:", e)
+  }
 }
 
 async function handler(request: NextRequest) {
@@ -138,33 +146,37 @@ async function handler(request: NextRequest) {
       .where(eq(draftSessions.leagueId, leagueId))
   })
 
-  // After transaction: schedule next auto-pick if not complete
-  if (!isComplete) {
-    await scheduleAutoPick(leagueId, nextPickIndex)
+  // After transaction: trigger Pusher events first (so clients update immediately)
+  try {
+    await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-made", {
+      pick: {
+        ...insertedPick!,
+        rider: {
+          name: rider.name,
+          team: rider.team,
+          specialty: rider.specialty,
+          nationality: rider.nationality,
+        },
+      },
+      nextTeamId,
+      nextPickIndex,
+      timerExpiresAt: nextTimerExpiresAt,
+      status: nextStatus,
+      wasAutomatic: true,
+    })
+
+    if (isComplete) {
+      await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-complete", {
+        leagueId,
+      })
+    }
+  } catch (e) {
+    console.error("Failed to trigger Pusher event from auto-pick:", e)
   }
 
-  // After transaction: trigger Pusher events (include rider info for client recap)
-  await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-made", {
-    pick: {
-      ...insertedPick!,
-      rider: {
-        name: rider.name,
-        team: rider.team,
-        specialty: rider.specialty,
-        nationality: rider.nationality,
-      },
-    },
-    nextTeamId,
-    nextPickIndex,
-    timerExpiresAt: nextTimerExpiresAt,
-    status: nextStatus,
-    wasAutomatic: true,
-  })
-
-  if (isComplete) {
-    await pusherServer.trigger(`presence-draft-${leagueId}`, "draft-complete", {
-      leagueId,
-    })
+  // After transaction: schedule next auto-pick if not complete (non-fatal)
+  if (!isComplete) {
+    await scheduleAutoPick(leagueId, nextPickIndex)
   }
 
   return NextResponse.json({

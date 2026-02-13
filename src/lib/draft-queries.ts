@@ -4,7 +4,7 @@ import { teams, leagues } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { user } from "@/db/schema/users"
 import { eq, notInArray, ilike, asc, and } from "drizzle-orm"
-import { getTeamIndexForPick } from "@/lib/draft-snake-order"
+import { getTeamIndexForPick, computeNextDraftState } from "@/lib/draft-snake-order"
 
 /**
  * Returns available (unpicked) riders for a given league and gender.
@@ -222,47 +222,5 @@ export async function getDraftStateEnriched(leagueId: number) {
   return { session, picks, teams: leagueTeams }
 }
 
-/**
- * Computes the next draft state after a pick at currentPickIndex.
- *
- * Men play menRounds rounds, women play womenRounds rounds.
- * Each gender uses an independent snake order.
- */
-export function computeNextDraftState(
-  currentPickIndex: number,
-  teamCount: number,
-  menRounds: number,
-  womenRounds: number
-) {
-  const nextPickIndex = currentPickIndex + 1
-  const menTotalPicks = teamCount * menRounds
-  const totalPicks = teamCount * (menRounds + womenRounds)
-
-  const isComplete = nextPickIndex >= totalPicks
-  const isMenComplete = nextPickIndex >= menTotalPicks
-
-  const nextGender: 'M' | 'F' = isMenComplete ? 'F' : 'M'
-
-  let nextRound: number
-  let nextTeamIndex: number
-
-  if (!isMenComplete) {
-    // Still in men's draft
-    nextRound = Math.floor(nextPickIndex / teamCount)
-    nextTeamIndex = getTeamIndexForPick(nextPickIndex, teamCount)
-  } else {
-    // In women's draft — snake order resets independently
-    const womenPickIndex = nextPickIndex - menTotalPicks
-    nextRound = menRounds + Math.floor(womenPickIndex / teamCount)
-    nextTeamIndex = getTeamIndexForPick(womenPickIndex, teamCount)
-  }
-
-  return {
-    nextPickIndex,
-    nextRound,
-    nextGender,
-    nextTeamIndex,
-    isComplete,
-    isMenComplete,
-  }
-}
+// computeNextDraftState is re-exported from draft-snake-order.ts (client-safe)
+export { computeNextDraftState } from "@/lib/draft-snake-order"

@@ -98,6 +98,33 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Draft Link — show when league is in drafting status or has draft session */}
+      {(league.status === "drafting" || league.status === "active") && (
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-gray-900">
+                  {league.status === "drafting" ? "Draft is ready!" : "Draft completed"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {league.status === "drafting"
+                    ? "Join the draft room to pick your riders"
+                    : "View your draft picks and team roster"
+                  }
+                </p>
+              </div>
+              <Link
+                href={`/leagues/${league.id}/draft`}
+                className="px-4 py-2 rounded-md bg-yellow-500 text-white text-sm font-medium hover:bg-yellow-600 transition-colors"
+              >
+                {league.status === "drafting" ? "Go to Draft" : "View Draft"}
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Invite Link — owner only */}
       {isOwner && (
         <Card>

@@ -10,6 +10,7 @@ import { DraftRecap } from "./draft-recap"
 import { toast } from "sonner"
 import useSound from "use-sound"
 import Link from "next/link"
+import { computeNextDraftState } from "@/lib/draft-snake-order"
 
 // Types mirroring DB schema
 type DraftSession = {
@@ -304,7 +305,7 @@ export function DraftRoom({
     }
   }, [])
 
-  // Handle pick
+  // Handle pick with optimistic updates
   const handlePick = useCallback(
     async (riderId: number) => {
       setIsPickPending(true)
@@ -312,6 +313,42 @@ export function DraftRoom({
         const result = await makePick(leagueId, riderId)
         if (!result.success) {
           toast.error(result.error ?? "Failed to make pick")
+        } else {
+          // Optimistic update: compute next state immediately
+          // so timer/turn updates without waiting for Pusher event
+          const teamCount = teams.length
+          const next = computeNextDraftState(currentPickIndex, teamCount, 18, 6)
+          const nextTeamId = next.isComplete ? null : teams[next.nextTeamIndex]?.id ?? null
+
+          setCurrentPickIndex(next.nextPickIndex)
+          setCurrentTurn(nextTeamId)
+          setTimerExpiresAt(next.isComplete ? null : new Date(Date.now() + 60_000))
+          if (next.isMenComplete) setCurrentGender("F")
+          if (next.isComplete) setDraftStatus("complete")
+
+          // Remove picked rider from available list
+          const rider = (currentGender === "M" ? availableMenState : availableWomenState).find(r => r.id === riderId)
+          if (rider) {
+            if (currentGender === "M") {
+              setAvailableMenState(prev => prev.filter(r => r.id !== riderId))
+            } else {
+              setAvailableWomenState(prev => prev.filter(r => r.id !== riderId))
+            }
+            pickedRiderMapRef.current.set(riderId, { id: riderId, name: rider.name, team: rider.team })
+          }
+
+          // Add to picks list optimistically
+          if (result.pick) {
+            setPicks(prev => {
+              if (prev.some(p => p.pickNumber === currentPickIndex)) return prev
+              return [...prev, {
+                ...result.pick,
+                rider: rider ? { name: rider.name, team: rider.team, specialty: rider.specialty, nationality: rider.nationality } : null,
+              }]
+            })
+          }
+
+          lastPickIndexRef.current = next.nextPickIndex
         }
       } catch {
         toast.error("An unexpected error occurred")
@@ -319,7 +356,7 @@ export function DraftRoom({
         setIsPickPending(false)
       }
     },
-    [leagueId]
+    [leagueId, teams, currentPickIndex, currentGender, availableMenState, availableWomenState]
   )
 
   // Status banner text (only called when draftStatus !== "complete")

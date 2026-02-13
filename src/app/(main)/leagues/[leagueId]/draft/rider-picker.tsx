@@ -144,8 +144,13 @@ export function RiderPicker({
         </p>
 
         {/* Rider list */}
-        <div className="max-h-96 overflow-y-auto space-y-1 pr-1">
-          {filteredRiders.length === 0 ? (
+        <div className="max-h-[60vh] overflow-y-auto space-y-1 pr-1">
+          {availableRiders.length === 0 ? (
+            <div className="text-sm text-gray-500 text-center py-6 space-y-2">
+              <p className="font-medium">No riders in the database</p>
+              <p className="text-xs">An admin needs to import riders via the <a href="/admin/riders" className="text-blue-600 hover:underline">Admin Riders</a> page before the draft can work.</p>
+            </div>
+          ) : filteredRiders.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-6">No riders match your filters.</p>
           ) : (
             filteredRiders.map((rider) => (

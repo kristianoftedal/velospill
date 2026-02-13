@@ -74,3 +74,44 @@ export function buildDraftOrder(
 export function getTotalPicks(teamCount: number, menRounds: number, womenRounds: number): number {
   return teamCount * (menRounds + womenRounds)
 }
+
+/**
+ * Computes the next draft state after a pick at currentPickIndex.
+ * Pure math — safe for client-side use.
+ */
+export function computeNextDraftState(
+  currentPickIndex: number,
+  teamCount: number,
+  menRounds: number,
+  womenRounds: number
+) {
+  const nextPickIndex = currentPickIndex + 1
+  const menTotalPicks = teamCount * menRounds
+  const totalPicks = teamCount * (menRounds + womenRounds)
+
+  const isComplete = nextPickIndex >= totalPicks
+  const isMenComplete = nextPickIndex >= menTotalPicks
+
+  const nextGender: 'M' | 'F' = isMenComplete ? 'F' : 'M'
+
+  let nextRound: number
+  let nextTeamIndex: number
+
+  if (!isMenComplete) {
+    nextRound = Math.floor(nextPickIndex / teamCount)
+    nextTeamIndex = getTeamIndexForPick(nextPickIndex, teamCount)
+  } else {
+    const womenPickIndex = nextPickIndex - menTotalPicks
+    nextRound = menRounds + Math.floor(womenPickIndex / teamCount)
+    nextTeamIndex = getTeamIndexForPick(womenPickIndex, teamCount)
+  }
+
+  return {
+    nextPickIndex,
+    nextRound,
+    nextGender,
+    nextTeamIndex,
+    isComplete,
+    isMenComplete,
+  }
+}

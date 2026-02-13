@@ -2,10 +2,12 @@
 
 import { db } from "@/lib/db"
 import { leagues, teams } from "@/db/schema/leagues"
+import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { eq } from "drizzle-orm"
 import { generateInviteCode } from "@/lib/invite-codes"
 import { addDays } from "date-fns"
 
@@ -22,6 +24,10 @@ const createLeagueSchema = z.object({
     .string()
     .min(2, "League name must be at least 2 characters")
     .max(100, "League name must be at most 100 characters"),
+  teamName: z
+    .string()
+    .min(2, "Team name must be at least 2 characters")
+    .max(50, "Team name must be at most 50 characters"),
   seasonYear: z
     .number()
     .int()
@@ -33,6 +39,7 @@ const createLeagueSchema = z.object({
 
 export async function createLeague(formData: {
   name: string
+  teamName: string
   seasonYear: number
   draftDate?: string
 }) {
@@ -66,6 +73,19 @@ export async function createLeague(formData: {
         },
       })
       .returning()
+
+    // Add creator as the first team member
+    await db.insert(teams).values({
+      leagueId: league.id,
+      userId: session.user.id,
+      name: result.data.teamName,
+    })
+
+    // Promote league creator to admin so they can manage riders/races
+    await db
+      .update(user)
+      .set({ role: "admin" })
+      .where(eq(user.id, session.user.id))
 
     revalidatePath("/leagues")
     return {

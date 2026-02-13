@@ -1,4 +1,7 @@
 import { auth } from "@/lib/auth"
+import { db } from "@/lib/db"
+import { user } from "@/db/schema/users"
+import { eq } from "drizzle-orm"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import Link from "next/link"
@@ -14,8 +17,14 @@ export default async function AdminLayout({
     redirect("/login")
   }
 
-  // Check admin role from database user record
-  if ((session.user as any).role !== "admin") {
+  // Read role from DB to avoid stale cookie cache
+  const [dbUser] = await db
+    .select({ role: user.role })
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1)
+
+  if (!dbUser || dbUser.role !== "admin") {
     redirect("/home")
   }
 

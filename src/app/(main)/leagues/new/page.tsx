@@ -22,6 +22,10 @@ const schema = z.object({
     .string()
     .min(2, "League name must be at least 2 characters")
     .max(100, "League name must be at most 100 characters"),
+  teamName: z
+    .string()
+    .min(2, "Team name must be at least 2 characters")
+    .max(50, "Team name must be at most 50 characters"),
   seasonYear: z
     .number()
     .int()
@@ -169,6 +173,21 @@ export default function CreateLeaguePage() {
               />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="teamName" className="text-gray-700">
+                Your Team Name <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="teamName"
+                placeholder="e.g. Team Jumbo"
+                className="border-gray-200 text-gray-900 placeholder:text-gray-400"
+                {...register("teamName")}
+              />
+              {errors.teamName && (
+                <p className="text-sm text-red-600">{errors.teamName.message}</p>
               )}
             </div>
 

@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { races } from "@/db/schema/races"
 import { riders } from "@/db/schema/riders"
 import { raceResults, resultAudit } from "@/db/schema/results"
+import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
@@ -15,7 +16,15 @@ import { and, lte, or, gt } from "drizzle-orm"
 
 async function checkAdminAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session || (session.user as any).role !== "admin") {
+  if (!session) {
+    throw new Error("Unauthorized")
+  }
+  const [dbUser] = await db
+    .select({ role: user.role })
+    .from(user)
+    .where(eq(user.id, session.user.id))
+    .limit(1)
+  if (!dbUser || dbUser.role !== "admin") {
     throw new Error("Unauthorized")
   }
   return session

@@ -143,9 +143,17 @@ async function handler(request: NextRequest) {
     await scheduleAutoPick(leagueId, nextPickIndex)
   }
 
-  // After transaction: trigger Pusher events
+  // After transaction: trigger Pusher events (include rider info for client recap)
   await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-made", {
-    pick: insertedPick!,
+    pick: {
+      ...insertedPick!,
+      rider: {
+        name: rider.name,
+        team: rider.team,
+        specialty: rider.specialty,
+        nationality: rider.nationality,
+      },
+    },
     nextTeamId,
     nextPickIndex,
     timerExpiresAt: nextTimerExpiresAt,

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { checkLeagueMembership, checkLeagueOwnership } from "@/lib/league-auth"
-import { getDraftState, getAvailableRiders } from "@/lib/draft-queries"
+import { getDraftState, getAvailableRiders, getEnrichedPicks, getEnrichedTeams } from "@/lib/draft-queries"
 import { db } from "@/lib/db"
 import { leagues, teams } from "@/db/schema/leagues"
 import { eq, asc } from "drizzle-orm"
@@ -49,18 +49,18 @@ export default async function DraftPage({ params }: PageProps) {
     redirect("/leagues")
   }
 
-  // Load all teams
-  const leagueTeams = await db
-    .select()
-    .from(teams)
-    .where(eq(teams.leagueId, leagueId))
-    .orderBy(asc(teams.createdAt))
-
   // Load draft state
   const draftState = await getDraftState(leagueId)
 
   // If no draft session or status is pending, show waiting room
   if (!draftState || draftState.session.status === "pending") {
+    // Load all teams (basic, no enrichment needed for waiting room)
+    const leagueTeams = await db
+      .select()
+      .from(teams)
+      .where(eq(teams.leagueId, leagueId))
+      .orderBy(asc(teams.createdAt))
+
     return (
       <div className="container mx-auto max-w-3xl px-4 py-12">
         {/* Breadcrumb */}
@@ -116,18 +116,21 @@ export default async function DraftPage({ params }: PageProps) {
     )
   }
 
-  // Draft session exists — load available riders for the current gender
-  const currentGender = draftState.session.currentGender ?? "M"
-  const availableMen = await getAvailableRiders(leagueId, "M")
-  const availableWomen = await getAvailableRiders(leagueId, "F")
+  // Draft session exists — load enriched picks, enriched teams, and available riders
+  const [enrichedPicks, enrichedTeams, availableMen, availableWomen] = await Promise.all([
+    getEnrichedPicks(leagueId),
+    getEnrichedTeams(leagueId),
+    getAvailableRiders(leagueId, "M"),
+    getAvailableRiders(leagueId, "F"),
+  ])
 
   return (
     <DraftRoom
       leagueId={leagueId}
       leagueName={league.name}
       initialSession={draftState.session}
-      initialPicks={draftState.picks}
-      teams={draftState.teams}
+      initialPicks={enrichedPicks}
+      teams={enrichedTeams}
       availableMen={availableMen}
       availableWomen={availableWomen}
       currentUserId={session.user.id}

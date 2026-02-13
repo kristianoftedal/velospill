@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import { pusherClient } from "@/lib/pusher-client"
-import { makePick } from "./actions"
+import { makePick, refreshDraftState } from "./actions"
 import { DraftBoard } from "./draft-board"
 import { RiderPicker } from "./rider-picker"
 import { DraftTimer } from "./timer"
+import { DraftRecap } from "./draft-recap"
 import { toast } from "sonner"
 import useSound from "use-sound"
 import Link from "next/link"
@@ -23,6 +24,13 @@ type DraftSession = {
   completedAt: Date | string | null
 }
 
+type RiderInfo = {
+  name: string
+  team: string
+  specialty: string
+  nationality: string
+}
+
 type DraftPick = {
   id: number
   leagueId: number
@@ -33,6 +41,7 @@ type DraftPick = {
   gender: "M" | "F"
   wasAutomatic: boolean
   pickedAt: Date | string
+  rider?: RiderInfo | null
 }
 
 type Rider = {
@@ -52,6 +61,7 @@ type Team = {
   leagueId: number
   userId: string
   createdAt: Date | string
+  userName?: string
 }
 
 interface DraftRoomProps {
@@ -77,7 +87,7 @@ interface DraftStartedPayload {
 }
 
 interface PickMadePayload {
-  pick: DraftPick
+  pick: DraftPick & { rider?: RiderInfo | null }
   nextTeamId: number | null
   nextPickIndex: number
   timerExpiresAt: string | null
@@ -115,6 +125,7 @@ export function DraftRoom({
   const [isPickPending, setIsPickPending] = useState(false)
   const [showYourTurn, setShowYourTurn] = useState(false)
   const yourTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastPickIndexRef = useRef<number>(initialSession.currentPickIndex)
 
   // Sound (user must place /public/sounds/your-turn.mp3)
   const [playYourTurn] = useSound("/sounds/your-turn.mp3", { volume: 0.5 })
@@ -122,18 +133,14 @@ export function DraftRoom({
   // Build riderMap from all available riders for DraftBoard display
   const allRiders = [...availableMenState, ...availableWomenState]
   // Also include riders from already-made picks (they won't be in available lists)
-  // We track them in a ref to build the full rider map
   const pickedRiderMapRef = useRef<Map<number, { id: number; name: string; team: string }>>(
-    new Map()
+    // Pre-seed from initial enriched picks
+    new Map(
+      initialPicks
+        .filter((p) => p.rider)
+        .map((p) => [p.riderId, { id: p.riderId, name: p.rider!.name, team: p.rider!.team }])
+    )
   )
-
-  // Seed the picked rider map from picks that already exist at load time
-  useEffect(() => {
-    // We don't have the full rider info for already-picked riders here,
-    // so riderMap will show what we have from available lists
-    // The picks already made won't be in available lists, so riderMap is built from
-    // what we receive from Pusher events
-  }, [])
 
   // Build riderMap: id -> { id, name, team }
   const riderMap = new Map<number, { id: number; name: string; team: string }>()
@@ -166,6 +173,41 @@ export function DraftRoom({
     yourTurnTimerRef.current = setTimeout(() => setShowYourTurn(false), 8000)
   }, [playYourTurn])
 
+  // Reconnection handler: re-sync state from server if picks diverged
+  const reconnectAndSync = useCallback(async () => {
+    try {
+      const result = await refreshDraftState(leagueId)
+      if (!result.success) return
+
+      // Reconcile state
+      const newSession = result.session
+      const newStatus =
+        newSession.status === "paused" ? ("pending" as const) : newSession.status
+      setPicks(result.picks)
+      setDraftStatus(newStatus)
+      setCurrentPickIndex(newSession.currentPickIndex)
+      setCurrentTurn(newSession.currentTeamId)
+      setCurrentGender(newSession.currentGender ?? "M")
+      setTimerExpiresAt(newSession.timerExpiresAt ? new Date(newSession.timerExpiresAt) : null)
+      setAvailableMenState(result.availableMen)
+      setAvailableWomenState(result.availableWomen)
+      lastPickIndexRef.current = newSession.currentPickIndex
+
+      // Re-seed picked rider map from fresh enriched picks
+      for (const pick of result.picks) {
+        if (pick.rider) {
+          pickedRiderMapRef.current.set(pick.riderId, {
+            id: pick.riderId,
+            name: pick.rider.name,
+            team: pick.rider.team,
+          })
+        }
+      }
+    } catch {
+      // Reconnect failed — will retry on next reconnect event
+    }
+  }, [leagueId])
+
   // Pusher subscription
   useEffect(() => {
     const channel = pusherClient.subscribe(`presence-draft-${leagueId}`)
@@ -176,6 +218,7 @@ export function DraftRoom({
       setCurrentPickIndex(data.currentPickIndex)
       setTimerExpiresAt(new Date(data.timerExpiresAt))
       setCurrentGender("M")
+      lastPickIndexRef.current = data.currentPickIndex
 
       if (data.currentTeamId === currentTeamId) {
         triggerYourTurnNotification()
@@ -185,9 +228,17 @@ export function DraftRoom({
     channel.bind("pick-made", (data: PickMadePayload) => {
       const { pick, nextTeamId, nextPickIndex, timerExpiresAt: nextTimer, status } = data
 
-      // Add the pick to our list
+      // Cache rider info for board display
+      if (pick.rider) {
+        pickedRiderMapRef.current.set(pick.riderId, {
+          id: pick.riderId,
+          name: pick.rider.name,
+          team: pick.rider.team,
+        })
+      }
+
+      // Add the pick to our list (avoid duplicates)
       setPicks((prev) => {
-        // Avoid duplicates
         if (prev.some((p) => p.id === pick.id)) return prev
         return [...prev, pick]
       })
@@ -203,6 +254,7 @@ export function DraftRoom({
       setCurrentTurn(nextTeamId)
       setCurrentPickIndex(nextPickIndex)
       setTimerExpiresAt(nextTimer ? new Date(nextTimer) : null)
+      lastPickIndexRef.current = nextPickIndex
 
       // Update gender if transitioning from men to women
       if (status === "women") {
@@ -218,7 +270,6 @@ export function DraftRoom({
       // Show who picked
       const pickerTeam = teams.find((t) => t.id === pick.teamId)
       if (pickerTeam && pick.teamId !== currentTeamId) {
-        // Another team made a pick
         toast(`${pickerTeam.name} made a pick${pick.wasAutomatic ? " (auto)" : ""}`)
       }
     })
@@ -228,13 +279,23 @@ export function DraftRoom({
       setCurrentTurn(null)
       setTimerExpiresAt(null)
       toast.success("Draft complete! All picks have been made.")
+      // Sync full state to ensure recap has all enriched picks
+      void reconnectAndSync()
     })
+
+    // Reconnect on Pusher connection restored
+    const pusherConnection = pusherClient.connection
+    const handleReconnected = () => {
+      void reconnectAndSync()
+    }
+    pusherConnection.bind("connected", handleReconnected)
 
     return () => {
       channel.unbind_all()
       pusherClient.unsubscribe(`presence-draft-${leagueId}`)
+      pusherConnection.unbind("connected", handleReconnected)
     }
-  }, [leagueId, currentTeamId, teams, triggerYourTurnNotification])
+  }, [leagueId, currentTeamId, teams, triggerYourTurnNotification, reconnectAndSync])
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -261,10 +322,9 @@ export function DraftRoom({
     [leagueId]
   )
 
-  // Status banner text
+  // Status banner text (only called when draftStatus !== "complete")
   const statusLabel = () => {
     if (draftStatus === "pending") return "Draft Pending"
-    if (draftStatus === "complete") return "Draft Complete"
     if (draftStatus === "men") {
       const round = Math.floor(currentPickIndex / teams.length) + 1
       return `Men's Draft — Round ${round} of 18`
@@ -279,6 +339,27 @@ export function DraftRoom({
   }
 
   const availableRiders = currentGender === "M" ? availableMenState : availableWomenState
+
+  // When draft is complete, show the recap
+  if (draftStatus === "complete") {
+    const recapTeams = teams.map((t) => ({
+      id: t.id,
+      name: t.name,
+      userName: t.userName ?? t.userId,
+    }))
+    const recapPicks = picks.map((p) => ({
+      id: p.id,
+      teamId: p.teamId,
+      riderId: p.riderId,
+      pickNumber: p.pickNumber,
+      round: p.round,
+      gender: p.gender,
+      wasAutomatic: p.wasAutomatic,
+      rider: p.rider ?? null,
+    }))
+
+    return <DraftRecap teams={recapTeams} picks={recapPicks} leagueId={leagueId} />
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -307,7 +388,7 @@ export function DraftRoom({
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">{statusLabel()}</h2>
-            {draftStatus !== "complete" && draftStatus !== "pending" && currentDrafterTeam && (
+            {draftStatus !== "pending" && currentDrafterTeam && (
               <p className="text-sm text-gray-500 mt-1">
                 Now picking:{" "}
                 <span className="font-medium text-gray-800">{currentDrafterTeam.name}</span>
@@ -315,9 +396,6 @@ export function DraftRoom({
                   <span className="ml-2 text-green-600 font-semibold">(You!)</span>
                 )}
               </p>
-            )}
-            {draftStatus === "complete" && (
-              <p className="text-sm text-green-600 mt-1">All picks have been made.</p>
             )}
           </div>
 
@@ -342,7 +420,7 @@ export function DraftRoom({
 
           {/* Rider Picker — right/bottom */}
           <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
-            {draftStatus !== "complete" && draftStatus !== "pending" && (
+            {draftStatus !== "pending" && (
               <RiderPicker
                 availableRiders={availableRiders}
                 isMyTurn={isMyTurn}
@@ -351,17 +429,6 @@ export function DraftRoom({
                 currentGender={currentGender}
                 currentDrafterName={currentDrafterTeam?.name}
               />
-            )}
-            {draftStatus === "complete" && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-                <p className="text-gray-500 text-sm">Draft is complete.</p>
-                <Link
-                  href={`/leagues/${leagueId}`}
-                  className="mt-4 inline-block text-blue-600 hover:underline text-sm"
-                >
-                  View League
-                </Link>
-              </div>
             )}
           </div>
         </div>

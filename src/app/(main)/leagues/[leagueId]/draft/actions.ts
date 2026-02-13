@@ -11,7 +11,7 @@ import { eq, and, asc } from "drizzle-orm"
 import { checkLeagueOwnership, checkLeagueMembership } from "@/lib/league-auth"
 import { pusherServer } from "@/lib/pusher-server"
 import { buildDraftOrder, getTeamIndexForPick } from "@/lib/draft-snake-order"
-import { computeNextDraftState, getAvailableRiders } from "@/lib/draft-queries"
+import { computeNextDraftState, getAvailableRiders, getDraftStateEnriched } from "@/lib/draft-queries"
 import { Client } from "@upstash/qstash"
 
 const MEN_ROUNDS = 18
@@ -243,9 +243,17 @@ export async function makePick(leagueId: number, riderId: number) {
     await scheduleAutoPick(leagueId, nextPickIndex)
   }
 
-  // After transaction: trigger Pusher pick-made event
+  // After transaction: trigger Pusher pick-made event (include rider info for client recap)
   await pusherServer.trigger(`presence-draft-${leagueId}`, "pick-made", {
-    pick: insertedPick!,
+    pick: {
+      ...insertedPick!,
+      rider: {
+        name: rider.name,
+        team: rider.team,
+        specialty: rider.specialty,
+        nationality: rider.nationality,
+      },
+    },
     nextTeamId,
     nextPickIndex,
     timerExpiresAt: nextTimerExpiresAt,
@@ -262,4 +270,37 @@ export async function makePick(leagueId: number, riderId: number) {
   revalidatePath(`/leagues/${leagueId}/draft`)
 
   return { success: true, pick: insertedPick! }
+}
+
+/**
+ * Returns the full enriched draft state for reconnecting clients.
+ * Validates that the calling user is a league member before returning data.
+ */
+export async function refreshDraftState(leagueId: number) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) {
+    return { success: false as const, error: "Unauthorized" }
+  }
+
+  const { isMember } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember) {
+    return { success: false as const, error: "Not a member of this league" }
+  }
+
+  const state = await getDraftStateEnriched(leagueId)
+  if (!state) {
+    return { success: false as const, error: "No draft session found" }
+  }
+
+  const availableMen = await getAvailableRiders(leagueId, "M")
+  const availableWomen = await getAvailableRiders(leagueId, "F")
+
+  return {
+    success: true as const,
+    session: state.session,
+    picks: state.picks,
+    teams: state.teams,
+    availableMen,
+    availableWomen,
+  }
 }

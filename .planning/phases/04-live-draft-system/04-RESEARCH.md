@@ -10,45 +10,44 @@ Phase 4 implements a real-time snake draft for a cycling fantasy league. The two
 
 The core constraint is that **Next.js deployed on Vercel Hobby cannot use native WebSocket servers** — serverless functions are stateless and cannot hold connections. The answer is a managed real-time service: **Pusher Channels** is the recommended choice. Pusher's free tier (200k messages/day, 100 concurrent connections) comfortably covers draft activity (a 24-round draft for 10 teams = 240 picks maximum, with each pick generating ~10 broadcast events = ~2,400 Pusher messages per full draft). Server Actions trigger Pusher events server-side; clients subscribe via pusher-js.
 
-The second hard problem is timer auto-pick. Vercel Hobby cron jobs run **at most once per day** — completely infeasible for 60-second pick timers. The solution is **Upstash QStash**: when a pick turn begins, the server publishes a delayed QStash message (e.g., 65 seconds delay) pointing to an `/api/draft/auto-pick` endpoint. If the drafter picks before timeout, the pick action marks that timer as canceled in the database; the QStash callback checks `pick_expires_at` and no-ops if the slot is already filled. QStash free tier (1,000 messages/day) is adequate.
+The second hard problem is timer auto-pick. Vercel Hobby cron jobs run **at most once per day** — completely infeasible for 60-second pick timers. The solution is **Upstash QStash**: when a pick turn begins, the server publishes a delayed QStash message (e.g., 65 seconds delay) pointing to an `/api/draft/auto-pick` endpoint. If the drafter picks before timeout, the pick action marks that timer as canceled in the database; the QStash callback checks `timerExpiresAt` and no-ops if the slot is already filled. QStash free tier (1,000 messages/day) is adequate.
 
-Draft state must live entirely in PostgreSQL (Drizzle). The `draft_picks` table stores every pick; `draft_sessions` tracks the current session state (current round, current pick index, status). All state is authoritative from the DB, so reconnecting clients can hydrate via a single REST fetch, then subscribe to Pusher for deltas.
+Draft state must live entirely in PostgreSQL (Drizzle). The `draftPicks` table stores every pick; `draftSessions` tracks the current session state (current round, current pick index, status). All state is authoritative from the DB, so reconnecting clients can hydrate via a single fetch, then subscribe to Pusher for deltas.
 
-**Primary recommendation:** Use Pusher Channels (managed WebSocket), QStash (delayed auto-pick timer), Drizzle for draft state persistence, and store the timer `expires_at` timestamp server-side for drift-free countdown display on all clients.
+**Primary recommendation:** Use Pusher Channels (managed WebSocket), QStash (delayed auto-pick timer), Drizzle for draft state persistence, and store the timer `timerExpiresAt` timestamp server-side for drift-free countdown display on all clients.
 
 ## Standard Stack
 
 ### Core
 | Library | Version | Purpose | Why Standard |
 |---------|---------|---------|--------------|
-| pusher | ^5.2.0 | Server-side event trigger | Official Pusher server SDK, `trigger()` from Server Actions |
-| pusher-js | ^8.4.0 | Client WebSocket connection | Official Pusher client SDK, works in browser |
-| @upstash/qstash | ^2.7.0 | Delayed auto-pick job | Serverless message queue, 1000 msg/day free, delays up to 90 days |
+| pusher | 5.3.2 | Server-side event trigger | Official Pusher server SDK, `trigger()` from Server Actions |
+| pusher-js | 8.4.0 | Client WebSocket connection | Official Pusher client SDK, TypeScript types since v5.1.0 |
+| @upstash/qstash | 2.9.0 | Delayed auto-pick job | Serverless message queue, 1,000 msg/day free, delays up to 90 days |
 | next | 16.1.6 | Framework (already installed) | Route handlers for Pusher auth endpoint + QStash callback |
-| drizzle-orm | ^0.45.1 | Draft state persistence (already installed) | Existing ORM, transactional picks |
+| drizzle-orm | 0.45.1 | Draft state persistence (already installed) | Existing ORM, transactional picks |
 
 ### Supporting
 | Library | Version | Purpose | When to Use |
 |---------|---------|---------|-------------|
-| use-sound | ^4.0.1 | "Your turn" audio notification | Client-side sound using Howler.js, place audio in /public |
-| @types/howler | ^2.2.11 | TypeScript types for Howler | Required when using use-sound with TypeScript |
-| date-fns | ^4.1.0 | Timer display calculations (already installed) | `differenceInSeconds` for countdown display |
+| use-sound | 5.0.0 | "Your turn" audio notification | Client-side sound using Howler.js. Place audio in /public. Only import in "use client" components. |
+| date-fns | 4.1.0 | Timer display calculations (already installed) | `differenceInSeconds` for countdown display |
+| Web Audio API | (browser built-in) | Alternative: generate beep sound without audio file | Use OscillatorNode if no audio file is available. Needs user-gesture unlock on iOS Safari. |
 
 ### Alternatives Considered
 | Instead of | Could Use | Tradeoff |
 |------------|-----------|----------|
 | Pusher Channels | Ably Realtime | Ably has more features (message history, presence) but higher API surface. Pusher simpler DX for pub/sub; free tier sufficient for draft use case |
-| Pusher Channels | PartyKit | PartyKit runs on Cloudflare Durable Objects, excellent for stateful rooms but requires separate deployment and more complex setup |
+| Pusher Channels | PartyKit | Runs on Cloudflare Durable Objects, excellent for stateful rooms but requires separate deployment and more complex setup |
 | Pusher Channels | native WebSocket server | Requires custom server (incompatible with Vercel serverless), can use with fly.io/Railway but adds infra |
 | QStash | Vercel Cron | Vercel Hobby cron = once per day, completely unusable for 60s timers |
-| QStash | Client-side timer only | Client timer is unreliable: tab close, network drop, browser freeze all cause missed auto-picks |
+| QStash | Client-side timer only | Client timer unreliable: tab close, network drop, browser freeze all cause missed auto-picks. Cannot rely solely on client. |
 | QStash | setInterval in route handler | Serverless functions are stateless, can't hold long-running timers across requests |
 | DB-persisted state | In-memory draft state | In-memory state lost on any function cold start or redeploy; DB is the only reliable source of truth |
 
 **Installation:**
 ```bash
 npm install pusher pusher-js @upstash/qstash use-sound
-npm install --save-dev @types/howler
 ```
 
 ## Architecture Patterns
@@ -69,13 +68,13 @@ src/
 │   │               └── actions.ts            # makePick, startDraft server actions
 │   └── api/
 │       ├── pusher-auth/
-│       │   └── route.ts                      # Presence channel auth endpoint
+│       │   └── route.ts                      # Presence channel auth endpoint (REQUIRED)
 │       └── draft/
 │           └── auto-pick/
 │               └── route.ts                  # QStash callback: auto-pick on timer expiry
 ├── db/
 │   └── schema/
-│       └── draft.ts                          # draft_sessions, draft_picks tables
+│       └── draft.ts                          # draftSessions, draftPicks tables
 └── lib/
     ├── pusher-server.ts                       # PusherServer singleton
     ├── pusher-client.ts                       # PusherClient singleton (browser only)
@@ -87,7 +86,7 @@ src/
 **When to use:** Every file that needs to trigger (server) or subscribe (client) to events
 **Example:**
 ```typescript
-// Source: Pusher Channels Docs + https://www.obytes.com/blog/pusher-nextjs
+// Source: Pusher Channels Docs https://pusher.com/docs/channels/server_api/overview/
 // src/lib/pusher-server.ts
 import Pusher from 'pusher'
 
@@ -100,8 +99,10 @@ export const pusherServer = new Pusher({
 })
 
 // src/lib/pusher-client.ts  (only imported in "use client" components)
+// Source: https://github.com/pusher/pusher-js/blob/master/README.md
 import PusherClient from 'pusher-js'
 
+// Create ONCE outside React component tree — do not create inside useEffect or component render
 export const pusherClient = new PusherClient(
   process.env.NEXT_PUBLIC_PUSHER_KEY!,
   {
@@ -125,19 +126,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { pusherServer } from '@/lib/pusher-server'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { checkLeagueMembership } from '@/lib/league-auth'
 
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
 
+  // CRITICAL: Pusher sends body as application/x-www-form-urlencoded, not JSON
+  // Use req.text() + URLSearchParams (or req.formData()) — NOT req.json()
   const data = await req.text()
   const params = new URLSearchParams(data)
   const socketId = params.get('socket_id')!
   const channelName = params.get('channel_name')!
 
+  // Extract leagueId from channel name: "presence-draft-{leagueId}"
+  const leagueId = parseInt(channelName.replace('presence-draft-', ''))
+  const { isMember } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const presenceData = {
     user_id: session.user.id,
-    user_info: { name: session.user.name, teamId: '' } // populate from DB
+    user_info: { name: session.user.name }
   }
 
   const authResponse = pusherServer.authorizeChannel(socketId, channelName, presenceData)
@@ -157,12 +166,12 @@ export async function POST(req: NextRequest) {
 import { db } from '@/lib/db'
 import { draftPicks, draftSessions } from '@/db/schema/draft'
 import { pusherServer } from '@/lib/pusher-server'
-import { Client } from '@upstash/qstash'
+import { Client as QStashClient } from '@upstash/qstash'
 
-const qstash = new Client({ token: process.env.QSTASH_TOKEN! })
+const qstash = new QStashClient({ token: process.env.QSTASH_TOKEN! })
 
 export async function makePick(leagueId: number, riderId: number) {
-  const session = await checkAuth()
+  const session = await getAuthenticatedUser()
 
   // 1. Validate: it's this user's turn, rider is available, draft is active
   // ... validation queries ...
@@ -191,14 +200,14 @@ export async function makePick(leagueId: number, riderId: number) {
     return inserted
   })
 
-  // 4. Schedule auto-pick via QStash (65s delay = 60s pick window + 5s buffer)
+  // 4. Schedule auto-pick via QStash AFTER transaction commits (65s = 60s window + 5s buffer)
   await qstash.publishJSON({
     url: `${process.env.NEXT_PUBLIC_APP_URL}/api/draft/auto-pick`,
     delay: 65,
     body: { leagueId, expectedPickIndex: nextPickIndex },
   })
 
-  // 5. Broadcast to all clients via Pusher
+  // 5. Broadcast to all clients via Pusher AFTER transaction commits
   await pusherServer.trigger(`presence-draft-${leagueId}`, 'pick-made', {
     pick,
     nextTeamId,
@@ -206,7 +215,6 @@ export async function makePick(leagueId: number, riderId: number) {
     timerExpiresAt: new Date(Date.now() + 60_000).toISOString(),
   })
 
-  revalidatePath(`/leagues/${leagueId}/draft`)
   return { success: true, pick }
 }
 ```
@@ -223,6 +231,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { draftSessions, draftPicks } from '@/db/schema/draft'
 import { pusherServer } from '@/lib/pusher-server'
+import { eq } from 'drizzle-orm'
 
 async function handler(req: NextRequest) {
   const body = await req.json()
@@ -243,11 +252,30 @@ async function handler(req: NextRequest) {
     return NextResponse.json({ tooEarly: true })
   }
 
-  // Auto-pick: select best available rider (highest ranking / first in list)
+  // Auto-pick: select first available rider by name (alphabetical)
   const bestRider = await getBestAvailableRider(leagueId, session.currentGender)
+  if (!bestRider) {
+    // No riders left — this shouldn't happen; log and skip
+    return NextResponse.json({ error: 'No available riders' }, { status: 500 })
+  }
 
-  // Insert pick and advance state (same as makePick but automated)
-  // ... identical transaction logic ...
+  // Insert pick and advance state (same transaction as makePick)
+  await db.transaction(async (tx) => {
+    await tx.insert(draftPicks).values({
+      leagueId,
+      teamId: session.currentTeamId,
+      riderId: bestRider.id,
+      round: session.currentRound,
+      pickNumber: expectedPickIndex,
+      gender: session.currentGender,
+      wasAutomatic: true,
+    })
+    await tx.update(draftSessions).set({
+      currentPickIndex: expectedPickIndex + 1,
+      currentTeamId: nextTeamId,
+      timerExpiresAt: new Date(Date.now() + 60_000),
+    }).where(eq(draftSessions.leagueId, leagueId))
+  })
 
   // Broadcast auto-pick event
   await pusherServer.trigger(`presence-draft-${leagueId}`, 'auto-pick', {
@@ -260,6 +288,7 @@ async function handler(req: NextRequest) {
   return NextResponse.json({ success: true })
 }
 
+// verifySignatureAppRouter ensures only QStash can call this endpoint
 export const POST = verifySignatureAppRouter(handler)
 ```
 
@@ -279,16 +308,27 @@ import { useSound } from 'use-sound'
 export function DraftRoom({ leagueId, initialState, currentUserId, currentTeamId }) {
   const [picks, setPicks] = useState(initialState.picks)
   const [currentTurn, setCurrentTurn] = useState(initialState.currentTeamId)
-  const [timerExpiresAt, setTimerExpiresAt] = useState(initialState.timerExpiresAt)
-  const [playYourTurn] = useSound('/sounds/your-turn.mp3')
+  const [timerExpiresAt, setTimerExpiresAt] = useState<Date | null>(
+    initialState.timerExpiresAt ? new Date(initialState.timerExpiresAt) : null
+  )
+  // Audio file goes in /public/sounds/your-turn.mp3
+  const [playYourTurn] = useSound('/sounds/your-turn.mp3', { volume: 0.5 })
 
   useEffect(() => {
     const channel = pusherClient.subscribe(`presence-draft-${leagueId}`)
 
+    // On reconnect, fetch fresh state to avoid divergence
+    channel.bind('pusher:subscription_succeeded', async () => {
+      const freshState = await getDraftState(leagueId)
+      setPicks(freshState.picks)
+      setCurrentTurn(freshState.currentTeamId)
+      setTimerExpiresAt(freshState.timerExpiresAt ? new Date(freshState.timerExpiresAt) : null)
+    })
+
     channel.bind('pick-made', (data) => {
       setPicks(prev => [...prev, data.pick])
       setCurrentTurn(data.nextTeamId)
-      setTimerExpiresAt(new Date(data.timerExpiresAt))
+      setTimerExpiresAt(data.timerExpiresAt ? new Date(data.timerExpiresAt) : null)
 
       // Play sound if it's now the current user's turn
       if (data.nextTeamId === currentTeamId) {
@@ -314,7 +354,7 @@ export function DraftRoom({ leagueId, initialState, currentUserId, currentTeamId
 **When to use:** Determining next drafter, displaying draft order, pre-computing all picks
 **Example:**
 ```typescript
-// Source: Snake draft definition + algorithm derivation
+// Source: Snake draft definition — pure arithmetic
 // src/lib/draft-snake-order.ts
 
 /**
@@ -344,7 +384,6 @@ export function buildDraftOrder(
   womenRounds: number
 ): DraftSlot[] {
   const slots: DraftSlot[] = []
-  const totalRounds = menRounds + womenRounds
   const n = teams.length
 
   // Men's draft first (18 rounds)
@@ -354,7 +393,7 @@ export function buildDraftOrder(
       slots.push({
         pickNumber: slots.length,
         round,
-        gender: 'M',
+        gender: 'M' as const,
         teamId: teams[teamIndex].id,
         teamIndex,
       })
@@ -368,7 +407,7 @@ export function buildDraftOrder(
       slots.push({
         pickNumber: slots.length,
         round: menRounds + round,
-        gender: 'F',
+        gender: 'F' as const,
         teamId: teams[teamIndex].id,
         teamIndex,
       })
@@ -377,6 +416,13 @@ export function buildDraftOrder(
 
   return slots
 }
+
+// Verification examples for 10 teams:
+// getTeamIndexForPick(0, 10)  → 0  (round 0, first team)
+// getTeamIndexForPick(9, 10)  → 9  (round 0, last team)
+// getTeamIndexForPick(10, 10) → 9  (round 1, last team picks again)
+// getTeamIndexForPick(19, 10) → 0  (round 1, first team)
+// getTeamIndexForPick(20, 10) → 0  (round 2, first team)
 ```
 
 ### Pattern 7: Server-Authoritative Timer Display
@@ -384,7 +430,7 @@ export function buildDraftOrder(
 **When to use:** Countdown display component
 **Example:**
 ```typescript
-// Source: Derived from timer sync best practices
+// Source: Timer sync best practice — absolute timestamp diff
 // src/app/(main)/leagues/[leagueId]/draft/timer.tsx
 'use client'
 
@@ -397,9 +443,10 @@ export function DraftTimer({ expiresAt }: { expiresAt: Date | null }) {
     if (!expiresAt) return
 
     const interval = setInterval(() => {
+      // Compute from absolute timestamp — no drift accumulation
       const diff = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000))
       setSecondsLeft(diff)
-    }, 500) // 500ms polling gives smooth updates without drift accumulation
+    }, 500) // 500ms polling gives smooth display without drift
 
     return () => clearInterval(interval)
   }, [expiresAt])
@@ -407,7 +454,7 @@ export function DraftTimer({ expiresAt }: { expiresAt: Date | null }) {
   if (!expiresAt) return null
 
   return (
-    <div className={secondsLeft <= 10 ? 'text-red-500 animate-pulse' : ''}>
+    <div className={secondsLeft <= 10 ? 'text-red-500 animate-pulse font-bold' : 'font-mono'}>
       {secondsLeft}s
     </div>
   )
@@ -419,11 +466,10 @@ export function DraftTimer({ expiresAt }: { expiresAt: Date | null }) {
 **When to use:** Foundation for all draft operations
 **Example:**
 ```typescript
-// Source: Drizzle ORM docs + domain model requirements
+// Source: Drizzle ORM docs + domain model requirements + existing codebase patterns (serial PK, pgEnum, JSONB)
 // src/db/schema/draft.ts
 import { pgTable, serial, integer, text, timestamp, pgEnum, boolean, index, uniqueIndex } from 'drizzle-orm/pg-core'
-import { leagues } from './leagues'
-import { teams } from './leagues'
+import { leagues, teams } from './leagues'
 import { riders } from './riders'
 
 export const draftStatusEnum = pgEnum('draft_status', [
@@ -431,11 +477,11 @@ export const draftStatusEnum = pgEnum('draft_status', [
   'men',        // Men's draft active
   'women',      // Women's draft active
   'complete',   // All picks done
-  'paused',     // Optional: admin paused
+  'paused',     // Admin paused (future use)
 ])
 
 // One session per league (the active draft)
-export const draftSessions = pgTable('draft_sessions', {
+export const draftSessions = pgTable('draftSessions', {
   id: serial('id').primaryKey(),
   leagueId: integer('leagueId').notNull().unique().references(() => leagues.id, { onDelete: 'cascade' }),
   status: draftStatusEnum('status').notNull().default('pending'),
@@ -445,12 +491,13 @@ export const draftSessions = pgTable('draft_sessions', {
   timerExpiresAt: timestamp('timerExpiresAt', { withTimezone: true }),
   startedAt: timestamp('startedAt', { withTimezone: true }),
   completedAt: timestamp('completedAt', { withTimezone: true }),
+  updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({
-  leagueIdx: index('draft_sessions_league_idx').on(table.leagueId),
+  leagueIdx: index('draftSessions_league_idx').on(table.leagueId),
 }))
 
 // One row per pick made
-export const draftPicks = pgTable('draft_picks', {
+export const draftPicks = pgTable('draftPicks', {
   id: serial('id').primaryKey(),
   leagueId: integer('leagueId').notNull().references(() => leagues.id, { onDelete: 'cascade' }),
   teamId: integer('teamId').notNull().references(() => teams.id),
@@ -461,24 +508,25 @@ export const draftPicks = pgTable('draft_picks', {
   wasAutomatic: boolean('wasAutomatic').notNull().default(false),
   pickedAt: timestamp('pickedAt', { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({
-  // A rider can only be picked once per league
-  riderLeagueUnique: uniqueIndex('draft_picks_rider_league_unique').on(table.leagueId, table.riderId),
-  // A team+round+gender combination can only appear once
-  teamRoundUnique: uniqueIndex('draft_picks_team_round_gender_unique').on(table.teamId, table.round, table.gender),
-  leagueIdx: index('draft_picks_league_idx').on(table.leagueId),
-  teamIdx: index('draft_picks_team_idx').on(table.teamId),
+  // A rider can only be picked once per league per gender
+  riderLeagueGenderUnique: uniqueIndex('draftPicks_rider_league_gender_unique').on(table.leagueId, table.riderId, table.gender),
+  // A pick number can only appear once per league
+  pickNumberLeagueUnique: uniqueIndex('draftPicks_pickNumber_league_unique').on(table.leagueId, table.pickNumber),
+  leagueIdx: index('draftPicks_league_idx').on(table.leagueId),
+  teamIdx: index('draftPicks_team_idx').on(table.teamId),
 }))
 ```
 
 ### Anti-Patterns to Avoid
 
-- **Client-only timer:** Client tab can close or freeze; timer state MUST originate from server `timerExpiresAt` in DB
-- **Blocking Server Action on Pusher:** Trigger Pusher after committing the DB transaction, not inside it (Pusher failure should not rollback the pick)
-- **Trusting pick order from client:** Always validate server-side: is it this user's turn? Is the rider available?
-- **Polling for draft state:** Use Pusher events as delta updates; initial state loaded server-side via page.tsx; only fallback-poll on reconnect
-- **Opening Pusher connection in Server Components:** Pusher subscriptions require `"use client"` — only pusher-server.ts (trigger) is used in server context
-- **Multiple QStash timers for same slot:** Each new pick should include the `expectedPickIndex` in the QStash payload; callbacks check this before acting, making older timers idempotent
-- **Using LISTEN/NOTIFY with Neon:** Neon scales to zero after 5 minutes of inactivity, which ends PostgreSQL sessions and terminates any LISTEN subscriptions — not a viable real-time approach
+- **Client-only timer for auto-pick:** Client tab can close or freeze; QStash provides the authoritative fallback; client countdown is display only
+- **Triggering Pusher inside DB transaction:** Pusher failure would rollback the pick. Always call `pusherServer.trigger()` AFTER `await db.transaction(...)` resolves
+- **Trusting pick order from client:** Always validate server-side: is it this user's turn? Is the rider available? Is the draft active?
+- **Polling for draft state:** Use Pusher events as delta updates; initial state loaded server-side via page.tsx; only re-fetch on reconnect (`pusher:subscription_succeeded`)
+- **Opening Pusher connection in Server Components:** Pusher subscriptions require `"use client"` — `pusherClient` is only imported in client components
+- **Multiple QStash timers for same slot:** Each new pick schedules QStash with `expectedPickIndex`; callbacks check this before acting — older timers no-op automatically
+- **Using LISTEN/NOTIFY with Neon:** Neon scales to zero after 5 minutes of inactivity, which ends PostgreSQL sessions and terminates any LISTEN subscriptions — not viable
+- **Creating Pusher client inside React component:** Create singleton outside component tree; subscribe/unsubscribe inside useEffect only
 
 ## Don't Hand-Roll
 
@@ -486,9 +534,9 @@ export const draftPicks = pgTable('draft_picks', {
 |---------|-------------|-------------|-----|
 | WebSocket server | Custom ws:// server in Next.js | Pusher Channels | Serverless-incompatible; connection management, reconnection, presence, scaling all solved by Pusher |
 | Delayed auto-pick job | `setTimeout` in server code | QStash delayed message | Serverless functions are stateless; setInterval/setTimeout die when function returns |
-| Timer sync across clients | Each client runs its own countdown | Server `timerExpiresAt` + `Date.now()` diff | Client timers drift, tab close loses state; server timestamp is truth |
-| Snake order computation | Manual round-by-round if/else | `getTeamIndexForPick()` utility | Easy to get wrong (off-by-one on odd rounds); centralize for pick validation |
-| Real-time "who's online" | Manual presence table polling | Pusher presence channels | Pusher presence tracks connect/disconnect automatically, no DB polling needed |
+| Timer sync across clients | Each client runs its own countdown | Server `timerExpiresAt` + `Date.now()` diff | Client timers drift, tab close loses state; server timestamp is the source of truth |
+| Snake order computation | Manual round-by-round if/else | `getTeamIndexForPick()` utility | Easy to get wrong (off-by-one on odd rounds); centralize for pick validation and display |
+| Real-time "who's online" | Manual presence table polling | Pusher presence channels | Pusher presence tracks connect/disconnect automatically |
 | Audio notification | Web Audio API from scratch | use-sound + Howler.js | Browser autoplay policies, AudioContext lifecycle, cross-browser compatibility all handled |
 
 **Key insight:** Pusher + QStash replaces what would otherwise require a persistent WebSocket server + background job worker — two pieces of infra that Vercel's serverless hosting cannot provide. Both services have generous free tiers that cover the draft use case many times over.
@@ -515,27 +563,27 @@ export const draftPicks = pgTable('draft_picks', {
 
 ### Pitfall 4: Neon Connection Exhaustion During Draft
 **What goes wrong:** Concurrent connections to Neon exceed pool limits during active draft
-**Why it happens:** Many users load the draft page simultaneously; `@neondatabase/serverless` Pool needs proper sizing
+**Why it happens:** Many users load the draft page simultaneously; Neon serverless driver Pool needs proper sizing
 **How to avoid:** Neon serverless driver uses HTTP by default for single queries; Pool (WebSocket) for transactions. Draft page loads can use HTTP; keep Pool usage to transactional operations only
 **Warning signs:** `NeonDbError: too many clients` errors in logs during draft
 
 ### Pitfall 5: Pusher Event Before DB Commit
-**What goes wrong:** Pusher broadcasts pick, but DB transaction not yet committed; clients show pick that doesn't exist
+**What goes wrong:** Pusher broadcasts pick, but DB transaction not yet committed; clients show pick that doesn't exist in DB
 **Why it happens:** `pusherServer.trigger()` called inside the `db.transaction()` callback
 **How to avoid:** Always trigger Pusher AFTER `await db.transaction(...)` resolves successfully
 **Warning signs:** Clients see pick, then it disappears on reconnect; inconsistent state
 
-### Pitfall 6: Missing Gender Draft Separation in DB Queries
+### Pitfall 6: Missing Gender Filter in Available Riders Query
 **What goes wrong:** A rider picked in the men's draft appears as "already picked" in the women's draft query
 **Why it happens:** Available rider query doesn't filter by current draft gender
-**How to avoid:** All "get available riders" queries must filter: `AND gender = :currentGender AND riderId NOT IN (SELECT riderId FROM draftPicks WHERE leagueId = :leagueId AND gender = :currentGender)`
+**How to avoid:** All "get available riders" queries must filter: `WHERE gender = :currentGender AND riderId NOT IN (SELECT riderId FROM draftPicks WHERE leagueId = :id AND gender = :currentGender)`
 **Warning signs:** Women riders show as unavailable during men's draft or vice versa
 
-### Pitfall 7: Pusher Presence Channel Name Conflict
-**What goes wrong:** Multiple leagues can't use the same channel name
-**Why it happens:** Channel name not scoped to leagueId
-**How to avoid:** Always use `presence-draft-${leagueId}` as channel name pattern. Pusher channel names up to 164 characters
-**Warning signs:** Draft events from one league appear in another league's UI
+### Pitfall 7: Pusher Auth Endpoint Expects Form Data, Not JSON
+**What goes wrong:** Auth endpoint returns 400 or `socketId` is null
+**Why it happens:** Pusher sends `POST /api/pusher-auth` as `application/x-www-form-urlencoded`. Using `req.json()` parses nothing
+**How to avoid:** Use `req.text()` + `new URLSearchParams(data)` or `req.formData()` — NOT `req.json()`
+**Warning signs:** Private/presence channel subscriptions silently fail; no events received; console shows auth endpoint error
 
 ### Pitfall 8: use-sound SSR Error in Next.js
 **What goes wrong:** `ReferenceError: window is not defined` on server during SSR
@@ -543,11 +591,17 @@ export const draftPicks = pgTable('draft_picks', {
 **How to avoid:** Only use `useSound` inside `"use client"` components; never in Server Components. Audio files go in `/public/sounds/`
 **Warning signs:** Build errors or SSR errors mentioning `window`, `AudioContext`
 
-### Pitfall 9: Draft Board Render Performance with 240 Picks
-**What goes wrong:** Draft board (10 teams × 24 rounds = 240 cells) re-renders on every pick event causing lag
+### Pitfall 9: Draft State Diverges Between Clients After Reconnect
+**What goes wrong:** One client misses a Pusher event (brief disconnect), sees stale board
+**Why it happens:** Pusher does not replay missed events. Client reconnects but doesn't re-fetch from DB
+**How to avoid:** Bind to `pusher:subscription_succeeded` event; when it fires, fetch current draft state from server and replace local state entirely
+**Warning signs:** Board shows different picks for different users; reconnected user sees wrong current drafter
+
+### Pitfall 10: Draft Board Render Performance with Many Cells
+**What goes wrong:** Draft board (up to 10 teams × 24 rounds = 240 cells) re-renders on every pick event causing lag
 **Why it happens:** React re-renders entire pick grid on state update
-**How to avoid:** Use `React.memo` on pick cells; update only the changed cell. Consider virtualization (TanStack Virtual) if 10+ teams
-**Warning signs:** Browser janky/slow during draft, especially on mobile
+**How to avoid:** Use `React.memo` on pick cells; only update the changed cell. Consider TanStack Virtual if 10+ teams or mobile performance is critical
+**Warning signs:** Browser janky/slow during draft, especially on mobile with large team counts
 
 ## Code Examples
 
@@ -561,9 +615,9 @@ NEXT_PUBLIC_PUSHER_KEY=your_key
 PUSHER_SECRET=your_secret
 NEXT_PUBLIC_PUSHER_CLUSTER=eu  # or mt1/us2/ap1/ap2/etc.
 QSTASH_TOKEN=your_qstash_token
-QSTASH_CURRENT_SIGNING_KEY=...  # for signature verification
-QSTASH_NEXT_SIGNING_KEY=...     # for signature verification
-NEXT_PUBLIC_APP_URL=https://yourapp.vercel.app  # needed by QStash callback
+QSTASH_CURRENT_SIGNING_KEY=...  # for QStash signature verification
+QSTASH_NEXT_SIGNING_KEY=...     # for QStash signature verification
+NEXT_PUBLIC_APP_URL=https://yourapp.vercel.app  # needed by QStash for callback URL
 ```
 
 ### Complete Draft Session Loading (Server Component)
@@ -575,22 +629,21 @@ import { draftSessions, draftPicks } from '@/db/schema/draft'
 import { DraftRoom } from './draft-room'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { eq } from 'drizzle-orm'
 
-export default async function DraftPage({ params }: { params: { leagueId: string } }) {
+export default async function DraftPage({ params }: { params: Promise<{ leagueId: string }> }) {
+  const { leagueId: leagueIdStr } = await params
+  const leagueId = parseInt(leagueIdStr)
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect('/login')
 
-  const leagueId = parseInt(params.leagueId)
-
   // Load all draft state server-side for initial render
-  const [draftSession, picks, teams, availableMen, availableWomen] = await Promise.all([
+  const [draftSession, picks, leagueTeams] = await Promise.all([
     db.query.draftSessions.findFirst({
       where: eq(draftSessions.leagueId, leagueId)
     }),
     db.select().from(draftPicks).where(eq(draftPicks.leagueId, leagueId)),
-    db.query.teams.findMany({ where: eq(teams.leagueId, leagueId) }),
-    getAvailableRiders(leagueId, 'M'),
-    getAvailableRiders(leagueId, 'F'),
+    db.select().from(teams).where(eq(teams.leagueId, leagueId)).orderBy(teams.createdAt),
   ])
 
   return (
@@ -598,33 +651,21 @@ export default async function DraftPage({ params }: { params: { leagueId: string
       leagueId={leagueId}
       initialSession={draftSession}
       initialPicks={picks}
-      teams={teams}
-      availableMen={availableMen}
-      availableWomen={availableWomen}
+      teams={leagueTeams}
       currentUserId={session.user.id}
     />
   )
 }
 ```
 
-### Snake Order Calculation Verification
-```typescript
-// Verify snake order for 10 teams, round 0 and round 1:
-// Round 0 (even): picks 0-9  → teams [0,1,2,3,4,5,6,7,8,9]
-// Round 1 (odd):  picks 10-19 → teams [9,8,7,6,5,4,3,2,1,0]
-// Round 2 (even): picks 20-29 → teams [0,1,2,3,4,5,6,7,8,9]
-
-getTeamIndexForPick(0, 10)  // → 0 (first team, round 0)
-getTeamIndexForPick(9, 10)  // → 9 (last team, round 0)
-getTeamIndexForPick(10, 10) // → 9 (last team picks again, round 1)
-getTeamIndexForPick(19, 10) // → 0 (first team, round 1)
-getTeamIndexForPick(20, 10) // → 0 (first team, round 2)
-```
-
 ### Rider Search/Filter Query
 ```typescript
 // Source: Drizzle ORM docs + existing riders schema
 // Used by active drafter to browse available riders
+import { riders } from '@/db/schema/riders'
+import { draftPicks } from '@/db/schema/draft'
+import { eq, and, notInArray, ilike } from 'drizzle-orm'
+
 export async function getAvailableRiders(
   leagueId: number,
   gender: 'M' | 'F',
@@ -649,8 +690,22 @@ export async function getAvailableRiders(
       filterTeam ? eq(riders.team, filterTeam) : undefined,
       filterNationality ? eq(riders.nationality, filterNationality) : undefined,
     ))
-    .orderBy(riders.name)
+    .orderBy(riders.name) // Alphabetical = deterministic "best available" for auto-pick
 }
+```
+
+### Snake Order Verification
+```typescript
+// Verify snake order for 10 teams:
+// Round 0 (even): picks 0-9  → team indices [0,1,2,3,4,5,6,7,8,9]
+// Round 1 (odd):  picks 10-19 → team indices [9,8,7,6,5,4,3,2,1,0]
+// Round 2 (even): picks 20-29 → team indices [0,1,2,3,4,5,6,7,8,9]
+
+getTeamIndexForPick(0, 10)  // → 0 (first team, round 0)
+getTeamIndexForPick(9, 10)  // → 9 (last team, round 0)
+getTeamIndexForPick(10, 10) // → 9 (last team picks again, round 1)
+getTeamIndexForPick(19, 10) // → 0 (first team, round 1)
+getTeamIndexForPick(20, 10) // → 0 (first team, round 2)
 ```
 
 ## State of the Art
@@ -672,73 +727,78 @@ export async function getAvailableRiders(
 
 1. **Draft sequence: men first or interleaved?**
    - What we know: Requirements say "separate drafts for men (18 rounds) and women (6 rounds)"
-   - What's unclear: Does all men's drafting complete before women's draft starts, or is there an interleaved format (e.g., pick a man, then a woman, alternating)?
-   - Recommendation: Design DB schema to support both; implement sequential (men → women) as default since requirements say "separate drafts"
+   - What's unclear: Does all men's drafting complete before women's draft starts, or is there an interleaved format?
+   - Recommendation: Implement sequential (men → women) — requirements say "separate drafts"; transition to women's automatically on men's completion
 
 2. **Best available rider for auto-pick**
    - What we know: DRAFT-08 says "auto-pick best available rider"
-   - What's unclear: What defines "best"? Alphabetical first? By specialty? By team ranking?
-   - Recommendation: Use alphabetical order as tie-breaker for MVP; add a `draftRank` column to riders table in a future phase
+   - What's unclear: What defines "best"? There is no ranking column in `riders` table
+   - Recommendation: Use alphabetical order as deterministic tie-breaker for MVP; auto-pick the first available rider sorted by `riders.name` ASC
 
-3. **Draft board layout for different team counts (2-10)**
-   - What we know: Leagues can have 2-10 teams (from Phase 3 config)
-   - What's unclear: How does the grid render when team count varies? 2-team vs 10-team drafts look very different
-   - Recommendation: Build grid as `team_count × (24 rows for men + 6 rows for women)`; responsive horizontal scroll for >6 teams on mobile
+3. **Draft board layout for variable team counts (2-10)**
+   - What we know: Leagues can have 2-10 teams
+   - What's unclear: How does the grid render when team count varies?
+   - Recommendation: Horizontal scroll for >6 teams on mobile; each column = one team; each row = one round
 
-4. **What happens if admin disconnects during draft?**
-   - What we know: Only admin can start the draft (DRAFT-01)
-   - What's unclear: Is admin required to stay online? Can draft proceed if admin leaves?
-   - Recommendation: Draft should proceed without admin presence once started; admin can rejoin and the state is fully persistent
+4. **QStash delivery on local development**
+   - What we know: QStash sends HTTP requests to `NEXT_PUBLIC_APP_URL`
+   - What's unclear: How to test QStash callbacks locally without deploying?
+   - Recommendation: Use Upstash's QStash development server or `ngrok` for local testing. Or skip QStash testing locally and test auto-pick via direct API call with `BYPASS_QSTASH_AUTH=true` guard
 
-5. **Pausing a draft**
-   - What we know: Requirements don't mention a pause feature
-   - What's unclear: What if a participant has a technical issue mid-draft?
-   - Recommendation: Implement `paused` status in `draftStatusEnum` (already in schema above) but don't build the UI in Phase 4; add as future enhancement
-
-6. **Draft room accessibility before draft starts**
+5. **Draft room accessibility before draft starts**
    - What we know: DRAFT-01 says admin starts the draft
-   - What's unclear: Can all league members see the draft room in advance (lobby state)? Or is the URL only surfaced when admin starts?
-   - Recommendation: Show a "waiting room" page at `/leagues/[id]/draft` while status is `pending`; connect to Pusher presence channel early so all members are visible
+   - What's unclear: Can all league members see the draft room in advance (lobby state)?
+   - Recommendation: Show a "waiting room" view at `/leagues/[id]/draft` while status is `pending`; connect Pusher presence channel early so all members are visible before picks start
+
+6. **Vercel tier for project**
+   - What we know: No evidence of Pro plan in codebase
+   - What's unclear: Is the project deployed on Hobby or Pro?
+   - Recommendation: Assume Hobby tier; design auto-pick with QStash (works on both tiers, not cron-dependent)
 
 ## Sources
 
 ### Primary (HIGH confidence)
 - [Pusher Channels Docs - Authorizing Users](https://pusher.com/docs/channels/server_api/authorizing-users/) - auth endpoint pattern, private/presence channel flow
 - [Pusher Channels Docs - JavaScript Quick Start](https://pusher.com/docs/channels/getting_started/javascript/) - client setup, event binding
-- [Upstash QStash Documentation](https://upstash.com/docs/qstash/quickstarts/vercel-nextjs) - Next.js integration, verifySignatureAppRouter
-- [Vercel Cron Jobs - Usage and Pricing](https://vercel.com/docs/cron-jobs/usage-and-pricing) - Hobby = once per day confirmed
-- [Neon Docs - Real-Time Comments Guide](https://neon.com/guides/real-time-comments) - Neon LISTEN/NOTIFY limitation with scale-to-zero
-- Existing codebase - `/src/db/schema/leagues.ts` - league/team schema for foreign key references
-- Existing codebase - `/src/db/schema/riders.ts` - gender enum, rider fields for draft pool
-- Existing codebase - `/src/lib/db.ts` - Neon serverless Pool setup
-- Existing codebase - `/src/app/admin/riders/actions.ts` - established Server Action pattern
+- [Pusher Channels Docs - Presence Channels](https://pusher.com/docs/channels/using_channels/presence-channels/) - presence member tracking
+- [Vercel Cron Jobs - Usage and Pricing](https://vercel.com/docs/cron-jobs/usage-and-pricing) - Hobby = once per day confirmed; minimum interval table
+- [github.com/pusher/pusher-js README](https://github.com/pusher/pusher-js/blob/master/README.md) - channelAuthorization config, TypeScript types
+- Existing codebase — `/src/db/schema/leagues.ts` — league/team schema, serial PK, pgEnum, JSONB patterns
+- Existing codebase — `/src/db/schema/riders.ts` — gender enum, rider fields for draft pool
+- Existing codebase — `/src/lib/league-auth.ts` — league membership/ownership auth helpers
+- Existing codebase — `/src/lib/db.ts` — Neon serverless Pool setup
+- npm: `pusher@5.3.2`, `pusher-js@8.4.0`, `@upstash/qstash@2.9.0`, `use-sound@5.0.0` — current versions confirmed via `npm show`
 
 ### Secondary (MEDIUM confidence)
-- [Neon - Real-Time Comments with Ably LiveSync](https://neon.com/guides/real-time-comments) - outbox pattern, Ably integration architecture
-- [Ably + Next.js Vercel link sharing](https://ably.com/blog/next-js-vercel-link-sharing-serverless-websockets) - server trigger pattern, token auth flow
-- [obytes.com - Pusher with Next.js](https://www.obytes.com/blog/pusher-nextjs) - client subscription code pattern
-- [Pusher Channels Pricing](https://pusher.com/channels/pricing/) - Free tier: 200k msg/day, 100 concurrent connections verified
-- [QStash Pricing](https://upstash.com/pricing/qstash) - Free tier: 1,000 messages/day verified
-- [Josh W. Comeau - use-sound hook](https://www.joshwcomeau.com/react/announcing-use-sound-react-hook/) - use-sound API, public folder for audio files
+- [Upstash QStash - Next.js Quickstart](https://upstash.com/docs/qstash/quickstarts/vercel-nextjs) - verifySignatureAppRouter, delayed message pattern
+- [Upstash QStash Pricing](https://upstash.com/docs/qstash/overall/pricing) - Free tier: 1,000 messages/day confirmed
+- [Pusher Channels Pricing](https://pusher.com/channels/pricing/) - Free tier: 200k msg/day, 100 concurrent connections confirmed
+- [Vercel - Deploying Pusher Channels](https://vercel.com/kb/guide/deploying-pusher-channels-with-vercel) - Vercel + Pusher deployment pattern
+- [MDN Web Audio API Best Practices](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Best_practices) - AudioContext autoplay policy, iOS Safari requirements
 
 ### Tertiary (LOW confidence - validate during implementation)
-- [Syncing Countdown Timers Across Clients - Medium](https://medium.com/@flowersayo/syncing-countdown-timers-across-multiple-clients-a-subtle-but-critical-challenge-384ba5fbef9a) - 500ms interval + server timestamp diff pattern (403 on fetch, reconstructed from description)
-- [Pusher Channels Presence Channels Blog](https://pusher.com/blog/what-are-presence-channels-pusher-presence-channels-when-and-how-to-use-them/) - presence channel patterns for "who's online"
+- [Neon Real-Time Guide](https://neon.com/guides/real-time-comments) - LISTEN/NOTIFY limitation with scale-to-zero
+- Pusher presence channels blog — member_added/member_removed events pattern
 
 ## Metadata
 
 **Confidence breakdown:**
-- Standard stack: HIGH - Pusher, QStash, use-sound all verified via official docs/pricing pages; Vercel Hobby cron limitation confirmed from official Vercel docs
-- Architecture: HIGH - Pusher + QStash pattern is the established answer to "realtime + scheduled tasks on Vercel serverless"; patterns derived from official sources
-- Pitfalls: HIGH - Vercel cron limit verified from docs; race conditions and DB constraint pitfalls are standard concurrency issues; Neon LISTEN/NOTIFY limitation confirmed from Neon docs
+- Standard stack: HIGH — Pusher, QStash, use-sound verified via official docs; versions confirmed via npm; Vercel Hobby cron limitation confirmed from official Vercel docs
+- Architecture: HIGH — Pusher + QStash pattern is the established answer to "realtime + scheduled tasks on Vercel serverless"; patterns from official sources
+- Pitfalls: HIGH — Vercel cron limit from docs; race conditions and DB constraints are standard concurrency issues; Neon LISTEN/NOTIFY limitation from Neon docs; Pusher form data pitfall from official auth docs
 
 **Research date:** 2026-02-13
 **Valid until:** 2026-03-15 (30 days — Pusher/QStash APIs stable; Vercel plan limits unlikely to change)
 
-**Key dependencies to install:**
-- `pusher` ^5.2.0 - Server-side Pusher SDK (NEW)
-- `pusher-js` ^8.4.0 - Client Pusher SDK (NEW)
-- `@upstash/qstash` ^2.7.0 - Delayed job queue (NEW)
-- `use-sound` ^4.0.1 - Audio notifications (NEW)
-- `@types/howler` ^2.2.11 - TypeScript types for Howler.js (NEW, devDependency)
-- All other dependencies already installed
+**Key new dependencies to install (all others already in package.json):**
+- `pusher@5.3.2` — Server-side Pusher SDK
+- `pusher-js@8.4.0` — Client Pusher SDK
+- `@upstash/qstash@2.9.0` — Delayed job queue
+- `use-sound@5.0.0` — Audio notifications
+
+**Critical constraint confirmed:**
+Vercel Hobby tier: cron jobs run at most once per day. Auto-pick MUST use QStash delayed messages, not Vercel cron.
+
+**Free tier capacity check:**
+- Pusher Sandbox: 200,000 msgs/day, 100 concurrent connections. A 10-team full draft (240 picks × ~10 Pusher messages/pick) = ~2,400 messages per league draft. Capacity for ~80 concurrent league drafts per day.
+- QStash Free: 1,000 msgs/day. Each pick = 1 QStash message. A 10-team full draft = 240 messages. Capacity for ~4 concurrent full drafts per day. Upgrade to pay-as-you-go if more concurrent drafts needed ($1 per 100k requests).

@@ -4,10 +4,13 @@ import { teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
 import { races } from "@/db/schema/races"
-import { eq, desc, sql, and, asc } from "drizzle-orm"
+import { eq, desc, sql, and, asc, gte, lte } from "drizzle-orm"
 
 // Points are pre-calculated at result entry time. Phase 5 only aggregates stored points.
-// TODO: apply order multipliers when orders/bids system is built
+// Ownership-at-race-time: points stay with the team that owned the rider when the race took place.
+// This is implemented by filtering race results where races.startDate >= draftPicks.pickedAt.
+// For original draft picks, pickedAt is the draft timestamp (before any races), so all results flow through.
+// For transferred riders, only results from races on/after the transfer date count for the new team.
 
 /**
  * Returns all teams in a league ranked by total fantasy points for the given season.
@@ -15,6 +18,8 @@ import { eq, desc, sql, and, asc } from "drizzle-orm"
  * Multi-tenant: draftPicks join is scoped by both teamId and leagueId.
  * Season scoping: races join filters by races.season so only race results from the
  * correct season contribute to points.
+ * Ownership-at-race-time: races join filters by races.startDate >= draftPicks.pickedAt
+ * so transferred riders' pre-transfer points stay with the original team.
  */
 export async function getLeagueStandings(leagueId: number, season: number) {
   const rows = await db
@@ -37,7 +42,8 @@ export async function getLeagueStandings(leagueId: number, season: number) {
       races,
       and(
         eq(races.id, raceResults.raceId),
-        eq(races.season, season)
+        eq(races.season, season),
+        gte(races.startDate, draftPicks.pickedAt)  // ownership-at-race-time
       )
     )
     .where(eq(teams.leagueId, leagueId))
@@ -66,6 +72,8 @@ export async function getLeagueStandings(leagueId: number, season: number) {
  * Returns riders for a specific team with their aggregated fantasy points for the season.
  * Filters draftPicks by both teamId and leagueId for multi-tenant isolation.
  * Season scoping: races join filters by races.season.
+ * Ownership-at-race-time: races join filters by races.startDate >= draftPicks.pickedAt
+ * so pre-transfer race results are not credited to the new team.
  * Used in the "My Team" tab on the standings page.
  */
 export async function getTeamRiderScores(teamId: number, leagueId: number, season: number) {
@@ -84,7 +92,8 @@ export async function getTeamRiderScores(teamId: number, leagueId: number, seaso
       races,
       and(
         eq(races.id, raceResults.raceId),
-        eq(races.season, season)
+        eq(races.season, season),
+        gte(races.startDate, draftPicks.pickedAt)  // ownership-at-race-time
       )
     )
     .where(
@@ -125,6 +134,8 @@ export type TeamRiderScore = {
  * Returns all drafted riders who have results in a given race for a given league.
  * Shows position, points, rider name, rider's pro team, and the fantasy team that drafted them.
  * Multi-tenant: draftPicks join is scoped by leagueId.
+ * Ownership-at-race-time: draftPicks join filters by draftPicks.pickedAt <= races.startDate
+ * so only the team that owned the rider at race time gets credit in the breakdown.
  * Sorted by position ASC.
  */
 export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
@@ -140,11 +151,13 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
     })
     .from(raceResults)
     .innerJoin(riders, eq(riders.id, raceResults.riderId))
+    .innerJoin(races, eq(races.id, raceResults.raceId))
     .innerJoin(
       draftPicks,
       and(
         eq(draftPicks.riderId, raceResults.riderId),
-        eq(draftPicks.leagueId, leagueId)
+        eq(draftPicks.leagueId, leagueId),
+        lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
       )
     )
     .innerJoin(teams, eq(teams.id, draftPicks.teamId))
@@ -165,6 +178,8 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
 /**
  * Returns races in a given season where at least one rider from the league has results.
  * Aggregates total fantasy points earned across all drafted riders for that race.
+ * Ownership-at-race-time: draftPicks join filters by draftPicks.pickedAt <= races.startDate
+ * so pre-transfer race results are credited to the correct (original) team.
  * Sorted by startDate DESC (most recent first).
  */
 export async function getLeagueRacesWithScores(leagueId: number, season: number) {
@@ -182,7 +197,8 @@ export async function getLeagueRacesWithScores(leagueId: number, season: number)
       draftPicks,
       and(
         eq(draftPicks.riderId, raceResults.riderId),
-        eq(draftPicks.leagueId, leagueId)
+        eq(draftPicks.leagueId, leagueId),
+        lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
       )
     )
     .where(eq(races.season, season))

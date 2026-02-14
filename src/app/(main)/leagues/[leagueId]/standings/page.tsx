@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getLeagueDetails } from "../actions"
-import { getLeagueStandings, getTeamRiderScores } from "@/lib/scoring-queries"
+import { getLeagueStandings, getTeamRiderScores, getLeagueRacesWithScores } from "@/lib/scoring-queries"
 import { StandingsClient } from "./standings-client"
 import { LeagueConfig } from "@/db/schema/leagues"
 
@@ -82,12 +82,13 @@ export default async function StandingsPage({ params }: PageProps) {
 
   const seasonYear = config.seasonYear
 
-  // Fetch standings and (optionally) user's team rider scores
-  const [standings, myTeamRiders] = await Promise.all([
+  // Fetch standings, (optionally) user's team rider scores, and races with results
+  const [standings, myTeamRiders, races] = await Promise.all([
     getLeagueStandings(leagueId, seasonYear),
     userTeamId != null
       ? getTeamRiderScores(userTeamId, leagueId, seasonYear)
       : Promise.resolve(null),
+    getLeagueRacesWithScores(leagueId, seasonYear),
   ])
 
   // Find the user's team name from standings
@@ -125,6 +126,7 @@ export default async function StandingsPage({ params }: PageProps) {
         leagueId={leagueId}
         userTeamName={userTeamName}
         userTeamId={userTeamId}
+        races={races}
       />
     </div>
   )

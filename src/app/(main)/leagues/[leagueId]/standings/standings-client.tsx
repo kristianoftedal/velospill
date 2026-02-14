@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+import { format } from "date-fns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
@@ -10,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { LeagueStanding, TeamRiderScore } from "@/lib/scoring-queries"
+import { LeagueStanding, TeamRiderScore, LeagueRaceScore } from "@/lib/scoring-queries"
 
 interface StandingsClientProps {
   standings: LeagueStanding[]
@@ -18,6 +20,7 @@ interface StandingsClientProps {
   leagueId: number
   userTeamName: string | null
   userTeamId: number | null
+  races: LeagueRaceScore[]
 }
 
 function getRankStyle(rank: number): string {
@@ -27,16 +30,26 @@ function getRankStyle(rank: number): string {
   return ""
 }
 
+function formatRaceType(raceType: string): string {
+  return raceType
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
+
 export function StandingsClient({
   standings,
   myTeamRiders,
   userTeamId,
+  leagueId,
+  races,
 }: StandingsClientProps) {
   return (
     <Tabs defaultValue="leaderboard">
       <TabsList>
         <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
         <TabsTrigger value="my-team">My Team</TabsTrigger>
+        <TabsTrigger value="race-results">Race Results</TabsTrigger>
       </TabsList>
 
       <TabsContent value="leaderboard">
@@ -123,6 +136,48 @@ export function StandingsClient({
                   </TableCell>
                 </TableRow>
               )}
+            </TableBody>
+          </Table>
+        )}
+      </TabsContent>
+
+      <TabsContent value="race-results">
+        {races.length === 0 ? (
+          <p className="text-gray-500 py-4">No race results yet this season.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Race Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className="text-right">League Points</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {races.map((race) => (
+                <TableRow key={race.raceId}>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/leagues/${leagueId}/standings/${race.raceId}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {race.raceName}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {formatRaceType(race.raceType)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-gray-600">
+                    {format(race.startDate, "d MMM yyyy")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {race.totalLeaguePoints}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}

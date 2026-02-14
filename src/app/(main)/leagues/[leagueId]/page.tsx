@@ -125,6 +125,28 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </Card>
       )}
 
+      {/* Standings Link — show when league is active or complete */}
+      {(league.status === "active" || league.status === "complete") && (
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-gray-900">League Standings</p>
+                <p className="text-sm text-gray-500">
+                  View team rankings and race results
+                </p>
+              </div>
+              <Link
+                href={`/leagues/${league.id}/standings`}
+                className="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors"
+              >
+                View Standings
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Invite Link — owner only */}
       {isOwner && (
         <Card>

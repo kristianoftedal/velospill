@@ -4,7 +4,7 @@ import { teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
 import { races } from "@/db/schema/races"
-import { eq, desc, sql, and } from "drizzle-orm"
+import { eq, desc, sql, and, asc } from "drizzle-orm"
 
 // Points are pre-calculated at result entry time. Phase 5 only aggregates stored points.
 // TODO: apply order multipliers when orders/bids system is built
@@ -119,4 +119,99 @@ export type TeamRiderScore = {
   riderTeam: string
   gender: "M" | "F"
   totalPoints: number
+}
+
+/**
+ * Returns all drafted riders who have results in a given race for a given league.
+ * Shows position, points, rider name, rider's pro team, and the fantasy team that drafted them.
+ * Multi-tenant: draftPicks join is scoped by leagueId.
+ * Sorted by position ASC.
+ */
+export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
+  const rows = await db
+    .select({
+      teamId: teams.id,
+      teamName: teams.name,
+      riderId: riders.id,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      position: raceResults.position,
+      points: raceResults.points,
+    })
+    .from(raceResults)
+    .innerJoin(riders, eq(riders.id, raceResults.riderId))
+    .innerJoin(
+      draftPicks,
+      and(
+        eq(draftPicks.riderId, raceResults.riderId),
+        eq(draftPicks.leagueId, leagueId)
+      )
+    )
+    .innerJoin(teams, eq(teams.id, draftPicks.teamId))
+    .where(eq(raceResults.raceId, raceId))
+    .orderBy(asc(raceResults.position))
+
+  return rows.map((row) => ({
+    teamId: row.teamId,
+    teamName: row.teamName,
+    riderId: row.riderId,
+    riderName: row.riderName,
+    riderTeam: row.riderTeam,
+    position: row.position,
+    points: row.points,
+  })) satisfies RaceScoreEntry[]
+}
+
+/**
+ * Returns races in a given season where at least one rider from the league has results.
+ * Aggregates total fantasy points earned across all drafted riders for that race.
+ * Sorted by startDate DESC (most recent first).
+ */
+export async function getLeagueRacesWithScores(leagueId: number, season: number) {
+  const rows = await db
+    .select({
+      raceId: races.id,
+      raceName: races.name,
+      raceType: races.raceType,
+      startDate: races.startDate,
+      totalLeaguePoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+    })
+    .from(races)
+    .innerJoin(raceResults, eq(raceResults.raceId, races.id))
+    .innerJoin(
+      draftPicks,
+      and(
+        eq(draftPicks.riderId, raceResults.riderId),
+        eq(draftPicks.leagueId, leagueId)
+      )
+    )
+    .where(eq(races.season, season))
+    .groupBy(races.id, races.name, races.raceType, races.startDate)
+    .orderBy(desc(races.startDate))
+
+  return rows.map((row) => ({
+    raceId: row.raceId,
+    raceName: row.raceName,
+    raceType: row.raceType,
+    startDate: row.startDate,
+    totalLeaguePoints: Number(row.totalLeaguePoints),
+  })) satisfies LeagueRaceScore[]
+}
+
+export type RaceScoreEntry = {
+  teamId: number
+  teamName: string
+  riderId: number
+  riderName: string
+  riderTeam: string
+  position: number
+  points: number
+}
+
+export type LeagueRaceScore = {
+  raceId: number
+  raceName: string
+  raceType: string
+  startDate: Date
+  totalLeaguePoints: number
 }

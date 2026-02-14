@@ -3,20 +3,20 @@
 ## Current Position
 
 - **Phase:** 06-transfer-market
-- **Current Plan:** 02 Complete
+- **Current Plan:** 03 Complete
 - **Status:** In Progress
-- **Last session:** 2026-02-14T12:06:44Z
-- **Stopped at:** Completed 06-02-PLAN.md
+- **Last session:** 2026-02-14T12:17:00Z
+- **Stopped at:** Completed 06-03-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
-Phase 06: [######..] 2/? plans complete (06-01, 06-02 done)
+Phase 06: [#######.] 3/? plans complete (06-01, 06-02, 06-03 done)
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02
-Plans remaining: 06-03, 06-04 (per roadmap)
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03
+Plans remaining: 06-04 (per roadmap)
 
 ## Decisions
 
@@ -53,6 +53,9 @@ Plans remaining: 06-03, 06-04 (per roadmap)
 31. **06-02:** alias() imported from drizzle-orm/pg-core (not drizzle-orm) — not exported from the main package in drizzle-orm 0.45.x
 32. **06-02:** getTeamTransferCount queries window record internally for dates to keep caller interface clean (only requires windowId)
 33. **06-02:** Two-step bid form enforces gender constraint at client level (shows only same-gender free agents) before server-side validation
+34. **06-03:** approveBid re-fetches bid after transaction to get leagueId for revalidatePath — leagueId not returned from transaction directly
+35. **06-03:** BidActions extracted to bid-actions.tsx (separate file) for clean "use client" boundary
+36. **06-03:** Approve button has no confirmation dialog — transaction's free agent re-check is the safety net
 
 ## Performance Metrics
 
@@ -67,6 +70,7 @@ Plans remaining: 06-03, 06-04 (per roadmap)
 | 05    | 02   | ~6min    | 2     | 5     |
 | 06    | 01   | ~14min   | 2     | 5     |
 | 06    | 02   | ~10min   | 2     | 4     |
+| 06    | 03   | ~3min    | 2     | 3     |
 
 ## Accumulated Context
 
@@ -96,3 +100,6 @@ None
 - Team transfers page available at /leagues/[leagueId]/transfers for active leagues only
 - Transfer bid UI uses two-step form: select rider to drop, then pick same-gender free agent
 - Gender constraint enforced both client-side (UI filtering) and server-side (action validation)
+- Admin transfer management at /admin/transfers: pending bids table + history table (Phase 2 stub replaced)
+- approveBid uses db.transaction() for atomic draftPick swap (delete+insert) with pickedAt=NOW() and pickNumber=-bidId
+- rejectBid captures adminNote visible to team managers

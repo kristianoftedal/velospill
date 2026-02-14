@@ -3,20 +3,20 @@
 ## Current Position
 
 - **Phase:** 06-transfer-market
-- **Current Plan:** 03 Complete
-- **Status:** In Progress
-- **Last session:** 2026-02-14T12:17:00Z
-- **Stopped at:** Completed 06-03-PLAN.md
+- **Current Plan:** 04 Complete
+- **Status:** Complete
+- **Last session:** 2026-02-14T12:23:05Z
+- **Stopped at:** Completed 06-04-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
-Phase 06: [#######.] 3/? plans complete (06-01, 06-02, 06-03 done)
+Phase 06: [########] 4/4 plans complete ✓
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03
-Plans remaining: 06-04 (per roadmap)
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04
+Plans remaining: none (phase 06 complete)
 
 ## Decisions
 
@@ -56,6 +56,11 @@ Plans remaining: 06-04 (per roadmap)
 34. **06-03:** approveBid re-fetches bid after transaction to get leagueId for revalidatePath — leagueId not returned from transaction directly
 35. **06-03:** BidActions extracted to bid-actions.tsx (separate file) for clean "use client" boundary
 36. **06-03:** Approve button has no confirmation dialog — transaction's free agent re-check is the safety net
+37. **06-04:** resolveConflictingBids groups bids by inRiderId, sorts by totalPoints ASC then submittedAt ASC — lower-standing teams win
+38. **06-04:** generateTransferWindows maps race type to (maxTransfers, daysBeforeOpen): GT/WT=null/7, HP=4/5, LP/MT/WO=2/3, WC=4/7
+39. **06-04:** resolveWaiverWire rejects conflicting losers before approving winners to prevent race conditions
+40. **06-04:** Admin transfers page uses searchParams.leagueId for server-rendered window list
+41. **06-04:** Transfers card on league detail page uses blue button to distinguish from green standings and yellow draft
 
 ## Performance Metrics
 
@@ -71,6 +76,7 @@ Plans remaining: 06-04 (per roadmap)
 | 06    | 01   | ~14min   | 2     | 5     |
 | 06    | 02   | ~10min   | 2     | 4     |
 | 06    | 03   | ~3min    | 2     | 3     |
+| 06    | 04   | ~8min    | 2     | 5     |
 
 ## Accumulated Context
 
@@ -103,3 +109,8 @@ None
 - Admin transfer management at /admin/transfers: pending bids table + history table (Phase 2 stub replaced)
 - approveBid uses db.transaction() for atomic draftPick swap (delete+insert) with pickedAt=NOW() and pickNumber=-bidId
 - rejectBid captures adminNote visible to team managers
+- Waiver wire priority: lowest total points team gets first pick; submittedAt is tiebreaker (earlier wins)
+- Transfer windows auto-generated from parent races; race type determines maxTransfers and window open period
+- Admin can batch-resolve all pending bids via "Resolve Waiver Wire" button (resolveWaiverWire action)
+- Admin can auto-generate, create manual, or close-early transfer windows for active leagues
+- Phase 06 is fully complete: all 5 user decisions implemented across 06-01 through 06-04

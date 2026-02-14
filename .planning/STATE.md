@@ -2,20 +2,21 @@
 
 ## Current Position
 
-- **Phase:** 05-scoring-points-system
-- **Current Plan:** Complete
-- **Status:** Complete
-- **Last session:** 2026-02-14T07:06:21Z
-- **Stopped at:** Phase 05 verified and complete
+- **Phase:** 06-transfer-market
+- **Current Plan:** 01 Complete
+- **Status:** In Progress
+- **Last session:** 2026-02-14T11:52:36Z
+- **Stopped at:** Completed 06-01-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
+Phase 06: [####....] 1/? plans complete (06-01 done)
 ```
 
-Plans complete: 05-01, 05-02
-Plans remaining: None
+Plans complete: 05-01, 05-02, 06-01
+Plans remaining: 06-02, 06-03, 06-04 (per roadmap)
 
 ## Decisions
 
@@ -45,6 +46,10 @@ Plans remaining: None
 24. **05-02:** Per-team subtotals computed in JS Map over breakdown rows rather than a second SQL GROUP BY query
 25. **05-02:** formatRaceType helper converts snake_case enum values to human-readable Title Case in client
 26. **05-02:** Standings card uses green button to distinguish from yellow draft button on league detail page
+27. **06-01:** pickedAt/startDate temporal condition uses gte() in LEFT JOIN (not WHERE) to preserve zero-point team semantics
+28. **06-01:** getRaceScoreBreakdown adds races INNER JOIN and lte(pickedAt, startDate) on draftPicks to handle case where raceId is a parameter
+29. **06-01:** Pool.connect() used for DDL migration — neon serverless sql.unsafe() does not reliably commit DDL transactions
+30. **06-01:** Negative pickNumbers used as sentinels for transfer-generated draftPick rows; partial index WHERE pickNumber >= 0 enforces uniqueness only for real draft picks
 
 ## Performance Metrics
 
@@ -57,6 +62,12 @@ Plans remaining: None
 | 04    | 03   | ~8min    | 2     | 5     |
 | 05    | 01   | ~3min    | 2     | 3     |
 | 05    | 02   | ~6min    | 2     | 5     |
+| 06    | 01   | ~14min   | 2     | 5     |
+
+## Accumulated Context
+
+### Roadmap Evolution
+- Phase 6 added: Transfer Market
 
 ## Blockers
 
@@ -74,3 +85,7 @@ None
 - /public/sounds/your-turn.mp3 must be placed manually by user for audio notification in draft room
 - Standings available at /leagues/[leagueId]/standings for active/complete leagues only
 - Per-race breakdown available at /leagues/[leagueId]/standings/[raceId] for active/complete leagues
+- Transfer tables: transfer_bids, transfer_windows, transfer_audit exist in Neon DB (applied 2026-02-14)
+- Scoring queries use pickedAt/startDate temporal filter for ownership-at-race-time (all 4 functions)
+- Use Pool.connect() for DDL migrations to Neon; neon() http driver sql.unsafe() does not reliably commit DDL
+- Negative pickNumbers are sentinel values for transfer-generated draftPick rows

@@ -3,19 +3,19 @@
 ## Current Position
 
 - **Phase:** 05-scoring-points-system
-- **Current Plan:** 02 (next to execute)
+- **Current Plan:** 03 (next to execute)
 - **Status:** In Progress
-- **Last session:** 2026-02-14T06:34:04Z
-- **Stopped at:** Completed 05-01-PLAN.md
+- **Last session:** 2026-02-14T07:06:21Z
+- **Stopped at:** Completed 05-02-PLAN.md
 
 ## Progress
 
 ```
-Phase 05: [#.......] 1/? plans complete
+Phase 05: [##......] 2/? plans complete
 ```
 
-Plans complete: 05-01
-Plans remaining: 05-02+
+Plans complete: 05-01, 05-02
+Plans remaining: 05-03+
 
 ## Decisions
 
@@ -41,6 +41,10 @@ Plans remaining: 05-02+
 20. **05-01:** Rank derived in JS array map with tie-handling rather than SQL RANK() window function
 21. **05-01:** leagueId included in draftPicks JOIN condition (not just teamId) for explicit multi-tenant isolation
 22. **05-01:** Status guard blocks standings for setup/drafting leagues with informative message and back link
+23. **05-02:** INNER JOIN from raceResults outward for breakdown — only drafted riders who raced appear
+24. **05-02:** Per-team subtotals computed in JS Map over breakdown rows rather than a second SQL GROUP BY query
+25. **05-02:** formatRaceType helper converts snake_case enum values to human-readable Title Case in client
+26. **05-02:** Standings card uses green button to distinguish from yellow draft button on league detail page
 
 ## Performance Metrics
 
@@ -52,6 +56,7 @@ Plans remaining: 05-02+
 | 04    | 02   | ~2min    | 2     | 3     |
 | 04    | 03   | ~8min    | 2     | 5     |
 | 05    | 01   | ~3min    | 2     | 3     |
+| 05    | 02   | ~6min    | 2     | 5     |
 
 ## Blockers
 
@@ -68,3 +73,4 @@ None
 - npm run build fails due to pre-existing drizzle-kit 0.18.x type error in drizzle.config.ts — all project source files compile cleanly
 - /public/sounds/your-turn.mp3 must be placed manually by user for audio notification in draft room
 - Standings available at /leagues/[leagueId]/standings for active/complete leagues only
+- Per-race breakdown available at /leagues/[leagueId]/standings/[raceId] for active/complete leagues

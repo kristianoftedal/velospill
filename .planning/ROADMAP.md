@@ -62,3 +62,21 @@ Plans:
 - [x] 06-02-PLAN.md — Transfer queries library and team-facing bid submission UI
 - [x] 06-03-PLAN.md — Admin transfer management UI with approve/reject actions
 - [x] 06-04-PLAN.md — Waiver wire priority resolution, auto-window generation, and league page integration
+
+### Phase 7: Strategic Orders & Scoring Integration
+- [ ] **Goal:** Implement strategic orders system where users deploy orders to boost riders or sabotage opponents, with counter mechanics, admin validation, and full scoring integration
+- **Plans:** 4 plans
+- **Depends on:** Phase 6
+- Orders table schema for submitted order instances (referencing existing orderTypes)
+- User-facing order submission with multi-step form (race > order type > target > confirm)
+- Validation: race type compatibility, one-per-team-per-race, target validity, WC restriction
+- Admin order validation with approve/reject, bonus points for complex orders
+- Counter mechanic: Shimanobil/COVID countered by Etappeseier/Blodpose (blowback to attacker)
+- Scoring integration: order-adjusted standings, per-race breakdown annotations
+- All 12 order types handled (multipliers, zero-points, half-points, kaptein, gammel_venn, etc.)
+
+Plans:
+- [ ] 07-01-PLAN.md — Orders schema, migration, and barrel export
+- [ ] 07-02-PLAN.md — Order queries library, submission UI, and league page integration
+- [ ] 07-03-PLAN.md — Admin order validation with approve/reject and bonus points
+- [ ] 07-04-PLAN.md — Scoring integration, counter mechanic resolution, and race breakdown annotations

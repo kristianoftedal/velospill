@@ -46,3 +46,19 @@
 Plans:
 - [x] 05-01-PLAN.md — Scoring queries library + standings leaderboard page with My Team tab
 - [x] 05-02-PLAN.md — Per-race score breakdown, Race Results tab, league page integration
+
+### Phase 6: Transfer Market
+- [ ] **Goal:** Implement a waiver wire transfer system where teams bid for free agents, with priority by standings, ownership-at-race-time scoring, auto-generated transfer windows, and admin approval
+- **Plans:** 4 plans
+- **Depends on:** Phase 5
+- Waiver wire bids: drop one rider, pick up a free agent (same gender pool)
+- Transfer windows auto-generated from race calendar with admin override
+- Priority resolution: lowest-points team wins conflicting bids
+- Ownership-at-race-time: historical points stay with original team after transfer
+- Admin approval/rejection with transactional roster mutation and audit trail
+
+Plans:
+- [ ] 06-01-PLAN.md — Transfer schema, migration, and scoring queries update for ownership-at-race-time
+- [ ] 06-02-PLAN.md — Transfer queries library and team-facing bid submission UI
+- [ ] 06-03-PLAN.md — Admin transfer management UI with approve/reject actions
+- [ ] 06-04-PLAN.md — Waiver wire priority resolution, auto-window generation, and league page integration

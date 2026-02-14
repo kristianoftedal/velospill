@@ -1,4 +1,4 @@
-import { getPendingBids, getBidHistory, approveBid, rejectBid } from "./actions"
+import { getPendingBids, getBidHistory, approveBid, rejectBid, getActiveLeagues, getTransferWindows } from "./actions"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -10,12 +10,25 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { BidActions } from "./bid-actions"
+import { WaiverWireResolution, TransferWindowManagement } from "./window-management"
 
-export default async function TransfersPage() {
-  const [pendingBids, bidHistory] = await Promise.all([
+interface PageProps {
+  searchParams: Promise<{ leagueId?: string }>
+}
+
+export default async function TransfersPage({ searchParams }: PageProps) {
+  const { leagueId: leagueIdParam } = await searchParams
+  const selectedLeagueId = leagueIdParam ? parseInt(leagueIdParam, 10) : null
+
+  const [pendingBids, bidHistory, activeLeagues] = await Promise.all([
     getPendingBids(),
     getBidHistory(50),
+    getActiveLeagues(),
   ])
+
+  // Load windows for the selected league (or first active league by default)
+  const windowLeagueId = selectedLeagueId ?? activeLeagues[0]?.id ?? null
+  const windows = windowLeagueId ? await getTransferWindows(windowLeagueId) : []
 
   return (
     <div className="space-y-6">
@@ -25,6 +38,9 @@ export default async function TransfersPage() {
           Review and manage transfer bids across all leagues
         </p>
       </div>
+
+      {/* Waiver Wire Resolution */}
+      <WaiverWireResolution activeLeagues={activeLeagues} />
 
       {/* Pending Transfers */}
       <Card>
@@ -144,6 +160,12 @@ export default async function TransfersPage() {
           )}
         </CardContent>
       </Card>
+      {/* Transfer Windows */}
+      <TransferWindowManagement
+        activeLeagues={activeLeagues}
+        initialWindows={windows}
+        initialLeagueId={windowLeagueId}
+      />
     </div>
   )
 }

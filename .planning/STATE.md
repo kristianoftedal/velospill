@@ -3,21 +3,21 @@
 ## Current Position
 
 - **Phase:** 07-orders-polish-integration
-- **Current Plan:** 01 Complete
+- **Current Plan:** 02 Complete
 - **Status:** In Progress
-- **Last session:** 2026-02-14T13:51:39Z
-- **Stopped at:** Completed 07-01-PLAN.md
+- **Last session:** 2026-02-14T22:01:13Z
+- **Stopped at:** Completed 07-02-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
 Phase 06: [########] 4/4 plans complete ✓
-Phase 07: [##......] 1/4 plans complete
+Phase 07: [####....] 2/4 plans complete
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01
-Plans remaining: 07-02, 07-03, 07-04
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02
+Plans remaining: 07-03, 07-04
 
 ## Decisions
 
@@ -65,6 +65,8 @@ Plans remaining: 07-02, 07-03, 07-04
 42. **07-01:** uniqueIndex on (teamId, raceId) enforces one order per team per race at DB level
 43. **07-01:** bonusPoints column for admin-entered complex order points (Hammer, Innlagt Spurt, Lagtempo)
 44. **07-01:** orderConfig JSONB typed with $type<OrderConfig>() for kapteinChoice param
+45. **07-02:** unowned_gc_top10 (Hammer) accepts rider name in targetProTeam when no targetRiderId — admin resolves at settlement
+46. **07-02:** Orders card on league detail page uses purple to distinguish from yellow (draft), green (standings), blue (transfers)
 41. **06-04:** Transfers card on league detail page uses blue button to distinguish from green standings and yellow draft
 
 ## Performance Metrics
@@ -83,6 +85,7 @@ Plans remaining: 07-02, 07-03, 07-04
 | 06    | 03   | ~3min    | 2     | 3     |
 | 06    | 04   | ~8min    | 2     | 5     |
 | 07    | 01   | ~5min    | 2     | 2     |
+| 07    | 02   | ~2min    | 1     | 4     |
 
 ## Accumulated Context
 
@@ -124,3 +127,7 @@ None
 - orders table in Neon: order_status enum, orders table, indexes on leagueId/teamId/raceId, unique constraint on (teamId, raceId)
 - ordersRelations available for Drizzle query builder; orderStatusEnum exported from schema barrel
 - orderConfig JSONB column typed as OrderConfig with optional kapteinChoice field
+- Orders page available at /leagues/[leagueId]/orders for active leagues only
+- Multi-step order form: race > order type (filtered by effectiveRaceType) > target (7 effectTarget variants) > confirm
+- Hammer (unowned_gc_top10) stores rider name in targetProTeam text field — admin resolves rider ID at settlement
+- League detail page shows purple "Go to Orders" card for active leagues

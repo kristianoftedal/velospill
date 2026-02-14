@@ -1,8 +1,22 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { InfoIcon } from "lucide-react"
+import { getPendingBids, getBidHistory, approveBid, rejectBid } from "./actions"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { BidActions } from "./bid-actions"
 
 export default async function TransfersPage() {
+  const [pendingBids, bidHistory] = await Promise.all([
+    getPendingBids(),
+    getBidHistory(50),
+  ])
+
   return (
     <div className="space-y-6">
       <div>
@@ -12,63 +26,137 @@ export default async function TransfersPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
+      {/* Pending Transfers */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
             <CardTitle>Pending Transfers</CardTitle>
-            <CardDescription>Active transfer bids awaiting approval</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>Coming in Phase 5</AlertTitle>
-              <AlertDescription>
-                Transfer bids will appear here when the transfer system is active. You will be able to approve, reject, and monitor bids.
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
+            <Badge variant="secondary">{pendingBids.length}</Badge>
+          </div>
+          <CardDescription>Active transfer bids awaiting approval or rejection</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {pendingBids.length === 0 ? (
+            <p className="text-muted-foreground text-sm py-4 text-center">
+              No pending transfer bids
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>League</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Drops</TableHead>
+                  <TableHead>Picks Up</TableHead>
+                  <TableHead>Reason</TableHead>
+                  <TableHead>Submitted</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pendingBids.map((bid) => (
+                  <TableRow key={bid.bidId}>
+                    <TableCell className="font-medium">{bid.leagueName}</TableCell>
+                    <TableCell>{bid.teamName}</TableCell>
+                    <TableCell className="text-red-600">{bid.outRiderName}</TableCell>
+                    <TableCell className="text-green-600">{bid.inRiderName}</TableCell>
+                    <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                      {bid.reason ?? "-"}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {bid.submittedAt
+                        ? new Date(bid.submittedAt).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <BidActions
+                        bidId={bid.bidId}
+                        outRiderName={bid.outRiderName}
+                        inRiderName={bid.inRiderName}
+                        approveBid={approveBid}
+                        rejectBid={rejectBid}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Transfer Windows</CardTitle>
-            <CardDescription>Window status and deadlines</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>Coming in Phase 5</AlertTitle>
-              <AlertDescription>
-                Transfer window status and deadlines will be displayed here. Windows are determined by race calendar dates.
-              </AlertDescription>
-            </Alert>
-            <div className="mt-4 p-4 bg-muted rounded-lg text-sm space-y-2">
-              <p className="font-semibold">Transfer Window Rules:</p>
-              <ul className="space-y-1 text-muted-foreground">
-                <li>• <strong>Grand Tours:</strong> Unlimited transfers before race start</li>
-                <li>• <strong>High Priority Races:</strong> Up to 4 transfers allowed</li>
-                <li>• <strong>Low Priority/Mini Tours:</strong> Up to 2 transfers allowed</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Transfer History</CardTitle>
-            <CardDescription>Completed transfers log</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Alert>
-              <InfoIcon className="h-4 w-4" />
-              <AlertTitle>Coming in Phase 5</AlertTitle>
-              <AlertDescription>
-                Completed transfers will be logged here with timestamps and details.
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Transfer History */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Transfer History</CardTitle>
+          <CardDescription>All resolved transfer bids (last 50)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {bidHistory.length === 0 ? (
+            <p className="text-muted-foreground text-sm py-4 text-center">
+              No transfer history yet
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>League</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Out Rider</TableHead>
+                  <TableHead>In Rider</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Admin Note</TableHead>
+                  <TableHead>Resolved At</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {bidHistory.map((bid) => (
+                  <TableRow key={bid.bidId}>
+                    <TableCell className="font-medium">{bid.leagueName}</TableCell>
+                    <TableCell>{bid.teamName}</TableCell>
+                    <TableCell>{bid.outRiderName}</TableCell>
+                    <TableCell>{bid.inRiderName}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={bid.status} />
+                    </TableCell>
+                    <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                      {bid.adminNote ?? "-"}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {bid.resolvedAt
+                        ? new Date(bid.resolvedAt).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
+}
+
+function StatusBadge({ status }: { status: string | null }) {
+  if (status === "approved") {
+    return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Approved</Badge>
+  }
+  if (status === "rejected") {
+    return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Rejected</Badge>
+  }
+  if (status === "cancelled") {
+    return <Badge variant="secondary">Cancelled</Badge>
+  }
+  return <Badge variant="outline">{status ?? "Unknown"}</Badge>
 }

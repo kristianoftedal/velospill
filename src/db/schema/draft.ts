@@ -37,6 +37,10 @@ export const draftPicks = pgTable("draft_picks", {
   pickedAt: timestamp("pickedAt", { withTimezone: true }).notNull().defaultNow()
 }, (table) => ({
   riderLeagueUnique: uniqueIndex("draft_picks_rider_league_unique").on(table.leagueId, table.riderId),
+  // NOTE: The database uses a partial unique index (WHERE pickNumber >= 0) to allow negative pickNumbers
+  // for transfer-generated picks. The partial index is maintained via direct SQL (Drizzle ORM does not
+  // natively support partial indexes in the schema builder). This definition is kept as a placeholder
+  // but the actual DB index is: CREATE UNIQUE INDEX draft_picks_pick_number_unique ON draft_picks(leagueId, pickNumber) WHERE pickNumber >= 0
   pickNumberUnique: uniqueIndex("draft_picks_pick_number_unique").on(table.leagueId, table.pickNumber),
   leagueIdx: index("draft_picks_league_idx").on(table.leagueId),
   teamIdx: index("draft_picks_team_idx").on(table.teamId)

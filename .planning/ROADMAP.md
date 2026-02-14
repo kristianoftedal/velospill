@@ -36,7 +36,7 @@
 - Post-draft recap view
 
 ### Phase 5: Scoring & Points System
-- [ ] **Goal:** Calculate fantasy points from race results, update team standings, and display league leaderboards
+- [x] **Goal:** Calculate fantasy points from race results, update team standings, and display league leaderboards
 - **Plans:** 2 plans
 - Team score aggregation from individual rider performances (on-demand SQL aggregation)
 - League standings and leaderboard views with tabbed UI (Leaderboard / My Team / Race Results)
@@ -44,5 +44,5 @@
 - Season-long cumulative scoring scoped via league config seasonYear
 
 Plans:
-- [ ] 05-01-PLAN.md — Scoring queries library + standings leaderboard page with My Team tab
-- [ ] 05-02-PLAN.md — Per-race score breakdown, Race Results tab, league page integration
+- [x] 05-01-PLAN.md — Scoring queries library + standings leaderboard page with My Team tab
+- [x] 05-02-PLAN.md — Per-race score breakdown, Race Results tab, league page integration

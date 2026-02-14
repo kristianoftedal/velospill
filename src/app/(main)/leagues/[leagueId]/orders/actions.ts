@@ -248,23 +248,27 @@ export async function submitOrder(formData: {
       return { success: false, error: "Invalid Kaptein choice" }
     }
   } else if (effectTarget === "unowned_gc_top10") {
-    // Hammer: targetRiderId must NOT be on any team in the league
-    if (!targetRiderId) {
-      return { success: false, error: "You must select a rider not owned by any team" }
+    // Hammer: accepts either targetRiderId (DB lookup) or targetProTeam (rider name text for admin resolution)
+    if (!targetRiderId && (!targetProTeam || targetProTeam.trim() === "")) {
+      return { success: false, error: "You must specify a GC top-10 rider not owned by any team" }
     }
-    const anyPick = await db
-      .select()
-      .from(draftPicks)
-      .where(
-        and(
-          eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.riderId, targetRiderId)
+    if (targetRiderId) {
+      // If a rider ID is provided, verify they are not drafted in this league
+      const anyPick = await db
+        .select()
+        .from(draftPicks)
+        .where(
+          and(
+            eq(draftPicks.leagueId, leagueId),
+            eq(draftPicks.riderId, targetRiderId)
+          )
         )
-      )
-      .limit(1)
-    if (anyPick[0]) {
-      return { success: false, error: "Target rider is already drafted by a team in this league" }
+        .limit(1)
+      if (anyPick[0]) {
+        return { success: false, error: "Target rider is already drafted by a team in this league" }
+      }
     }
+    // If only targetProTeam (rider name) is provided, admin will resolve the lookup
   } else if (effectTarget === "real_team") {
     if (!targetProTeam || targetProTeam.trim() === "") {
       return { success: false, error: "You must specify a professional cycling team name" }

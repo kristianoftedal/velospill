@@ -3,20 +3,20 @@
 ## Current Position
 
 - **Phase:** 06-transfer-market
-- **Current Plan:** 01 Complete
+- **Current Plan:** 02 Complete
 - **Status:** In Progress
-- **Last session:** 2026-02-14T11:52:36Z
-- **Stopped at:** Completed 06-01-PLAN.md
+- **Last session:** 2026-02-14T12:06:44Z
+- **Stopped at:** Completed 06-02-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
-Phase 06: [####....] 1/? plans complete (06-01 done)
+Phase 06: [######..] 2/? plans complete (06-01, 06-02 done)
 ```
 
-Plans complete: 05-01, 05-02, 06-01
-Plans remaining: 06-02, 06-03, 06-04 (per roadmap)
+Plans complete: 05-01, 05-02, 06-01, 06-02
+Plans remaining: 06-03, 06-04 (per roadmap)
 
 ## Decisions
 
@@ -50,6 +50,9 @@ Plans remaining: 06-02, 06-03, 06-04 (per roadmap)
 28. **06-01:** getRaceScoreBreakdown adds races INNER JOIN and lte(pickedAt, startDate) on draftPicks to handle case where raceId is a parameter
 29. **06-01:** Pool.connect() used for DDL migration — neon serverless sql.unsafe() does not reliably commit DDL transactions
 30. **06-01:** Negative pickNumbers used as sentinels for transfer-generated draftPick rows; partial index WHERE pickNumber >= 0 enforces uniqueness only for real draft picks
+31. **06-02:** alias() imported from drizzle-orm/pg-core (not drizzle-orm) — not exported from the main package in drizzle-orm 0.45.x
+32. **06-02:** getTeamTransferCount queries window record internally for dates to keep caller interface clean (only requires windowId)
+33. **06-02:** Two-step bid form enforces gender constraint at client level (shows only same-gender free agents) before server-side validation
 
 ## Performance Metrics
 
@@ -63,6 +66,7 @@ Plans remaining: 06-02, 06-03, 06-04 (per roadmap)
 | 05    | 01   | ~3min    | 2     | 3     |
 | 05    | 02   | ~6min    | 2     | 5     |
 | 06    | 01   | ~14min   | 2     | 5     |
+| 06    | 02   | ~10min   | 2     | 4     |
 
 ## Accumulated Context
 
@@ -89,3 +93,6 @@ None
 - Scoring queries use pickedAt/startDate temporal filter for ownership-at-race-time (all 4 functions)
 - Use Pool.connect() for DDL migrations to Neon; neon() http driver sql.unsafe() does not reliably commit DDL
 - Negative pickNumbers are sentinel values for transfer-generated draftPick rows
+- Team transfers page available at /leagues/[leagueId]/transfers for active leagues only
+- Transfer bid UI uses two-step form: select rider to drop, then pick same-gender free agent
+- Gender constraint enforced both client-side (UI filtering) and server-side (action validation)

@@ -2,20 +2,20 @@
 
 ## Current Position
 
-- **Phase:** 04-live-draft-system
-- **Current Plan:** 04 (next to execute)
+- **Phase:** 05-scoring-points-system
+- **Current Plan:** 02 (next to execute)
 - **Status:** In Progress
-- **Last session:** 2026-02-13T09:38:00Z
-- **Stopped at:** Completed 04-03-PLAN.md
+- **Last session:** 2026-02-14T06:34:04Z
+- **Stopped at:** Completed 05-01-PLAN.md
 
 ## Progress
 
 ```
-Phase 04: [###.....] 3/4 plans complete
+Phase 05: [#.......] 1/? plans complete
 ```
 
-Plans complete: 04-01, 04-02, 04-03
-Plans remaining: 04-04
+Plans complete: 05-01
+Plans remaining: 05-02+
 
 ## Decisions
 
@@ -37,6 +37,10 @@ Plans remaining: 04-04
 16. **04-03:** RiderPicker filters client-side from availableRiders prop (no server refetch per keystroke)
 17. **04-03:** DraftBoard derives slot positions from buildDraftOrder to stay consistent with server-side snake logic
 18. **04-03:** public/sounds/README.md added as placeholder — user must place MP3 for audio notification
+19. **05-01:** Season scoping applied in JOIN condition (not WHERE) to preserve LEFT JOIN zero-point team semantics
+20. **05-01:** Rank derived in JS array map with tie-handling rather than SQL RANK() window function
+21. **05-01:** leagueId included in draftPicks JOIN condition (not just teamId) for explicit multi-tenant isolation
+22. **05-01:** Status guard blocks standings for setup/drafting leagues with informative message and back link
 
 ## Performance Metrics
 
@@ -47,6 +51,7 @@ Plans remaining: 04-04
 | 04    | 01   | ~3min    | 2     | 7     |
 | 04    | 02   | ~2min    | 2     | 3     |
 | 04    | 03   | ~8min    | 2     | 5     |
+| 05    | 01   | ~3min    | 2     | 3     |
 
 ## Blockers
 
@@ -62,3 +67,4 @@ None
 - Pusher presence channel naming pattern: presence-draft-{leagueId}
 - npm run build fails due to pre-existing drizzle-kit 0.18.x type error in drizzle.config.ts — all project source files compile cleanly
 - /public/sounds/your-turn.mp3 must be placed manually by user for audio notification in draft room
+- Standings available at /leagues/[leagueId]/standings for active/complete leagues only

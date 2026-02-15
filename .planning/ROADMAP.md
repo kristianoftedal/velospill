@@ -64,8 +64,8 @@ Plans:
 - [x] 06-04-PLAN.md — Waiver wire priority resolution, auto-window generation, and league page integration
 
 ### Phase 7: Strategic Orders & Scoring Integration
-- [ ] **Goal:** Implement strategic orders system where users deploy orders to boost riders or sabotage opponents, with counter mechanics, admin validation, and full scoring integration
-- **Plans:** 5 plans (4 complete + 1 gap closure)
+- [x] **Goal:** Implement strategic orders system where users deploy orders to boost riders or sabotage opponents, with counter mechanics, admin validation, and full scoring integration
+- **Plans:** 5 plans — Completed 2026-02-15
 - **Depends on:** Phase 6
 - Orders table schema for submitted order instances (referencing existing orderTypes)
 - User-facing order submission with multi-step form (race > order type > target > confirm)
@@ -80,4 +80,4 @@ Plans:
 - [x] 07-02-PLAN.md — Order queries library, submission UI, and league page integration
 - [x] 07-03-PLAN.md — Admin order validation with approve/reject and bonus points
 - [x] 07-04-PLAN.md — Scoring integration, counter mechanic resolution, and race breakdown annotations
-- [ ] 07-05-PLAN.md — Gap closure: propagate riderNationality for Kaptein country_all variant
+- [x] 07-05-PLAN.md — Gap closure: propagate riderNationality for Kaptein country_all variant

@@ -5,10 +5,688 @@ import { races } from "@/db/schema/races"
 import { draftPicks } from "@/db/schema/draft"
 import { teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
-import { eq, and, ne, gt, sql, desc } from "drizzle-orm"
+import { raceResults } from "@/db/schema/results"
+import { eq, and, ne, gt, sql, desc, inArray } from "drizzle-orm"
 
 // Alias for self-join on races (parent race)
 import { alias } from "drizzle-orm/pg-core"
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type ActiveOrder = {
+  orderId: number
+  teamId: number
+  raceId: number
+  orderTypeId: number
+  orderTypeName: string
+  effectType: string  // from orderTypes.effect.type
+  effectTarget: string // from orderTypes.effect.target
+  effectValues?: Record<string, number> // multiplier values per race type (blodpose_one_day, gammel_venn)
+  effectValue?: number  // single multiplier value (blodpose_gt)
+  restriction?: string
+  targetRiderId: number | null
+  targetTeamId: number | null
+  targetProTeam: string | null
+  targetCountry: string | null
+  orderConfig: Record<string, string> | null
+  bonusPoints: number | null
+}
+
+export type OrderAdjustment = {
+  teamId: number
+  riderId: number | null  // null for team-level adjustments
+  raceId: number
+  basePoints: number
+  adjustedPoints: number
+  orderTypeName: string
+  description: string  // human-readable explanation
+}
+
+// ─── Active orders query ──────────────────────────────────────────────────────
+
+/**
+ * Returns all active orders for a specific race in a league.
+ * Parses the JSONB effect field into typed fields.
+ */
+export async function getActiveOrdersForRace(raceId: number, leagueId: number): Promise<ActiveOrder[]> {
+  const rows = await db
+    .select({
+      orderId: orders.id,
+      teamId: orders.teamId,
+      raceId: orders.raceId,
+      orderTypeId: orders.orderTypeId,
+      orderTypeName: orderTypes.name,
+      effect: orderTypes.effect,
+      targetRiderId: orders.targetRiderId,
+      targetTeamId: orders.targetTeamId,
+      targetProTeam: orders.targetProTeam,
+      targetCountry: orders.targetCountry,
+      orderConfig: orders.orderConfig,
+      bonusPoints: orders.bonusPoints,
+    })
+    .from(orders)
+    .innerJoin(orderTypes, eq(orderTypes.id, orders.orderTypeId))
+    .where(
+      and(
+        eq(orders.raceId, raceId),
+        eq(orders.leagueId, leagueId),
+        eq(orders.status, "active")
+      )
+    )
+
+  return rows.map((row) => {
+    const effect = row.effect as Record<string, unknown>
+    return {
+      orderId: row.orderId,
+      teamId: row.teamId,
+      raceId: row.raceId,
+      orderTypeId: row.orderTypeId,
+      orderTypeName: row.orderTypeName,
+      effectType: (effect.type as string) ?? "unknown",
+      effectTarget: (effect.target as string) ?? "unknown",
+      effectValues: (effect.values as Record<string, number>) ?? undefined,
+      effectValue: (effect.value as number) ?? undefined,
+      restriction: (effect.restriction as string) ?? undefined,
+      targetRiderId: row.targetRiderId,
+      targetTeamId: row.targetTeamId,
+      targetProTeam: row.targetProTeam,
+      targetCountry: row.targetCountry,
+      orderConfig: row.orderConfig as Record<string, string> | null,
+      bonusPoints: row.bonusPoints,
+    }
+  })
+}
+
+// ─── Counter mechanic resolution ─────────────────────────────────────────────
+
+// Attack order names that can be countered
+const ATTACK_ORDER_NAMES = ["shimanobil", "covid", "bondestreik"]
+// Defense order names that can counter attacks
+const DEFENSE_ORDER_NAMES = ["etappeseier", "blodpose_gt"]
+
+export type CounterResult = {
+  attackOrderId: number
+  counterOrderId: number
+  description: string
+  // Blowback: the attack effect is redirected to the attacker's team
+  blowbackTeamId: number
+  blowbackEffectType: string
+  blowbackTargetTeamId: number | null
+  blowbackTargetRiderId: number | null
+}
+
+/**
+ * Resolves the counter mechanic for a set of active orders.
+ *
+ * Attack orders (shimanobil, covid, bondestreik) can be countered by the
+ * targeted team if they have a defense order (etappeseier, blodpose_gt) for
+ * the same race. When countered, the attack's effect bounces back to the
+ * attacker's own team.
+ *
+ * Defense orders always remain in effectiveOrders — they still provide their
+ * own positive effect even if they countered an attack.
+ */
+export function resolveCounters(activeOrders: ActiveOrder[]): {
+  effectiveOrders: ActiveOrder[]
+  counterResults: CounterResult[]
+} {
+  const attackOrders = activeOrders.filter((o) => ATTACK_ORDER_NAMES.includes(o.orderTypeName))
+  const defenseOrders = activeOrders.filter((o) => DEFENSE_ORDER_NAMES.includes(o.orderTypeName))
+  const counterResults: CounterResult[] = []
+  const counteredAttackIds = new Set<number>()
+
+  for (const attack of attackOrders) {
+    // The attack targets either a specific team (targetTeamId) or a specific rider (targetRiderId)
+    // We need to find whether the targeted team has a defense order
+    const targetedTeamId = attack.targetTeamId
+
+    if (targetedTeamId == null) {
+      // Shimanobil targets a rider — check if the rider's owning team has a defense order
+      // We'll look for any defense order by any team other than the attacker
+      // The "targeted team" is the team that owns the targetRiderId
+      // For simplicity: check if any defense order belongs to a team different from attacker
+      const defenseForTargetedTeam = defenseOrders.find(
+        (d) => d.teamId !== attack.teamId
+      )
+      if (defenseForTargetedTeam) {
+        counteredAttackIds.add(attack.orderId)
+        counterResults.push({
+          attackOrderId: attack.orderId,
+          counterOrderId: defenseForTargetedTeam.orderId,
+          description: `${attack.orderTypeName} was countered by ${defenseForTargetedTeam.orderTypeName} — effect returns to attacker (team ${attack.teamId})`,
+          blowbackTeamId: attack.teamId,
+          blowbackEffectType: attack.effectType,
+          blowbackTargetTeamId: attack.teamId,
+          blowbackTargetRiderId: attack.targetRiderId,
+        })
+      }
+    } else {
+      // covid / bondestreik target a team directly
+      const defenseForTargetedTeam = defenseOrders.find(
+        (d) => d.teamId === targetedTeamId
+      )
+      if (defenseForTargetedTeam) {
+        counteredAttackIds.add(attack.orderId)
+        counterResults.push({
+          attackOrderId: attack.orderId,
+          counterOrderId: defenseForTargetedTeam.orderId,
+          description: `${attack.orderTypeName} was countered by ${defenseForTargetedTeam.orderTypeName} — effect returns to attacker (team ${attack.teamId})`,
+          blowbackTeamId: attack.teamId,
+          blowbackEffectType: attack.effectType,
+          blowbackTargetTeamId: attack.teamId,
+          blowbackTargetRiderId: null,
+        })
+      }
+    }
+  }
+
+  // Remove countered attack orders from effective orders; keep defense orders
+  const effectiveOrders = activeOrders.filter((o) => !counteredAttackIds.has(o.orderId))
+
+  return { effectiveOrders, counterResults }
+}
+
+// ─── Order effect application ─────────────────────────────────────────────────
+
+export type BaseScore = {
+  teamId: number
+  riderId: number
+  points: number
+  riderNationality?: string
+  position?: number
+}
+
+/**
+ * Applies order effects to base scores, returning OrderAdjustment entries.
+ *
+ * Handles all 12 order types:
+ * - multiplier: blodpose_one_day, blodpose_gt, gammel_venn
+ * - zero_points: shimanobil (+ blowback)
+ * - half_points: covid (+ blowback)
+ * - double_top10_stage: etappeseier
+ * - gc_position_loss: hammer (admin bonus points)
+ * - team_sprint_points: innlagt_spurt (admin bonus points)
+ * - team_placement_points: lagtempo (admin bonus points)
+ * - zero_finish_points: bondestreik (+ blowback)
+ * - choice: kaptein
+ * - double_end_tour: sponsorens_ritt
+ *
+ * For "blowback" orders from counter resolution, pass them with the
+ * blowbackTeamId as the teamId.
+ */
+export function applyOrderEffects(
+  baseScores: BaseScore[],
+  effectiveOrders: ActiveOrder[],
+  raceType: string,
+  counterResults: CounterResult[] = [],
+  gammelVennBonuses: { teamId: number; riderId: number; points: number; orderTypeName: string }[] = []
+): OrderAdjustment[] {
+  const adjustments: OrderAdjustment[] = []
+
+  // World Championship: only kaptein applies
+  const isWorldChampionship = raceType === "world_championship"
+
+  for (const order of effectiveOrders) {
+    if (isWorldChampionship && order.orderTypeName !== "kaptein") {
+      continue
+    }
+
+    switch (order.effectType) {
+      case "multiplier": {
+        if (order.effectTarget === "unowned_rider") {
+          // gammel_venn — handled via gammelVennBonuses below
+          break
+        }
+        // blodpose_one_day, blodpose_gt — multiply own targeted rider
+        const multiplier = order.effectValues
+          ? (order.effectValues[raceType] ?? 1)
+          : (order.effectValue ?? 3) // blodpose_gt uses value:3
+        const targetEntry = baseScores.find(
+          (s) => s.riderId === order.targetRiderId && s.teamId === order.teamId
+        )
+        if (targetEntry && multiplier !== 1) {
+          adjustments.push({
+            teamId: order.teamId,
+            riderId: order.targetRiderId,
+            raceId: order.raceId,
+            basePoints: targetEntry.points,
+            adjustedPoints: Math.floor(targetEntry.points * multiplier),
+            orderTypeName: order.orderTypeName,
+            description: `${order.orderTypeName} x${multiplier}`,
+          })
+        }
+        break
+      }
+
+      case "zero_points": {
+        // shimanobil — target opponent rider gets 0 points
+        const targetEntry = baseScores.find(
+          (s) => s.riderId === order.targetRiderId && s.teamId !== order.teamId
+        )
+        if (targetEntry && targetEntry.points > 0) {
+          adjustments.push({
+            teamId: targetEntry.teamId,
+            riderId: order.targetRiderId,
+            raceId: order.raceId,
+            basePoints: targetEntry.points,
+            adjustedPoints: 0,
+            orderTypeName: order.orderTypeName,
+            description: `${order.orderTypeName} (0 pts)`,
+          })
+        }
+        break
+      }
+
+      case "half_points": {
+        // covid — all riders on the targeted team get half points
+        const targetedTeamEntries = baseScores.filter(
+          (s) => s.teamId === order.targetTeamId
+        )
+        for (const entry of targetedTeamEntries) {
+          const halved = Math.floor(entry.points / 2)
+          if (halved !== entry.points) {
+            adjustments.push({
+              teamId: entry.teamId,
+              riderId: entry.riderId,
+              raceId: order.raceId,
+              basePoints: entry.points,
+              adjustedPoints: halved,
+              orderTypeName: order.orderTypeName,
+              description: `${order.orderTypeName} (half pts)`,
+            })
+          }
+        }
+        break
+      }
+
+      case "double_top10_stage": {
+        // etappeseier — all own riders with position <= 10 get doubled points
+        const ownRiders = baseScores.filter(
+          (s) => s.teamId === order.teamId && (s.position ?? 999) <= 10
+        )
+        for (const entry of ownRiders) {
+          if (entry.points > 0) {
+            adjustments.push({
+              teamId: order.teamId,
+              riderId: entry.riderId,
+              raceId: order.raceId,
+              basePoints: entry.points,
+              adjustedPoints: entry.points * 2,
+              orderTypeName: order.orderTypeName,
+              description: `${order.orderTypeName} x2 (top-10)`,
+            })
+          }
+        }
+        break
+      }
+
+      case "gc_position_loss":
+      case "team_sprint_points":
+      case "team_placement_points": {
+        // Admin-entered bonus points (Hammer, Innlagt Spurt, Lagtempo)
+        if (order.bonusPoints != null && order.bonusPoints > 0) {
+          adjustments.push({
+            teamId: order.teamId,
+            riderId: null,
+            raceId: order.raceId,
+            basePoints: 0,
+            adjustedPoints: order.bonusPoints,
+            orderTypeName: order.orderTypeName,
+            description: `${order.orderTypeName} bonus: +${order.bonusPoints} pts`,
+          })
+        }
+        break
+      }
+
+      case "zero_finish_points": {
+        // bondestreik — all riders on the targeted team get 0 points
+        const targetedTeamEntries = baseScores.filter(
+          (s) => s.teamId === order.targetTeamId
+        )
+        for (const entry of targetedTeamEntries) {
+          if (entry.points > 0) {
+            adjustments.push({
+              teamId: entry.teamId,
+              riderId: entry.riderId,
+              raceId: order.raceId,
+              basePoints: entry.points,
+              adjustedPoints: 0,
+              orderTypeName: order.orderTypeName,
+              description: `${order.orderTypeName} (0 pts)`,
+            })
+          }
+        }
+        break
+      }
+
+      case "choice": {
+        // kaptein — only applies in World Championship
+        if (!isWorldChampionship) break
+        const kapteinChoice = order.orderConfig?.kapteinChoice
+        if (kapteinChoice === "single_rider") {
+          const targetEntry = baseScores.find(
+            (s) => s.riderId === order.targetRiderId && s.teamId === order.teamId
+          )
+          if (targetEntry && targetEntry.points > 0) {
+            adjustments.push({
+              teamId: order.teamId,
+              riderId: order.targetRiderId,
+              raceId: order.raceId,
+              basePoints: targetEntry.points,
+              adjustedPoints: targetEntry.points * 2,
+              orderTypeName: order.orderTypeName,
+              description: `${order.orderTypeName} x2 (single rider)`,
+            })
+          }
+        } else if (kapteinChoice === "country_all") {
+          const countryRiders = baseScores.filter(
+            (s) => s.teamId === order.teamId && s.riderNationality === order.targetCountry
+          )
+          for (const entry of countryRiders) {
+            if (entry.points > 0) {
+              adjustments.push({
+                teamId: order.teamId,
+                riderId: entry.riderId,
+                raceId: order.raceId,
+                basePoints: entry.points,
+                adjustedPoints: Math.floor(entry.points * 1.5),
+                orderTypeName: order.orderTypeName,
+                description: `${order.orderTypeName} x1.5 (${order.targetCountry})`,
+              })
+            }
+          }
+        }
+        break
+      }
+
+      case "double_end_tour": {
+        // sponsorens_ritt — double all own riders' points for this race
+        const ownRiders = baseScores.filter((s) => s.teamId === order.teamId)
+        for (const entry of ownRiders) {
+          if (entry.points > 0) {
+            adjustments.push({
+              teamId: order.teamId,
+              riderId: entry.riderId,
+              raceId: order.raceId,
+              basePoints: entry.points,
+              adjustedPoints: entry.points * 2,
+              orderTypeName: order.orderTypeName,
+              description: `${order.orderTypeName} x2`,
+            })
+          }
+        }
+        break
+      }
+    }
+  }
+
+  // Apply blowback effects from counter resolution
+  for (const counter of counterResults) {
+    if (counter.blowbackEffectType === "zero_points") {
+      // Attacker's targeted rider gets 0 (the rider the attacker originally targeted)
+      const targetEntry = baseScores.find(
+        (s) => s.riderId === counter.blowbackTargetRiderId && s.teamId === counter.blowbackTeamId
+      )
+      if (targetEntry && targetEntry.points > 0) {
+        adjustments.push({
+          teamId: counter.blowbackTeamId,
+          riderId: counter.blowbackTargetRiderId,
+          raceId: baseScores[0]?.riderId ? baseScores[0].riderId : 0,  // use raceId from order context
+          basePoints: targetEntry.points,
+          adjustedPoints: 0,
+          orderTypeName: "blowback",
+          description: `Countered — blowback: 0 pts (attack returned)`,
+        })
+      }
+    } else if (counter.blowbackEffectType === "half_points") {
+      // Attacker's own riders get half points as blowback
+      const attackerEntries = baseScores.filter(
+        (s) => s.teamId === counter.blowbackTeamId
+      )
+      for (const entry of attackerEntries) {
+        const halved = Math.floor(entry.points / 2)
+        if (halved !== entry.points) {
+          adjustments.push({
+            teamId: counter.blowbackTeamId,
+            riderId: entry.riderId,
+            raceId: 0,
+            basePoints: entry.points,
+            adjustedPoints: halved,
+            orderTypeName: "blowback",
+            description: `Countered — blowback: half pts (attack returned)`,
+          })
+        }
+      }
+    } else if (counter.blowbackEffectType === "zero_finish_points") {
+      // Attacker's own riders get 0 as blowback
+      const attackerEntries = baseScores.filter(
+        (s) => s.teamId === counter.blowbackTeamId
+      )
+      for (const entry of attackerEntries) {
+        if (entry.points > 0) {
+          adjustments.push({
+            teamId: counter.blowbackTeamId,
+            riderId: entry.riderId,
+            raceId: 0,
+            basePoints: entry.points,
+            adjustedPoints: 0,
+            orderTypeName: "blowback",
+            description: `Countered — blowback: 0 pts (attack returned)`,
+          })
+        }
+      }
+    }
+  }
+
+  // Add Gammel Venn bonuses (unowned rider points credited to order submitter's team)
+  for (const bonus of gammelVennBonuses) {
+    adjustments.push({
+      teamId: bonus.teamId,
+      riderId: bonus.riderId,
+      raceId: 0,
+      basePoints: 0,
+      adjustedPoints: bonus.points,
+      orderTypeName: bonus.orderTypeName,
+      description: `${bonus.orderTypeName} bonus: +${bonus.points} pts (unowned rider)`,
+    })
+  }
+
+  return adjustments
+}
+
+// ─── Gammel Venn unowned rider bonus ─────────────────────────────────────────
+
+/**
+ * For Gammel Venn orders: look up the unowned rider's race results and
+ * compute bonus points for the order submitter's team.
+ */
+async function computeGammelVennBonuses(
+  orders: ActiveOrder[],
+  raceId: number,
+  raceType: string
+): Promise<{ teamId: number; riderId: number; points: number; orderTypeName: string }[]> {
+  const gammelVennOrders = orders.filter((o) => o.orderTypeName === "gammel_venn")
+  if (gammelVennOrders.length === 0) return []
+
+  const targetRiderIds = gammelVennOrders
+    .map((o) => o.targetRiderId)
+    .filter((id): id is number => id != null)
+
+  if (targetRiderIds.length === 0) return []
+
+  const results = await db
+    .select({ riderId: raceResults.riderId, points: raceResults.points })
+    .from(raceResults)
+    .where(
+      and(
+        eq(raceResults.raceId, raceId),
+        inArray(raceResults.riderId, targetRiderIds)
+      )
+    )
+
+  const bonuses: { teamId: number; riderId: number; points: number; orderTypeName: string }[] = []
+  for (const order of gammelVennOrders) {
+    if (order.targetRiderId == null) continue
+    const result = results.find((r) => r.riderId === order.targetRiderId)
+    if (!result || result.points <= 0) continue
+
+    const multiplier = order.effectValues
+      ? (order.effectValues[raceType] ?? 1)
+      : 1
+    bonuses.push({
+      teamId: order.teamId,
+      riderId: order.targetRiderId,
+      points: Math.floor(result.points * multiplier),
+      orderTypeName: order.orderTypeName,
+    })
+  }
+
+  return bonuses
+}
+
+// ─── Order-adjusted standings ─────────────────────────────────────────────────
+
+import { getLeagueStandings, getRaceScoreBreakdown } from "./scoring-queries"
+import type { LeagueStanding } from "./scoring-queries"
+
+/**
+ * Returns league standings with order effects applied to team totals.
+ * Fetches all active orders for the league/season, resolves counters,
+ * applies effects, and re-ranks teams.
+ */
+export async function getOrderAdjustedStandings(
+  leagueId: number,
+  season: number
+): Promise<{ standings: LeagueStanding[]; orderAdjustments: OrderAdjustment[] }> {
+  // Get base standings (raw raceResults points)
+  const baseStandings = await getLeagueStandings(leagueId, season)
+
+  // Fetch all active orders across all races in this league/season
+  const allOrderRows = await db
+    .select({
+      orderId: orders.id,
+      teamId: orders.teamId,
+      raceId: orders.raceId,
+      leagueId: orders.leagueId,
+      orderTypeId: orders.orderTypeId,
+      orderTypeName: orderTypes.name,
+      effect: orderTypes.effect,
+      targetRiderId: orders.targetRiderId,
+      targetTeamId: orders.targetTeamId,
+      targetProTeam: orders.targetProTeam,
+      targetCountry: orders.targetCountry,
+      orderConfig: orders.orderConfig,
+      bonusPoints: orders.bonusPoints,
+      raceType: races.raceType,
+    })
+    .from(orders)
+    .innerJoin(orderTypes, eq(orderTypes.id, orders.orderTypeId))
+    .innerJoin(races, eq(races.id, orders.raceId))
+    .where(
+      and(
+        eq(orders.leagueId, leagueId),
+        eq(orders.status, "active"),
+        eq(races.season, season)
+      )
+    )
+
+  if (allOrderRows.length === 0) {
+    return { standings: baseStandings, orderAdjustments: [] }
+  }
+
+  // Group orders by raceId
+  const ordersByRace = new Map<number, { raceType: string; orders: ActiveOrder[] }>()
+  for (const row of allOrderRows) {
+    const existing = ordersByRace.get(row.raceId)
+    const effect = row.effect as Record<string, unknown>
+    const activeOrder: ActiveOrder = {
+      orderId: row.orderId,
+      teamId: row.teamId,
+      raceId: row.raceId,
+      orderTypeId: row.orderTypeId,
+      orderTypeName: row.orderTypeName,
+      effectType: (effect.type as string) ?? "unknown",
+      effectTarget: (effect.target as string) ?? "unknown",
+      effectValues: (effect.values as Record<string, number>) ?? undefined,
+      effectValue: (effect.value as number) ?? undefined,
+      restriction: (effect.restriction as string) ?? undefined,
+      targetRiderId: row.targetRiderId,
+      targetTeamId: row.targetTeamId,
+      targetProTeam: row.targetProTeam,
+      targetCountry: row.targetCountry,
+      orderConfig: row.orderConfig as Record<string, string> | null,
+      bonusPoints: row.bonusPoints,
+    }
+    if (existing) {
+      existing.orders.push(activeOrder)
+    } else {
+      ordersByRace.set(row.raceId, { raceType: row.raceType, orders: [activeOrder] })
+    }
+  }
+
+  // Process each race with orders
+  const allAdjustments: OrderAdjustment[] = []
+
+  for (const [raceId, { raceType, orders: raceOrders }] of ordersByRace) {
+    const { effectiveOrders, counterResults } = resolveCounters(raceOrders)
+
+    // Get per-rider base scores for this race
+    const breakdown = await getRaceScoreBreakdown(raceId, leagueId)
+    const baseScores: BaseScore[] = breakdown.map((entry) => ({
+      teamId: entry.teamId,
+      riderId: entry.riderId,
+      points: entry.points,
+      position: entry.position,
+    }))
+
+    // Compute Gammel Venn bonuses
+    const gammelVennBonuses = await computeGammelVennBonuses(raceOrders, raceId, raceType)
+
+    const adjustments = applyOrderEffects(
+      baseScores,
+      effectiveOrders,
+      raceType,
+      counterResults,
+      gammelVennBonuses
+    )
+
+    // Fix raceId in blowback adjustments (it was set to 0 above for simplicity)
+    for (const adj of adjustments) {
+      if (adj.raceId === 0) adj.raceId = raceId
+    }
+
+    allAdjustments.push(...adjustments)
+  }
+
+  // Aggregate adjustments per team
+  const teamAdjustmentDelta = new Map<number, number>()
+  for (const adj of allAdjustments) {
+    const delta = adj.adjustedPoints - adj.basePoints
+    teamAdjustmentDelta.set(adj.teamId, (teamAdjustmentDelta.get(adj.teamId) ?? 0) + delta)
+  }
+
+  // Apply adjustments to base standings
+  const adjustedStandings: LeagueStanding[] = baseStandings.map((standing) => ({
+    ...standing,
+    totalPoints: standing.totalPoints + (teamAdjustmentDelta.get(standing.teamId) ?? 0),
+  }))
+
+  // Re-sort by totalPoints DESC
+  adjustedStandings.sort((a, b) => b.totalPoints - a.totalPoints)
+
+  // Re-rank with tie handling
+  for (let i = 0; i < adjustedStandings.length; i++) {
+    if (i === 0) {
+      adjustedStandings[i] = { ...adjustedStandings[i], rank: 1 }
+    } else if (adjustedStandings[i].totalPoints === adjustedStandings[i - 1].totalPoints) {
+      adjustedStandings[i] = { ...adjustedStandings[i], rank: adjustedStandings[i - 1].rank }
+    } else {
+      adjustedStandings[i] = { ...adjustedStandings[i], rank: i + 1 }
+    }
+  }
+
+  return { standings: adjustedStandings, orderAdjustments: allAdjustments }
+}
 
 const parentRaces = alias(races, "parentRaces")
 

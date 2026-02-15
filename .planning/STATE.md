@@ -3,20 +3,20 @@
 ## Current Position
 
 - **Phase:** 07-orders-polish-integration
-- **Current Plan:** 04 Complete
+- **Current Plan:** 05 Complete
 - **Status:** Complete
-- **Last session:** 2026-02-14T22:09:34Z
-- **Stopped at:** Completed 07-04-PLAN.md
+- **Last session:** 2026-02-15T08:27:00Z
+- **Stopped at:** Completed 07-05-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
 Phase 06: [########] 4/4 plans complete ✓
-Phase 07: [########] 4/4 plans complete ✓
+Phase 07: [##########] 5/5 plans complete ✓
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05
 Plans remaining: (none)
 
 ## Decisions
@@ -71,6 +71,8 @@ Plans remaining: (none)
 48. **07-04:** effectValue (singular) added to ActiveOrder alongside effectValues (plural) — blodpose_gt uses value:3, blodpose_one_day uses values:{race_type: multiplier}
 49. **07-04:** World Championship guard in applyOrderEffects skips all orders except kaptein — enforces game rule
 50. **07-04:** riderId=-1 sentinel for bonus rows in RaceScoreEntryWithOrders (Gammel Venn, admin bonus have no draftPick rider)
+51. **07-05:** riderNationality: string required (not optional) in RaceScoreEntry; synthetic bonus rows use riderNationality: "" to satisfy the type
+52. **07-05:** Shimanobil counter ownership-lookup limitation documented via TODO comment — resolveCounters is a pure function and cannot determine rider ownership without targetTeamId; fix requires storing targetTeamId at order submission
 41. **06-04:** Transfers card on league detail page uses blue button to distinguish from green standings and yellow draft
 
 ## Performance Metrics
@@ -91,6 +93,7 @@ Plans remaining: (none)
 | 07    | 01   | ~5min    | 2     | 2     |
 | 07    | 02   | ~2min    | 1     | 4     |
 | 07    | 04   | ~8min    | 2     | 4     |
+| 07    | 05   | ~5min    | 2     | 2     |
 
 ## Accumulated Context
 
@@ -143,3 +146,5 @@ None
 - Gammel Venn: unowned rider's points x multiplier added as bonus to order submitter's team total
 - Hammer/Innlagt Spurt/Lagtempo: admin-entered bonusPoints column used (no auto-calculation in Phase 07)
 - Raw getLeagueStandings and getRaceScoreBreakdown remain available for backward compatibility
+- Kaptein country_all gap closed (07-05): riderNationality now selected from riders.nationality and propagated into baseScores; country_all World Championship x1.5 multiplier now evaluates against real nationality data
+- Shimanobil counter ownership limitation documented via TODO in resolveCounters (cannot determine rider ownership in pure function without targetTeamId)

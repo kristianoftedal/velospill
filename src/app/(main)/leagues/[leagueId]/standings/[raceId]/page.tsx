@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { races } from "@/db/schema/races"
 import { eq } from "drizzle-orm"
 import { getLeagueDetails } from "../../actions"
-import { getRaceScoreBreakdown } from "@/lib/scoring-queries"
+import { getRaceScoreBreakdownWithOrders } from "@/lib/scoring-queries"
 import {
   Card,
   CardContent,
@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 
 interface PageProps {
   params: Promise<{ leagueId: string; raceId: string }>
@@ -103,9 +104,9 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
   }
 
   // Fetch race info and breakdown results in parallel
-  const [raceRows, breakdown] = await Promise.all([
+  const [raceRows, breakdownResult] = await Promise.all([
     db.select().from(races).where(eq(races.id, raceId)).limit(1),
-    getRaceScoreBreakdown(raceId, leagueId),
+    getRaceScoreBreakdownWithOrders(raceId, leagueId),
   ])
 
   const race = raceRows[0]
@@ -113,22 +114,30 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
     notFound()
   }
 
-  // Compute per-team subtotals
-  const teamTotals = new Map<number, { teamName: string; totalPoints: number }>()
+  const { entries: breakdown, counterResults, hasOrders } = breakdownResult
+
+  // Compute per-team subtotals using adjusted points
+  const teamTotals = new Map<number, { teamName: string; basePoints: number; adjustedPoints: number }>()
   for (const entry of breakdown) {
     const existing = teamTotals.get(entry.teamId)
     if (existing) {
-      existing.totalPoints += entry.points
+      existing.basePoints += entry.points
+      existing.adjustedPoints += entry.adjustedPoints
     } else {
       teamTotals.set(entry.teamId, {
         teamName: entry.teamName,
-        totalPoints: entry.points,
+        basePoints: entry.points,
+        adjustedPoints: entry.adjustedPoints,
       })
     }
   }
   const sortedTeamTotals = Array.from(teamTotals.values()).sort(
-    (a, b) => b.totalPoints - a.totalPoints
+    (a, b) => b.adjustedPoints - a.adjustedPoints
   )
+
+  // Separate regular entries from bonus rows
+  const regularEntries = breakdown.filter((e) => !e.isBonus)
+  const bonusEntries = breakdown.filter((e) => e.isBonus)
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -173,23 +182,50 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
                 <TableHead>Rider</TableHead>
                 <TableHead>Pro Team</TableHead>
                 <TableHead>Fantasy Team</TableHead>
-                <TableHead className="text-right">Points</TableHead>
+                <TableHead className="text-right">Base Pts</TableHead>
+                {hasOrders && (
+                  <TableHead className="text-right">Adjusted Pts</TableHead>
+                )}
+                {hasOrders && (
+                  <TableHead>Order Effect</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {breakdown.map((entry) => (
-                <TableRow key={`${entry.riderId}-${entry.position}`}>
+              {regularEntries.map((entry) => (
+                <TableRow
+                  key={`${entry.riderId}-${entry.position}`}
+                  className={entry.isCountered ? "bg-yellow-50" : undefined}
+                >
                   <TableCell className="font-medium">{entry.position}</TableCell>
                   <TableCell className="font-medium">{entry.riderName}</TableCell>
                   <TableCell className="text-gray-600">{entry.riderTeam}</TableCell>
                   <TableCell>{entry.teamName}</TableCell>
                   <TableCell className="text-right">{entry.points}</TableCell>
+                  {hasOrders && (
+                    <TableCell className="text-right font-medium">
+                      {entry.adjustedPoints !== entry.points ? (
+                        <span className={entry.adjustedPoints > entry.points ? "text-green-700" : "text-red-600"}>
+                          {entry.adjustedPoints}
+                        </span>
+                      ) : (
+                        entry.adjustedPoints
+                      )}
+                    </TableCell>
+                  )}
+                  {hasOrders && (
+                    <TableCell>
+                      {entry.orderEffect && (
+                        <OrderEffectBadge effect={entry.orderEffect} isCountered={entry.isCountered} />
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
-              {breakdown.length === 0 && (
+              {regularEntries.length === 0 && (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={hasOrders ? 7 : 5}
                     className="text-center text-gray-500 py-8"
                   >
                     No drafted riders scored in this race.
@@ -200,6 +236,42 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Bonus rows (Gammel Venn, admin bonus points) */}
+      {hasOrders && bonusEntries.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Order Bonuses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Fantasy Team</TableHead>
+                  <TableHead className="text-right">Bonus Points</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {bonusEntries.map((entry, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <span className="text-sm">{entry.riderName}</span>
+                      <Badge variant="secondary" className="ml-2 text-xs bg-amber-100 text-amber-800">
+                        Bonus
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{entry.teamName}</TableCell>
+                    <TableCell className="text-right font-medium text-green-700">
+                      +{entry.adjustedPoints}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Per-team subtotals */}
       {sortedTeamTotals.length > 0 && (
@@ -212,18 +284,57 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead>Fantasy Team</TableHead>
-                  <TableHead className="text-right">Points from this Race</TableHead>
+                  {hasOrders ? (
+                    <>
+                      <TableHead className="text-right">Base Points</TableHead>
+                      <TableHead className="text-right">Adjusted Points</TableHead>
+                    </>
+                  ) : (
+                    <TableHead className="text-right">Points from this Race</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sortedTeamTotals.map((teamTotal) => (
                   <TableRow key={teamTotal.teamName}>
                     <TableCell className="font-medium">{teamTotal.teamName}</TableCell>
-                    <TableCell className="text-right">{teamTotal.totalPoints}</TableCell>
+                    {hasOrders ? (
+                      <>
+                        <TableCell className="text-right text-gray-500">{teamTotal.basePoints}</TableCell>
+                        <TableCell className="text-right font-semibold">
+                          {teamTotal.adjustedPoints !== teamTotal.basePoints ? (
+                            <span className={teamTotal.adjustedPoints > teamTotal.basePoints ? "text-green-700" : "text-red-600"}>
+                              {teamTotal.adjustedPoints}
+                            </span>
+                          ) : (
+                            teamTotal.adjustedPoints
+                          )}
+                        </TableCell>
+                      </>
+                    ) : (
+                      <TableCell className="text-right">{teamTotal.basePoints}</TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Active orders and counter results */}
+      {hasOrders && counterResults.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Counter Results</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {counterResults.map((cr, idx) => (
+              <div key={idx} className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm">
+                <span className="font-medium text-yellow-800">Counter:</span>{" "}
+                <span className="text-yellow-700">{cr.description}</span>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
@@ -238,5 +349,29 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
         </Link>
       </div>
     </div>
+  )
+}
+
+// ─── Helper component ──────────────────────────────────────────────────────────
+
+function OrderEffectBadge({ effect, isCountered }: { effect: string; isCountered: boolean }) {
+  const isAttack = effect.toLowerCase().includes("0 pts") || effect.toLowerCase().includes("half pts") || effect.toLowerCase().includes("blowback")
+  const isBoost = effect.toLowerCase().includes("x2") || effect.toLowerCase().includes("x3") || effect.toLowerCase().includes("x1.5")
+
+  let className = "text-xs "
+  if (isCountered) {
+    className += "bg-yellow-100 text-yellow-800 border-yellow-300"
+  } else if (isAttack) {
+    className += "bg-red-100 text-red-800 border-red-300"
+  } else if (isBoost) {
+    className += "bg-green-100 text-green-800 border-green-300"
+  } else {
+    className += "bg-purple-100 text-purple-800 border-purple-300"
+  }
+
+  return (
+    <Badge variant="outline" className={className}>
+      {effect}
+    </Badge>
   )
 }

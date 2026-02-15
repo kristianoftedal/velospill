@@ -231,3 +231,221 @@ export type LeagueRaceScore = {
   startDate: Date
   totalLeaguePoints: number
 }
+
+// ─── Order-adjusted scoring functions ─────────────────────────────────────────
+
+export type RaceScoreEntryWithOrders = RaceScoreEntry & {
+  adjustedPoints: number
+  orderEffect: string | null  // e.g. "Blodpose x3", "Shimanobil (0 pts)", null if no effect
+  isCountered: boolean
+  isBonus: boolean  // true for Gammel Venn and admin bonus rows
+}
+
+/**
+ * Returns league standings with order effects incorporated into team totals.
+ * Delegates to getOrderAdjustedStandings from order-queries.ts.
+ * Backward-compatible: raw getLeagueStandings is still available.
+ */
+export async function getLeagueStandingsWithOrders(leagueId: number, season: number): Promise<LeagueStanding[]> {
+  const { getOrderAdjustedStandings } = await import("./order-queries")
+  const { standings } = await getOrderAdjustedStandings(leagueId, season)
+  return standings
+}
+
+/**
+ * Returns race score breakdown enriched with order effect annotations.
+ * Shows base points, adjusted points, and a human-readable order effect label.
+ * Also includes bonus rows for Gammel Venn and admin-entered bonus points.
+ */
+export async function getRaceScoreBreakdownWithOrders(
+  raceId: number,
+  leagueId: number
+): Promise<{
+  entries: RaceScoreEntryWithOrders[]
+  counterResults: { attackOrderId: number; counterOrderId: number; description: string }[]
+  hasOrders: boolean
+}> {
+  const {
+    getActiveOrdersForRace,
+    resolveCounters,
+    applyOrderEffects,
+  } = await import("./order-queries")
+  const { db: localDb } = await import("@/lib/db")
+  const { races: racesTable } = await import("@/db/schema/races")
+  const { raceResults: raceResultsTable } = await import("@/db/schema/results")
+  const { eq: eqFn, inArray: inArrayFn, and: andFn } = await import("drizzle-orm")
+
+  // Get base breakdown
+  const baseEntries = await getRaceScoreBreakdown(raceId, leagueId)
+
+  // Get the race type for this race
+  const raceRows = await localDb
+    .select({ raceType: racesTable.raceType })
+    .from(racesTable)
+    .where(eqFn(racesTable.id, raceId))
+    .limit(1)
+
+  const raceType = raceRows[0]?.raceType ?? "unknown"
+
+  // Get active orders for this race
+  const activeOrders = await getActiveOrdersForRace(raceId, leagueId)
+
+  if (activeOrders.length === 0) {
+    return {
+      entries: baseEntries.map((entry) => ({
+        ...entry,
+        adjustedPoints: entry.points,
+        orderEffect: null,
+        isCountered: false,
+        isBonus: false,
+      })),
+      counterResults: [],
+      hasOrders: false,
+    }
+  }
+
+  // Resolve counters
+  const { effectiveOrders, counterResults } = resolveCounters(activeOrders)
+
+  // Compute Gammel Venn bonuses
+  const gammelVennOrders = activeOrders.filter((o) => o.orderTypeName === "gammel_venn")
+  const gammelVennBonuses: { teamId: number; riderId: number; points: number; orderTypeName: string }[] = []
+
+  if (gammelVennOrders.length > 0) {
+    const targetRiderIds = gammelVennOrders
+      .map((o) => o.targetRiderId)
+      .filter((id): id is number => id != null)
+
+    if (targetRiderIds.length > 0) {
+      const results = await localDb
+        .select({ riderId: raceResultsTable.riderId, points: raceResultsTable.points })
+        .from(raceResultsTable)
+        .where(
+          andFn(
+            eqFn(raceResultsTable.raceId, raceId),
+            inArrayFn(raceResultsTable.riderId, targetRiderIds)
+          )
+        )
+
+      for (const order of gammelVennOrders) {
+        if (order.targetRiderId == null) continue
+        const result = results.find((r) => r.riderId === order.targetRiderId)
+        if (!result || result.points <= 0) continue
+        const multiplier = order.effectValues
+          ? (order.effectValues[raceType] ?? 1)
+          : 1
+        gammelVennBonuses.push({
+          teamId: order.teamId,
+          riderId: order.targetRiderId,
+          points: Math.floor(result.points * multiplier),
+          orderTypeName: order.orderTypeName,
+        })
+      }
+    }
+  }
+
+  // Build base scores array for applyOrderEffects
+  type BaseScore = { teamId: number; riderId: number; points: number; position?: number }
+  const baseScores: BaseScore[] = baseEntries.map((entry) => ({
+    teamId: entry.teamId,
+    riderId: entry.riderId,
+    points: entry.points,
+    position: entry.position,
+  }))
+
+  // Apply order effects
+  const adjustments = applyOrderEffects(
+    baseScores,
+    effectiveOrders,
+    raceType,
+    counterResults,
+    gammelVennBonuses
+  )
+
+  // Build a lookup of adjustments by (teamId, riderId)
+  const adjMap = new Map<string, { adjustedPoints: number; description: string }>()
+  for (const adj of adjustments) {
+    if (adj.riderId == null) continue
+    const key = `${adj.teamId}:${adj.riderId}`
+    const existing = adjMap.get(key)
+    if (existing) {
+      // Multiple effects can stack (e.g. counter + blowback) — aggregate
+      existing.adjustedPoints = existing.adjustedPoints - adj.basePoints + adj.adjustedPoints
+      existing.description = `${existing.description}, ${adj.description}`
+    } else {
+      adjMap.set(key, {
+        adjustedPoints: adj.adjustedPoints,
+        description: adj.description,
+      })
+    }
+  }
+
+  // Determine countered rider IDs
+  const counteredRiderIds = new Set<string>()
+  for (const cr of counterResults) {
+    if (cr.blowbackTargetRiderId != null) {
+      counteredRiderIds.add(`${cr.blowbackTeamId}:${cr.blowbackTargetRiderId}`)
+    }
+  }
+
+  // Build enriched entries
+  const entries: RaceScoreEntryWithOrders[] = baseEntries.map((entry) => {
+    const key = `${entry.teamId}:${entry.riderId}`
+    const adj = adjMap.get(key)
+    return {
+      ...entry,
+      adjustedPoints: adj != null ? adj.adjustedPoints : entry.points,
+      orderEffect: adj != null ? adj.description : null,
+      isCountered: counteredRiderIds.has(key),
+      isBonus: false,
+    }
+  })
+
+  // Add admin bonus rows (Hammer, Innlagt Spurt, Lagtempo)
+  const adminBonusOrders = adjustments.filter((adj) => adj.riderId == null && adj.basePoints === 0)
+  const addedBonusKeys = new Set<string>()
+  for (const bonus of adminBonusOrders) {
+    const key = `${bonus.teamId}:bonus:${bonus.orderTypeName}`
+    if (addedBonusKeys.has(key)) continue
+    addedBonusKeys.add(key)
+    // Find the team name from base entries
+    const teamName = baseEntries.find((e) => e.teamId === bonus.teamId)?.teamName ?? `Team ${bonus.teamId}`
+    entries.push({
+      teamId: bonus.teamId,
+      teamName,
+      riderId: -1,  // sentinel for bonus row
+      riderName: bonus.description,
+      riderTeam: "",
+      position: 9999,
+      points: 0,
+      adjustedPoints: bonus.adjustedPoints,
+      orderEffect: bonus.description,
+      isCountered: false,
+      isBonus: true,
+    })
+  }
+
+  // Add Gammel Venn bonus rows
+  for (const bonus of gammelVennBonuses) {
+    const teamName = baseEntries.find((e) => e.teamId === bonus.teamId)?.teamName ?? `Team ${bonus.teamId}`
+    entries.push({
+      teamId: bonus.teamId,
+      teamName,
+      riderId: bonus.riderId,
+      riderName: `Gammel Venn bonus (rider #${bonus.riderId})`,
+      riderTeam: "",
+      position: 9999,
+      points: 0,
+      adjustedPoints: bonus.points,
+      orderEffect: `gammel_venn bonus: +${bonus.points} pts`,
+      isCountered: false,
+      isBonus: true,
+    })
+  }
+
+  return {
+    entries,
+    counterResults,
+    hasOrders: true,
+  }
+}

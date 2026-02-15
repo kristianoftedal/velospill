@@ -3,21 +3,21 @@
 ## Current Position
 
 - **Phase:** 07-orders-polish-integration
-- **Current Plan:** 02 Complete
-- **Status:** In Progress
-- **Last session:** 2026-02-14T22:01:13Z
-- **Stopped at:** Completed 07-02-PLAN.md
+- **Current Plan:** 04 Complete
+- **Status:** Complete
+- **Last session:** 2026-02-14T22:09:34Z
+- **Stopped at:** Completed 07-04-PLAN.md
 
 ## Progress
 
 ```
 Phase 05: [########] 2/2 plans complete ✓
 Phase 06: [########] 4/4 plans complete ✓
-Phase 07: [####....] 2/4 plans complete
+Phase 07: [########] 4/4 plans complete ✓
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02
-Plans remaining: 07-03, 07-04
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04
+Plans remaining: (none)
 
 ## Decisions
 
@@ -67,6 +67,10 @@ Plans remaining: 07-03, 07-04
 44. **07-01:** orderConfig JSONB typed with $type<OrderConfig>() for kapteinChoice param
 45. **07-02:** unowned_gc_top10 (Hammer) accepts rider name in targetProTeam when no targetRiderId — admin resolves at settlement
 46. **07-02:** Orders card on league detail page uses purple to distinguish from yellow (draft), green (standings), blue (transfers)
+47. **07-04:** Dynamic import in scoring-queries.ts breaks circular dependency with order-queries.ts (order-queries imports from scoring-queries, scoring-queries needs order-queries)
+48. **07-04:** effectValue (singular) added to ActiveOrder alongside effectValues (plural) — blodpose_gt uses value:3, blodpose_one_day uses values:{race_type: multiplier}
+49. **07-04:** World Championship guard in applyOrderEffects skips all orders except kaptein — enforces game rule
+50. **07-04:** riderId=-1 sentinel for bonus rows in RaceScoreEntryWithOrders (Gammel Venn, admin bonus have no draftPick rider)
 41. **06-04:** Transfers card on league detail page uses blue button to distinguish from green standings and yellow draft
 
 ## Performance Metrics
@@ -86,6 +90,7 @@ Plans remaining: 07-03, 07-04
 | 06    | 04   | ~8min    | 2     | 5     |
 | 07    | 01   | ~5min    | 2     | 2     |
 | 07    | 02   | ~2min    | 1     | 4     |
+| 07    | 04   | ~8min    | 2     | 4     |
 
 ## Accumulated Context
 
@@ -131,3 +136,10 @@ None
 - Multi-step order form: race > order type (filtered by effectiveRaceType) > target (7 effectTarget variants) > confirm
 - Hammer (unowned_gc_top10) stores rider name in targetProTeam text field — admin resolves rider ID at settlement
 - League detail page shows purple "Go to Orders" card for active leagues
+- Phase 07 is fully complete: all 4 plans executed; order effects integrated into scoring pipeline
+- Standings page uses getLeagueStandingsWithOrders (order-adjusted totals)
+- Race breakdown page uses getRaceScoreBreakdownWithOrders with order effect badges, bonus rows, counter results card
+- Counter mechanic: Shimanobil/COVID/Bondestreik countered by Etappeseier/Blodpose_gt with blowback to attacker
+- Gammel Venn: unowned rider's points x multiplier added as bonus to order submitter's team total
+- Hammer/Innlagt Spurt/Lagtempo: admin-entered bonusPoints column used (no auto-calculation in Phase 07)
+- Raw getLeagueStandings and getRaceScoreBreakdown remain available for backward compatibility

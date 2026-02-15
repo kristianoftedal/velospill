@@ -146,6 +146,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
       riderId: riders.id,
       riderName: riders.name,
       riderTeam: riders.team,
+      nationality: riders.nationality,
       position: raceResults.position,
       points: raceResults.points,
     })
@@ -170,6 +171,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
     riderId: row.riderId,
     riderName: row.riderName,
     riderTeam: row.riderTeam,
+    riderNationality: row.nationality,
     position: row.position,
     points: row.points,
   })) satisfies RaceScoreEntry[]
@@ -220,6 +222,7 @@ export type RaceScoreEntry = {
   riderId: number
   riderName: string
   riderTeam: string
+  riderNationality: string
   position: number
   points: number
 }
@@ -345,11 +348,12 @@ export async function getRaceScoreBreakdownWithOrders(
   }
 
   // Build base scores array for applyOrderEffects
-  type BaseScore = { teamId: number; riderId: number; points: number; position?: number }
+  type BaseScore = { teamId: number; riderId: number; points: number; riderNationality?: string; position?: number }
   const baseScores: BaseScore[] = baseEntries.map((entry) => ({
     teamId: entry.teamId,
     riderId: entry.riderId,
     points: entry.points,
+    riderNationality: entry.riderNationality,
     position: entry.position,
   }))
 
@@ -416,6 +420,7 @@ export async function getRaceScoreBreakdownWithOrders(
       riderId: -1,  // sentinel for bonus row
       riderName: bonus.description,
       riderTeam: "",
+      riderNationality: "",
       position: 9999,
       points: 0,
       adjustedPoints: bonus.adjustedPoints,
@@ -434,6 +439,7 @@ export async function getRaceScoreBreakdownWithOrders(
       riderId: bonus.riderId,
       riderName: `Gammel Venn bonus (rider #${bonus.riderId})`,
       riderTeam: "",
+      riderNationality: "",
       position: 9999,
       points: 0,
       adjustedPoints: bonus.points,

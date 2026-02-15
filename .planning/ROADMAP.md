@@ -81,3 +81,14 @@ Plans:
 - [x] 07-03-PLAN.md — Admin order validation with approve/reject and bonus points
 - [x] 07-04-PLAN.md — Scoring integration, counter mechanic resolution, and race breakdown annotations
 - [x] 07-05-PLAN.md — Gap closure: propagate riderNationality for Kaptein country_all variant
+
+### Phase 8: UI polish, let admins pick races from global list to leagues they admin
+
+**Goal:** Enable league owners to select which races from the global calendar apply to their league, with all downstream features (orders, transfers, scoring) scoped to those selected races
+**Depends on:** Phase 7
+**Plans:** 3 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Schema: league_races join table, DDL migration, data pre-population
+- [ ] 08-02-PLAN.md — UI: Race picker server actions + RacePickerSection on league detail page
+- [ ] 08-03-PLAN.md — Queries: Update order, transfer, and scoring queries to filter by league-assigned races

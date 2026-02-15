@@ -144,6 +144,7 @@ export function resolveCounters(activeOrders: ActiveOrder[]): {
       // Shimanobil targets a rider — check if the rider's owning team has a defense order
       // We'll look for any defense order by any team other than the attacker
       // The "targeted team" is the team that owns the targetRiderId
+      // TODO: Shimanobil counter requires rider ownership lookup — cannot resolve in pure function without targetTeamId
       // For simplicity: check if any defense order belongs to a team different from attacker
       const defenseForTargetedTeam = defenseOrders.find(
         (d) => d.teamId !== attack.teamId
@@ -636,6 +637,7 @@ export async function getOrderAdjustedStandings(
       teamId: entry.teamId,
       riderId: entry.riderId,
       points: entry.points,
+      riderNationality: entry.riderNationality,
       position: entry.position,
     }))
 

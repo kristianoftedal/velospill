@@ -1,10 +1,32 @@
 import { db } from "@/lib/db"
 import { draftPicks } from "@/db/schema/draft"
-import { teams } from "@/db/schema/leagues"
+import { teams, leagueRaces } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
 import { races } from "@/db/schema/races"
+import { raceLineups } from "@/db/schema/lineups"
 import { eq, desc, sql, and, asc, gte, lte } from "drizzle-orm"
+
+/**
+ * Lineup filter: if a lineup exists for this team/race, only riders in the lineup score.
+ * If no lineup exists, all riders score (backward compatible).
+ * For stages, the lineup is looked up using the parent race ID.
+ */
+const lineupFilter = sql`(
+  NOT EXISTS (
+    SELECT 1 FROM ${raceLineups}
+    WHERE ${raceLineups.leagueId} = ${draftPicks.leagueId}
+      AND ${raceLineups.teamId} = ${draftPicks.teamId}
+      AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
+  )
+  OR EXISTS (
+    SELECT 1 FROM ${raceLineups}
+    WHERE ${raceLineups.leagueId} = ${draftPicks.leagueId}
+      AND ${raceLineups.teamId} = ${draftPicks.teamId}
+      AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
+      AND ${raceLineups.riderId} = ${draftPicks.riderId}
+  )
+)`
 
 // Points are pre-calculated at result entry time. Phase 5 only aggregates stored points.
 // Ownership-at-race-time: points stay with the team that owned the rider when the race took place.
@@ -27,7 +49,7 @@ export async function getLeagueStandings(leagueId: number, season: number) {
       teamId: teams.id,
       teamName: teams.name,
       userId: teams.userId,
-      totalPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+      totalPoints: sql<number>`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`,
     })
     .from(teams)
     .leftJoin(
@@ -43,12 +65,13 @@ export async function getLeagueStandings(leagueId: number, season: number) {
       and(
         eq(races.id, raceResults.raceId),
         eq(races.season, season),
-        gte(races.startDate, draftPicks.pickedAt)  // ownership-at-race-time
+        gte(races.startDate, draftPicks.pickedAt),  // ownership-at-race-time
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
       )
     )
     .where(eq(teams.leagueId, leagueId))
     .groupBy(teams.id, teams.name, teams.userId)
-    .orderBy(desc(sql`COALESCE(SUM(${raceResults.points}), 0)`))
+    .orderBy(desc(sql`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`))
 
   // Derive rank with tie handling
   const ranked: LeagueStanding[] = rows.map((row, i) => {
@@ -83,7 +106,7 @@ export async function getTeamRiderScores(teamId: number, leagueId: number, seaso
       riderName: riders.name,
       riderTeam: riders.team,
       gender: riders.gender,
-      totalPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+      totalPoints: sql<number>`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`,
     })
     .from(draftPicks)
     .innerJoin(riders, eq(riders.id, draftPicks.riderId))
@@ -93,7 +116,8 @@ export async function getTeamRiderScores(teamId: number, leagueId: number, seaso
       and(
         eq(races.id, raceResults.raceId),
         eq(races.season, season),
-        gte(races.startDate, draftPicks.pickedAt)  // ownership-at-race-time
+        gte(races.startDate, draftPicks.pickedAt),  // ownership-at-race-time
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
       )
     )
     .where(
@@ -103,7 +127,7 @@ export async function getTeamRiderScores(teamId: number, leagueId: number, seaso
       )
     )
     .groupBy(draftPicks.riderId, riders.name, riders.team, riders.gender)
-    .orderBy(desc(sql`COALESCE(SUM(${raceResults.points}), 0)`))
+    .orderBy(desc(sql`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`))
 
   return rows.map((row) => ({
     riderId: row.riderId,
@@ -162,7 +186,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
       )
     )
     .innerJoin(teams, eq(teams.id, draftPicks.teamId))
-    .where(eq(raceResults.raceId, raceId))
+    .where(and(eq(raceResults.raceId, raceId), lineupFilter))
     .orderBy(asc(raceResults.position))
 
   return rows.map((row) => ({
@@ -191,7 +215,7 @@ export async function getLeagueRacesWithScores(leagueId: number, season: number)
       raceName: races.name,
       raceType: races.raceType,
       startDate: races.startDate,
-      totalLeaguePoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+      totalLeaguePoints: sql<number>`COALESCE(SUM(CASE WHEN ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`,
     })
     .from(races)
     .innerJoin(raceResults, eq(raceResults.raceId, races.id))
@@ -203,7 +227,12 @@ export async function getLeagueRacesWithScores(leagueId: number, season: number)
         lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
       )
     )
-    .where(eq(races.season, season))
+    .where(
+      and(
+        eq(races.season, season),
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+      )
+    )
     .groupBy(races.id, races.name, races.raceType, races.startDate)
     .orderBy(desc(races.startDate))
 

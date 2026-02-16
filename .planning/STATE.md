@@ -3,10 +3,10 @@
 ## Current Position
 
 - **Phase:** 08-ui-polish-let-admins-pick-races-from-global-list-to-leagues-they-admin
-- **Current Plan:** 01 Complete
+- **Current Plan:** 03 Complete
 - **Status:** In Progress
-- **Last session:** 2026-02-16T06:59:00Z
-- **Stopped at:** Completed 08-01-PLAN.md
+- **Last session:** 2026-02-16T07:02:32Z
+- **Stopped at:** Completed 08-03-PLAN.md
 
 ## Progress
 
@@ -14,11 +14,11 @@
 Phase 05: [########] 2/2 plans complete ✓
 Phase 06: [########] 4/4 plans complete ✓
 Phase 07: [##########] 5/5 plans complete ✓
-Phase 08: [##] 1/? plans complete
+Phase 08: [######] 3/? plans complete
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05, 08-01
-Plans remaining: 08-02, 08-03+
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05, 08-01, 08-02, 08-03
+Plans remaining: 08-04+
 
 ## Decisions
 
@@ -78,6 +78,10 @@ Plans remaining: 08-02, 08-03+
 53. **08-01:** leagueRaces join table uses serial PK + uniqueIndex on (leagueId, raceId) matching teams table pattern
 54. **08-01:** ON DELETE CASCADE on both leagueId and raceId FKs — deleting league or race cleans up join rows
 55. **08-01:** Pre-population uses (config->>'seasonYear')::integer JSONB extraction to match race.season per league
+56. **08-03:** league_races subquery in LEFT JOIN condition (not WHERE) preserves zero-point team semantics for standings queries
+57. **08-03:** OR-based subquery pattern handles both parent races and stages: (id IN (SELECT raceId ...) OR parentRaceId IN (...))
+58. **08-03:** generateTransferWindows uses INNER JOIN on leagueRaces (not subquery) — cleaner for parent-only fetch
+59. **08-03:** getRaceScoreBreakdown intentionally not modified — already scoped by specific raceId from league-scoped caller
 
 ## Performance Metrics
 
@@ -99,6 +103,7 @@ Plans remaining: 08-02, 08-03+
 | 07    | 04   | ~8min    | 2     | 4     |
 | 07    | 05   | ~5min    | 2     | 2     |
 | 08    | 01   | ~2min    | 2     | 1     |
+| 08    | 03   | ~2min    | 2     | 3     |
 
 ## Accumulated Context
 
@@ -157,3 +162,8 @@ None
 - league_races join table in Neon: leagueId + raceId FKs, unique index on composite, addedAt timestamp (applied 2026-02-16)
 - leagueRaces and leagueRacesRelations exported from src/db/schema/leagues.ts barrel
 - All 4 existing leagues pre-populated with 2 parent races each (8 total rows in league_races)
+- getUpcomingRacesForLeague (order form races) now scoped to league-assigned races; stages of assigned parents included via OR subquery
+- generateTransferWindows now scoped to league-assigned parent races via INNER JOIN on leagueRaces
+- getLeagueStandings, getTeamRiderScores: league_races subquery in LEFT JOIN condition — zero-point teams still visible
+- getLeagueRacesWithScores: league_races subquery in WHERE clause
+- getRaceScoreBreakdown unchanged: scoped by specific raceId passed from league-scoped caller

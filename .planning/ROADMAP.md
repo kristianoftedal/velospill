@@ -94,3 +94,47 @@ Plans:
 - [x] 08-01-PLAN.md — Schema: league_races join table, DDL migration, data pre-population
 - [x] 08-02-PLAN.md — UI: Race picker server actions + RacePickerSection on league detail page
 - [x] 08-03-PLAN.md — Queries: Update order, transfer, and scoring queries to filter by league-assigned races
+
+### Phase 9: League Scoping & UX Fixes
+- [ ] **Goal:** Close the lineup-to-league-races integration gap and improve draft-to-season UX flow
+- **Plans:** TBD
+- **Depends on:** Phase 8
+- **Gap Closure:** Closes integration gap from v1.0 audit + Phase 3/4 tech debt
+- Scope getUpcomingRacesForLineup to filter by league_races (integration gap)
+- Auto-transition league to "active" after both drafts complete
+- DraftRecap links to league detail page + prompts owner to start season
+- Add nanoid as explicit dependency in package.json
+
+Plans:
+- [ ] 09-01: TBD
+- [ ] 09-02: TBD
+
+### Phase 10: Result Entry & Scoring Improvements
+- [ ] **Goal:** Extend result entry to support full category/subcategory scoring with cascade recalculation
+- **Plans:** TBD
+- **Depends on:** Phase 9
+- **Gap Closure:** Closes Phase 2 tech debt from v1.0 audit
+- Add category/subcategory columns to raceResults schema
+- Update uniqueRaceRider constraint to allow same rider in multiple categories per race
+- Extend scoring preview to handle all result categories (sprints, mountains, jerseys)
+- Implement cascade recalculation on corrections (position shifts cascade to other results)
+- Consider genericizing resultAudit to auditLog pattern
+
+Plans:
+- [ ] 10-01: TBD
+- [ ] 10-02: TBD
+- [ ] 10-03: TBD
+
+### Phase 11: Order System Improvements
+- [ ] **Goal:** Improve order accuracy with proper rider-ownership lookups and auto-calculation for complex orders
+- **Plans:** TBD
+- **Depends on:** Phase 10
+- **Gap Closure:** Closes Phase 7 tech debt from v1.0 audit
+- Store targetTeamId at order submission for proper Shimanobil counter ownership lookup
+- Auto-calculate Hammer points from GC position changes (replace admin-entered bonusPoints)
+- Auto-calculate Innlagt Spurt points from intermediate sprint results
+- Auto-calculate Lagtempo points from team top-20 placements
+
+Plans:
+- [ ] 11-01: TBD
+- [ ] 11-02: TBD

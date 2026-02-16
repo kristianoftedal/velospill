@@ -6,6 +6,7 @@ import { draftPicks } from "@/db/schema/draft"
 import { teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
+import { leagueRaces } from "@/db/schema/leagues"
 import { eq, and, ne, gt, sql, desc, inArray } from "drizzle-orm"
 
 // Alias for self-join on races (parent race)
@@ -712,7 +713,8 @@ export async function getUpcomingRacesForLeague(leagueId: number, season: number
     .where(
       and(
         eq(races.season, season),
-        gt(races.startDate, sql`now()`)
+        gt(races.startDate, sql`now()`),
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
       )
     )
     .orderBy(races.startDate)

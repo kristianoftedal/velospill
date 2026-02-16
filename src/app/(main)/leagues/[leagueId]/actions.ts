@@ -1,12 +1,14 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
+import { leagues, teams, leagueRaces, LeagueConfig } from "@/db/schema/leagues"
+import { races } from "@/db/schema/races"
+import { orders } from "@/db/schema/orders"
 import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { eq, and, count, desc } from "drizzle-orm"
+import { eq, and, count, desc, isNull } from "drizzle-orm"
 import { checkLeagueMembership, checkLeagueOwnership } from "@/lib/league-auth"
 
 async function checkAuth() {
@@ -178,4 +180,78 @@ export async function transitionLeagueStatus(
   revalidatePath("/leagues")
 
   return { success: true, newStatus }
+}
+
+export async function getSeasonRacesForPicker(leagueId: number) {
+  const session = await checkAuth()
+  const isOwner = await checkLeagueOwnership(session.user.id, leagueId)
+  if (!isOwner) throw new Error("Unauthorized")
+
+  const [league] = await db
+    .select({ config: leagues.config })
+    .from(leagues)
+    .where(eq(leagues.id, leagueId))
+    .limit(1)
+
+  if (!league) return []
+
+  const season = (league.config as LeagueConfig).seasonYear
+
+  const [allRaces, assigned] = await Promise.all([
+    db.select({
+      id: races.id,
+      name: races.name,
+      raceType: races.raceType,
+      startDate: races.startDate,
+    })
+      .from(races)
+      .where(and(eq(races.season, season), isNull(races.parentRaceId)))
+      .orderBy(races.startDate),
+    db.select({ raceId: leagueRaces.raceId })
+      .from(leagueRaces)
+      .where(eq(leagueRaces.leagueId, leagueId)),
+  ])
+
+  const assignedSet = new Set(assigned.map(r => r.raceId))
+  return allRaces.map(r => ({
+    ...r,
+    startDate: r.startDate.toISOString(),
+    assigned: assignedSet.has(r.id),
+  }))
+}
+
+export async function assignRaceToLeague(leagueId: number, raceId: number) {
+  const session = await checkAuth()
+  const isOwner = await checkLeagueOwnership(session.user.id, leagueId)
+  if (!isOwner) return { success: false, error: "Only the league owner can assign races" }
+
+  await db.insert(leagueRaces).values({ leagueId, raceId }).onConflictDoNothing()
+
+  revalidatePath(`/leagues/${leagueId}`)
+  revalidatePath(`/leagues/${leagueId}/orders`)
+  revalidatePath(`/leagues/${leagueId}/transfers`)
+  return { success: true }
+}
+
+export async function removeRaceFromLeague(leagueId: number, raceId: number) {
+  const session = await checkAuth()
+  const isOwner = await checkLeagueOwnership(session.user.id, leagueId)
+  if (!isOwner) return { success: false, error: "Only the league owner can remove races" }
+
+  // Check if any orders exist for this race in this league
+  const existingOrders = await db
+    .select({ id: orders.id })
+    .from(orders)
+    .where(and(eq(orders.raceId, raceId), eq(orders.leagueId, leagueId)))
+    .limit(1)
+
+  const hasOrders = existingOrders.length > 0
+
+  await db.delete(leagueRaces)
+    .where(and(eq(leagueRaces.leagueId, leagueId), eq(leagueRaces.raceId, raceId)))
+
+  revalidatePath(`/leagues/${leagueId}`)
+  revalidatePath(`/leagues/${leagueId}/orders`)
+  revalidatePath(`/leagues/${leagueId}/transfers`)
+  return { success: true, hadOrders: hasOrders }
 }

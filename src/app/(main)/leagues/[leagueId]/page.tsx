@@ -11,9 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getLeagueDetails, getSeasonRacesForPicker, assignRaceToLeague, removeRaceFromLeague } from "./actions"
-import { InviteSection, LeagueStatusControl, RacePickerSection } from "./league-client"
-import { LeagueConfig } from "@/db/schema/leagues"
+import { getLeagueDetails } from "./actions"
 
 const statusColors: Record<string, string> = {
   setup: "bg-blue-100 text-blue-800",
@@ -64,10 +62,6 @@ export default async function LeagueDetailPage({ params }: PageProps) {
   }
 
   const { league, teams, isOwner } = details
-  const config = league.config as LeagueConfig
-
-  // Fetch season races for the race picker — owner only
-  const seasonRaces = isOwner ? await getSeasonRacesForPicker(leagueId) : null
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -88,14 +82,8 @@ export default async function LeagueDetailPage({ params }: PageProps) {
             <Badge className={statusColors[league.status]}>
               {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
             </Badge>
-            <span className="text-sm text-gray-500">Season {config.seasonYear}</span>
-            {config.draftDate && (
-              <span className="text-sm text-gray-500">
-                Draft: {format(new Date(config.draftDate), "d MMM yyyy")}
-              </span>
-            )}
             <span className="text-sm text-gray-500">
-              {teams.length}/{config.teamMax} teams
+              {teams.length} team{teams.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
@@ -216,31 +204,24 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Race Calendar — owner only */}
-      {isOwner && seasonRaces && (
-        <RacePickerSection
-          leagueId={league.id}
-          seasonRaces={seasonRaces}
-          assignRace={assignRaceToLeague}
-          removeRace={removeRaceFromLeague}
-        />
-      )}
-
-      {/* Invite Link — owner only */}
+      {/* Owner Settings Link — owner only */}
       {isOwner && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Invite Link</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <InviteSection
-              inviteCode={league.inviteCode}
-              expiresAt={
-                league.inviteExpiresAt
-                  ? league.inviteExpiresAt.toISOString()
-                  : null
-              }
-            />
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-gray-900">League Settings</p>
+                <p className="text-sm text-gray-500">
+                  Manage races, invitations, and league status
+                </p>
+              </div>
+              <Link
+                href={`/leagues/${league.id}/owner`}
+                className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+              >
+                Go to Settings
+              </Link>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -281,23 +262,6 @@ export default async function LeagueDetailPage({ params }: PageProps) {
           </Table>
         </CardContent>
       </Card>
-
-      {/* League Management — owner only */}
-      {isOwner && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">League Management</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <LeagueStatusControl
-              leagueId={league.id}
-              currentStatus={league.status}
-              teamCount={teams.length}
-              teamMin={config.teamMin || 2}
-            />
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

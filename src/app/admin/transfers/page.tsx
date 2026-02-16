@@ -64,6 +64,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                   <TableHead>Team</TableHead>
                   <TableHead>Drops</TableHead>
                   <TableHead>Picks Up</TableHead>
+                  <TableHead>Bid</TableHead>
                   <TableHead>Reason</TableHead>
                   <TableHead>Submitted</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -76,6 +77,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                     <TableCell>{bid.teamName}</TableCell>
                     <TableCell className="text-red-600">{bid.outRiderName}</TableCell>
                     <TableCell className="text-green-600">{bid.inRiderName}</TableCell>
+                    <TableCell>{bid.bidAmount} EUR</TableCell>
                     <TableCell className="text-muted-foreground max-w-[200px] truncate">
                       {bid.reason ?? "-"}
                     </TableCell>
@@ -126,6 +128,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                   <TableHead>Team</TableHead>
                   <TableHead>Out Rider</TableHead>
                   <TableHead>In Rider</TableHead>
+                  <TableHead>Bid</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Admin Note</TableHead>
                   <TableHead>Resolved At</TableHead>
@@ -138,6 +141,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                     <TableCell>{bid.teamName}</TableCell>
                     <TableCell>{bid.outRiderName}</TableCell>
                     <TableCell>{bid.inRiderName}</TableCell>
+                    <TableCell>{bid.bidAmount} EUR</TableCell>
                     <TableCell>
                       <StatusBadge status={bid.status} />
                     </TableCell>

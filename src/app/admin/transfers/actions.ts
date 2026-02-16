@@ -10,7 +10,7 @@ import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { eq, and, ne, desc, isNull } from "drizzle-orm"
+import { eq, and, ne, desc, isNull, sql } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
 import { resolveConflictingBids, generateTransferWindows } from "@/lib/transfer-queries"
 import { z } from "zod"
@@ -48,6 +48,7 @@ export async function getPendingBids() {
       outRiderName: outRider.name,
       inRiderId: transferBids.inRiderId,
       inRiderName: inRider.name,
+      bidAmount: transferBids.bidAmount,
       reason: transferBids.reason,
       submittedAt: transferBids.submittedAt,
     })
@@ -77,6 +78,7 @@ export async function getBidHistory(limit = 50) {
       outRiderName: outRider.name,
       inRiderId: transferBids.inRiderId,
       inRiderName: inRider.name,
+      bidAmount: transferBids.bidAmount,
       status: transferBids.status,
       reason: transferBids.reason,
       adminNote: transferBids.adminNote,
@@ -163,6 +165,16 @@ export async function approveBid(bidId: number) {
           resolvedBy: session.user.id,
         })
         .where(eq(transferBids.id, bidId))
+
+      // Step 7b: Deduct transfer budget
+      if (bid.bidAmount > 0) {
+        await tx
+          .update(teams)
+          .set({
+            transferBudget: sql`${teams.transferBudget} - ${bid.bidAmount}`,
+          })
+          .where(eq(teams.id, bid.teamId))
+      }
 
       // Step 8: Insert audit entry
       await tx.insert(transferAudit).values({

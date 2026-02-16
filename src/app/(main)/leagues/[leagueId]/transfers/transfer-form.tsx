@@ -14,6 +14,7 @@ interface TransferFormProps {
   pendingBids: TeamBid[]
   activeWindow: ActiveTransferWindow
   leagueId: number
+  teamBudget: number
   freeAgentsMen: FreeAgent[]
   freeAgentsWomen: FreeAgent[]
 }
@@ -53,11 +54,13 @@ export function TransferForm({
   pendingBids,
   activeWindow,
   leagueId,
+  teamBudget,
   freeAgentsMen,
   freeAgentsWomen,
 }: TransferFormProps) {
   const [selectedOutRiderId, setSelectedOutRiderId] = useState<number | null>(null)
   const [selectedInRiderId, setSelectedInRiderId] = useState<number | null>(null)
+  const [bidAmount, setBidAmount] = useState(0)
   const [reason, setReason] = useState("")
   const [freeAgentSearch, setFreeAgentSearch] = useState("")
   const [isPending, startTransition] = useTransition()
@@ -102,6 +105,7 @@ export function TransferForm({
         leagueId,
         outRiderId: selectedOutRiderId,
         inRiderId: selectedInRiderId,
+        bidAmount,
         reason: reason.trim() || undefined,
       })
 
@@ -109,6 +113,7 @@ export function TransferForm({
         toast.success("Transfer bid submitted successfully")
         setSelectedOutRiderId(null)
         setSelectedInRiderId(null)
+        setBidAmount(0)
         setReason("")
         setFreeAgentSearch("")
       } else {
@@ -141,15 +146,20 @@ export function TransferForm({
                   <p className="text-sm text-green-700">{activeWindow.description}</p>
                 )}
               </div>
-              <p className="text-sm text-green-700">
-                Closes: {new Date(activeWindow.closesAt).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
+              <div className="text-right space-y-1">
+                <p className="text-sm font-medium text-green-800">
+                  Budget remaining: {teamBudget} EUR
+                </p>
+                <p className="text-sm text-green-700">
+                  Closes: {new Date(activeWindow.closesAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -189,7 +199,7 @@ export function TransferForm({
                       </span>
                     </div>
                     <p className="text-xs text-gray-500">
-                      Submitted{" "}
+                      Bid: {bid.bidAmount} EUR &bull; Submitted{" "}
                       {new Date(bid.submittedAt).toLocaleDateString("en-GB", {
                         day: "numeric",
                         month: "short",
@@ -316,6 +326,26 @@ export function TransferForm({
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Bid amount */}
+            {selectedOutRider && selectedInRiderId && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">
+                  Bid Amount (EUR)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={teamBudget}
+                  value={bidAmount}
+                  onChange={(e) => setBidAmount(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                />
+                <p className="text-xs text-gray-500">
+                  Budget remaining: {teamBudget} EUR. Highest bidder wins contested transfers.
+                </p>
               </div>
             )}
 

@@ -18,6 +18,7 @@ export const transferBids = pgTable("transfer_bids", {
   teamId: integer("teamId").notNull().references(() => teams.id),
   outRiderId: integer("outRiderId").notNull().references(() => riders.id),
   inRiderId: integer("inRiderId").notNull().references(() => riders.id),
+  bidAmount: integer("bidAmount").notNull().default(0),
   status: transferBidStatusEnum("status").notNull().default("pending"),
   reason: text("reason"),
   adminNote: text("adminNote"),

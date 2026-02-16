@@ -15,12 +15,14 @@ import {
 import {
   getActiveTransferWindow,
   getTeamTransferCount,
+  getTeamBudget,
 } from "@/lib/transfer-queries"
 
 const submitBidSchema = z.object({
   leagueId: z.number(),
   outRiderId: z.number(),
   inRiderId: z.number(),
+  bidAmount: z.number().int().min(0),
   reason: z.string().optional(),
 })
 
@@ -28,6 +30,7 @@ export async function submitTransferBid(formData: {
   leagueId: number
   outRiderId: number
   inRiderId: number
+  bidAmount: number
   reason?: string
 }): Promise<{ success: true } | { success: false; error: string }> {
   // 1. Auth
@@ -43,7 +46,7 @@ export async function submitTransferBid(formData: {
   if (!parsed.success) {
     return { success: false, error: "Invalid form data" }
   }
-  const { leagueId, outRiderId, inRiderId, reason } = parsed.data
+  const { leagueId, outRiderId, inRiderId, bidAmount, reason } = parsed.data
 
   // Check league membership
   const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
@@ -140,7 +143,18 @@ export async function submitTransferBid(formData: {
     }
   }
 
-  // 8. Insert transfer bid
+  // 8. Budget validation
+  if (bidAmount > 0) {
+    const budget = await getTeamBudget(team.id)
+    if (bidAmount > budget) {
+      return {
+        success: false,
+        error: `Insufficient budget. You have ${budget} EUR remaining.`,
+      }
+    }
+  }
+
+  // Insert transfer bid
   const [bid] = await db
     .insert(transferBids)
     .values({
@@ -148,6 +162,7 @@ export async function submitTransferBid(formData: {
       teamId: team.id,
       outRiderId,
       inRiderId,
+      bidAmount,
       status: "pending",
       reason: reason ?? null,
     })

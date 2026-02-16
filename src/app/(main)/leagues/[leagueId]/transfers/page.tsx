@@ -6,6 +6,7 @@ import {
   getTeamBids,
   getActiveTransferWindow,
   getFreeAgents,
+  getTeamBudget,
 } from "@/lib/transfer-queries"
 import { TransferForm } from "./transfer-form"
 
@@ -115,12 +116,13 @@ export default async function TransfersPage({ params }: PageProps) {
   }
 
   // Parallel data fetch
-  const [roster, bids, activeWindow, freeAgentsMen, freeAgentsWomen] = await Promise.all([
+  const [roster, bids, activeWindow, freeAgentsMen, freeAgentsWomen, teamBudget] = await Promise.all([
     getTeamRoster(userTeamId, leagueId),
     getTeamBids(userTeamId, leagueId),
     getActiveTransferWindow(leagueId),
     getFreeAgents(leagueId, "M"),
     getFreeAgents(leagueId, "F"),
+    getTeamBudget(userTeamId),
   ])
 
   return (
@@ -144,7 +146,7 @@ export default async function TransfersPage({ params }: PageProps) {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Transfers</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Submit waiver wire bids to swap riders on your team
+          Submit transfer bids to swap riders on your team
         </p>
       </div>
 
@@ -153,6 +155,7 @@ export default async function TransfersPage({ params }: PageProps) {
         pendingBids={bids}
         activeWindow={activeWindow}
         leagueId={leagueId}
+        teamBudget={teamBudget}
         freeAgentsMen={freeAgentsMen}
         freeAgentsWomen={freeAgentsWomen}
       />

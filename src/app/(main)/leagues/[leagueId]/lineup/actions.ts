@@ -1,0 +1,143 @@
+"use server"
+
+import { db } from "@/lib/db"
+import { raceLineups } from "@/db/schema/lineups"
+import { races } from "@/db/schema/races"
+import { rosterLimits } from "@/db/schema/config"
+import { draftPicks } from "@/db/schema/draft"
+import { riders } from "@/db/schema/riders"
+import { eq, and, inArray } from "drizzle-orm"
+import { revalidatePath } from "next/cache"
+import {
+  getAuthenticatedUser,
+  checkLeagueMembership,
+} from "@/lib/league-auth"
+
+const MENS_RACE_TYPES = ["grand_tour", "high_priority_one_day", "low_priority_one_day", "mini_tour", "world_championship"]
+const WOMENS_RACE_TYPES = ["womens_grand_tour", "womens_one_day"]
+
+export async function setLineup(
+  leagueId: number,
+  raceId: number,
+  riderIds: number[]
+): Promise<{ success: true } | { success: false; error: string }> {
+  // 1. Auth
+  let session: Awaited<ReturnType<typeof getAuthenticatedUser>>
+  try {
+    session = await getAuthenticatedUser()
+  } catch {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  // 2. League membership
+  const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember || !team) {
+    return { success: false, error: "You are not a member of this league" }
+  }
+
+  // 3. Fetch race — verify exists, check deadline
+  const [race] = await db
+    .select()
+    .from(races)
+    .where(eq(races.id, raceId))
+    .limit(1)
+
+  if (!race) {
+    return { success: false, error: "Race not found" }
+  }
+
+  if (race.parentRaceId !== null) {
+    return { success: false, error: "Lineups are set on parent races only, not individual stages" }
+  }
+
+  if (new Date() >= race.startDate) {
+    return { success: false, error: "Lineup deadline has passed (race has started)" }
+  }
+
+  // 4. Fetch roster limit for this race type
+  const [limit] = await db
+    .select({ rosterSize: rosterLimits.rosterSize })
+    .from(rosterLimits)
+    .where(eq(rosterLimits.raceType, race.raceType))
+    .limit(1)
+
+  if (!limit) {
+    return { success: false, error: "No roster limit configured for this race type" }
+  }
+
+  if (riderIds.length !== limit.rosterSize) {
+    return {
+      success: false,
+      error: `Lineup must have exactly ${limit.rosterSize} riders (got ${riderIds.length})`,
+    }
+  }
+
+  // 5. Validate all riders belong to this team
+  const teamPicks = await db
+    .select({ riderId: draftPicks.riderId })
+    .from(draftPicks)
+    .where(
+      and(
+        eq(draftPicks.teamId, team.id),
+        eq(draftPicks.leagueId, leagueId)
+      )
+    )
+
+  const ownedRiderIds = new Set(teamPicks.map((p) => p.riderId))
+  for (const riderId of riderIds) {
+    if (!ownedRiderIds.has(riderId)) {
+      return { success: false, error: `Rider ${riderId} is not on your team` }
+    }
+  }
+
+  // 6. Validate gender matches race type
+  const requiredGender = MENS_RACE_TYPES.includes(race.raceType)
+    ? "M"
+    : WOMENS_RACE_TYPES.includes(race.raceType)
+    ? "F"
+    : null
+
+  if (requiredGender) {
+    const selectedRiders = await db
+      .select({ id: riders.id, gender: riders.gender })
+      .from(riders)
+      .where(inArray(riders.id, riderIds))
+
+    for (const rider of selectedRiders) {
+      if (rider.gender !== requiredGender) {
+        return {
+          success: false,
+          error: `This race requires ${requiredGender === "M" ? "men's" : "women's"} riders only`,
+        }
+      }
+    }
+  }
+
+  // 7. Transaction: delete existing + insert new
+  await db.transaction(async (tx) => {
+    await tx
+      .delete(raceLineups)
+      .where(
+        and(
+          eq(raceLineups.leagueId, leagueId),
+          eq(raceLineups.teamId, team.id),
+          eq(raceLineups.raceId, raceId)
+        )
+      )
+
+    await tx.insert(raceLineups).values(
+      riderIds.map((riderId) => ({
+        leagueId,
+        teamId: team.id,
+        raceId,
+        riderId,
+      }))
+    )
+  })
+
+  // 8. Revalidate
+  revalidatePath(`/leagues/${leagueId}/lineup`)
+  revalidatePath(`/leagues/${leagueId}/lineup/${raceId}`)
+
+  return { success: true }
+}

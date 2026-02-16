@@ -1,4 +1,5 @@
-import Link from "next/link"
+"use server"
+
 import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -9,113 +10,70 @@ import {
 } from "@/components/ui/accordion"
 import { getLeagueDetails, getSeasonRacesForPicker, assignRaceToLeague, removeRaceFromLeague } from "../actions"
 import { InviteSection, LeagueStatusControl, RacePickerSection } from "../league-client"
-import { LeagueConfig } from "@/db/schema/leagues"
 
-interface PageProps {
+export default async function LeagueOwnerPage({
+  params,
+}: {
   params: Promise<{ leagueId: string }>
-}
-
-export default async function LeagueOwnerPage({ params }: PageProps) {
-  const { leagueId: leagueIdStr } = await params
-  const leagueId = parseInt(leagueIdStr, 10)
-
-  if (isNaN(leagueId)) {
-    notFound()
-  }
-
-  let details: Awaited<ReturnType<typeof getLeagueDetails>>
-  try {
-    details = await getLeagueDetails(leagueId)
-  } catch {
-    return (
-      <div className="container mx-auto max-w-5xl px-4 py-8">
-        <p className="text-gray-600">
-          League not found or you are not a member.{" "}
-          <Link href="/leagues" className="text-primary hover:underline">
-            Back to Leagues
-          </Link>
-        </p>
-      </div>
-    )
-  }
+}) {
+  const { leagueId } = await params
+  const details = await getLeagueDetails(leagueId)
 
   if (!details) {
-    return (
-      <div className="container mx-auto max-w-5xl px-4 py-8">
-        <p className="text-gray-600">
-          League not found.{" "}
-          <Link href="/leagues" className="text-primary hover:underline">
-            Back to Leagues
-          </Link>
-        </p>
-      </div>
-    )
+    return notFound()
   }
 
   const { league, teams, isOwner } = details
 
-  // Redirect to main page if not owner
+  // Only owners can access this page
   if (!isOwner) {
-    notFound()
+    return notFound()
   }
-
-  const config = league.config as LeagueConfig
 
   // Fetch season races for the race picker
   const seasonRaces = await getSeasonRacesForPicker(leagueId)
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
-      {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500">
-        <Link href="/leagues" className="hover:text-gray-700 hover:underline">
-          Leagues
-        </Link>
-        <span className="mx-2">&rsaquo;</span>
-        <Link href={`/leagues/${league.id}`} className="hover:text-gray-700 hover:underline">
-          {league.name}
-        </Link>
-        <span className="mx-2">&rsaquo;</span>
-        <span className="text-gray-900">Owner Settings</span>
-      </nav>
-
+    <div className="space-y-6 pb-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Owner Settings</h1>
-        <p className="text-sm text-gray-500 mt-2">
-          Manage league configuration, invitations, and more
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">League Settings</h1>
+        <p className="text-gray-500 mt-1">{league.name}</p>
       </div>
 
-      {/* Owner-only sections wrapped in accordion */}
-      <Accordion type="single" collapsible className="w-full">
+      {/* Settings Accordion */}
+      <Accordion type="single" collapsible className="space-y-4">
         {/* League Management */}
-        <AccordionItem value="league-management">
-          <AccordionTrigger className="text-lg font-semibold">
-            League Management
-          </AccordionTrigger>
-          <AccordionContent>
-            <Card>
-              <CardContent className="pt-6">
+        <Card>
+          <AccordionItem value="management">
+            <CardHeader className="cursor-pointer">
+              <AccordionTrigger className="px-0 py-0 hover:no-underline">
+                <CardTitle className="text-lg">League Management</CardTitle>
+              </AccordionTrigger>
+            </CardHeader>
+            <AccordionContent>
+              <CardContent className="px-0 pt-2">
                 <LeagueStatusControl
                   leagueId={league.id}
                   currentStatus={league.status}
                   teamCount={teams.length}
-                  teamMin={config.teamMin || 2}
+                  teamMin={2}
                 />
               </CardContent>
-            </Card>
-          </AccordionContent>
-        </AccordionItem>
+            </AccordionContent>
+          </AccordionItem>
+        </Card>
 
         {/* Invite Link */}
-        <AccordionItem value="invite-link">
-          <AccordionTrigger className="text-lg font-semibold">
-            Invite Link
-          </AccordionTrigger>
-          <AccordionContent>
-            <Card>
-              <CardContent className="pt-6">
+        <Card>
+          <AccordionItem value="invite">
+            <CardHeader className="cursor-pointer">
+              <AccordionTrigger className="px-0 py-0 hover:no-underline">
+                <CardTitle className="text-lg">Invite Link</CardTitle>
+              </AccordionTrigger>
+            </CardHeader>
+            <AccordionContent>
+              <CardContent className="px-0 pt-2">
                 <InviteSection
                   inviteCode={league.inviteCode}
                   expiresAt={
@@ -125,37 +83,33 @@ export default async function LeagueOwnerPage({ params }: PageProps) {
                   }
                 />
               </CardContent>
-            </Card>
-          </AccordionContent>
-        </AccordionItem>
-
-        {/* Race Calendar */}
-        {seasonRaces && (
-          <AccordionItem value="race-calendar">
-            <AccordionTrigger className="text-lg font-semibold">
-              Race Calendar
-            </AccordionTrigger>
-            <AccordionContent>
-              <RacePickerSection
-                leagueId={league.id}
-                seasonRaces={seasonRaces}
-                assignRace={assignRaceToLeague}
-                removeRace={removeRaceFromLeague}
-              />
             </AccordionContent>
           </AccordionItem>
-        )}
-      </Accordion>
+        </Card>
 
-      {/* Back button */}
-      <div className="pt-4">
-        <Link
-          href={`/leagues/${league.id}`}
-          className="text-primary hover:underline text-sm"
-        >
-          ← Back to League
-        </Link>
-      </div>
+        {/* Race Calendar */}
+        <Card>
+          <AccordionItem value="races">
+            <CardHeader className="cursor-pointer">
+              <AccordionTrigger className="px-0 py-0 hover:no-underline">
+                <CardTitle className="text-lg">Race Calendar</CardTitle>
+              </AccordionTrigger>
+            </CardHeader>
+            <AccordionContent>
+              <CardContent className="px-0 pt-2">
+                {seasonRaces && (
+                  <RacePickerSection
+                    leagueId={league.id}
+                    seasonRaces={seasonRaces}
+                    assignRace={assignRaceToLeague}
+                    removeRace={removeRaceFromLeague}
+                  />
+                )}
+              </CardContent>
+            </AccordionContent>
+          </AccordionItem>
+        </Card>
+      </Accordion>
     </div>
   )
 }

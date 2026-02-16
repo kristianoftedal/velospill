@@ -5,8 +5,8 @@
 - **Phase:** 08-ui-polish-let-admins-pick-races-from-global-list-to-leagues-they-admin
 - **Current Plan:** 03 Complete
 - **Status:** In Progress
-- **Last session:** 2026-02-16T07:02:32Z
-- **Stopped at:** Completed 08-03-PLAN.md
+- **Last session:** 2026-02-16T07:04:10Z
+- **Stopped at:** Completed 08-02-PLAN.md
 
 ## Progress
 
@@ -78,7 +78,10 @@ Plans remaining: 08-04+
 53. **08-01:** leagueRaces join table uses serial PK + uniqueIndex on (leagueId, raceId) matching teams table pattern
 54. **08-01:** ON DELETE CASCADE on both leagueId and raceId FKs — deleting league or race cleans up join rows
 55. **08-01:** Pre-population uses (config->>'seasonYear')::integer JSONB extraction to match race.season per league
-56. **08-03:** league_races subquery in LEFT JOIN condition (not WHERE) preserves zero-point team semantics for standings queries
+56. **08-02:** removeRaceFromLeague allows removal even when orders exist — returns hadOrders flag for client warning (soft-block would be confusing UX)
+57. **08-02:** seasonRaces fetch guarded by isOwner check in page.tsx to avoid unnecessary DB queries for non-owners
+58. **08-02:** shadcn Checkbox installed via radix-ui monorepo package (not individual @radix-ui/react-checkbox)
+59. **08-03:** league_races subquery in LEFT JOIN condition (not WHERE) preserves zero-point team semantics for standings queries
 57. **08-03:** OR-based subquery pattern handles both parent races and stages: (id IN (SELECT raceId ...) OR parentRaceId IN (...))
 58. **08-03:** generateTransferWindows uses INNER JOIN on leagueRaces (not subquery) — cleaner for parent-only fetch
 59. **08-03:** getRaceScoreBreakdown intentionally not modified — already scoped by specific raceId from league-scoped caller
@@ -103,6 +106,7 @@ Plans remaining: 08-04+
 | 07    | 04   | ~8min    | 2     | 4     |
 | 07    | 05   | ~5min    | 2     | 2     |
 | 08    | 01   | ~2min    | 2     | 1     |
+| 08    | 02   | ~2min    | 2     | 4     |
 | 08    | 03   | ~2min    | 2     | 3     |
 
 ## Accumulated Context
@@ -162,6 +166,10 @@ None
 - league_races join table in Neon: leagueId + raceId FKs, unique index on composite, addedAt timestamp (applied 2026-02-16)
 - leagueRaces and leagueRacesRelations exported from src/db/schema/leagues.ts barrel
 - All 4 existing leagues pre-populated with 2 parent races each (8 total rows in league_races)
+- shadcn Checkbox component installed at src/components/ui/checkbox.tsx (radix-ui monorepo package)
+- Race Calendar section on league detail page: owners can assign/unassign parent races via checkbox table with toast feedback
+- getSeasonRacesForPicker, assignRaceToLeague, removeRaceFromLeague server actions in leagues/[leagueId]/actions.ts
+- removeRaceFromLeague returns hadOrders: true when orders exist — client shows warning toast but proceeds with removal
 - getUpcomingRacesForLeague (order form races) now scoped to league-assigned races; stages of assigned parents included via OR subquery
 - generateTransferWindows now scoped to league-assigned parent races via INNER JOIN on leagueRaces
 - getLeagueStandings, getTeamRiderScores: league_races subquery in LEFT JOIN condition — zero-point teams still visible

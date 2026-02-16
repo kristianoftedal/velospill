@@ -11,8 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getLeagueDetails } from "./actions"
-import { InviteSection, LeagueStatusControl } from "./league-client"
+import { getLeagueDetails, getSeasonRacesForPicker, assignRaceToLeague, removeRaceFromLeague } from "./actions"
+import { InviteSection, LeagueStatusControl, RacePickerSection } from "./league-client"
 import { LeagueConfig } from "@/db/schema/leagues"
 
 const statusColors: Record<string, string> = {
@@ -65,6 +65,9 @@ export default async function LeagueDetailPage({ params }: PageProps) {
 
   const { league, teams, isOwner } = details
   const config = league.config as LeagueConfig
+
+  // Fetch season races for the race picker — owner only
+  const seasonRaces = isOwner ? await getSeasonRacesForPicker(leagueId) : null
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -155,7 +158,7 @@ export default async function LeagueDetailPage({ params }: PageProps) {
               <div>
                 <p className="font-semibold text-gray-900">Transfers</p>
                 <p className="text-sm text-gray-500">
-                  Browse free agents and submit waiver wire bids
+                  Browse free agents and submit transfer bids
                 </p>
               </div>
               <Link
@@ -163,6 +166,28 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                 className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
               >
                 Go to Transfers
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Race Lineup Link — show when league is active */}
+      {league.status === "active" && (
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-gray-900">Race Lineup</p>
+                <p className="text-sm text-gray-500">
+                  Set your starting lineup for upcoming races
+                </p>
+              </div>
+              <Link
+                href={`/leagues/${league.id}/lineup`}
+                className="px-4 py-2 rounded-md bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition-colors"
+              >
+                Set Lineup
               </Link>
             </div>
           </CardContent>
@@ -189,6 +214,16 @@ export default async function LeagueDetailPage({ params }: PageProps) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Race Calendar — owner only */}
+      {isOwner && seasonRaces && (
+        <RacePickerSection
+          leagueId={league.id}
+          seasonRaces={seasonRaces}
+          assignRace={assignRaceToLeague}
+          removeRace={removeRaceFromLeague}
+        />
       )}
 
       {/* Invite Link — owner only */}

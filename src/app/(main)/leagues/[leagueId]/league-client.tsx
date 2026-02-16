@@ -5,6 +5,16 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 import { transitionLeagueStatus } from "./actions"
 
 // -----------------------------------------------
@@ -192,5 +203,136 @@ export function LeagueStatusControl({
         <p className="text-sm text-gray-500 italic">Season complete — no further transitions.</p>
       )}
     </div>
+  )
+}
+
+// -----------------------------------------------
+// RacePickerSection
+// -----------------------------------------------
+
+function formatRaceType(raceType: string): string {
+  return raceType
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+}
+
+function formatRaceDate(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
+}
+
+interface SeasonRace {
+  id: number
+  name: string
+  raceType: string
+  startDate: string
+  assigned: boolean
+}
+
+interface RacePickerSectionProps {
+  leagueId: number
+  seasonRaces: SeasonRace[]
+  assignRace: (leagueId: number, raceId: number) => Promise<{ success: boolean; error?: string }>
+  removeRace: (leagueId: number, raceId: number) => Promise<{ success: boolean; error?: string; hadOrders?: boolean }>
+}
+
+export function RacePickerSection({
+  leagueId,
+  seasonRaces,
+  assignRace,
+  removeRace,
+}: RacePickerSectionProps) {
+  const router = useRouter()
+  const [togglingRaceId, setTogglingRaceId] = useState<number | null>(null)
+
+  const assignedCount = seasonRaces.filter((r) => r.assigned).length
+
+  async function handleToggle(race: SeasonRace) {
+    setTogglingRaceId(race.id)
+    try {
+      if (race.assigned) {
+        const result = await removeRace(leagueId, race.id)
+        if (!result.success) {
+          toast.error(result.error ?? "Failed to remove race")
+        } else {
+          if (result.hadOrders) {
+            toast.warning(
+              "Race removed. Note: existing orders for this race are still in the system."
+            )
+          } else {
+            toast.success(`${race.name} removed from league`)
+          }
+          router.refresh()
+        }
+      } else {
+        const result = await assignRace(leagueId, race.id)
+        if (!result.success) {
+          toast.error(result.error ?? "Failed to assign race")
+        } else {
+          toast.success(`${race.name} added to league`)
+          router.refresh()
+        }
+      }
+    } catch {
+      toast.error("An unexpected error occurred")
+    } finally {
+      setTogglingRaceId(null)
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Race Calendar</CardTitle>
+        <p className="text-sm text-gray-500">
+          {assignedCount} of {seasonRaces.length} races assigned to this league
+        </p>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-12 pl-6"></TableHead>
+              <TableHead>Race Name</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Start Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {seasonRaces.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-gray-500 py-6 pl-6">
+                  No races found for this season.
+                </TableCell>
+              </TableRow>
+            ) : (
+              seasonRaces.map((race) => (
+                <TableRow key={race.id}>
+                  <TableCell className="pl-6">
+                    <Checkbox
+                      checked={race.assigned}
+                      disabled={togglingRaceId === race.id}
+                      onCheckedChange={() => handleToggle(race)}
+                      aria-label={`${race.assigned ? "Remove" : "Add"} ${race.name}`}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{race.name}</TableCell>
+                  <TableCell className="text-gray-500 text-sm">
+                    {formatRaceType(race.raceType)}
+                  </TableCell>
+                  <TableCell className="text-gray-500 text-sm">
+                    {formatRaceDate(race.startDate)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   )
 }

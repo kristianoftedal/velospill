@@ -97,7 +97,7 @@ Plans:
 
 ### Phase 9: League Scoping & UX Fixes
 - [ ] **Goal:** Close the lineup-to-league-races integration gap and improve draft-to-season UX flow
-- **Plans:** TBD
+- **Plans:** 1 plan
 - **Depends on:** Phase 8
 - **Gap Closure:** Closes integration gap from v1.0 audit + Phase 3/4 tech debt
 - Scope getUpcomingRacesForLineup to filter by league_races (integration gap)
@@ -106,8 +106,7 @@ Plans:
 - Add nanoid as explicit dependency in package.json
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md — Lineup league scoping, draft-complete auto-transition, DraftRecap CTA, nanoid dependency
 
 ### Phase 10: Result Entry & Scoring Improvements
 - [ ] **Goal:** Extend result entry to support full category/subcategory scoring with cascade recalculation

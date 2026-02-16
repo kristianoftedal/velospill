@@ -2,11 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 07-orders-polish-integration
-- **Current Plan:** 05 Complete
-- **Status:** Complete
-- **Last session:** 2026-02-15T08:27:00Z
-- **Stopped at:** Completed 07-05-PLAN.md
+- **Phase:** 08-ui-polish-let-admins-pick-races-from-global-list-to-leagues-they-admin
+- **Current Plan:** 01 Complete
+- **Status:** In Progress
+- **Last session:** 2026-02-16T06:59:00Z
+- **Stopped at:** Completed 08-01-PLAN.md
 
 ## Progress
 
@@ -14,10 +14,11 @@
 Phase 05: [########] 2/2 plans complete ✓
 Phase 06: [########] 4/4 plans complete ✓
 Phase 07: [##########] 5/5 plans complete ✓
+Phase 08: [##] 1/? plans complete
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05
-Plans remaining: (none)
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05, 08-01
+Plans remaining: 08-02, 08-03+
 
 ## Decisions
 
@@ -74,6 +75,9 @@ Plans remaining: (none)
 51. **07-05:** riderNationality: string required (not optional) in RaceScoreEntry; synthetic bonus rows use riderNationality: "" to satisfy the type
 52. **07-05:** Shimanobil counter ownership-lookup limitation documented via TODO comment — resolveCounters is a pure function and cannot determine rider ownership without targetTeamId; fix requires storing targetTeamId at order submission
 41. **06-04:** Transfers card on league detail page uses blue button to distinguish from green standings and yellow draft
+53. **08-01:** leagueRaces join table uses serial PK + uniqueIndex on (leagueId, raceId) matching teams table pattern
+54. **08-01:** ON DELETE CASCADE on both leagueId and raceId FKs — deleting league or race cleans up join rows
+55. **08-01:** Pre-population uses (config->>'seasonYear')::integer JSONB extraction to match race.season per league
 
 ## Performance Metrics
 
@@ -94,12 +98,14 @@ Plans remaining: (none)
 | 07    | 02   | ~2min    | 1     | 4     |
 | 07    | 04   | ~8min    | 2     | 4     |
 | 07    | 05   | ~5min    | 2     | 2     |
+| 08    | 01   | ~2min    | 2     | 1     |
 
 ## Accumulated Context
 
 ### Roadmap Evolution
 - Phase 6 added: Transfer Market
 - Phase 7 added: Orders & polish & integration
+- Phase 8 added: UI polish, let admins pick races from global list to leagues they admin
 
 ## Blockers
 
@@ -148,3 +154,6 @@ None
 - Raw getLeagueStandings and getRaceScoreBreakdown remain available for backward compatibility
 - Kaptein country_all gap closed (07-05): riderNationality now selected from riders.nationality and propagated into baseScores; country_all World Championship x1.5 multiplier now evaluates against real nationality data
 - Shimanobil counter ownership limitation documented via TODO in resolveCounters (cannot determine rider ownership in pure function without targetTeamId)
+- league_races join table in Neon: leagueId + raceId FKs, unique index on composite, addedAt timestamp (applied 2026-02-16)
+- leagueRaces and leagueRacesRelations exported from src/db/schema/leagues.ts barrel
+- All 4 existing leagues pre-populated with 2 parent races each (8 total rows in league_races)

@@ -1,16 +1,23 @@
-import Link from "next/link"
-import { db } from "@/lib/db"
-import { races } from "@/db/schema/races"
-import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
-import { draftSessions } from "@/db/schema/draft"
-import { raceResults } from "@/db/schema/results"
-import { riders } from "@/db/schema/riders"
-import { gte, asc, eq, desc, and, isNotNull, lt } from "drizzle-orm"
-import { format, isSameDay } from "date-fns"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { leagues, teams } from "@/db/schema/leagues";
+import { races } from "@/db/schema/races";
+import { raceResults } from "@/db/schema/results";
+import { riders } from "@/db/schema/riders";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { format, isSameDay } from "date-fns";
+import { and, asc, desc, eq, gte, isNotNull, lt } from "drizzle-orm";
+import { headers } from "next/headers";
+import Link from "next/link";
+
+type CompletedRace = {
+  raceId: number;
+  raceName: string;
+  raceType: string;
+  startDate: Date | null;
+  endDate: Date | null;
+};
 
 const raceTypeColors: Record<string, string> = {
   grand_tour: "bg-blue-100 text-blue-800",
@@ -19,8 +26,8 @@ const raceTypeColors: Record<string, string> = {
   mini_tour: "bg-green-100 text-green-800",
   womens_grand_tour: "bg-pink-100 text-pink-800",
   womens_one_day: "bg-rose-100 text-rose-800",
-  world_championship: "bg-amber-100 text-amber-800"
-}
+  world_championship: "bg-amber-100 text-amber-800",
+};
 
 const raceTypeLabels: Record<string, string> = {
   grand_tour: "Grand Tour",
@@ -29,22 +36,28 @@ const raceTypeLabels: Record<string, string> = {
   mini_tour: "Mini Tour",
   womens_grand_tour: "Women's Grand Tour",
   womens_one_day: "Women's One-Day",
-  world_championship: "World Championship"
-}
+  world_championship: "World Championship",
+};
 
 const statusColors: Record<string, string> = {
   setup: "bg-blue-100 text-blue-800",
   drafting: "bg-yellow-100 text-yellow-800",
   active: "bg-green-100 text-green-800",
   complete: "bg-gray-100 text-gray-800",
-}
+};
 
 export default async function HomePage() {
   // Fetch session for user-specific data
-  const session = await auth.api.getSession({ headers: await headers() })
+  const session = await auth.api.getSession({ headers: await headers() });
 
   // Fetch user's leagues if logged in
-  let myLeagues: { id: number; name: string; status: string; teamName: string; config: unknown }[] = []
+  let myLeagues: {
+    id: number;
+    name: string;
+    status: string;
+    teamName: string;
+    config: unknown;
+  }[] = [];
   if (session) {
     const result = await db
       .select({
@@ -57,47 +70,45 @@ export default async function HomePage() {
       .from(teams)
       .innerJoin(leagues, eq(teams.leagueId, leagues.id))
       .where(eq(teams.userId, session.user.id))
-      .orderBy(desc(leagues.createdAt))
+      .orderBy(desc(leagues.createdAt));
 
-    myLeagues = result.map(r => ({
+    myLeagues = result.map((r) => ({
       id: r.leagueId,
       name: r.leagueName,
       status: r.status,
       teamName: r.teamName,
       config: r.config,
-    }))
+    }));
   }
 
   // Fetch upcoming races - only parent races (not stages)
   const upcomingRaces = await db.query.races.findMany({
     where: gte(races.startDate, new Date()),
     orderBy: asc(races.startDate),
-    limit: 10
-  })
+    limit: 10,
+  });
 
   // Filter to only parent races (parentRaceId is null)
-  const parentRaces = upcomingRaces.filter(race => !race.parentRaceId)
+  const parentRaces = upcomingRaces.filter((race) => !race.parentRaceId);
 
   // Fetch latest completed races with results
-  const latestRacesWithResults = await db
+  const latestRacesWithResults = (await db
     .select({
       raceId: races.id,
       raceName: races.name,
       raceType: races.raceType,
       startDate: races.startDate,
       endDate: races.endDate,
-      resultCount: db
-        .select({ count: db.sql<number>`count(*)` })
-        .from(raceResults)
-        .where(eq(raceResults.raceId, races.id)),
     })
     .from(races)
-    .where(and(
-      lt(races.endDate ?? races.startDate, new Date()),
-      isNotNull(races.endDate)
-    ))
+    .where(
+      and(
+        lt(races.endDate ?? races.startDate, new Date()),
+        isNotNull(races.endDate),
+      ),
+    )
     .orderBy(desc(races.endDate))
-    .limit(5)
+    .limit(5)) as unknown as CompletedRace[];
 
   // Fetch latest race results with rider info
   const latestResults = await db
@@ -113,12 +124,14 @@ export default async function HomePage() {
     .from(raceResults)
     .innerJoin(races, eq(raceResults.raceId, races.id))
     .innerJoin(riders, eq(raceResults.riderId, riders.id))
-    .where(and(
-      lt(races.endDate ?? races.startDate, new Date()),
-      isNotNull(races.endDate)
-    ))
+    .where(
+      and(
+        lt(races.endDate ?? races.startDate, new Date()),
+        isNotNull(races.endDate),
+      ),
+    )
     .orderBy(desc(races.startDate), desc(raceResults.position))
-    .limit(10)
+    .limit(10);
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8">
@@ -137,7 +150,9 @@ export default async function HomePage() {
           {myLeagues.length === 0 ? (
             <Card className="border-border bg-card">
               <CardContent className="pt-6">
-                <p className="text-muted-foreground mb-4">You haven&apos;t joined any leagues yet</p>
+                <p className="text-muted-foreground mb-4">
+                  You haven&apos;t joined any leagues yet
+                </p>
                 <div className="flex gap-3">
                   <Link
                     href="/leagues/new"
@@ -151,7 +166,10 @@ export default async function HomePage() {
           ) : (
             <div className="space-y-3">
               {myLeagues.map((league) => (
-                <Card key={league.id} className="border-border bg-card hover:border-primary/30 transition-colors">
+                <Card
+                  key={league.id}
+                  className="border-border bg-card hover:border-primary/30 transition-colors"
+                >
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -162,14 +180,22 @@ export default async function HomePage() {
                           >
                             {league.name}
                           </Link>
-                          <Badge className={statusColors[league.status] ?? "bg-muted text-muted-foreground"}>
-                            {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
+                          <Badge
+                            className={
+                              statusColors[league.status] ??
+                              "bg-muted text-muted-foreground"
+                            }
+                          >
+                            {league.status.charAt(0).toUpperCase() +
+                              league.status.slice(1)}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">Your team: {league.teamName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Your team: {league.teamName}
+                        </p>
                       </div>
                       <div className="flex gap-2">
-                        {(league.status === "drafting") && (
+                        {league.status === "drafting" && (
                           <Link
                             href={`/leagues/${league.id}/draft`}
                             className="px-3 py-1.5 rounded-md bg-yellow-500 text-white text-sm font-medium hover:bg-yellow-600 transition-colors"
@@ -191,7 +217,9 @@ export default async function HomePage() {
           {/* Latest Race Results */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-foreground">Latest Results</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Latest Results
+              </h2>
               <Link
                 href="/admin/results"
                 className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
@@ -202,7 +230,9 @@ export default async function HomePage() {
             {latestResults.length === 0 ? (
               <Card className="border-border bg-card">
                 <CardContent className="pt-6">
-                  <p className="text-muted-foreground text-sm">No race results available yet.</p>
+                  <p className="text-muted-foreground text-sm">
+                    No race results available yet.
+                  </p>
                 </CardContent>
               </Card>
             ) : (
@@ -212,15 +242,24 @@ export default async function HomePage() {
                     <CardContent className="py-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-foreground">{result.riderName}</p>
-                          <p className="text-xs text-muted-foreground">{result.riderTeam}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{format(result.raceDate, "MMM d")}</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {result.riderName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {result.riderTeam}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(result.raceDate, "MMM d")}
+                          </p>
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-bold text-primary">
-                            {'🥇🥈🥉'[Math.min(result.position - 1, 2)] || `#${result.position}`}
+                            {"🥇🥈🥉"[Math.min(result.position - 1, 2)] ||
+                              `#${result.position}`}
                           </div>
-                          <p className="text-xs text-accent font-medium">{result.points} pts</p>
+                          <p className="text-xs text-accent font-medium">
+                            {result.points} pts
+                          </p>
                         </div>
                       </div>
                     </CardContent>
@@ -233,7 +272,9 @@ export default async function HomePage() {
           {/* Completed Races */}
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-foreground">Completed Races</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Completed Races
+              </h2>
               <Link
                 href="/admin/races"
                 className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
@@ -244,25 +285,35 @@ export default async function HomePage() {
             {latestRacesWithResults.length === 0 ? (
               <Card className="border-border bg-card">
                 <CardContent className="pt-6">
-                  <p className="text-muted-foreground text-sm">No completed races yet.</p>
+                  <p className="text-muted-foreground text-sm">
+                    No completed races yet.
+                  </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-2">
                 {latestRacesWithResults.map((race) => (
-                  <Card key={race.raceId} className="border-border bg-card hover:border-primary/30 transition-colors">
+                  <Card
+                    key={race.raceId}
+                    className="border-border bg-card hover:border-primary/30 transition-colors"
+                  >
                     <CardContent className="py-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
-                          <p className="font-semibold text-foreground text-sm">{race.raceName}</p>
+                          <p className="font-semibold text-foreground text-sm">
+                            {race.raceName}
+                          </p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {format(race.startDate, "MMM d, yyyy")}
+                            {race.startDate
+                              ? format(race.startDate, "MMM d, yyyy")
+                              : "TBD"}
                           </p>
                         </div>
                         <div className="text-right">
                           <span
                             className={`px-2 py-1 rounded text-xs font-medium ${
-                              raceTypeColors[race.raceType] || raceTypeColors.low_priority_one_day
+                              raceTypeColors[race.raceType] ||
+                              raceTypeColors.low_priority_one_day
                             }`}
                           >
                             {raceTypeLabels[race.raceType] || race.raceType}
@@ -280,7 +331,9 @@ export default async function HomePage() {
         {/* Upcoming Races Section */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-foreground">Upcoming Races</h2>
+            <h2 className="text-2xl font-bold text-foreground">
+              Upcoming Races
+            </h2>
             <Link
               href="/admin/races"
               className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
@@ -299,22 +352,31 @@ export default async function HomePage() {
           ) : (
             <div className="space-y-2">
               {parentRaces.map((race) => {
-                const isMultiDay = race.endDate && !isSameDay(race.startDate, race.endDate)
+                const isMultiDay =
+                  race.endDate && !isSameDay(race.startDate, race.endDate);
                 const dateDisplay = isMultiDay
                   ? `${format(race.startDate, "MMM d")} - ${format(race.endDate!, "MMM d, yyyy")}`
-                  : format(race.startDate, "MMM d, yyyy")
+                  : format(race.startDate, "MMM d, yyyy");
 
                 return (
-                  <Card key={race.id} className="border-border bg-card hover:border-primary/30 transition-colors">
+                  <Card
+                    key={race.id}
+                    className="border-border bg-card hover:border-primary/30 transition-colors"
+                  >
                     <CardContent className="py-3">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground text-sm">{race.name}</h3>
-                          <p className="text-xs text-muted-foreground mt-1">{dateDisplay}</p>
+                          <h3 className="font-semibold text-foreground text-sm">
+                            {race.name}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {dateDisplay}
+                          </p>
                         </div>
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
-                            raceTypeColors[race.raceType] || raceTypeColors.low_priority_one_day
+                            raceTypeColors[race.raceType] ||
+                            raceTypeColors.low_priority_one_day
                           }`}
                         >
                           {raceTypeLabels[race.raceType] || race.raceType}
@@ -322,12 +384,12 @@ export default async function HomePage() {
                       </div>
                     </CardContent>
                   </Card>
-                )
+                );
               })}
             </div>
           )}
         </section>
       </div>
     </div>
-  )
+  );
 }

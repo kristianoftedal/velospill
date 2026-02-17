@@ -1,37 +1,46 @@
-"use server"
+"use server";
 
-import { notFound } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
-import { getLeagueDetails, getSeasonRacesForPicker, assignRaceToLeague, removeRaceFromLeague } from "../actions"
-import { InviteSection, LeagueStatusControl, RacePickerSection } from "../league-client"
+} from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { notFound } from "next/navigation";
+import {
+  assignRaceToLeague,
+  getLeagueDetails,
+  getSeasonRacesForPicker,
+  removeRaceFromLeague,
+} from "../actions";
+import {
+  InviteSection,
+  LeagueStatusControl,
+  RacePickerSection,
+} from "../league-client";
 
 export default async function LeagueOwnerPage({
   params,
 }: {
-  params: Promise<{ leagueId: string }>
+  params: Promise<{ leagueId: number }>;
 }) {
-  const { leagueId } = await params
-  const details = await getLeagueDetails(leagueId)
+  const { leagueId } = await params;
+  const details = await getLeagueDetails(leagueId);
 
   if (!details) {
-    return notFound()
+    return notFound();
   }
 
-  const { league, teams, isOwner } = details
+  const { league, teams, isOwner } = details;
 
   // Only owners can access this page
   if (!isOwner) {
-    return notFound()
+    return notFound();
   }
 
   // Fetch season races for the race picker
-  const seasonRaces = await getSeasonRacesForPicker(leagueId)
+  const seasonRaces = await getSeasonRacesForPicker(leagueId);
 
   return (
     <div className="space-y-6 pb-8">
@@ -111,5 +120,5 @@ export default async function LeagueOwnerPage({
         </Card>
       </Accordion>
     </div>
-  )
+  );
 }

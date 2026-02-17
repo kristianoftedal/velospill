@@ -96,10 +96,12 @@ export function RacesClient({ races }: RacesClientProps) {
   }
 
   return (
-    <>
-      <div className="flex gap-2 mb-4">
-        <Button onClick={() => setShowAddDialog(true)}>Add Race</Button>
-        <Button variant="outline" onClick={() => setShowImportDialog(true)}>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row gap-2">
+        <Button onClick={() => setShowAddDialog(true)} className="gap-2 bg-primary hover:bg-primary/90">
+          Add Race
+        </Button>
+        <Button variant="outline" onClick={() => setShowImportDialog(true)} className="gap-2">
           Import CSV
         </Button>
       </div>
@@ -176,6 +178,6 @@ export function RacesClient({ races }: RacesClientProps) {
           onUpdate={handleStageUpdate}
         />
       )}
-    </>
+    </div>
   )
 }

@@ -29,13 +29,13 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <div className="border-b bg-white">
-        <div className="container flex items-center h-14 gap-6">
-          <Link href="/admin" className="font-semibold text-sm">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-background">
+      <div className="border-b border-border bg-card">
+        <div className="container flex items-center h-16 gap-6 px-4">
+          <Link href="/admin" className="font-semibold text-sm text-primary hover:text-primary/80 transition-colors">
             Admin
           </Link>
-          <nav className="flex gap-4">
+          <nav className="flex gap-6">
             <Link
               href="/admin/riders"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -75,7 +75,7 @@ export default async function AdminLayout({
           </Link>
         </div>
       </div>
-      <main className="container py-6">{children}</main>
+      <main className="container px-4 py-8 md:py-10">{children}</main>
     </div>
   )
 }

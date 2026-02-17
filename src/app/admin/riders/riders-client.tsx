@@ -73,18 +73,18 @@ export function RidersClient({ riders }: RidersClientProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Riders</h1>
-          <p className="text-muted-foreground mt-1">{riders.length} riders total</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-primary">Riders Database</h2>
+          <p className="text-sm text-muted-foreground">{riders.length} total riders</p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setIsImportOpen(true)} variant="outline">
-            <Upload className="mr-2 h-4 w-4" />
+          <Button onClick={() => setIsImportOpen(true)} variant="outline" className="gap-2">
+            <Upload className="h-4 w-4" />
             Import CSV
           </Button>
-          <Button onClick={() => setIsAddOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button onClick={() => setIsAddOpen(true)} className="gap-2 bg-primary hover:bg-primary/90">
+            <Plus className="h-4 w-4" />
             Add Rider
           </Button>
         </div>
@@ -98,7 +98,7 @@ export function RidersClient({ riders }: RidersClientProps) {
       />
 
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Add Rider</DialogTitle>
             <DialogDescription>
@@ -115,7 +115,7 @@ export function RidersClient({ riders }: RidersClientProps) {
       </Dialog>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Rider</DialogTitle>
             <DialogDescription>Update rider details.</DialogDescription>
@@ -160,7 +160,7 @@ export function RidersClient({ riders }: RidersClientProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

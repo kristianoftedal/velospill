@@ -12,6 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { getLeagueDetails } from "./actions"
+import { getLeagueStandingsWithOrders, getTeamRiderScores, getLeagueRacesWithScores } from "@/lib/scoring-queries"
+import { StandingsClient } from "./standings/standings-client"
+import { LeagueConfig } from "@/db/schema/leagues"
 
 const statusColors: Record<string, string> = {
   setup: "bg-blue-100 text-blue-800",
@@ -61,7 +64,31 @@ export default async function LeagueDetailPage({ params }: PageProps) {
     )
   }
 
-  const { league, teams, isOwner } = details
+  const { league, teams, isOwner, userTeamId } = details
+
+  // Fetch standings data if league is active or complete
+  let standings = null
+  let myTeamRiders = null
+  let races = null
+  
+  if ((league.status === "active" || league.status === "complete") && league.config) {
+    const config = league.config as LeagueConfig
+    const seasonYear = config.seasonYear
+    
+    ;[standings, myTeamRiders, races] = await Promise.all([
+      getLeagueStandingsWithOrders(league.id, seasonYear),
+      userTeamId != null
+        ? getTeamRiderScores(userTeamId, league.id, seasonYear)
+        : Promise.resolve(null),
+      getLeagueRacesWithScores(league.id, seasonYear),
+    ])
+  }
+
+  // Find user's team for standings highlighting
+  const userStanding = standings && userTeamId != null
+    ? standings.find((s) => s.teamId === userTeamId) ?? null
+    : null
+  const userTeamName = userStanding?.teamName ?? null
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -89,6 +116,25 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Standings — show when league is active or complete */}
+      {standings && (league.status === "active" || league.status === "complete") && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">League Standings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StandingsClient
+              standings={standings}
+              myTeamRiders={myTeamRiders}
+              leagueId={league.id}
+              userTeamName={userTeamName}
+              userTeamId={userTeamId}
+              races={races ?? []}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       {/* Draft Link — show when league is in drafting status or has draft session */}
       {(league.status === "drafting" || league.status === "active") && (
         <Card>
@@ -110,28 +156,6 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                 className="px-4 py-2 rounded-md bg-yellow-500 text-white text-sm font-medium hover:bg-yellow-600 transition-colors"
               >
                 {league.status === "drafting" ? "Go to Draft" : "View Draft"}
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Standings Link — show when league is active or complete */}
-      {(league.status === "active" || league.status === "complete") && (
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">League Standings</p>
-                <p className="text-sm text-gray-500">
-                  View team rankings and race results
-                </p>
-              </div>
-              <Link
-                href={`/leagues/${league.id}/standings`}
-                className="px-4 py-2 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors"
-              >
-                View Standings
               </Link>
             </div>
           </CardContent>

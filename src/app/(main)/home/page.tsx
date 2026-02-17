@@ -3,11 +3,14 @@ import { db } from "@/lib/db"
 import { races } from "@/db/schema/races"
 import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
 import { draftSessions } from "@/db/schema/draft"
-import { gte, asc, eq, desc } from "drizzle-orm"
+import { raceResults } from "@/db/schema/results"
+import { riders } from "@/db/schema/riders"
+import { gte, asc, eq, desc, and, isNotNull, lt } from "drizzle-orm"
 import { format, isSameDay } from "date-fns"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const raceTypeColors: Record<string, string> = {
   grand_tour: "bg-blue-100 text-blue-800",
@@ -75,82 +78,226 @@ export default async function HomePage() {
   // Filter to only parent races (parentRaceId is null)
   const parentRaces = upcomingRaces.filter(race => !race.parentRaceId)
 
+  // Fetch latest completed races with results
+  const latestRacesWithResults = await db
+    .select({
+      raceId: races.id,
+      raceName: races.name,
+      raceType: races.raceType,
+      startDate: races.startDate,
+      endDate: races.endDate,
+      resultCount: db
+        .select({ count: db.sql<number>`count(*)` })
+        .from(raceResults)
+        .where(eq(raceResults.raceId, races.id)),
+    })
+    .from(races)
+    .where(and(
+      lt(races.endDate ?? races.startDate, new Date()),
+      isNotNull(races.endDate)
+    ))
+    .orderBy(desc(races.endDate))
+    .limit(5)
+
+  // Fetch latest race results with rider info
+  const latestResults = await db
+    .select({
+      position: raceResults.position,
+      points: raceResults.points,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      raceName: races.name,
+      raceType: races.raceType,
+      raceDate: races.startDate,
+    })
+    .from(raceResults)
+    .innerJoin(races, eq(raceResults.raceId, races.id))
+    .innerJoin(riders, eq(raceResults.riderId, riders.id))
+    .where(and(
+      lt(races.endDate ?? races.startDate, new Date()),
+      isNotNull(races.endDate)
+    ))
+    .orderBy(desc(races.startDate), desc(raceResults.position))
+    .limit(10)
+
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8">
+    <div className="container mx-auto max-w-6xl px-4 py-8">
       <div className="space-y-8">
         {/* League Section */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Your Leagues</h2>
+            <h2 className="text-2xl font-bold text-foreground">Your Leagues</h2>
             <Link
               href="/leagues"
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
             >
               View all
             </Link>
           </div>
           {myLeagues.length === 0 ? (
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <p className="text-gray-600 mb-4">You haven&apos;t joined any leagues yet</p>
-              <div className="flex gap-3">
-                <Link
-                  href="/leagues/new"
-                  className="px-4 py-2 rounded-md bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors"
-                >
-                  Create League
-                </Link>
-              </div>
-            </div>
+            <Card className="border-border bg-card">
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground mb-4">You haven&apos;t joined any leagues yet</p>
+                <div className="flex gap-3">
+                  <Link
+                    href="/leagues/new"
+                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+                  >
+                    Create League
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
             <div className="space-y-3">
               {myLeagues.map((league) => (
-                <div
-                  key={league.id}
-                  className="rounded-lg border border-gray-200 bg-white p-4 hover:border-gray-300 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Link
-                          href={`/leagues/${league.id}`}
-                          className="font-semibold text-gray-900 hover:text-blue-700 transition-colors"
-                        >
-                          {league.name}
-                        </Link>
-                        <Badge className={`${statusColors[league.status] ?? "bg-gray-100 text-gray-800"} text-xs`}>
-                          {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
-                        </Badge>
+                <Card key={league.id} className="border-border bg-card hover:border-primary/30 transition-colors">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Link
+                            href={`/leagues/${league.id}`}
+                            className="font-semibold text-foreground hover:text-primary transition-colors"
+                          >
+                            {league.name}
+                          </Link>
+                          <Badge className={statusColors[league.status] ?? "bg-muted text-muted-foreground"}>
+                            {league.status.charAt(0).toUpperCase() + league.status.slice(1)}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Your team: {league.teamName}</p>
                       </div>
-                      <p className="text-sm text-gray-500">Your team: {league.teamName}</p>
+                      <div className="flex gap-2">
+                        {(league.status === "drafting") && (
+                          <Link
+                            href={`/leagues/${league.id}/draft`}
+                            className="px-3 py-1.5 rounded-md bg-yellow-500 text-white text-sm font-medium hover:bg-yellow-600 transition-colors"
+                          >
+                            Go to Draft
+                          </Link>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      {(league.status === "drafting") && (
-                        <Link
-                          href={`/leagues/${league.id}/draft`}
-                          className="px-3 py-1.5 rounded-md bg-yellow-500 text-white text-sm font-medium hover:bg-yellow-600 transition-colors"
-                        >
-                          Go to Draft
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
         </section>
 
+        {/* Latest Races and Results */}
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Latest Race Results */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-foreground">Latest Results</h2>
+              <Link
+                href="/admin/results"
+                className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                View all
+              </Link>
+            </div>
+            {latestResults.length === 0 ? (
+              <Card className="border-border bg-card">
+                <CardContent className="pt-6">
+                  <p className="text-muted-foreground text-sm">No race results available yet.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {latestResults.slice(0, 8).map((result, idx) => (
+                  <Card key={idx} className="border-border bg-card">
+                    <CardContent className="py-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-foreground">{result.riderName}</p>
+                          <p className="text-xs text-muted-foreground">{result.riderTeam}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{format(result.raceDate, "MMM d")}</p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-primary">
+                            {'🥇🥈🥉'[Math.min(result.position - 1, 2)] || `#${result.position}`}
+                          </div>
+                          <p className="text-xs text-accent font-medium">{result.points} pts</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Completed Races */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-foreground">Completed Races</h2>
+              <Link
+                href="/admin/races"
+                className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+              >
+                View all
+              </Link>
+            </div>
+            {latestRacesWithResults.length === 0 ? (
+              <Card className="border-border bg-card">
+                <CardContent className="pt-6">
+                  <p className="text-muted-foreground text-sm">No completed races yet.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {latestRacesWithResults.map((race) => (
+                  <Card key={race.raceId} className="border-border bg-card hover:border-primary/30 transition-colors">
+                    <CardContent className="py-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-foreground text-sm">{race.raceName}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {format(race.startDate, "MMM d, yyyy")}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
+                              raceTypeColors[race.raceType] || raceTypeColors.low_priority_one_day
+                            }`}
+                          >
+                            {raceTypeLabels[race.raceType] || race.raceType}
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+
         {/* Upcoming Races Section */}
         <section>
-          <h2 className="text-xl font-semibold mb-4 text-gray-900">Upcoming Races</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-foreground">Upcoming Races</h2>
+            <Link
+              href="/admin/races"
+              className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+            >
+              View all
+            </Link>
+          </div>
           {parentRaces.length === 0 ? (
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <p className="text-gray-600">
-                No upcoming races. Admin can add races from the calendar.
-              </p>
-            </div>
+            <Card className="border-border bg-card">
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground">
+                  No upcoming races. Admin can add races from the calendar.
+                </p>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {parentRaces.map((race) => {
                 const isMultiDay = race.endDate && !isSameDay(race.startDate, race.endDate)
                 const dateDisplay = isMultiDay
@@ -158,24 +305,23 @@ export default async function HomePage() {
                   : format(race.startDate, "MMM d, yyyy")
 
                 return (
-                  <div
-                    key={race.id}
-                    className="rounded-lg border border-gray-200 bg-white p-4 hover:border-gray-300 transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">{race.name}</h3>
-                        <p className="text-sm text-gray-600">{dateDisplay}</p>
+                  <Card key={race.id} className="border-border bg-card hover:border-primary/30 transition-colors">
+                    <CardContent className="py-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground text-sm">{race.name}</h3>
+                          <p className="text-xs text-muted-foreground mt-1">{dateDisplay}</p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
+                            raceTypeColors[race.raceType] || raceTypeColors.low_priority_one_day
+                          }`}
+                        >
+                          {raceTypeLabels[race.raceType] || race.raceType}
+                        </span>
                       </div>
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                          raceTypeColors[race.raceType] || raceTypeColors.low_priority_one_day
-                        }`}
-                      >
-                        {raceTypeLabels[race.raceType] || race.raceType}
-                      </span>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 )
               })}
             </div>

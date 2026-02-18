@@ -8,14 +8,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 
@@ -51,9 +43,24 @@ export default async function RidersPage() {
         .where(sql`${raceResults.riderId} = ${rider.id}`)
         .orderBy(sql`${races.startDate} DESC`)
 
+      // Calculate category breakdowns
+      const categoryScores = {
+        oneDay: results.filter((r) => r.raceType === "one_day").reduce((sum, r) => sum + r.points, 0),
+        stage: results.filter((r) => r.raceType === "stage_race").reduce((sum, r) => sum + r.points, 0),
+        classic: results.filter((r) => r.raceType === "classic").reduce((sum, r) => sum + r.points, 0),
+        total: results.reduce((sum, r) => sum + r.points, 0),
+      }
+
+      const maxPosition = results.length > 0 ? Math.max(...results.map((r) => r.position)) : 0
+      const avgPosition = results.length > 0 ? Math.round(results.reduce((sum, r) => sum + r.position, 0) / results.length) : 0
+
       return {
         ...rider,
         results,
+        categoryScores,
+        maxPosition,
+        avgPosition,
+        raceCount: results.length,
       }
     })
   )
@@ -67,13 +74,23 @@ export default async function RidersPage() {
     time_trialist: "Time Trialist",
   }
 
+  const specialtyColors: Record<string, string> = {
+    sprinter: "bg-amber-100 text-amber-700",
+    climber: "bg-rose-100 text-rose-700",
+    gc: "bg-blue-100 text-blue-700",
+    classics: "bg-purple-100 text-purple-700",
+    allrounder: "bg-green-100 text-green-700",
+    time_trialist: "bg-cyan-100 text-cyan-700",
+  }
+
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Professional Riders</h1>
-          <p className="text-muted-foreground text-lg">
-            Browse riders and their season points breakdown
+    <div className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="space-y-3">
+          <h1 className="text-5xl font-bold tracking-tighter text-foreground">Professional Riders</h1>
+          <p className="text-lg text-muted-foreground">
+            Explore world-class cyclists and their season performance
           </p>
         </div>
 
@@ -84,72 +101,138 @@ export default async function RidersPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle>{riderBreakdowns.length} Riders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="single" collapsible className="w-full space-y-2">
-                {riderBreakdowns.map((rider) => (
-                  <AccordionItem key={rider.id} value={`rider-${rider.id}`} className="border rounded-lg px-4">
-                    <AccordionTrigger className="hover:no-underline py-4">
-                      <div className="flex items-center justify-between w-full gap-4">
-                        <div className="flex-1 text-left">
-                          <div className="flex items-center gap-3">
-                            <div>
-                              <p className="font-semibold text-foreground">{rider.name}</p>
-                              <p className="text-sm text-muted-foreground">{rider.team}</p>
-                            </div>
-                          </div>
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            {riderBreakdowns.map((rider) => (
+              <AccordionItem
+                key={rider.id}
+                value={`rider-${rider.id}`}
+                className="border-0 overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow"
+              >
+                <AccordionTrigger className="hover:no-underline bg-white dark:bg-slate-900 px-6 py-5">
+                  <div className="flex items-center justify-between w-full gap-4">
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-green-blue flex items-center justify-center text-white font-bold">
+                          {rider.name.charAt(0)}
                         </div>
-                        <div className="flex items-center gap-4 mr-4">
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-primary">{rider.totalPoints}</p>
-                            <p className="text-xs text-muted-foreground">points</p>
-                          </div>
-                          <Badge variant="outline" className="whitespace-nowrap">
-                            {specialtyLabels[rider.specialty] || rider.specialty}
-                          </Badge>
+                        <div>
+                          <p className="font-bold text-lg text-foreground">{rider.name}</p>
+                          <p className="text-sm text-muted-foreground">{rider.team}</p>
                         </div>
                       </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pt-4 pb-4">
-                      {rider.results.length === 0 ? (
-                        <p className="text-sm text-muted-foreground py-4">No race results yet.</p>
-                      ) : (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Race</TableHead>
-                              <TableHead>Date</TableHead>
-                              <TableHead className="text-right">Position</TableHead>
-                              <TableHead className="text-right">Points</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {rider.results.map((result, idx) => (
-                              <TableRow key={idx}>
-                                <TableCell className="font-medium">{result.raceName}</TableCell>
-                                <TableCell className="text-sm text-muted-foreground">
-                                  {format(new Date(result.raceDate), "MMM d, yyyy")}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                  <Badge variant="secondary">#{result.position}</Badge>
-                                </TableCell>
-                                <TableCell className="text-right font-semibold text-primary">
-                                  {result.points}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      )}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            </CardContent>
-          </Card>
+                    </div>
+                    <div className="flex items-center gap-6 mr-4">
+                      <div className="text-right">
+                        <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-green-blue">
+                          {rider.totalPoints}
+                        </p>
+                        <p className="text-xs text-muted-foreground font-medium">TOTAL POINTS</p>
+                      </div>
+                      <Badge className={`${specialtyColors[rider.specialty] || "bg-gray-100 text-gray-700"} text-xs font-semibold border-0`}>
+                        {specialtyLabels[rider.specialty] || rider.specialty}
+                      </Badge>
+                    </div>
+                  </div>
+                </AccordionTrigger>
+
+                <AccordionContent className="bg-gradient-to-b from-white via-white to-slate-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 px-6 py-6 space-y-8">
+                  {/* Category Breakdown */}
+                  {rider.results.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-4">RACE CATEGORIES</h3>
+                      <div className="space-y-3">
+                        {[
+                          {
+                            label: "Stage Races",
+                            value: rider.categoryScores.stage,
+                            color: "from-blue-500 to-blue-600",
+                          },
+                          {
+                            label: "One-Day Events",
+                            value: rider.categoryScores.oneDay,
+                            color: "from-green-500 to-green-600",
+                          },
+                          {
+                            label: "Classics",
+                            value: rider.categoryScores.classic,
+                            color: "from-purple-500 to-purple-600",
+                          },
+                        ].map((category) => (
+                          <div key={category.label} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium text-muted-foreground">{category.label}</span>
+                              <span className="text-sm font-bold text-primary">{category.value}</span>
+                            </div>
+                            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full bg-gradient-to-r ${category.color} rounded-full transition-all duration-500`}
+                                style={{
+                                  width: `${
+                                    rider.totalPoints > 0
+                                      ? (category.value / rider.totalPoints) * 100
+                                      : 0
+                                  }%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Performance Metrics */}
+                  <div>
+                    <h3 className="text-sm font-bold text-secondary uppercase tracking-wide mb-4">PERFORMANCE</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground font-medium mb-1">Races</p>
+                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{rider.raceCount}</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground font-medium mb-1">Avg Position</p>
+                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">#{rider.avgPosition}</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 p-4 rounded-lg">
+                        <p className="text-sm text-muted-foreground font-medium mb-1">PPR</p>
+                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                          {rider.raceCount > 0 ? (rider.totalPoints / rider.raceCount).toFixed(1) : 0}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Race Details Table */}
+                  {rider.results.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wide mb-4">RACE RESULTS</h3>
+                      <div className="space-y-2 max-h-96 overflow-y-auto">
+                        {rider.results.map((result, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary hover:shadow-md transition-all"
+                          >
+                            <div className="flex-1">
+                              <p className="font-semibold text-foreground text-sm">{result.raceName}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {format(new Date(result.raceDate), "MMM d, yyyy")}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge variant="outline" className="text-xs font-medium">
+                                #{result.position}
+                              </Badge>
+                              <span className="font-bold text-primary text-lg">{result.points}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         )}
       </div>
     </div>

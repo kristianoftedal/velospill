@@ -155,6 +155,24 @@
     background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #2ed573 0%, #3742fa 100%) border-box;
   }
 
+  .progress-bar {
+    position: relative;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.3s ease-in-out;
+  }
+
+  .progress-bar-fill-green-blue {
+    background: linear-gradient(90deg, #2ed573 0%, #3742fa 100%);
+  }
+
   @keyframes accordion-down {
     from {
       height: 0;

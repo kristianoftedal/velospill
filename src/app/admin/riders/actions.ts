@@ -16,15 +16,6 @@ const riderSchema = z.object({
     .string()
     .length(3, "Use 3-letter country code (e.g., NOR, FRA)"),
   gender: z.enum(["M", "F"]),
-  specialty: z.enum([
-    "sprinter",
-    "climber",
-    "gc",
-    "classics",
-    "allrounder",
-    "time_trialist",
-    "",
-  ]),
 });
 
 type RiderInput = z.infer<typeof riderSchema>;

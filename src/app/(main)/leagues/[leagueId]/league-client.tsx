@@ -248,8 +248,10 @@ export function RacePickerSection({
 }: RacePickerSectionProps) {
   const router = useRouter()
   const [togglingRaceId, setTogglingRaceId] = useState<number | null>(null)
+  const [isSelectingAll, setIsSelectingAll] = useState(false)
 
   const assignedCount = seasonRaces.filter((r) => r.assigned).length
+  const allSelected = assignedCount === seasonRaces.length && seasonRaces.length > 0
 
   async function handleToggle(race: SeasonRace) {
     setTogglingRaceId(race.id)
@@ -284,13 +286,49 @@ export function RacePickerSection({
     }
   }
 
+  async function handleSelectAll() {
+    setIsSelectingAll(true)
+    try {
+      const racesToToggle = allSelected
+        ? seasonRaces.filter((r) => r.assigned)
+        : seasonRaces.filter((r) => !r.assigned)
+
+      for (const race of racesToToggle) {
+        if (allSelected) {
+          await removeRace(leagueId, race.id)
+        } else {
+          await assignRace(leagueId, race.id)
+        }
+      }
+
+      toast.success(allSelected ? "All races deselected" : "All races selected")
+      router.refresh()
+    } catch {
+      toast.error("Failed to update all races")
+    } finally {
+      setIsSelectingAll(false)
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Race Calendar</CardTitle>
-        <p className="text-sm text-gray-500">
-          {assignedCount} of {seasonRaces.length} races assigned to this league
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Race Calendar</CardTitle>
+            <p className="text-sm text-gray-500">
+              {assignedCount} of {seasonRaces.length} races assigned to this league
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSelectAll}
+            disabled={isSelectingAll || seasonRaces.length === 0}
+          >
+            {isSelectingAll ? "Processing..." : allSelected ? "Deselect All" : "Select All"}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <Table>

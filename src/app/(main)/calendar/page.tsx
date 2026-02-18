@@ -1,83 +1,139 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { db } from "@/lib/db"
+import { races } from "@/db/schema/races"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { format, isSameDay } from "date-fns"
+import { isNull, sql, asc } from "drizzle-orm"
 
-export default function CalendarPage() {
+const raceTypeColors: Record<string, string> = {
+  grand_tour: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
+  high_priority_one_day: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300",
+  low_priority_one_day: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300",
+  mini_tour: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+  womens_grand_tour: "bg-pink-100 text-pink-700 dark:bg-pink-950 dark:text-pink-300",
+  womens_one_day: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
+  world_championship: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
+}
+
+const raceTypeLabels: Record<string, string> = {
+  grand_tour: "Grand Tour",
+  high_priority_one_day: "High Priority One-Day",
+  low_priority_one_day: "One-Day",
+  mini_tour: "Mini Tour",
+  womens_grand_tour: "Women's Grand Tour",
+  womens_one_day: "Women's One-Day",
+  world_championship: "World Championship",
+}
+
+export default async function CalendarPage() {
+  // Get all parent races (not stages) sorted by start date
+  const allRaces = await db
+    .select({
+      id: races.id,
+      name: races.name,
+      raceType: races.raceType,
+      startDate: races.startDate,
+      endDate: races.endDate,
+      season: races.season,
+      stageCount: sql<number>`count(distinct case when ${races.parentRaceId} = ${races.id} then 1 end)`,
+    })
+    .from(races)
+    .where(isNull(races.parentRaceId))
+    .orderBy(asc(races.startDate))
+    .groupBy(races.id, races.name, races.raceType, races.startDate, races.endDate, races.season)
+
+  // Group races by season
+  const racesByYear: Record<number, typeof allRaces> = {}
+  allRaces.forEach((race) => {
+    if (!racesByYear[race.season]) {
+      racesByYear[race.season] = []
+    }
+    racesByYear[race.season].push(race)
+  })
+
+  const sortedYears = Object.keys(racesByYear)
+    .map(Number)
+    .sort((a, b) => b - a)
+
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-8 md:py-12">
-      <div className="space-y-10">
+    <div className="container mx-auto max-w-6xl px-4 py-12 md:py-16">
+      <div className="space-y-12">
         {/* Header */}
         <div className="space-y-4">
           <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground">
             Race Calendar
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl">
-            View the complete 2026 cycling season calendar with all major races and events
+            View the complete professional cycling season calendar with all major races and events
           </p>
         </div>
 
-        {/* Coming Soon */}
-        <Card className="border-0 shadow-lg overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-green-500 via-blue-500 to-green-500" />
-          <CardContent className="py-16 px-8">
-            <div className="flex flex-col items-center justify-center space-y-6 text-center">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center">
-                <CalendarIcon className="w-12 h-12 text-muted-foreground" />
-              </div>
-              <div className="space-y-3 max-w-md">
-                <h2 className="text-3xl font-bold text-foreground">
-                  Coming Soon
-                </h2>
-                <p className="text-lg text-muted-foreground leading-relaxed">
-                  Our interactive race calendar is currently in development. Soon you'll be able to view detailed race information, mark favorites, and get notified about upcoming events.
-                </p>
-              </div>
-              <div className="flex flex-wrap justify-center gap-2 pt-4">
-                <div className="px-4 py-2 rounded-full bg-gradient-to-r from-green-100 to-green-50 dark:from-green-950 dark:to-green-900 text-sm font-medium text-green-700 dark:text-green-300">
-                  Race Schedule
-                </div>
-                <div className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-950 dark:to-blue-900 text-sm font-medium text-blue-700 dark:text-blue-300">
-                  Event Details
-                </div>
-                <div className="px-4 py-2 rounded-full bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-950 dark:to-purple-900 text-sm font-medium text-purple-700 dark:text-purple-300">
-                  Notifications
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Info Cards */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-            <CardContent className="pt-6 space-y-3">
-              <div className="text-3xl">📅</div>
-              <h3 className="font-bold text-lg text-foreground">2026 Season</h3>
-              <p className="text-sm text-muted-foreground">
-                Complete professional cycling calendar with all major races
+        {allRaces.length === 0 ? (
+          <Card className="border-0 shadow-lg">
+            <CardContent className="py-16 px-8 text-center">
+              <p className="text-lg text-muted-foreground">
+                No races scheduled yet. Check back soon for the complete 2026 season calendar.
               </p>
             </CardContent>
           </Card>
+        ) : (
+          <div className="space-y-12">
+            {sortedYears.map((year) => (
+              <section key={year} className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-3xl font-bold text-foreground">{year} Season</h2>
+                  <Badge className="bg-gradient-green-blue text-white text-sm font-semibold px-3 py-1">
+                    {racesByYear[year].length} races
+                  </Badge>
+                </div>
 
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-            <CardContent className="pt-6 space-y-3">
-              <div className="text-3xl">🏆</div>
-              <h3 className="font-bold text-lg text-foreground">Grand Tours</h3>
-              <p className="text-sm text-muted-foreground">
-                Tour de France, Giro d'Italia, Vuelta a España, and more
-              </p>
-            </CardContent>
-          </Card>
+                <div className="space-y-4">
+                  {racesByYear[year].map((race) => {
+                    const isMultiDay =
+                      race.endDate &&
+                      !isSameDay(race.startDate, race.endDate)
+                    const dateDisplay = isMultiDay
+                      ? `${format(race.startDate, "MMM d")} - ${format(race.endDate!, "MMM d")}`
+                      : format(race.startDate, "MMM d")
 
-          <Card className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-            <CardContent className="pt-6 space-y-3">
-              <div className="text-3xl">🔔</div>
-              <h3 className="font-bold text-lg text-foreground">Notifications</h3>
-              <p className="text-sm text-muted-foreground">
-                Get alerts for races featuring your favorite riders
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+                    return (
+                      <Card
+                        key={race.id}
+                        className="border-0 shadow-md hover:shadow-lg transition-shadow overflow-hidden group"
+                      >
+                        <div className="h-1 bg-gradient-to-r from-green-500 to-blue-500" />
+                        <CardContent className="py-5">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="space-y-2">
+                                <h3 className="font-bold text-lg text-foreground group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-green-blue transition-all">
+                                  {race.name}
+                                </h3>
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                  <span className="font-medium">{dateDisplay}</span>
+                                  {race.stageCount > 0 && (
+                                    <span className="text-xs bg-muted px-2 py-1 rounded-full">
+                                      {race.stageCount} stage{race.stageCount !== 1 ? "s" : ""}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <Badge
+                              className={`${raceTypeColors[race.raceType] || raceTypeColors.low_priority_one_day} text-xs font-semibold whitespace-nowrap flex-shrink-0`}
+                            >
+                              {raceTypeLabels[race.raceType] || race.raceType}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

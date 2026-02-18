@@ -285,46 +285,42 @@ export default function RidersPage({
                 </CardContent>
               </Card>
             ) : (
-              <Accordion type="single" collapsible className="w-full space-y-4">
+              <Accordion type="single" collapsible className="w-full space-y-1">
                 {filteredRiders.map((rider) => {
                   const isOnUserTeam = userTeamRiderIds.includes(rider.id)
                   return (
                     <AccordionItem
                       key={rider.id}
                       value={`rider-${rider.id}`}
-                      className="border-0 overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow"
+                      className="border-0 overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <AccordionTrigger className="hover:no-underline bg-white dark:bg-slate-900 px-6 py-5">
-                        <div className="flex items-center justify-between w-full gap-4">
+                      <AccordionTrigger className="hover:no-underline bg-white dark:bg-slate-900 px-4 py-2">
+                        <div className="flex items-center justify-between w-full gap-3">
                           <div className="flex-1 text-left">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-lg bg-gradient-green-blue flex items-center justify-center text-white font-bold relative">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-md bg-gradient-green-blue flex items-center justify-center text-white text-sm font-bold relative flex-shrink-0">
                                 {rider.name.charAt(0)}
                                 {isOnUserTeam && (
-                                  <Star className="absolute -top-1 -right-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <Star className="absolute -top-0.5 -right-0.5 h-3 w-3 fill-yellow-400 text-yellow-400" />
                                 )}
                               </div>
-                              <div>
-                                <p className="font-bold text-lg text-foreground flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="font-semibold text-sm text-foreground">
                                   {rider.name}
-                                  {isOnUserTeam && (
-                                    <Badge className="bg-yellow-100 text-yellow-700 text-xs font-bold">On Your Team</Badge>
-                                  )}
                                 </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {rider.team && rider.team.length > 0 ? rider.team : "Unassigned"}
-                                </p>
+                                {isOnUserTeam && (
+                                  <Badge className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-1.5 py-0">My Team</Badge>
+                                )}
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-6 mr-4">
+                          <div className="flex items-center gap-3 flex-shrink-0">
                             <div className="text-right">
-                              <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-green-blue">
+                              <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-green-blue">
                                 {rider.totalPoints}
                               </p>
-                              <p className="text-xs text-muted-foreground font-medium">POINTS</p>
                             </div>
-                            <Badge className={`${specialtyColors[rider.specialty] || "bg-gray-100 text-gray-700"} text-xs font-semibold border-0`}>
+                            <Badge className={`${specialtyColors[rider.specialty] || "bg-gray-100 text-gray-700"} text-[10px] font-semibold border-0 px-2 py-0.5`}>
                               {specialtyLabels[rider.specialty] || rider.specialty}
                             </Badge>
                           </div>

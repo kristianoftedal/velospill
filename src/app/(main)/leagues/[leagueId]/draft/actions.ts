@@ -20,8 +20,8 @@ import { headers } from "next/headers";
 
 const MEN_ROUNDS = 18;
 const WOMEN_ROUNDS = 6;
-const TIMER_MS = 60_000;
-const QSTASH_DELAY_S = 65;
+const TIMER_MS = 300_000;
+const QSTASH_DELAY_S = 305;
 
 function getQStashClient() {
   return new Client({ token: process.env.QSTASH_TOKEN! });

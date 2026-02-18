@@ -127,7 +127,7 @@ export default function CreateLeaguePage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 pt-2">
+            <div className="flex flex-col gap-2 pt-2 pb-2">
               <Button
                 onClick={() => router.push(`/leagues/${successState.leagueId}`)}
                 className="w-full bg-gray-900 text-white hover:bg-gray-700"
@@ -230,7 +230,7 @@ export default function CreateLeaguePage() {
               </div>
             )}
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-2 pb-2">
               <Button
                 type="submit"
                 disabled={isSubmitting}

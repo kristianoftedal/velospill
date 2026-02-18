@@ -17,80 +17,149 @@ export default async function AdminPage() {
   ])
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
-        <p className="text-muted-foreground text-lg">
-          Manage riders, races, results, transfers, and orders
+    <div className="space-y-10">
+      {/* Header */}
+      <div className="space-y-4">
+        <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground">
+          Admin Dashboard
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl">
+          Manage the Velospill platform, including riders, races, results, transfers, and strategic orders
         </p>
       </div>
 
+      {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-primary/10 hover:border-primary/20 transition-colors">
+        {/* Riders Card */}
+        <Card className="border-0 shadow-lg hover:shadow-2xl transition-shadow overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-green-500 to-emerald-600" />
           <CardHeader className="pb-4">
-            <CardTitle className="text-primary">Riders</CardTitle>
-            <CardDescription>Professional cyclists database</CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-primary text-lg font-bold">Riders</CardTitle>
+                <CardDescription className="text-sm">Professional cyclists database</CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-100 to-green-200 dark:from-green-950 dark:to-green-900 flex items-center justify-center">
+                <span className="text-xl font-bold text-green-700 dark:text-green-300">👤</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold">{ridersCount}</div>
-            <p className="text-xs text-muted-foreground">Total riders in system</p>
-            <Button asChild className="w-full bg-primary hover:bg-primary/90">
+          <CardContent className="space-y-6">
+            <div>
+              <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-green-blue">
+                {ridersCount}
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">Total riders in system</p>
+            </div>
+            <Button asChild className="w-full bg-gradient-green-blue hover:opacity-90 text-white font-semibold h-10">
               <Link href="/admin/riders">Manage Riders</Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-accent/10 hover:border-accent/20 transition-colors">
+        {/* Races Card */}
+        <Card className="border-0 shadow-lg hover:shadow-2xl transition-shadow overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600" />
           <CardHeader className="pb-4">
-            <CardTitle className="text-accent">Races</CardTitle>
-            <CardDescription>Season calendar and events</CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-secondary text-lg font-bold">Races</CardTitle>
+                <CardDescription className="text-sm">Season calendar and events</CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900 flex items-center justify-center">
+                <span className="text-xl font-bold text-blue-700 dark:text-blue-300">🏁</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold">{racesCount}</div>
-            <p className="text-xs text-muted-foreground">Total races scheduled</p>
-            <Button asChild className="w-full bg-accent hover:bg-accent/90">
+          <CardContent className="space-y-6">
+            <div>
+              <p className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-blue-green">
+                {racesCount}
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">Total races scheduled</p>
+            </div>
+            <Button asChild className="w-full bg-gradient-blue-green hover:opacity-90 text-white font-semibold h-10">
               <Link href="/admin/races">Manage Races</Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-secondary/10 hover:border-secondary/20 transition-colors">
+        {/* Results Card */}
+        <Card className="border-0 shadow-lg hover:shadow-2xl transition-shadow overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-purple-500 to-purple-600" />
           <CardHeader className="pb-4">
-            <CardTitle className="text-secondary">Results</CardTitle>
-            <CardDescription>Race results and scoring</CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-purple-600 dark:text-purple-400 text-lg font-bold">Results</CardTitle>
+                <CardDescription className="text-sm">Race results and scoring</CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-950 dark:to-purple-900 flex items-center justify-center">
+                <span className="text-xl font-bold text-purple-700 dark:text-purple-300">📊</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold">{resultsCount}</div>
-            <p className="text-xs text-muted-foreground">Results entered</p>
-            <Button asChild className="w-full bg-secondary hover:bg-secondary/90">
+          <CardContent className="space-y-6">
+            <div>
+              <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                {resultsCount}
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">Results entered</p>
+            </div>
+            <Button asChild className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:opacity-90 text-white font-semibold h-10">
               <Link href="/admin/results">Manage Results</Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-primary/10 hover:border-primary/20 transition-colors">
+        {/* Transfers Card */}
+        <Card className="border-0 shadow-lg hover:shadow-2xl transition-shadow overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-cyan-500 to-blue-500" />
           <CardHeader className="pb-4">
-            <CardTitle className="text-primary">Transfers</CardTitle>
-            <CardDescription>Transfer management</CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-cyan-600 dark:text-cyan-400 text-lg font-bold">Transfers</CardTitle>
+                <CardDescription className="text-sm">Transfer management</CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-950 dark:to-cyan-900 flex items-center justify-center">
+                <span className="text-xl font-bold text-cyan-700 dark:text-cyan-300">🔄</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Pending transfers</p>
-            <Button asChild className="w-full bg-primary hover:bg-primary/90">
+          <CardContent className="space-y-6">
+            <div>
+              <p className="text-4xl font-bold text-cyan-600 dark:text-cyan-400">
+                0
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">Pending transfers</p>
+            </div>
+            <Button asChild className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 text-white font-semibold h-10">
               <Link href="/admin/transfers">View Transfers</Link>
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-accent/10 hover:border-accent/20 transition-colors">
+        {/* Orders Card */}
+        <Card className="border-0 shadow-lg hover:shadow-2xl transition-shadow overflow-hidden group">
+          <div className="h-1 bg-gradient-to-r from-amber-500 to-orange-600" />
           <CardHeader className="pb-4">
-            <CardTitle className="text-accent">Orders</CardTitle>
-            <CardDescription>Strategic order validation</CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-amber-600 dark:text-amber-400 text-lg font-bold">Orders</CardTitle>
+                <CardDescription className="text-sm">Strategic order validation</CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-950 dark:to-amber-900 flex items-center justify-center">
+                <span className="text-xl font-bold text-amber-700 dark:text-amber-300">📋</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold">{orderTypesCount}</div>
-            <p className="text-xs text-muted-foreground">Order types configured</p>
-            <Button asChild className="w-full bg-accent hover:bg-accent/90">
+          <CardContent className="space-y-6">
+            <div>
+              <p className="text-4xl font-bold text-amber-600 dark:text-amber-400">
+                {orderTypesCount}
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">Order types configured</p>
+            </div>
+            <Button asChild className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:opacity-90 text-white font-semibold h-10">
               <Link href="/admin/orders">View Orders</Link>
             </Button>
           </CardContent>

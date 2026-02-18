@@ -40,8 +40,8 @@ export function UserMenu({ user }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none">
-        <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
-          <AvatarFallback className="bg-gray-100 text-gray-700 text-sm font-medium">
+        <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity border-2 border-white">
+          <AvatarFallback className="bg-white text-green-600 text-sm font-bold">
             {getInitials(user.name)}
           </AvatarFallback>
         </Avatar>

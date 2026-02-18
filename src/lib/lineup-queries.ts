@@ -75,7 +75,7 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
       raceType: races.raceType,
       startDate: races.startDate,
       rosterSize: rosterLimits.rosterSize,
-      lineupCount: sql<number>`COALESCE(${lineupCountSubquery.lineupCount}, 0)`,
+      lineupCount: sql<number>`COALESCE("lineup_counts"."lineupCount", 0)`,
     })
     .from(races)
     .leftJoin(rosterLimits, eq(rosterLimits.raceType, races.raceType))

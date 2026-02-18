@@ -32,19 +32,11 @@ export function RiderPicker({
   currentDrafterName,
 }: RiderPickerProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [teamFilter, setTeamFilter] = useState("");
-  const [nationalityFilter, setNationalityFilter] = useState("");
 
-  // Unique teams and nationalities for dropdown options
-  const uniqueTeams = useMemo(
-    () => Array.from(new Set(availableRiders.map((r) => r.team))).sort(),
-    [availableRiders],
-  );
-
-  const uniqueNationalities = useMemo(
-    () => Array.from(new Set(availableRiders.map((r) => r.nationality))).sort(),
-    [availableRiders],
-  );
+  const handlePick = (riderId: number) => {
+    onPick(riderId);
+    setSearchQuery("");
+  };
 
   // Client-side filtering
   const filteredRiders = useMemo(() => {
@@ -52,12 +44,9 @@ export function RiderPicker({
       const matchesSearch =
         searchQuery === "" ||
         rider.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesTeam = teamFilter === "" || rider.team === teamFilter;
-      const matchesNationality =
-        nationalityFilter === "" || rider.nationality === nationalityFilter;
-      return matchesSearch && matchesTeam && matchesNationality;
+      return matchesSearch;
     });
-  }, [availableRiders, searchQuery, teamFilter, nationalityFilter]);
+  }, [availableRiders, searchQuery]);
 
   const genderLabel = currentGender === "M" ? "Men's Riders" : "Women's Riders";
 
@@ -94,39 +83,12 @@ export function RiderPicker({
           />
         </div>
 
-        {/* Filter row */}
-        <div className="flex gap-2">
-          <select
-            value={teamFilter}
-            onChange={(e) => setTeamFilter(e.target.value)}
-            className="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          >
-            <option value="">All Teams</option>
-            {uniqueTeams.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={nationalityFilter}
-            onChange={(e) => setNationalityFilter(e.target.value)}
-            className="flex-1 rounded-md border border-input bg-background px-2 py-1.5 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          >
-            <option value="">All Nations</option>
-            {uniqueNationalities.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {/* Result count */}
-        <p className="text-xs text-gray-400">
-          {filteredRiders.length} of {availableRiders.length} riders shown
-        </p>
+        {searchQuery && (
+          <p className="text-xs text-gray-400">
+            {filteredRiders.length} of {availableRiders.length} riders shown
+          </p>
+        )}
 
         {/* Rider list */}
         <div className="max-h-[60vh] overflow-y-auto space-y-1 pr-1">
@@ -167,7 +129,7 @@ export function RiderPicker({
                     size="sm"
                     variant={isMyTurn ? "default" : "outline"}
                     disabled={!isMyTurn || isPickPending}
-                    onClick={() => onPick(rider.id)}
+                    onClick={() => handlePick(rider.id)}
                     className="text-xs px-2 py-1 h-auto"
                   >
                     {isPickPending ? "..." : "Pick"}

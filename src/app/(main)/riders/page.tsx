@@ -51,11 +51,12 @@ export default async function RidersPage() {
       name: riders.name,
       team: riders.team,
       nationality: riders.nationality,
+      gender: riders.gender,
       totalPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
     })
     .from(riders)
     .leftJoin(raceResults, sql`${riders.id} = ${raceResults.riderId}`)
-    .groupBy(riders.id, riders.name, riders.team, riders.nationality)
+    .groupBy(riders.id, riders.name, riders.team, riders.nationality, riders.gender)
     .orderBy(sql`COALESCE(SUM(${raceResults.points}), 0) DESC`);
 
   // For each rider, get their race-by-race breakdown

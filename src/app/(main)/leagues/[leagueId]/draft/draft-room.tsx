@@ -76,7 +76,7 @@ interface DraftRoomProps {
   isOwner: boolean;
 }
 
-const TIMER_MS = 60_000;
+const TIMER_MS = 300_000;
 
 // Pusher event payloads
 interface DraftStartedPayload {
@@ -427,7 +427,7 @@ export function DraftRoom({
           setCurrentPickIndex(next.nextPickIndex);
           setCurrentTurn(nextTeamId);
           setTimerExpiresAt(
-            next.isComplete ? null : new Date(Date.now() + 60_000),
+            next.isComplete ? null : new Date(Date.now() + 300_000),
           );
           if (next.isMenComplete) setCurrentGender("F");
           if (next.isComplete) setDraftStatus("complete");

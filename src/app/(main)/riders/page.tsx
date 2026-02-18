@@ -19,7 +19,7 @@ export default async function RidersPage() {
   // Get current user's teams' riders
   const session = await auth.api.getSession({ headers: await headers() });
 
-  let userTeamRiderIds: string[] = [];
+  let userTeamRiderIds: number[] = [];
   if (session?.user?.id) {
     // First get the user's team IDs
     const userTeams = await db
@@ -38,7 +38,9 @@ export default async function RidersPage() {
         .from(raceLineups)
         .where(inArray(raceLineups.teamId, teamIds));
 
-      userTeamRiderIds = userTeamRiders.map((r) => r.riderId?.toString() || "");
+      userTeamRiderIds = userTeamRiders
+        .map((r) => r.riderId)
+        .filter((id): id is number => id !== null && id !== undefined);
     }
   }
 

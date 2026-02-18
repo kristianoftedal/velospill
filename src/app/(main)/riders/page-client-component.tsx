@@ -14,7 +14,7 @@ import { format } from "date-fns"
 import { Search, X, Star } from "lucide-react"
 
 interface RiderData {
-  id: string
+  id: number
   name: string
   team: string
   nationality: string
@@ -42,7 +42,7 @@ export default function RidersPage({
   userTeamRiderIds = []
 }: { 
   riders: RiderData[]
-  userTeamRiderIds?: string[]
+  userTeamRiderIds?: number[]
 }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])

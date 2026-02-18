@@ -1,9 +1,27 @@
 import { db } from "@/lib/db"
 import { sql } from "drizzle-orm"
 import { riders, raceResults, races } from "@/db/schema"
+import { raceLineups } from "@/db/schema/lineups"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import RidersPageClient from "./page-client-component"
 
 export default async function RidersPage() {
+  // Get current user's teams' riders
+  const session = await auth.api.getSession({ headers: await headers() })
+  
+  let userTeamRiderIds: string[] = []
+  if (session?.user?.id) {
+    const userTeamRiders = await db
+      .selectDistinct({
+        riderId: raceLineups.riderId,
+      })
+      .from(raceLineups)
+      .where(sql`${raceLineups.teamId} IN (SELECT id FROM teams WHERE userId = ${session.user.id})`)
+    
+    userTeamRiderIds = userTeamRiders.map(r => r.riderId?.toString() || '')
+  }
+
   // Get all riders with their total points
   const ridersData = await db
     .select({
@@ -57,5 +75,5 @@ export default async function RidersPage() {
     })
   )
 
-  return <RidersPageClient riders={riderBreakdowns} />
+  return <RidersPageClient riders={riderBreakdowns} userTeamRiderIds={userTeamRiderIds} />
 }

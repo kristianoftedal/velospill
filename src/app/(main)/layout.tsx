@@ -17,7 +17,7 @@ export default async function MainLayout({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       <AppNav user={session.user} />
       <main className="pb-20 md:pb-0">
         {children}

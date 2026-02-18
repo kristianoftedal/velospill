@@ -30,10 +30,10 @@ export function AppNav({ user }: AppNavProps) {
   return (
     <>
       {/* Desktop Navigation - Top Bar */}
-      <nav className="hidden md:flex h-16 border-b border-gray-200 bg-white">
+      <nav className="hidden md:flex h-16 bg-gradient-green-blue shadow-lg">
         <div className="container mx-auto flex items-center justify-between px-4">
           {/* Logo */}
-          <Link href="/home" className="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors">
+          <Link href="/home" className="text-xl font-bold text-white hover:opacity-90 transition-opacity">
             Velospill
           </Link>
 
@@ -46,8 +46,8 @@ export function AppNav({ user }: AppNavProps) {
                 className={cn(
                   "px-4 py-2 rounded-md text-sm font-medium transition-colors",
                   isActive(item.href)
-                    ? "bg-gray-100 text-gray-900"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? "bg-white/20 text-white"
+                    : "text-white/80 hover:text-white hover:bg-white/10"
                 )}
               >
                 {item.label}
@@ -61,7 +61,7 @@ export function AppNav({ user }: AppNavProps) {
       </nav>
 
       {/* Mobile Navigation - Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-gray-200 bg-white">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 bg-gradient-green-blue shadow-lg">
         <div className="flex h-full items-center justify-around">
           {navItems.map((item) => {
             const Icon = item.icon
@@ -72,8 +72,8 @@ export function AppNav({ user }: AppNavProps) {
                 className={cn(
                   "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
                   isActive(item.href)
-                    ? "text-blue-600"
-                    : "text-gray-500 hover:text-gray-900"
+                    ? "text-white"
+                    : "text-white/60 hover:text-white"
                 )}
               >
                 <Icon className="h-5 w-5" />

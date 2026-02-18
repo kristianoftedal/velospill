@@ -18,6 +18,7 @@ interface RiderData {
   name: string
   team: string
   nationality: string
+  gender: "M" | "F"
   totalPoints: number
   results: Array<{
     raceName: string
@@ -45,15 +46,9 @@ export default function RidersPage({
   userTeamRiderIds?: number[]
 }) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedTeams, setSelectedTeams] = useState<string[]>([])
+  const [selectedGenders, setSelectedGenders] = useState<("M" | "F")[]>([])
   const [showUnteamedOnly, setShowUnteamedOnly] = useState(false)
   const [sortBy, setSortBy] = useState<"points" | "name" | "avgPosition">("points")
-
-  // Get unique values for filtering
-  const uniqueTeams = useMemo(() => {
-    const teams = new Set(riders.map((r) => r.team).filter(t => t && t.length > 0))
-    return Array.from(teams).sort()
-  }, [riders])
 
   // Filter and sort riders based on search and filters
   const filteredRiders = useMemo(() => {
@@ -63,11 +58,11 @@ export default function RidersPage({
         rider.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
         rider.nationality.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(rider.team)
+      const matchesGender = selectedGenders.length === 0 || selectedGenders.includes(rider.gender)
 
       const matchesUnteamed = !showUnteamedOnly || !rider.team || rider.team.length === 0
 
-      return matchesSearch && matchesTeam && matchesUnteamed
+      return matchesSearch && matchesGender && matchesUnteamed
     })
 
     // Sort based on selected sort option
@@ -84,24 +79,24 @@ export default function RidersPage({
     }
 
     return filtered
-  }, [riders, searchTerm, selectedTeams, showUnteamedOnly, sortBy])
+  }, [riders, searchTerm, selectedGenders, showUnteamedOnly, sortBy])
 
-  const toggleTeam = (team: string) => {
-    setSelectedTeams((prev) =>
-      prev.includes(team) ? prev.filter((t) => t !== team) : [...prev, team]
+  const toggleGender = (gender: "M" | "F") => {
+    setSelectedGenders((prev) =>
+      prev.includes(gender) ? prev.filter((g) => g !== gender) : [...prev, gender]
     )
   }
 
   const clearAllFilters = () => {
     setSearchTerm("")
-    setSelectedTeams([])
+    setSelectedGenders([])
     setShowUnteamedOnly(false)
     setSortBy("points")
   }
 
   const hasActiveFilters =
     searchTerm !== "" ||
-    selectedTeams.length > 0 ||
+    selectedGenders.length > 0 ||
     showUnteamedOnly ||
     sortBy !== "points"
 
@@ -162,21 +157,24 @@ export default function RidersPage({
                 </div>
               </div>
 
-              {/* Team Filter */}
+              {/* Gender Filter */}
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">By Team</h3>
-                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                  {uniqueTeams.map((team) => (
+                <h3 className="text-sm font-semibold text-foreground">By Gender</h3>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: "M" as const, label: "Men" },
+                    { value: "F" as const, label: "Women" },
+                  ].map((gender) => (
                     <button
-                      key={team}
-                      onClick={() => toggleTeam(team)}
+                      key={gender.value}
+                      onClick={() => toggleGender(gender.value)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                        selectedTeams.includes(team)
+                        selectedGenders.includes(gender.value)
                           ? "bg-gradient-green-blue text-white ring-2 ring-offset-1 ring-offset-background ring-primary"
                           : "bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 text-foreground hover:border-primary"
                       }`}
                     >
-                      {team}
+                      {gender.label}
                     </button>
                   ))}
                 </div>
@@ -236,29 +234,22 @@ export default function RidersPage({
                       <AccordionTrigger className="hover:no-underline bg-white dark:bg-slate-900 px-4 py-2">
                         <div className="flex items-center justify-between w-full gap-3">
                           <div className="flex-1 text-left">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-md bg-gradient-green-blue flex items-center justify-center text-white text-sm font-bold relative flex-shrink-0">
-                                {rider.name.charAt(0)}
-                                {isOnUserTeam && (
-                                  <Star className="absolute -top-0.5 -right-0.5 h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <p className="font-semibold text-sm text-foreground">
-                                  {rider.name}
-                                </p>
-                                {isOnUserTeam && (
-                                  <Badge className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-1.5 py-0">My Team</Badge>
-                                )}
-                              </div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {isOnUserTeam && (
+                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                              )}
+                              <p className="font-semibold text-sm text-foreground">
+                                {rider.name}
+                              </p>
+                              {isOnUserTeam && (
+                                <Badge className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-1.5 py-0">My Team</Badge>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-3 flex-shrink-0">
-                            <div className="text-right">
-                              <p className="text-xl font-bold text-transparent bg-clip-text bg-gradient-green-blue">
-                                {rider.totalPoints}
-                              </p>
-                            </div>
+                            <p className="text-xl font-bold text-foreground">
+                              {rider.totalPoints}
+                            </p>
                           </div>
                         </div>
                       </AccordionTrigger>

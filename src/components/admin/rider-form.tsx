@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { createRider, updateRider } from "@/app/admin/riders/actions";
@@ -31,14 +32,6 @@ const riderSchema = z.object({
     .string()
     .length(3, "Use 3-letter country code (e.g., NOR, FRA)"),
   gender: z.enum(["M", "F"]),
-  specialty: z.enum([
-    "sprinter",
-    "climber",
-    "gc",
-    "classics",
-    "allrounder",
-    "time_trialist",
-  ]),
 });
 
 type RiderFormData = z.infer<typeof riderSchema>;
@@ -50,14 +43,6 @@ interface RiderFormProps {
     team: string;
     nationality: string;
     gender: "M" | "F";
-    specialty:
-      | "sprinter"
-      | "climber"
-      | "gc"
-      | "classics"
-      | "allrounder"
-      | "time_trialist"
-      | "";
   };
   onSuccess?: () => void;
 }
@@ -73,7 +58,6 @@ export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
       team: initialData?.team || "",
       nationality: initialData?.nationality || "",
       gender: initialData?.gender || "M",
-      specialty: initialData?.specialty || "allrounder",
     },
   });
 
@@ -172,34 +156,6 @@ export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
                 <SelectContent>
                   <SelectItem value="M">Male</SelectItem>
                   <SelectItem value="F">Female</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="specialty"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Specialty</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select specialty" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="sprinter">Sprinter</SelectItem>
-                  <SelectItem value="climber">Climber</SelectItem>
-                  <SelectItem value="gc">
-                    GC (General Classification)
-                  </SelectItem>
-                  <SelectItem value="classics">Classics</SelectItem>
-                  <SelectItem value="allrounder">Allrounder</SelectItem>
-                  <SelectItem value="time_trialist">Time Trialist</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -1,10 +1,9 @@
-import { db } from "@/lib/db"
-import { draftSessions, draftPicks } from "@/db/schema/draft"
-import { teams, leagues } from "@/db/schema/leagues"
-import { riders } from "@/db/schema/riders"
-import { user } from "@/db/schema/users"
-import { eq, notInArray, ilike, asc, and } from "drizzle-orm"
-import { getTeamIndexForPick, computeNextDraftState } from "@/lib/draft-snake-order"
+import { draftPicks, draftSessions } from "@/db/schema/draft";
+import { teams } from "@/db/schema/leagues";
+import { riders } from "@/db/schema/riders";
+import { user } from "@/db/schema/users";
+import { db } from "@/lib/db";
+import { and, asc, eq, ilike, notInArray } from "drizzle-orm";
 
 /**
  * Returns available (unpicked) riders for a given league and gender.
@@ -12,45 +11,45 @@ import { getTeamIndexForPick, computeNextDraftState } from "@/lib/draft-snake-or
  */
 export async function getAvailableRiders(
   leagueId: number,
-  gender: 'M' | 'F',
+  gender: "M" | "F",
   search?: string,
   filterTeam?: string,
-  filterNationality?: string
+  filterNationality?: string,
 ) {
   // Get all riderIds already picked for this league
   const pickedRiders = await db
     .select({ riderId: draftPicks.riderId })
     .from(draftPicks)
-    .where(eq(draftPicks.leagueId, leagueId))
+    .where(eq(draftPicks.leagueId, leagueId));
 
-  const pickedIds = pickedRiders.map((p) => p.riderId)
+  const pickedIds = pickedRiders.map((p) => p.riderId);
 
   // Build where conditions
-  const conditions = [eq(riders.gender, gender)]
+  const conditions = [eq(riders.gender, gender)];
 
   if (pickedIds.length > 0) {
-    conditions.push(notInArray(riders.id, pickedIds))
+    conditions.push(notInArray(riders.id, pickedIds));
   }
 
   if (search) {
-    conditions.push(ilike(riders.name, `%${search}%`))
+    conditions.push(ilike(riders.name, `%${search}%`));
   }
 
   if (filterTeam) {
-    conditions.push(eq(riders.team, filterTeam))
+    conditions.push(eq(riders.team, filterTeam));
   }
 
   if (filterNationality) {
-    conditions.push(eq(riders.nationality, filterNationality))
+    conditions.push(eq(riders.nationality, filterNationality));
   }
 
   const result = await db
     .select()
     .from(riders)
     .where(and(...conditions))
-    .orderBy(asc(riders.name))
+    .orderBy(asc(riders.name));
 
-  return result
+  return result;
 }
 
 /**
@@ -62,73 +61,77 @@ export async function getDraftState(leagueId: number) {
     .select()
     .from(draftSessions)
     .where(eq(draftSessions.leagueId, leagueId))
-    .limit(1)
+    .limit(1);
 
   if (!session) {
-    return null
+    return null;
   }
 
   const picks = await db
     .select()
     .from(draftPicks)
     .where(eq(draftPicks.leagueId, leagueId))
-    .orderBy(asc(draftPicks.pickNumber))
+    .orderBy(asc(draftPicks.pickNumber));
 
   const leagueTeams = await db
     .select()
     .from(teams)
     .where(eq(teams.leagueId, leagueId))
-    .orderBy(asc(teams.createdAt))
+    .orderBy(asc(teams.createdAt));
 
-  return { session, picks, teams: leagueTeams }
+  return { session, picks, teams: leagueTeams };
 }
 
 /**
  * Returns the best available rider for auto-pick (first alphabetically).
  * Returns null if no riders are available.
  */
-export async function getBestAvailableRider(leagueId: number, gender: 'M' | 'F') {
-  const available = await getAvailableRiders(leagueId, gender)
-  return available[0] ?? null
+export async function getBestAvailableRider(
+  leagueId: number,
+  gender: "M" | "F",
+) {
+  const available = await getAvailableRiders(leagueId, gender);
+  return available[0] ?? null;
 }
 
 /**
  * Enriched pick type with rider details attached.
  */
 export type EnrichedPick = {
-  id: number
-  leagueId: number
-  teamId: number
-  riderId: number
-  pickNumber: number
-  round: number
-  gender: 'M' | 'F'
-  wasAutomatic: boolean
-  pickedAt: Date | string
+  id: number;
+  leagueId: number;
+  teamId: number;
+  riderId: number;
+  pickNumber: number;
+  round: number;
+  gender: "M" | "F";
+  wasAutomatic: boolean;
+  pickedAt: Date | string;
   rider: {
-    name: string
-    team: string
-    specialty: string
-    nationality: string
-  } | null
-}
+    name: string;
+    team: string;
+    nationality: string;
+  } | null;
+};
 
 /**
  * Enriched team type with owner name attached.
  */
 export type EnrichedTeam = {
-  id: number
-  name: string
-  leagueId: number
-  userId: string
-  createdAt: Date | string
-  userName: string
-}
+  id: number;
+  name: string;
+  leagueId: number;
+  userId: string;
+  createdAt: Date | string;
+  userName: string;
+};
 
 /**
- * Returns picks for a league, each enriched with rider info (name, team, specialty, nationality).
+ * Returns picks for a league, each enriched with rider info (name, team, nationality).
  */
-export async function getEnrichedPicks(leagueId: number): Promise<EnrichedPick[]> {
+export async function getEnrichedPicks(
+  leagueId: number,
+): Promise<EnrichedPick[]> {
   const rows = await db
     .select({
       id: draftPicks.id,
@@ -142,13 +145,12 @@ export async function getEnrichedPicks(leagueId: number): Promise<EnrichedPick[]
       pickedAt: draftPicks.pickedAt,
       riderName: riders.name,
       riderTeam: riders.team,
-      riderSpecialty: riders.specialty,
       riderNationality: riders.nationality,
     })
     .from(draftPicks)
     .leftJoin(riders, eq(draftPicks.riderId, riders.id))
     .where(eq(draftPicks.leagueId, leagueId))
-    .orderBy(asc(draftPicks.pickNumber))
+    .orderBy(asc(draftPicks.pickNumber));
 
   return rows.map((row) => ({
     id: row.id,
@@ -164,17 +166,18 @@ export async function getEnrichedPicks(leagueId: number): Promise<EnrichedPick[]
       ? {
           name: row.riderName,
           team: row.riderTeam ?? "",
-          specialty: row.riderSpecialty ?? "",
           nationality: row.riderNationality ?? "",
         }
       : null,
-  }))
+  }));
 }
 
 /**
  * Returns teams for a league, each enriched with the owner's display name.
  */
-export async function getEnrichedTeams(leagueId: number): Promise<EnrichedTeam[]> {
+export async function getEnrichedTeams(
+  leagueId: number,
+): Promise<EnrichedTeam[]> {
   const rows = await db
     .select({
       id: teams.id,
@@ -187,7 +190,7 @@ export async function getEnrichedTeams(leagueId: number): Promise<EnrichedTeam[]
     .from(teams)
     .leftJoin(user, eq(teams.userId, user.id))
     .where(eq(teams.leagueId, leagueId))
-    .orderBy(asc(teams.createdAt))
+    .orderBy(asc(teams.createdAt));
 
   return rows.map((row) => ({
     id: row.id,
@@ -196,7 +199,7 @@ export async function getEnrichedTeams(leagueId: number): Promise<EnrichedTeam[]
     userId: row.userId,
     createdAt: row.createdAt,
     userName: row.userName ?? "Unknown",
-  }))
+  }));
 }
 
 /**
@@ -208,19 +211,19 @@ export async function getDraftStateEnriched(leagueId: number) {
     .select()
     .from(draftSessions)
     .where(eq(draftSessions.leagueId, leagueId))
-    .limit(1)
+    .limit(1);
 
   if (!session) {
-    return null
+    return null;
   }
 
   const [picks, leagueTeams] = await Promise.all([
     getEnrichedPicks(leagueId),
     getEnrichedTeams(leagueId),
-  ])
+  ]);
 
-  return { session, picks, teams: leagueTeams }
+  return { session, picks, teams: leagueTeams };
 }
 
 // computeNextDraftState is re-exported from draft-snake-order.ts (client-safe)
-export { computeNextDraftState } from "@/lib/draft-snake-order"
+export { computeNextDraftState } from "@/lib/draft-snake-order";

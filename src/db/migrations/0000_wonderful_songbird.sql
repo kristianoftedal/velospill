@@ -1,5 +1,4 @@
 CREATE TYPE "public"."gender" AS ENUM('M', 'F');--> statement-breakpoint
-CREATE TYPE "public"."specialty" AS ENUM('sprinter', 'climber', 'gc', 'classics', 'allrounder', 'time_trialist');--> statement-breakpoint
 CREATE TYPE "public"."race_type" AS ENUM('grand_tour', 'high_priority_one_day', 'low_priority_one_day', 'mini_tour', 'womens_grand_tour', 'womens_one_day', 'world_championship');--> statement-breakpoint
 CREATE TABLE "orderTypes" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -84,7 +83,6 @@ CREATE TABLE "riders" (
 	"team" text NOT NULL,
 	"nationality" text NOT NULL,
 	"gender" "gender" NOT NULL,
-	"specialty" "specialty" NOT NULL,
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );

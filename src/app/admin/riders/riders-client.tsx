@@ -32,14 +32,6 @@ type Rider = {
   team: string;
   nationality: string;
   gender: "M" | "F";
-  specialty:
-    | "sprinter"
-    | "climber"
-    | "gc"
-    | "classics"
-    | "allrounder"
-    | "time_trialist"
-    | "";
   createdAt: Date;
   updatedAt: Date;
 };
@@ -143,7 +135,7 @@ export function RidersClient({ riders }: RidersClientProps) {
             <DialogTitle>Import Riders from CSV</DialogTitle>
             <DialogDescription>
               Upload a CSV file with rider data. Expected format: name, team,
-              nationality, gender, specialty
+              nationality, gender
             </DialogDescription>
           </DialogHeader>
           <CSVImport

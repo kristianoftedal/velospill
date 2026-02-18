@@ -1,74 +1,54 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Trophy } from "lucide-react"
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/card";
+import { Trophy } from "lucide-react";
+import Link from "next/link";
 
 type RecapRider = {
-  name: string
-  team: string
-  specialty: string
-  nationality: string
-}
+  name: string;
+  team: string;
+  nationality: string;
+};
 
 type EnrichedPick = {
-  id: number
-  teamId: number
-  riderId: number
-  pickNumber: number
-  round: number
-  gender: "M" | "F"
-  wasAutomatic: boolean
-  rider: RecapRider | null
-}
+  id: number;
+  teamId: number;
+  riderId: number;
+  pickNumber: number;
+  round: number;
+  gender: "M" | "F";
+  wasAutomatic: boolean;
+  rider: RecapRider | null;
+};
 
 type RecapTeam = {
-  id: number
-  name: string
-  userName: string
-}
+  id: number;
+  name: string;
+  userName: string;
+};
 
 interface DraftRecapProps {
-  teams: RecapTeam[]
-  picks: EnrichedPick[]
-  leagueId: number
-}
-
-const SPECIALTY_LABEL: Record<string, string> = {
-  sprinter: "Sprinter",
-  climber: "Climber",
-  gc: "GC",
-  classics: "Classics",
-  allrounder: "All-rounder",
-  time_trialist: "TT",
-}
-
-const SPECIALTY_COLOR: Record<string, string> = {
-  sprinter: "bg-green-100 text-green-800",
-  climber: "bg-orange-100 text-orange-800",
-  gc: "bg-blue-100 text-blue-800",
-  classics: "bg-purple-100 text-purple-800",
-  allrounder: "bg-gray-100 text-gray-800",
-  time_trialist: "bg-yellow-100 text-yellow-800",
+  teams: RecapTeam[];
+  picks: EnrichedPick[];
+  leagueId: number;
 }
 
 export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
   // Group picks by teamId
-  const picksByTeam = new Map<number, EnrichedPick[]>()
+  const picksByTeam = new Map<number, EnrichedPick[]>();
   for (const team of teams) {
-    picksByTeam.set(team.id, [])
+    picksByTeam.set(team.id, []);
   }
   for (const pick of picks) {
-    const teamPicks = picksByTeam.get(pick.teamId)
+    const teamPicks = picksByTeam.get(pick.teamId);
     if (teamPicks) {
-      teamPicks.push(pick)
+      teamPicks.push(pick);
     }
   }
 
@@ -79,22 +59,26 @@ export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-3">
             <Trophy className="h-10 w-10 text-yellow-500" />
-            <h1 className="text-4xl font-bold text-gray-900">Draft Complete!</h1>
+            <h1 className="text-4xl font-bold text-gray-900">
+              Draft Complete!
+            </h1>
             <Trophy className="h-10 w-10 text-yellow-500" />
           </div>
-          <p className="text-gray-500 text-lg">All picks have been made. Here are the final rosters.</p>
+          <p className="text-gray-500 text-lg">
+            All picks have been made. Here are the final rosters.
+          </p>
         </div>
 
         {/* Team grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {teams.map((team) => {
-            const teamPicks = picksByTeam.get(team.id) ?? []
+            const teamPicks = picksByTeam.get(team.id) ?? [];
             const menPicks = teamPicks
               .filter((p) => p.gender === "M")
-              .sort((a, b) => a.pickNumber - b.pickNumber)
+              .sort((a, b) => a.pickNumber - b.pickNumber);
             const womenPicks = teamPicks
               .filter((p) => p.gender === "F")
-              .sort((a, b) => a.pickNumber - b.pickNumber)
+              .sort((a, b) => a.pickNumber - b.pickNumber);
 
             return (
               <Card key={team.id} className="overflow-hidden">
@@ -142,18 +126,12 @@ export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
                                   <span className="text-xs text-gray-500 truncate">
                                     {pick.rider.team}
                                   </span>
-                                  <Badge
-                                    variant="secondary"
-                                    className={`text-xs px-1 py-0 h-4 ${
-                                      SPECIALTY_COLOR[pick.rider.specialty] ?? "bg-gray-100 text-gray-800"
-                                    }`}
-                                  >
-                                    {SPECIALTY_LABEL[pick.rider.specialty] ?? pick.rider.specialty}
-                                  </Badge>
                                 </div>
                               </>
                             ) : (
-                              <span className="italic text-gray-400">Unknown rider</span>
+                              <span className="italic text-gray-400">
+                                Unknown rider
+                              </span>
                             )}
                           </div>
                         </li>
@@ -200,18 +178,12 @@ export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
                                   <span className="text-xs text-gray-500 truncate">
                                     {pick.rider.team}
                                   </span>
-                                  <Badge
-                                    variant="secondary"
-                                    className={`text-xs px-1 py-0 h-4 ${
-                                      SPECIALTY_COLOR[pick.rider.specialty] ?? "bg-gray-100 text-gray-800"
-                                    }`}
-                                  >
-                                    {SPECIALTY_LABEL[pick.rider.specialty] ?? pick.rider.specialty}
-                                  </Badge>
                                 </div>
                               </>
                             ) : (
-                              <span className="italic text-gray-400">Unknown rider</span>
+                              <span className="italic text-gray-400">
+                                Unknown rider
+                              </span>
                             )}
                           </div>
                         </li>
@@ -220,7 +192,7 @@ export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 
@@ -235,5 +207,5 @@ export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

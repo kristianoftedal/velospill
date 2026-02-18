@@ -52,9 +52,7 @@
         "orderTypes_name_unique": {
           "name": "orderTypes_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       },
       "policies": {},
@@ -97,9 +95,7 @@
         "rosterLimits_raceType_unique": {
           "name": "rosterLimits_raceType_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "raceType"
-          ]
+          "columns": ["raceType"]
         }
       },
       "policies": {},
@@ -252,12 +248,8 @@
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -329,12 +321,8 @@
           "name": "session_userId_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -344,9 +332,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -417,9 +403,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -508,13 +492,6 @@
         "gender": {
           "name": "gender",
           "type": "gender",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "specialty": {
-          "name": "specialty",
-          "type": "specialty",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -723,12 +700,8 @@
           "name": "races_parentRaceId_races_id_fk",
           "tableFrom": "races",
           "tableTo": "races",
-          "columnsFrom": [
-            "parentRaceId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parentRaceId"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -744,22 +717,7 @@
     "public.gender": {
       "name": "gender",
       "schema": "public",
-      "values": [
-        "M",
-        "F"
-      ]
-    },
-    "public.specialty": {
-      "name": "specialty",
-      "schema": "public",
-      "values": [
-        "sprinter",
-        "climber",
-        "gc",
-        "classics",
-        "allrounder",
-        "time_trialist"
-      ]
+      "values": ["M", "F"]
     },
     "public.race_type": {
       "name": "race_type",

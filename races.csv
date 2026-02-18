@@ -1,0 +1,48 @@
+name,race_type,start_date,end_date,season
+Strade Bianche,high_priority_one_day,2026-03-07,,2026
+Milan-San Remo,high_priority_one_day,2026-03-21,,2026
+Ronde van Vlaanderen,high_priority_one_day,2026-04-05,,2026
+Paris-Roubaix,high_priority_one_day,2026-04-12,,2026
+Liège-Bastogne-Liège,high_priority_one_day,2026-04-26,,2026
+Il Lombardia,high_priority_one_day,2026-10-10,,2026
+Omloop Het Nieuwsblad,low_priority_one_day,2026-02-28,,2026
+Kuurne-Brussel-Kuurne,low_priority_one_day,2026-03-01,,2026
+Brugge Classics,low_priority_one_day,2026-03-25,,2026
+E3 Saxo Bank Classic,low_priority_one_day,2026-03-27,,2026
+Gent-Wevelgem in Flanders Fields,low_priority_one_day,2026-03-29,,2026
+Dwars door Vlaanderen,low_priority_one_day,2026-04-01,,2026
+Copenhagen Sprint,low_priority_one_day,2026-06-21,,2026
+Amstel Gold Race,low_priority_one_day,2026-04-19,,2026
+La Flèche Wallonne,low_priority_one_day,2026-04-22,,2026
+San Sebastian,low_priority_one_day,,,,2026
+Bretagne Classic,low_priority_one_day,2026-08-30,,2026
+Quebec Grand Prix,low_priority_one_day,2026-09-11,,2026
+Montreal Grand Prix,low_priority_one_day,2026-09-11,,2026
+World Championship ITT,low_priority_one_day,,,,2026
+Paris-Nice,mini_tour,2026-03-08,2026-03-15,2026
+Tirreno-Adriatico,mini_tour,2026-03-09,2026-03-15,2026
+Critérium du Dauphiné,mini_tour,2026-06-07,2026-06-14,2026
+Tour de Suisse,mini_tour,2026-06-14,2026-06-21,2026
+Renewi Tour,mini_tour,2026-08-19,2026-08-23,2026
+Tour de Romandie,mini_tour,2026-04-28,2026-05-03,2026
+Giro d'Italia Women,womens_grand_tour,2026-05-30,2026-06-07,2026
+Tour de France Femmes,womens_grand_tour,2026-08-01,2026-08-09,2026
+UAE Tour Women,womens_one_day,2026-02-05,2026-02-08,2026
+Omloop Het Nieuwsblad Women,womens_one_day,2026-02-28,,2026
+Strade Bianche Donne,womens_one_day,2026-03-07,,2026
+Trofeo Alfredo Binda,womens_one_day,2026-03-15,,2026
+Milano-Sanremo Donne,womens_one_day,2026-03-21,,2026
+In Flanders Fields (Gent-Wevelgem),womens_one_day,2026-03-29,,2026
+Paris-Roubaix Femmes,womens_one_day,2026-04-12,,2026
+Amstel Gold Race Ladies Edition,womens_one_day,2026-04-19,,2026
+La Flèche Wallonne Féminine,womens_one_day,2026-04-22,,2026
+Liège-Bastogne-Liège Femmes,womens_one_day,2026-04-26,,2026
+Copenhagen Sprint (Women),womens_one_day,2026-06-13,,2026
+Tour of Britain Women,womens_one_day,2026-08-19,2026-08-23,2026
+Classic Lorient Agglomération (Women),womens_one_day,2026-08-29,,2026
+Tour of Chongming Island (Women),womens_one_day,2026-10-13,2026-10-15,2026
+Tour of Guangxi (Women),womens_one_day,2026-10-18,,2026
+Itzulia Women,womens_one_day,2026-05-15,2026-05-17,2026
+Vuelta España Femenina,womens_one_day,2026-05-03,2026-05-10,2026
+Vuelta a Burgos Feminas,womens_one_day,2026-05-21,2026-05-24,2026
+Tour de Suisse Women,womens_one_day,2026-06-17,2026-06-21,2026

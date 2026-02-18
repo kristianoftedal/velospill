@@ -1,0 +1,6380 @@
+[
+  {
+    "givenName": "Jonas",
+    "familyName": "ABRAHAMSEN",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/86594"
+  },
+  {
+    "givenName": "Pascal",
+    "familyName": "ACKERMANN",
+    "countryCode": "GER",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/77380"
+  },
+  {
+    "givenName": "Roger",
+    "familyName": "ADRIA OLIVERAS",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/407508"
+  },
+  {
+    "givenName": "Toon",
+    "familyName": "AERTS",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/75860"
+  },
+  {
+    "givenName": "Edoardo",
+    "familyName": "AFFINI",
+    "countryCode": "ITA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/95012"
+  },
+  {
+    "givenName": "Mattia",
+    "familyName": "AGOSTINACCHIO",
+    "countryCode": "ITA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/315906"
+  },
+  {
+    "givenName": "Vincenzo",
+    "familyName": "ALBANESE",
+    "countryCode": "ITA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/95054"
+  },
+  {
+    "givenName": "Giovanni",
+    "familyName": "ALEOTTI",
+    "countryCode": "ITA",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/158278"
+  },
+  {
+    "givenName": "Rui Filipe",
+    "familyName": "ALVES OLIVEIRA",
+    "countryCode": "POR",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/91911"
+  },
+  {
+    "givenName": "Jorge",
+    "familyName": "ARCAS",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/102095"
+  },
+  {
+    "givenName": " Thymen",
+    "familyName": "ARENSMAN",
+    "countryCode": "NED",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/109481"
+  },
+  {
+    "givenName": "Bruno",
+    "familyName": "ARMIRAIL",
+    "countryCode": "FRA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/91626"
+  },
+  {
+    "givenName": "Nikias",
+    "familyName": "ARNDT",
+    "countryCode": "GER",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/64797"
+  },
+  {
+    "givenName": "Igor",
+    "familyName": "ARRIETA LIZARRAGA",
+    "countryCode": "ESP",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/486724"
+  },
+  {
+    "givenName": "Huub",
+    "familyName": "ARTZ",
+    "countryCode": "NED",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/227977"
+  },
+  {
+    "givenName": "Kasper",
+    "familyName": "ASGREEN",
+    "countryCode": "DEN",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/97437"
+  },
+  {
+    "givenName": "Lewis",
+    "familyName": "ASKEY",
+    "countryCode": "GBR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/238468"
+  },
+  {
+    "givenName": " Andrew",
+    "familyName": "AUGUST",
+    "countryCode": "USA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/721050"
+  },
+  {
+    "givenName": "Orluis Alberto",
+    "familyName": "AULAR SANABRIA",
+    "countryCode": "VEN",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/97204"
+  },
+  {
+    "givenName": "Juan",
+    "familyName": "AYUSO PESQUERA",
+    "countryCode": "ESP",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/415141"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "BAGIOLI",
+    "countryCode": "ITA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/157221"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "BALLERINI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/86617"
+  },
+  {
+    "givenName": "Maurice",
+    "familyName": "BALLERSTEDT",
+    "countryCode": "GER",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/361755"
+  },
+  {
+    "givenName": "Warren",
+    "familyName": "BARGUIL",
+    "countryCode": "FRA",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/78566"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "BARONCINI",
+    "countryCode": "ITA",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/306260"
+  },
+  {
+    "givenName": " Louis",
+    "familyName": "BARRE",
+    "countryCode": "FRA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/272468"
+  },
+  {
+    "givenName": "Jon",
+    "familyName": "BARRENETXEA GOLZARRI",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/404547"
+  },
+  {
+    "givenName": "Cyril",
+    "familyName": "BARTHE",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/251435"
+  },
+  {
+    "givenName": "Ayco",
+    "familyName": "BASTIAENS",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/137984"
+  },
+  {
+    "givenName": "Samuele",
+    "familyName": "BATTISTELLA",
+    "countryCode": "ITA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/150834"
+  },
+  {
+    "givenName": " Alex",
+    "familyName": "BAUDIN",
+    "countryCode": "FRA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/695948"
+  },
+  {
+    "givenName": "Phil",
+    "familyName": "BAUHAUS",
+    "countryCode": "GER",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/86624"
+  },
+  {
+    "givenName": "Tobias",
+    "familyName": "BAYER",
+    "countryCode": "AUT",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/110722"
+  },
+  {
+    "givenName": "Niklas",
+    "familyName": "BEHRENS",
+    "countryCode": "GER",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/1198631"
+  },
+  {
+    "givenName": "Lennert",
+    "familyName": "BELMANS",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/649744"
+  },
+  {
+    "givenName": "Markel",
+    "familyName": "BELOKI FERNANDEZ",
+    "countryCode": "ESP",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/987572"
+  },
+  {
+    "givenName": "George",
+    "familyName": "BENNETT",
+    "countryCode": "NZL",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/64445"
+  },
+  {
+    "givenName": "Tiesj",
+    "familyName": "BENOOT",
+    "countryCode": "BEL",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/77502"
+  },
+  {
+    "givenName": "Jenno",
+    "familyName": "BERCKMOES",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/649275"
+  },
+  {
+    "givenName": "Egan Arley",
+    "familyName": "BERNAL GOMEZ",
+    "countryCode": "COL",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/95844"
+  },
+  {
+    "givenName": "Julien",
+    "familyName": "BERNARD",
+    "countryCode": "FRA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/100349"
+  },
+  {
+    "givenName": "Clément",
+    "familyName": "BERTHET",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/112281"
+  },
+  {
+    "givenName": "Alberto",
+    "familyName": "BETTIOL",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/86630"
+  },
+  {
+    "givenName": "Cedric",
+    "familyName": "BEULLENS",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/96357"
+  },
+  {
+    "givenName": "Carl-Frederik",
+    "familyName": "BÉVORT",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/491948"
+  },
+  {
+    "givenName": "Frits",
+    "familyName": "BIESTERBOS",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/232930"
+  },
+  {
+    "givenName": "Pello",
+    "familyName": "BILBAO LOPEZ DE ARMENTIA",
+    "countryCode": "ESP",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/76092"
+  },
+  {
+    "givenName": " Léo",
+    "familyName": "BISIAUX",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/660426"
+  },
+  {
+    "givenName": "Stefan",
+    "familyName": "BISSEGGER",
+    "countryCode": "SUI",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/101183"
+  },
+  {
+    "givenName": "Pavel",
+    "familyName": "BITTNER",
+    "countryCode": "CZE",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/467185"
+  },
+  {
+    "givenName": "Mikkel Norsgaard",
+    "familyName": "BJERG",
+    "countryCode": "DEN",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/158259"
+  },
+  {
+    "givenName": "Peter Joseph",
+    "familyName": "BLACKMORE",
+    "countryCode": "GBR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/975306"
+  },
+  {
+    "givenName": " Erlend",
+    "familyName": "BLIKRA",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/778522"
+  },
+  {
+    "givenName": " Adrien",
+    "familyName": "BOICHIS",
+    "countryCode": "FRA",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/662043"
+  },
+  {
+    "givenName": "Guillaume",
+    "familyName": "BOIVIN",
+    "countryCode": "CAN",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/54757"
+  },
+  {
+    "givenName": "Cees",
+    "familyName": "BOL",
+    "countryCode": "NED",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/94033"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "BORGO",
+    "countryCode": "ITA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/341260"
+  },
+  {
+    "givenName": "Koen",
+    "familyName": "BOUWMAN",
+    "countryCode": "NED",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/86539"
+  },
+  {
+    "givenName": "Lewis",
+    "familyName": "BOWER",
+    "countryCode": "NZL",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/218097"
+  },
+  {
+    "givenName": "Vito",
+    "familyName": "BRAET",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/163583"
+  },
+  {
+    "givenName": " Clément",
+    "familyName": "BRAZ AFONSO",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/276173"
+  },
+  {
+    "givenName": "Matthew",
+    "familyName": "BRENNAN",
+    "countryCode": "GBR",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/819102"
+  },
+  {
+    "givenName": "Alberto",
+    "familyName": "BRUTTOMESSO",
+    "countryCode": "ITA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/289748"
+  },
+  {
+    "givenName": "Urianstad Martin",
+    "familyName": "BUGGE",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/159053"
+  },
+  {
+    "givenName": "Santiago",
+    "familyName": "BUITRAGO SANCHEZ",
+    "countryCode": "COL",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/353375"
+  },
+  {
+    "givenName": "Francesco",
+    "familyName": "BUSATTO",
+    "countryCode": "ITA",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/305814"
+  },
+  {
+    "givenName": "Sven Erik",
+    "familyName": "BYSTRØM",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/68755"
+  },
+  {
+    "givenName": "Victor",
+    "familyName": "CAMPENAERTS",
+    "countryCode": "BEL",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/89133"
+  },
+  {
+    "givenName": "Carlos",
+    "familyName": "CANAL BLANCO",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/402959"
+  },
+  {
+    "givenName": "Amaury",
+    "familyName": "CAPIOT",
+    "countryCode": "BEL",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/86669"
+  },
+  {
+    "givenName": "Richard",
+    "familyName": "CARAPAZ",
+    "countryCode": "ECU",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/91656"
+  },
+  {
+    "givenName": "Damiano",
+    "familyName": "CARUSO",
+    "countryCode": "ITA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/45643"
+  },
+  {
+    "givenName": "Pablo",
+    "familyName": "CASTRILLO ZAPATER",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/373832"
+  },
+  {
+    "givenName": "Mattia",
+    "familyName": "CATTANEO",
+    "countryCode": "ITA",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/58398"
+  },
+  {
+    "givenName": "Rémi",
+    "familyName": "CAVAGNA",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/99713"
+  },
+  {
+    "givenName": "Alexander Jefferson",
+    "familyName": "CEPEDA",
+    "countryCode": "ECU",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/160098"
+  },
+  {
+    "givenName": "Jefferson",
+    "familyName": "CEPEDA",
+    "countryCode": "ECU",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/96889"
+  },
+  {
+    "givenName": "Andrew Oscar",
+    "familyName": "CHAMBERLAIN",
+    "countryCode": "AUS",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/783766"
+  },
+  {
+    "givenName": "Clément",
+    "familyName": "CHAMPOUSSIN",
+    "countryCode": "FRA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/98323"
+  },
+  {
+    "givenName": "Anthon",
+    "familyName": "CHARMIG",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/98254"
+  },
+  {
+    "givenName": "Jan",
+    "familyName": "CHRISTEN",
+    "countryCode": "SUI",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/462394"
+  },
+  {
+    "givenName": "Giulio",
+    "familyName": "CICCONE",
+    "countryCode": "ITA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/97091"
+  },
+  {
+    "givenName": "Simon James",
+    "familyName": "CLARKE",
+    "countryCode": "AUS",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/30329"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "CONCA",
+    "countryCode": "ITA",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/149698"
+  },
+  {
+    "givenName": "Nicola",
+    "familyName": "CONCI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/144049"
+  },
+  {
+    "givenName": "Simone",
+    "familyName": "CONSONNI",
+    "countryCode": "ITA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/78907"
+  },
+  {
+    "givenName": "Dillon",
+    "familyName": "CORKERY",
+    "countryCode": "IRL",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/170250"
+  },
+  {
+    "givenName": "Benoit",
+    "familyName": "COSNEFROY",
+    "countryCode": "FRA",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/79522"
+  },
+  {
+    "givenName": " Ewen",
+    "familyName": "COSTIOU",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/709956"
+  },
+  {
+    "givenName": "Pier-André",
+    "familyName": "CÔTÉ",
+    "countryCode": "CAN",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/1360283"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "COVI",
+    "countryCode": "ITA",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/98774"
+  },
+  {
+    "givenName": "Lars",
+    "familyName": "CRAPS",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/649549"
+  },
+  {
+    "givenName": "Steff",
+    "familyName": "CRAS",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/100903"
+  },
+  {
+    "givenName": "Alberto",
+    "familyName": "DAINESE",
+    "countryCode": "ITA",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/162997"
+  },
+  {
+    "givenName": "Simon",
+    "familyName": "DALBY",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/531485"
+  },
+  {
+    "givenName": "Dries",
+    "familyName": "DE BONDT",
+    "countryCode": "BEL",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/93662"
+  },
+  {
+    "givenName": "Jasper",
+    "familyName": "DE BUYST",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/73573"
+  },
+  {
+    "givenName": "Timo",
+    "familyName": "DE JONG",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/156821"
+  },
+  {
+    "givenName": "Arnaud",
+    "familyName": "DE LIE",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/490235"
+  },
+  {
+    "givenName": "Sander",
+    "familyName": "DE PESTEL",
+    "countryCode": "BEL",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/150066"
+  },
+  {
+    "givenName": "Laurens",
+    "familyName": "DE PLUS",
+    "countryCode": "BEL",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/100877"
+  },
+  {
+    "givenName": "Dries",
+    "familyName": "DE POOTER",
+    "countryCode": "BEL",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/650042"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "DE PRETTO",
+    "countryCode": "ITA",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/302206"
+  },
+  {
+    "givenName": "Steffen",
+    "familyName": "DE SCHUYTENEER",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/650933"
+  },
+  {
+    "givenName": "Lindsay",
+    "familyName": "DE VYLDER",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/90098"
+  },
+  {
+    "givenName": "Ramses",
+    "familyName": "DEBRUYNE",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/649972"
+  },
+  {
+    "givenName": " Maxime",
+    "familyName": "DECOMBLE",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/660372"
+  },
+  {
+    "givenName": "John",
+    "familyName": "DEGENKOLB",
+    "countryCode": "GER",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/53793"
+  },
+  {
+    "givenName": "Simon",
+    "familyName": "DEHAIRS",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/649412"
+  },
+  {
+    "givenName": "Tibor",
+    "familyName": "DEL GROSSO",
+    "countryCode": "NED",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/228125"
+  },
+  {
+    "givenName": "Isaac",
+    "familyName": "DEL TORO ROMERO",
+    "countryCode": "MEX",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/892748"
+  },
+  {
+    "givenName": "Nico",
+    "familyName": "DENZ",
+    "countryCode": "GER",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/86696"
+  },
+  {
+    "givenName": "Stan",
+    "familyName": "DEWULF",
+    "countryCode": "BEL",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/111330"
+  },
+  {
+    "givenName": "Robbe",
+    "familyName": "DHONDT",
+    "countryCode": "BEL",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/727445"
+  },
+  {
+    "givenName": "Silvan",
+    "familyName": "DILLIER",
+    "countryCode": "SUI",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/58652"
+  },
+  {
+    "givenName": "Matthew",
+    "familyName": "DINHAM",
+    "countryCode": "AUS",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/492071"
+  },
+  {
+    "givenName": "Aaron",
+    "familyName": "DOCKX",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/650629"
+  },
+  {
+    "givenName": "Robert",
+    "familyName": "DONALDSON",
+    "countryCode": "GBR",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/641238"
+  },
+  {
+    "givenName": "Tom",
+    "familyName": "DONNENWIRTH",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/515616"
+  },
+  {
+    "givenName": "Paul",
+    "familyName": "DOUBLE",
+    "countryCode": "GBR",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/193726"
+  },
+  {
+    "givenName": "Owain",
+    "familyName": "DOULL",
+    "countryCode": "GBR",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/72234"
+  },
+  {
+    "givenName": "Jarrad Eriks",
+    "familyName": "DRIZNERS",
+    "countryCode": "AUS",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/111469"
+  },
+  {
+    "givenName": "Luke",
+    "familyName": "DURBRIDGE",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/62912"
+  },
+  {
+    "givenName": "Fredrik",
+    "familyName": "DVERSNES",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/197259"
+  },
+  {
+    "givenName": "Nils",
+    "familyName": "EEKHOFF",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/148423"
+  },
+  {
+    "givenName": "Pascal",
+    "familyName": "EENKHOORN",
+    "countryCode": "NED",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/93345"
+  },
+  {
+    "givenName": "Itamar",
+    "familyName": "EINHORN",
+    "countryCode": "ISR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/110444"
+  },
+  {
+    "givenName": "Felix",
+    "familyName": "ENGELHARDT",
+    "countryCode": "GER",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/363511"
+  },
+  {
+    "givenName": "Roman",
+    "familyName": "ERMAKOV",
+    "countryCode": "RUS",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/575348"
+  },
+  {
+    "givenName": "Žak",
+    "familyName": "ERŽEN",
+    "countryCode": "SLO",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/176217"
+  },
+  {
+    "givenName": " Haimar",
+    "familyName": "ETXEBERRIA ANSALAS",
+    "countryCode": "ESP",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/673474"
+  },
+  {
+    "givenName": "Afonso",
+    "familyName": "EULÁLIO",
+    "countryCode": "POR",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/509990"
+  },
+  {
+    "givenName": "Remco",
+    "familyName": "EVENEPOEL",
+    "countryCode": "BEL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/587366"
+  },
+  {
+    "givenName": " Alexy",
+    "familyName": "FAURE PROST",
+    "countryCode": "FRA",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/666528"
+  },
+  {
+    "givenName": "Yevgeniy",
+    "familyName": "FEDOROV",
+    "countryCode": "KAZ",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/361044"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "FIORELLI",
+    "countryCode": "ITA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/106432"
+  },
+  {
+    "givenName": "Finn Lachlan Fox",
+    "familyName": "FISHER-BLACK",
+    "countryCode": "NZL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/217083"
+  },
+  {
+    "givenName": "Sean",
+    "familyName": "FLYNN",
+    "countryCode": "GBR",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/235093"
+  },
+  {
+    "givenName": "Anders",
+    "familyName": "FOLDAGER",
+    "countryCode": "DEN",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/538179"
+  },
+  {
+    "givenName": " Titouan",
+    "familyName": "FONTAINE",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/673904"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "FORMOLO",
+    "countryCode": "ITA",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/75185"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "FORTUNATO",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/112350"
+  },
+  {
+    "givenName": "Tobias Svendsen",
+    "familyName": "FOSS",
+    "countryCode": "NOR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/111336"
+  },
+  {
+    "givenName": "Luke Matthew",
+    "familyName": "FOX",
+    "countryCode": "AUS",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/630562"
+  },
+  {
+    "givenName": "Stian",
+    "familyName": "FREDHEIM",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/1122047"
+  },
+  {
+    "givenName": "Marco",
+    "familyName": "FRIGO",
+    "countryCode": "ITA",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/303424"
+  },
+  {
+    "givenName": "Mattia",
+    "familyName": "GAFFURI",
+    "countryCode": "ITA",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/951925"
+  },
+  {
+    "givenName": "Felix",
+    "familyName": "GALL",
+    "countryCode": "AUT",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/150925"
+  },
+  {
+    "givenName": "Patrick",
+    "familyName": "GAMPER",
+    "countryCode": "AUT",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/109662"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "GANNA",
+    "countryCode": "ITA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/91640"
+  },
+  {
+    "givenName": "Ivan",
+    "familyName": "GARCIA CORTINA",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/86585"
+  },
+  {
+    "givenName": "Raul",
+    "familyName": "GARCIA PIERNA",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/416527"
+  },
+  {
+    "givenName": "Gianmarco",
+    "familyName": "GAROFOLI",
+    "countryCode": "ITA",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/302253"
+  },
+  {
+    "givenName": "Aaron",
+    "familyName": "GATE",
+    "countryCode": "NZL",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/44055"
+  },
+  {
+    "givenName": "David",
+    "familyName": "GAUDU",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/112351"
+  },
+  {
+    "givenName": " Pierre",
+    "familyName": "GAUTHERAT",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/683735"
+  },
+  {
+    "givenName": "Derek",
+    "familyName": "GEE",
+    "countryCode": "CAN",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/111148"
+  },
+  {
+    "givenName": "Jonas",
+    "familyName": "GEENS",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/1068567"
+  },
+  {
+    "givenName": "Gil",
+    "familyName": "GELDERS",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/650088"
+  },
+  {
+    "givenName": " Kévin",
+    "familyName": "GENIETS",
+    "countryCode": "LUX",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/93721"
+  },
+  {
+    "givenName": "Tao",
+    "familyName": "GEOGHEGAN HART",
+    "countryCode": "GBR",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/86735"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "GERMANI",
+    "countryCode": "ITA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/291943"
+  },
+  {
+    "givenName": "Amanuel",
+    "familyName": "GHEBREIGZABHIER",
+    "countryCode": "ERI",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/95838"
+  },
+  {
+    "givenName": "Robbe",
+    "familyName": "GHYS",
+    "countryCode": "BEL",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/99911"
+  },
+  {
+    "givenName": "Joshua",
+    "familyName": "GIDDINGS",
+    "countryCode": "GBR",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/527636"
+  },
+  {
+    "givenName": "Brady",
+    "familyName": "GILMORE",
+    "countryCode": "AUS",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/1123497"
+  },
+  {
+    "givenName": "Biniam",
+    "familyName": "GIRMAY",
+    "countryCode": "ERI",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/638202"
+  },
+  {
+    "givenName": "Gal",
+    "familyName": "GLIVAR",
+    "countryCode": "SLO",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/175879"
+  },
+  {
+    "givenName": "Dorian",
+    "familyName": "GODON",
+    "countryCode": "FRA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/112353"
+  },
+  {
+    "givenName": "Michael",
+    "familyName": "GOGL",
+    "countryCode": "AUT",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/75223"
+  },
+  {
+    "givenName": "Joao Pedro",
+    "familyName": "GONÇALVES ALMEIDA",
+    "countryCode": "POR",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/107840"
+  },
+  {
+    "givenName": "Lev",
+    "familyName": "GONOV",
+    "countryCode": "RUS",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/235241"
+  },
+  {
+    "givenName": "Matevž",
+    "familyName": "GOVEKAR",
+    "countryCode": "SLO",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/175824"
+  },
+  {
+    "givenName": "Tijmen",
+    "familyName": "GRAAT",
+    "countryCode": "NED",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/842779"
+  },
+  {
+    "givenName": "Kamil",
+    "familyName": "GRADEK",
+    "countryCode": "POL",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/57502"
+  },
+  {
+    "givenName": " Romain",
+    "familyName": "GREGOIRE",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/685146"
+  },
+  {
+    "givenName": "Sébastien",
+    "familyName": "GRIGNARD",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/156008"
+  },
+  {
+    "givenName": " Matys",
+    "familyName": "GRISEL",
+    "countryCode": "FRA",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/661775"
+  },
+  {
+    "givenName": "Felix",
+    "familyName": "GROSSSCHARTNER",
+    "countryCode": "AUT",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/110814"
+  },
+  {
+    "givenName": "Kaden Alexander",
+    "familyName": "GROVES",
+    "countryCode": "AUS",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/111683"
+  },
+  {
+    "givenName": " Thibaud",
+    "familyName": "GRUEL",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/696891"
+  },
+  {
+    "givenName": "Simone",
+    "familyName": "GUALDI",
+    "countryCode": "ITA",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/308418"
+  },
+  {
+    "givenName": "Tord",
+    "familyName": "GUDMESTAD",
+    "countryCode": "NOR",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/196662"
+  },
+  {
+    "givenName": "Per Strand",
+    "familyName": "HAGENES",
+    "countryCode": "NOR",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/199947"
+  },
+  {
+    "givenName": "Jack",
+    "familyName": "HAIG",
+    "countryCode": "AUS",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/78342"
+  },
+  {
+    "givenName": "Alexander",
+    "familyName": "HAJEK",
+    "countryCode": "AUT",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/350257"
+  },
+  {
+    "givenName": "Chris",
+    "familyName": "HAMILTON",
+    "countryCode": "AUS",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/110876"
+  },
+  {
+    "givenName": "Wade Lucas",
+    "familyName": "HAMILTON",
+    "countryCode": "AUS",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/94975"
+  },
+  {
+    "givenName": "Øxenberg Peter",
+    "familyName": "HANSEN",
+    "countryCode": "DEN",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/1219246"
+  },
+  {
+    "givenName": "Alan",
+    "familyName": "HATHERLY",
+    "countryCode": "RSA",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/88337"
+  },
+  {
+    "givenName": "Ethan Edward",
+    "familyName": "HAYTER",
+    "countryCode": "GBR",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/101820"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "HEALY",
+    "countryCode": "IRL",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/235075"
+  },
+  {
+    "givenName": "Kim Alexander",
+    "familyName": "HEIDUK",
+    "countryCode": "GER",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/363408"
+  },
+  {
+    "givenName": "Asbjørn",
+    "familyName": "HELLEMOSE",
+    "countryCode": "DEN",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/155493"
+  },
+  {
+    "givenName": "Rune",
+    "familyName": "HERREGODTS",
+    "countryCode": "BEL",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/152815"
+  },
+  {
+    "givenName": "Emil",
+    "familyName": "HERZOG",
+    "countryCode": "GER",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/643204"
+  },
+  {
+    "givenName": "Michel",
+    "familyName": "HEßMANN",
+    "countryCode": "GER",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/364641"
+  },
+  {
+    "givenName": "Sergio Andres",
+    "familyName": "HIGUITA GARCIA",
+    "countryCode": "COL",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/109855"
+  },
+  {
+    "givenName": "Jai",
+    "familyName": "HINDLEY",
+    "countryCode": "AUS",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/109829"
+  },
+  {
+    "givenName": "Jan",
+    "familyName": "HIRT",
+    "countryCode": "CZE",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/64693"
+  },
+  {
+    "givenName": "Alfred Bruce Noah",
+    "familyName": "HOBBS",
+    "countryCode": "GBR",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/815526"
+  },
+  {
+    "givenName": "Markus",
+    "familyName": "HOELGAARD",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/86759"
+  },
+  {
+    "givenName": "Hugo",
+    "familyName": "HOFSTETTER",
+    "countryCode": "FRA",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/98505"
+  },
+  {
+    "givenName": "Ådne",
+    "familyName": "HOLTER",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/204339"
+  },
+  {
+    "givenName": "Frølich Mikkel",
+    "familyName": "HONORÉ",
+    "countryCode": "DEN",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/96370"
+  },
+  {
+    "givenName": "Daan",
+    "familyName": "HOOLE",
+    "countryCode": "NED",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/155087"
+  },
+  {
+    "givenName": "Hugo",
+    "familyName": "HOULE",
+    "countryCode": "CAN",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/60002"
+  },
+  {
+    "givenName": " Axel",
+    "familyName": "HUENS",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/694662"
+  },
+  {
+    "givenName": "Menno",
+    "familyName": "HUISING",
+    "countryCode": "NED",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/228182"
+  },
+  {
+    "givenName": "Jonas Hem",
+    "familyName": "HVIDEBERG",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/155026"
+  },
+  {
+    "givenName": "Storm",
+    "familyName": "INGEBRIGTSEN",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/810919"
+  },
+  {
+    "givenName": " Noa",
+    "familyName": "ISIDORE",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/702010"
+  },
+  {
+    "givenName": "Johan",
+    "familyName": "JACOBS",
+    "countryCode": "SUI",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/93348"
+  },
+  {
+    "givenName": "Fabio",
+    "familyName": "JAKOBSEN",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/87061"
+  },
+  {
+    "givenName": "Juul Christopher",
+    "familyName": "JENSEN",
+    "countryCode": "DEN",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/58401"
+  },
+  {
+    "givenName": " Tobias Halland",
+    "familyName": "JOHANNESSEN",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/798903"
+  },
+  {
+    "givenName": "Anders Halland",
+    "familyName": "JOHANNESSEN",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/524390"
+  },
+  {
+    "givenName": "Julius",
+    "familyName": "JOHANSEN",
+    "countryCode": "DEN",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/152211"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "JORGENSON",
+    "countryCode": "USA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/159567"
+  },
+  {
+    "givenName": "Bob",
+    "familyName": "JUNGELS",
+    "countryCode": "LUX",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/66795"
+  },
+  {
+    "givenName": "Florian Samuel",
+    "familyName": "KAJAMINI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/306312"
+  },
+  {
+    "givenName": "Lennard",
+    "familyName": "KÄMNA",
+    "countryCode": "GER",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/97741"
+  },
+  {
+    "givenName": "Alexander",
+    "familyName": "KAMP",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/75144"
+  },
+  {
+    "givenName": "Max",
+    "familyName": "KANTER",
+    "countryCode": "GER",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/101735"
+  },
+  {
+    "givenName": "Wilco",
+    "familyName": "KELDERMAN",
+    "countryCode": "NED",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/64730"
+  },
+  {
+    "givenName": "Joshua",
+    "familyName": "KENCH",
+    "countryCode": "NZL",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/217794"
+  },
+  {
+    "givenName": "Rainer",
+    "familyName": "KEPPLINGER",
+    "countryCode": "AUT",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/1060775"
+  },
+  {
+    "givenName": "Timo",
+    "familyName": "KIELICH",
+    "countryCode": "BEL",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/109565"
+  },
+  {
+    "givenName": "James",
+    "familyName": "KNOX",
+    "countryCode": "GBR",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/99665"
+  },
+  {
+    "givenName": "Mathieu",
+    "familyName": "KOCKELMANN",
+    "countryCode": "LUX",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/349978"
+  },
+  {
+    "givenName": "Bjoern",
+    "familyName": "KOERDT",
+    "countryCode": "GBR",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/645773"
+  },
+  {
+    "givenName": "Oded",
+    "familyName": "KOGUT",
+    "countryCode": "ISR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/631079"
+  },
+  {
+    "givenName": "Patrick",
+    "familyName": "KONRAD",
+    "countryCode": "AUT",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/71677"
+  },
+  {
+    "givenName": "Olav",
+    "familyName": "KOOIJ",
+    "countryCode": "NED",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/227110"
+  },
+  {
+    "givenName": "Søren",
+    "familyName": "KRAGH ANDERSEN",
+    "countryCode": "DEN",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/461093"
+  },
+  {
+    "givenName": "Jelte",
+    "familyName": "KRIJNSEN",
+    "countryCode": "NED",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/232331"
+  },
+  {
+    "givenName": "Andreas",
+    "familyName": "KRON",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/500320"
+  },
+  {
+    "givenName": "Steven",
+    "familyName": "KRUIJSWIJK",
+    "countryCode": "NED",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/44439"
+  },
+  {
+    "givenName": "Johannes",
+    "familyName": "KULSET",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/203878"
+  },
+  {
+    "givenName": "Sepp",
+    "familyName": "KUSS",
+    "countryCode": "USA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/88346"
+  },
+  {
+    "givenName": "Anton",
+    "familyName": "KUZMIN",
+    "countryCode": "KAZ",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/98182"
+  },
+  {
+    "givenName": "Michal",
+    "familyName": "KWIATKOWSKI",
+    "countryCode": "POL",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/58528"
+  },
+  {
+    "givenName": " Jordan",
+    "familyName": "LABROSSE",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/678421"
+  },
+  {
+    "givenName": "Vegard Stake",
+    "familyName": "LAENGEN",
+    "countryCode": "NOR",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/65353"
+  },
+  {
+    "givenName": "Yves",
+    "familyName": "LAMPAERT",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/86228"
+  },
+  {
+    "givenName": "Luke",
+    "familyName": "LAMPERTI",
+    "countryCode": "USA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/633930"
+  },
+  {
+    "givenName": "Mikel",
+    "familyName": "LANDA MEANA",
+    "countryCode": "ESP",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/68367"
+  },
+  {
+    "givenName": "Victor",
+    "familyName": "LANGELLOTTI",
+    "countryCode": "MON",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/86807"
+  },
+  {
+    "givenName": "Paul",
+    "familyName": "LAPEIRA",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/257361"
+  },
+  {
+    "givenName": "Christophe",
+    "familyName": "LAPORTE",
+    "countryCode": "FRA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/81980"
+  },
+  {
+    "givenName": " Axel",
+    "familyName": "LAURANCE",
+    "countryCode": "FRA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/680835"
+  },
+  {
+    "givenName": "Olivier",
+    "familyName": "LE GAC",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/75166"
+  },
+  {
+    "givenName": "Junior",
+    "familyName": "LECERF",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/490267"
+  },
+  {
+    "givenName": " Gijs",
+    "familyName": "LEEMREIZE",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/233764"
+  },
+  {
+    "givenName": "Andreas",
+    "familyName": "LEKNESSUND",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/155023"
+  },
+  {
+    "givenName": "Bart",
+    "familyName": "LEMMEN",
+    "countryCode": "NED",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/587401"
+  },
+  {
+    "givenName": "Michael Shea",
+    "familyName": "LEONARD",
+    "countryCode": "CAN",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/600237"
+  },
+  {
+    "givenName": "Blume William",
+    "familyName": "LEVY",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/361204"
+  },
+  {
+    "givenName": " Antoine",
+    "familyName": "L'HOTE",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/674232"
+  },
+  {
+    "givenName": "Florian",
+    "familyName": "LIPOWITZ",
+    "countryCode": "GER",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/988065"
+  },
+  {
+    "givenName": "Arjen",
+    "familyName": "LIVYNS",
+    "countryCode": "BEL",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/112368"
+  },
+  {
+    "givenName": "Sakarias Koller",
+    "familyName": "LØLAND",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/195868"
+  },
+  {
+    "givenName": "Harold Martin",
+    "familyName": "LOPEZ GRANIZO",
+    "countryCode": "ECU",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/488588"
+  },
+  {
+    "givenName": "Juan Pedro",
+    "familyName": "LOPEZ PEREZ",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/153513"
+  },
+  {
+    "givenName": "Matis",
+    "familyName": "LOUVEL",
+    "countryCode": "FRA",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/156012"
+  },
+  {
+    "givenName": "Lund Tobias",
+    "familyName": "LUND ANDRESEN",
+    "countryCode": "DEN",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/482927"
+  },
+  {
+    "givenName": "Alexey",
+    "familyName": "LUTSENKO",
+    "countryCode": "KAZ",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/68778"
+  },
+  {
+    "givenName": "Filip",
+    "familyName": "MACIEJUK",
+    "countryCode": "POL",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/153299"
+  },
+  {
+    "givenName": "Alastair",
+    "familyName": "MACKELLAR",
+    "countryCode": "AUS",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/823552"
+  },
+  {
+    "givenName": "Valentin",
+    "familyName": "MADOUAS",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/91637"
+  },
+  {
+    "givenName": " Paul",
+    "familyName": "MAGNIER",
+    "countryCode": "FRA",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/685711"
+  },
+  {
+    "givenName": " Matteo",
+    "familyName": "MALUCELLI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/77442"
+  },
+  {
+    "givenName": "Arne",
+    "familyName": "MARIT",
+    "countryCode": "BEL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/156896"
+  },
+  {
+    "givenName": "Niklas",
+    "familyName": "MÄRKL",
+    "countryCode": "GER",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/438090"
+  },
+  {
+    "givenName": " Tim",
+    "familyName": "MARSMAN",
+    "countryCode": "NED",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/233355"
+  },
+  {
+    "givenName": "Pau",
+    "familyName": "MARTI SORIANO",
+    "countryCode": "ESP",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/376323"
+  },
+  {
+    "givenName": "Guillaume",
+    "familyName": "MARTIN GUYONNET",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/75170"
+  },
+  {
+    "givenName": "Guillermo Juan",
+    "familyName": "MARTINEZ HUERTAS",
+    "countryCode": "COL",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/994782"
+  },
+  {
+    "givenName": "Lenny",
+    "familyName": "MARTINEZ",
+    "countryCode": "FRA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/736811"
+  },
+  {
+    "givenName": "Daniel Felipe",
+    "familyName": "MARTINEZ POVEDA",
+    "countryCode": "COL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/92264"
+  },
+  {
+    "givenName": "Enric",
+    "familyName": "MAS NICOLAU",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/86857"
+  },
+  {
+    "givenName": "Michael",
+    "familyName": "MATTHEWS",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/62919"
+  },
+  {
+    "givenName": "Pietro",
+    "familyName": "MATTIO",
+    "countryCode": "ITA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/288724"
+  },
+  {
+    "givenName": "Hamish",
+    "familyName": "MCKENZIE",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/1123582"
+  },
+  {
+    "givenName": "Brandon",
+    "familyName": "MCNULTY",
+    "countryCode": "USA",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/150923"
+  },
+  {
+    "givenName": "Jordi",
+    "familyName": "MEEUS",
+    "countryCode": "BEL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/148901"
+  },
+  {
+    "givenName": "Milan",
+    "familyName": "MENTEN",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/100912"
+  },
+  {
+    "givenName": "Tim",
+    "familyName": "MERLIER",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/70962"
+  },
+  {
+    "givenName": "Luka",
+    "familyName": "MEZGEC",
+    "countryCode": "SLO",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/55607"
+  },
+  {
+    "givenName": "Madis",
+    "familyName": "MIHKELS",
+    "countryCode": "EST",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/752230"
+  },
+  {
+    "givenName": "Fran",
+    "familyName": "MIHOLJEVIĆ",
+    "countryCode": "CRO",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/284056"
+  },
+  {
+    "givenName": "Jonathan",
+    "familyName": "MILAN",
+    "countryCode": "ITA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/301151"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "MILAN",
+    "countryCode": "ITA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/306018"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "MILESI",
+    "countryCode": "ITA",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/840750"
+  },
+  {
+    "givenName": "Pau",
+    "familyName": "MIQUEL DELGADO",
+    "countryCode": "ESP",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/235739"
+  },
+  {
+    "givenName": "Matej",
+    "familyName": "MOHORIC",
+    "countryCode": "SLO",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/86863"
+  },
+  {
+    "givenName": "Juan Sebastian",
+    "familyName": "MOLANO BENAVIDES",
+    "countryCode": "COL",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/89712"
+  },
+  {
+    "givenName": "Rudy",
+    "familyName": "MOLARD",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/77534"
+  },
+  {
+    "givenName": "Bauke",
+    "familyName": "MOLLEMA",
+    "countryCode": "NED",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/55131"
+  },
+  {
+    "givenName": "Manlio",
+    "familyName": "MORO",
+    "countryCode": "ITA",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/303331"
+  },
+  {
+    "givenName": "Jacopo",
+    "familyName": "MOSCA",
+    "countryCode": "ITA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/77339"
+  },
+  {
+    "givenName": " Gianni",
+    "familyName": "MOSCON",
+    "countryCode": "ITA",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/95753"
+  },
+  {
+    "givenName": "Gregor",
+    "familyName": "MÜHLBERGER",
+    "countryCode": "AUT",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/76315"
+  },
+  {
+    "givenName": "Ryan William",
+    "familyName": "MULLEN",
+    "countryCode": "IRL",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/86354"
+  },
+  {
+    "givenName": "Henok",
+    "familyName": "MULUEBERHAN",
+    "countryCode": "ERI",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/235007"
+  },
+  {
+    "givenName": "Tim",
+    "familyName": "NABERMAN",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/156853"
+  },
+  {
+    "givenName": "Oliver",
+    "familyName": "NAESEN",
+    "countryCode": "BEL",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/93654"
+  },
+  {
+    "givenName": "Manuel Jhonatan",
+    "familyName": "NARVAEZ",
+    "countryCode": "ECU",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/96372"
+  },
+  {
+    "givenName": "Krists",
+    "familyName": "NEILANDS",
+    "countryCode": "LAT",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/79350"
+  },
+  {
+    "givenName": "Lukas",
+    "familyName": "NERURKAR",
+    "countryCode": "GBR",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/839435"
+  },
+  {
+    "givenName": "Cort Magnus",
+    "familyName": "NIELSEN",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/73817"
+  },
+  {
+    "givenName": "Jørgen",
+    "familyName": "NORDHAGEN",
+    "countryCode": "NOR",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/202315"
+  },
+  {
+    "givenName": "Sunekær Mathias",
+    "familyName": "NORSGAARD",
+    "countryCode": "DEN",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/109737"
+  },
+  {
+    "givenName": "Domen",
+    "familyName": "NOVAK",
+    "countryCode": "SLO",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/93724"
+  },
+  {
+    "givenName": "Pavel",
+    "familyName": "NOVÁK",
+    "countryCode": "CZE",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/860578"
+  },
+  {
+    "givenName": "Thibau",
+    "familyName": "NYS",
+    "countryCode": "BEL",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/650048"
+  },
+  {
+    "givenName": "Kelland",
+    "familyName": "O’BRIEN",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/107908"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "O'CONNOR",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/97805"
+  },
+  {
+    "givenName": "Ivo",
+    "familyName": "OLIVEIRA",
+    "countryCode": "POR",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/91903"
+  },
+  {
+    "givenName": "Nelson",
+    "familyName": "OLIVEIRA",
+    "countryCode": "POR",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/54576"
+  },
+  {
+    "givenName": "Jakob",
+    "familyName": "OMRZEL",
+    "countryCode": "SLO",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/175564"
+  },
+  {
+    "givenName": "Edgar Oscar",
+    "familyName": "ONLEY",
+    "countryCode": "GBR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/641241"
+  },
+  {
+    "givenName": "Sam",
+    "familyName": "OOMEN",
+    "countryCode": "NED",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/86883"
+  },
+  {
+    "givenName": "Robin",
+    "familyName": "ORINS",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/649771"
+  },
+  {
+    "givenName": "Felix",
+    "familyName": "ØRN-KRISTOFF",
+    "countryCode": "NOR",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/204870"
+  },
+  {
+    "givenName": "Mathijs",
+    "familyName": "PAASSCHENS",
+    "countryCode": "NED",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/140657"
+  },
+  {
+    "givenName": "Quentin",
+    "familyName": "PACHER",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/88929"
+  },
+  {
+    "givenName": "Enzo",
+    "familyName": "PALENI",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/739450"
+  },
+  {
+    "givenName": " Valentin",
+    "familyName": "PARET PEINTRE",
+    "countryCode": "FRA",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/675098"
+  },
+  {
+    "givenName": "Aurélien",
+    "familyName": "PARET PEINTRE",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/250807"
+  },
+  {
+    "givenName": "Oliver",
+    "familyName": "PEACE",
+    "countryCode": "GBR",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/888518"
+  },
+  {
+    "givenName": "Breiner Henrik",
+    "familyName": "PEDERSEN",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/524806"
+  },
+  {
+    "givenName": "Mads",
+    "familyName": "PEDERSEN",
+    "countryCode": "DEN",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/86895"
+  },
+  {
+    "givenName": "Phillip Casper",
+    "familyName": "PEDERSEN",
+    "countryCode": "DEN",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/736192"
+  },
+  {
+    "givenName": "Søjberg Rasmus",
+    "familyName": "PEDERSEN",
+    "countryCode": "DEN",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/522843"
+  },
+  {
+    "givenName": "Giulio",
+    "familyName": "PELLIZZARI",
+    "countryCode": "ITA",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/308599"
+  },
+  {
+    "givenName": " Paul",
+    "familyName": "PENHOET",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/684138"
+  },
+  {
+    "givenName": "Adria",
+    "familyName": "PERICAS CAPDEVILA",
+    "countryCode": "ESP",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/431339"
+  },
+  {
+    "givenName": "Fernando Diego",
+    "familyName": "PESCADOR CASTRO",
+    "countryCode": "COL",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/924716"
+  },
+  {
+    "givenName": "Jasper",
+    "familyName": "PHILIPSEN",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/148275"
+  },
+  {
+    "givenName": "Withen Albert",
+    "familyName": "PHILIPSEN",
+    "countryCode": "DEN",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/547726"
+  },
+  {
+    "givenName": "Xavier Finlay Xavier",
+    "familyName": "PICKERING",
+    "countryCode": "GBR",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/592339"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "PIGANZOLI",
+    "countryCode": "ITA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/292109"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "PINARELLO",
+    "countryCode": "ITA",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/292623"
+  },
+  {
+    "givenName": "Laurence",
+    "familyName": "PITHIE",
+    "countryCode": "NZL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/221617"
+  },
+  {
+    "givenName": "Edward",
+    "familyName": "PLANCKAERT",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/111275"
+  },
+  {
+    "givenName": "Lucas",
+    "familyName": "PLAPP",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/552214"
+  },
+  {
+    "givenName": "Thomas Jensen",
+    "familyName": "PLOWRIGHT",
+    "countryCode": "AUS",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/553481"
+  },
+  {
+    "givenName": "Tadej",
+    "familyName": "POGAČAR",
+    "countryCode": "SLO",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/149727"
+  },
+  {
+    "givenName": "Nils",
+    "familyName": "POLITT",
+    "countryCode": "GER",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/87226"
+  },
+  {
+    "givenName": "Gianluca",
+    "familyName": "POLLEFLIET",
+    "countryCode": "BEL",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/649719"
+  },
+  {
+    "givenName": "Max David",
+    "familyName": "POOLE",
+    "countryCode": "GBR",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/592337"
+  },
+  {
+    "givenName": "Rudy",
+    "familyName": "PORTER",
+    "countryCode": "AUS",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/552222"
+  },
+  {
+    "givenName": "Neilson",
+    "familyName": "POWLESS",
+    "countryCode": "USA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/88143"
+  },
+  {
+    "givenName": "Johan",
+    "familyName": "PRICE PEJTERSEN",
+    "countryCode": "DEN",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/161398"
+  },
+  {
+    "givenName": "Nicolas",
+    "familyName": "PRODHOMME",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/142190"
+  },
+  {
+    "givenName": "Sean",
+    "familyName": "QUINN",
+    "countryCode": "USA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/634336"
+  },
+  {
+    "givenName": "Nairo",
+    "familyName": "QUINTANA",
+    "countryCode": "COL",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/67388"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "RACCAGNI NOVIERO",
+    "countryCode": "ITA",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/288681"
+  },
+  {
+    "givenName": "Darren",
+    "familyName": "RAFFERTY",
+    "countryCode": "IRL",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/171058"
+  },
+  {
+    "givenName": "Nadav",
+    "familyName": "RAISBERG",
+    "countryCode": "ISR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/565519"
+  },
+  {
+    "givenName": "Pepijn",
+    "familyName": "REINDERINK",
+    "countryCode": "NED",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/231431"
+  },
+  {
+    "givenName": "Senna",
+    "familyName": "REMIJN",
+    "countryCode": "NED",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/230723"
+  },
+  {
+    "givenName": " Henri François",
+    "familyName": "RENARD HAQUIN",
+    "countryCode": "FRA",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/677388"
+  },
+  {
+    "givenName": "Erik Nordsaeter",
+    "familyName": "RESELL",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/88496"
+  },
+  {
+    "givenName": "Laurenz",
+    "familyName": "REX",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/110158"
+  },
+  {
+    "givenName": "Tim",
+    "familyName": "REX",
+    "countryCode": "BEL",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/642707"
+  },
+  {
+    "givenName": "Matthew",
+    "familyName": "RICCITELLO",
+    "countryCode": "USA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/637637"
+  },
+  {
+    "givenName": "Jonas",
+    "familyName": "RICKAERT",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/77498"
+  },
+  {
+    "givenName": "Oscar",
+    "familyName": "RIESEBEEK",
+    "countryCode": "NED",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/72917"
+  },
+  {
+    "givenName": "Brandon Smith",
+    "familyName": "RIVERA VARGAS",
+    "countryCode": "COL",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/88627"
+  },
+  {
+    "givenName": "Rémy",
+    "familyName": "ROCHAS",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/101649"
+  },
+  {
+    "givenName": "Carlos",
+    "familyName": "RODRIGUEZ CANO",
+    "countryCode": "ESP",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/428096"
+  },
+  {
+    "givenName": "Oscar",
+    "familyName": "RODRIGUEZ GARAICOECHEA",
+    "countryCode": "ESP",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/112276"
+  },
+  {
+    "givenName": "Cristian",
+    "familyName": "RODRIGUEZ MARTIN",
+    "countryCode": "ESP",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/86932"
+  },
+  {
+    "givenName": "Primož",
+    "familyName": "ROGLIČ",
+    "countryCode": "SLO",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/88889"
+  },
+  {
+    "givenName": " Brieuc",
+    "familyName": "ROLLAND",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/677353"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "ROMELE",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/289693"
+  },
+  {
+    "givenName": "Ivan",
+    "familyName": "ROMEO ABAD",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/418882"
+  },
+  {
+    "givenName": "Javier",
+    "familyName": "ROMO OLIVER",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/1071861"
+  },
+  {
+    "givenName": "Timo",
+    "familyName": "ROOSEN",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/88544"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "ROTA",
+    "countryCode": "ITA",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/93935"
+  },
+  {
+    "givenName": "Einer Augusto",
+    "familyName": "RUBIO REYES",
+    "countryCode": "COL",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/573361"
+  },
+  {
+    "givenName": "Clément",
+    "familyName": "RUSSO",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/79521"
+  },
+  {
+    "givenName": "Jonas",
+    "familyName": "RUTSCH",
+    "countryCode": "GER",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/98800"
+  },
+  {
+    "givenName": "Archie",
+    "familyName": "RYAN",
+    "countryCode": "IRL",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/171147"
+  },
+  {
+    "givenName": "Pelayo",
+    "familyName": "SANCHEZ MAYO",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/419547"
+  },
+  {
+    "givenName": "Christian",
+    "familyName": "SCARONI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/144019"
+  },
+  {
+    "givenName": "Maximilian",
+    "familyName": "SCHACHMANN",
+    "countryCode": "GER",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/86938"
+  },
+  {
+    "givenName": "Anton",
+    "familyName": "SCHIFFER",
+    "countryCode": "GER",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/1280873"
+  },
+  {
+    "givenName": "Mauro",
+    "familyName": "SCHMID",
+    "countryCode": "SUI",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/109483"
+  },
+  {
+    "givenName": "Marco",
+    "familyName": "SCHRETTL",
+    "countryCode": "AUT",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/536900"
+  },
+  {
+    "givenName": "Nicholas",
+    "familyName": "SCHULTZ",
+    "countryCode": "AUS",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/747569"
+  },
+  {
+    "givenName": "Matthias",
+    "familyName": "SCHWARZBACHER",
+    "countryCode": "SVK",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/460688"
+  },
+  {
+    "givenName": "Callum",
+    "familyName": "SCOTSON",
+    "countryCode": "AUS",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/91155"
+  },
+  {
+    "givenName": "Alec",
+    "familyName": "SEGAERT",
+    "countryCode": "BEL",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/726460"
+  },
+  {
+    "givenName": " Paul",
+    "familyName": "SEIXAS",
+    "countryCode": "FRA",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/661695"
+  },
+  {
+    "givenName": "Florian",
+    "familyName": "SENECHAL",
+    "countryCode": "FRA",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/75167"
+  },
+  {
+    "givenName": "Sente",
+    "familyName": "SENTJENS",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/651120"
+  },
+  {
+    "givenName": "Gonzalo",
+    "familyName": "SERRANO RODRIGUEZ",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/140235"
+  },
+  {
+    "givenName": "James",
+    "familyName": "SHAW",
+    "countryCode": "GBR",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/112376"
+  },
+  {
+    "givenName": "Riley",
+    "familyName": "SHEEHAN",
+    "countryCode": "USA",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/235343"
+  },
+  {
+    "givenName": "Magnus",
+    "familyName": "SHEFFIELD",
+    "countryCode": "USA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/361433"
+  },
+  {
+    "givenName": "Artem",
+    "familyName": "SHMIDT",
+    "countryCode": "USA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/934698"
+  },
+  {
+    "givenName": "Guillermo Thomas",
+    "familyName": "SILVA COUSSAN",
+    "countryCode": "URU",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/912905"
+  },
+  {
+    "givenName": "Colby",
+    "familyName": "SIMMONS",
+    "countryCode": "USA",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/941478"
+  },
+  {
+    "givenName": "Quinn",
+    "familyName": "SIMMONS",
+    "countryCode": "USA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/765724"
+  },
+  {
+    "givenName": "Pavel",
+    "familyName": "SIVAKOV",
+    "countryCode": "FRA",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/111343"
+  },
+  {
+    "givenName": "Anders",
+    "familyName": "SKAARSETH",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/96472"
+  },
+  {
+    "givenName": "Daniel",
+    "familyName": "SKERL",
+    "countryCode": "ITA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/315673"
+  },
+  {
+    "givenName": "Mattias",
+    "familyName": "SKJELMOSE",
+    "countryCode": "DEN",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/365033"
+  },
+  {
+    "givenName": "Toms",
+    "familyName": "SKUJINS",
+    "countryCode": "LAT",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/68892"
+  },
+  {
+    "givenName": "Liam",
+    "familyName": "SLOCK",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/164712"
+  },
+  {
+    "givenName": "Dion Allan",
+    "familyName": "SMITH",
+    "countryCode": "NZL",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/86957"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "SOBRERO",
+    "countryCode": "ITA",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/99768"
+  },
+  {
+    "givenName": "Jakob",
+    "familyName": "SÖDERQVIST",
+    "countryCode": "SWE",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/224312"
+  },
+  {
+    "givenName": "Marc",
+    "familyName": "SOLER",
+    "countryCode": "ESP",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/89223"
+  },
+  {
+    "givenName": "Robert",
+    "familyName": "STANNARD",
+    "countryCode": "AUS",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/148777"
+  },
+  {
+    "givenName": "Johannes",
+    "familyName": "STAUNE-MITTET",
+    "countryCode": "NOR",
+    "teamName": "DECATHLON CMA CGM TEAM (DCT)",
+    "url": "/rider-details/197590"
+  },
+  {
+    "givenName": "Georg",
+    "familyName": "STEINHAUSER",
+    "countryCode": "GER",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/588952"
+  },
+  {
+    "givenName": "Jake",
+    "familyName": "STEWART",
+    "countryCode": "GBR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/154834"
+  },
+  {
+    "givenName": "Thomas Oliver",
+    "familyName": "STOCKWELL",
+    "countryCode": "GBR",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/642724"
+  },
+  {
+    "givenName": "Corbin John",
+    "familyName": "STRONG",
+    "countryCode": "NZL",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/236644"
+  },
+  {
+    "givenName": "Jasper",
+    "familyName": "STUYVEN",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/68235"
+  },
+  {
+    "givenName": "Haoyu",
+    "familyName": "SU",
+    "countryCode": "CHN",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/1091527"
+  },
+  {
+    "givenName": "Jasha",
+    "familyName": "SÜTTERLIN",
+    "countryCode": "GER",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/66559"
+  },
+  {
+    "givenName": "Tobias",
+    "familyName": "SVARRE",
+    "countryCode": "DEN",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/610117"
+  },
+  {
+    "givenName": "Embret",
+    "familyName": "SVESTAD-BÅRDSENG",
+    "countryCode": "NOR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/201122"
+  },
+  {
+    "givenName": "Martin",
+    "familyName": "SVRČEK",
+    "countryCode": "SVK",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/460340"
+  },
+  {
+    "givenName": "William Harrison",
+    "familyName": "SWEENY",
+    "countryCode": "AUS",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/111686"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "SWIFT",
+    "countryCode": "GBR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/45633"
+  },
+  {
+    "givenName": "Connor",
+    "familyName": "SWIFT",
+    "countryCode": "GBR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/150321"
+  },
+  {
+    "givenName": "Gleb",
+    "familyName": "SYRITSA",
+    "countryCode": "RUS",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/349366"
+  },
+  {
+    "givenName": "Lionel",
+    "familyName": "TAMINIAUX",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/91361"
+  },
+  {
+    "givenName": "Joshua Michael",
+    "familyName": "TARLING",
+    "countryCode": "GBR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/552934"
+  },
+  {
+    "givenName": "Harold Alfonso",
+    "familyName": "TEJADA CANACUE",
+    "countryCode": "COL",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/101793"
+  },
+  {
+    "givenName": "Natnael",
+    "familyName": "TESFATSION",
+    "countryCode": "ERI",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/751769"
+  },
+  {
+    "givenName": "Mike",
+    "familyName": "TEUNISSEN",
+    "countryCode": "NED",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/66315"
+  },
+  {
+    "givenName": " Tim Torn",
+    "familyName": "TEUTENBERG",
+    "countryCode": "GER",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/508655"
+  },
+  {
+    "givenName": "Edward",
+    "familyName": "THEUNS",
+    "countryCode": "BEL",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/70799"
+  },
+  {
+    "givenName": "Gerben",
+    "familyName": "THIJSSEN",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/107713"
+  },
+  {
+    "givenName": "Reuben",
+    "familyName": "THOMPSON",
+    "countryCode": "NZL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/220716"
+  },
+  {
+    "givenName": "Callum",
+    "familyName": "THORNLEY",
+    "countryCode": "GBR",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/841857"
+  },
+  {
+    "givenName": "Antonio",
+    "familyName": "TIBERI",
+    "countryCode": "ITA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/308040"
+  },
+  {
+    "givenName": "Rasmus",
+    "familyName": "TILLER",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/198892"
+  },
+  {
+    "givenName": "Martin",
+    "familyName": "TJØTTA",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/195534"
+  },
+  {
+    "givenName": "António",
+    "familyName": "TOMAS MORGADO",
+    "countryCode": "POR",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/442797"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "TONEATTI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/306724"
+  },
+  {
+    "givenName": "Pablo",
+    "familyName": "TORRES ARIAS",
+    "countryCode": "ESP",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/878987"
+  },
+  {
+    "givenName": "Albert",
+    "familyName": "TORRES BARCELO",
+    "countryCode": "ESP",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/59343"
+  },
+  {
+    "givenName": "Torstein",
+    "familyName": "TRÆEN",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/98935"
+  },
+  {
+    "givenName": "Jan",
+    "familyName": "TRATNIK",
+    "countryCode": "SLO",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/64864"
+  },
+  {
+    "givenName": " Bastien",
+    "familyName": "TRONCHON",
+    "countryCode": "FRA",
+    "teamName": "GROUPAMA-FDJ UNITED (GFC)",
+    "url": "/rider-details/667300"
+  },
+  {
+    "givenName": "Luke",
+    "familyName": "TUCKWELL",
+    "countryCode": "AUS",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/1123619"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "TULETT",
+    "countryCode": "GBR",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/238270"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "TURNER",
+    "countryCode": "GBR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/109470"
+  },
+  {
+    "givenName": "Henri",
+    "familyName": "UHLIG",
+    "countryCode": "GER",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/363554"
+  },
+  {
+    "givenName": "Cian",
+    "familyName": "UIJTDEBROEKS",
+    "countryCode": "BEL",
+    "teamName": "MOVISTAR TEAM (MOV)",
+    "url": "/rider-details/711304"
+  },
+  {
+    "givenName": "Diego",
+    "familyName": "ULISSI",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/54679"
+  },
+  {
+    "givenName": "Mathias",
+    "familyName": "VACEK",
+    "countryCode": "CZE",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/472995"
+  },
+  {
+    "givenName": "Michael",
+    "familyName": "VALGREN",
+    "countryCode": "DEN",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/68832"
+  },
+  {
+    "givenName": "Attila",
+    "familyName": "VALTER",
+    "countryCode": "HUN",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/98207"
+  },
+  {
+    "givenName": "Wout",
+    "familyName": "VAN AERT",
+    "countryCode": "BEL",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/75859"
+  },
+  {
+    "givenName": "Tom",
+    "familyName": "VAN ASBROECK",
+    "countryCode": "BEL",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/79141"
+  },
+  {
+    "givenName": "Dylan",
+    "familyName": "VAN BAARLE",
+    "countryCode": "NED",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/68844"
+  },
+  {
+    "givenName": " Darren",
+    "familyName": "VAN BEKKUM",
+    "countryCode": "NED",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/736499"
+  },
+  {
+    "givenName": "Loe",
+    "familyName": "VAN BELLE",
+    "countryCode": "NED",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/233371"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "VAN BOVEN",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/164821"
+  },
+  {
+    "givenName": " Marijn",
+    "familyName": "VAN DEN BERG",
+    "countryCode": "NED",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/156869"
+  },
+  {
+    "givenName": "Julius",
+    "familyName": "VAN DEN BERG",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/98171"
+  },
+  {
+    "givenName": "Fabio",
+    "familyName": "VAN DEN BOSSCHE",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/164858"
+  },
+  {
+    "givenName": "Frank",
+    "familyName": "VAN DEN BROEK",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/230938"
+  },
+  {
+    "givenName": "Taco",
+    "familyName": "VAN DER HOORN",
+    "countryCode": "NED",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/72971"
+  },
+  {
+    "givenName": "Jardi Christiaan",
+    "familyName": "VAN DER LEE",
+    "countryCode": "NED",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/227273"
+  },
+  {
+    "givenName": "Max",
+    "familyName": "VAN DER MEULEN",
+    "countryCode": "NED",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/531173"
+  },
+  {
+    "givenName": "Mathieu",
+    "familyName": "VAN DER POEL",
+    "countryCode": "NED",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/79462"
+  },
+  {
+    "givenName": "Mick",
+    "familyName": "VAN DIJKE",
+    "countryCode": "NED",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/227610"
+  },
+  {
+    "givenName": "Tim",
+    "familyName": "VAN DIJKE",
+    "countryCode": "NED",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/226848"
+  },
+  {
+    "givenName": "Lennert",
+    "familyName": "VAN EETVELT",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/649453"
+  },
+  {
+    "givenName": "Dries",
+    "familyName": "VAN GESTEL",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/86990"
+  },
+  {
+    "givenName": "Maxim",
+    "familyName": "VAN GILS",
+    "countryCode": "BEL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/154218"
+  },
+  {
+    "givenName": "Bert",
+    "familyName": "VAN LERBERGHE",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/79701"
+  },
+  {
+    "givenName": "Vlad",
+    "familyName": "VAN MECHELEN",
+    "countryCode": "BEL",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/365912"
+  },
+  {
+    "givenName": "Danny",
+    "familyName": "VAN POPPEL",
+    "countryCode": "NED",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/69149"
+  },
+  {
+    "givenName": "Roel",
+    "familyName": "VAN SINTMAARTENSDIJK",
+    "countryCode": "NED",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/227185"
+  },
+  {
+    "givenName": "Floris",
+    "familyName": "VAN TRICHT",
+    "countryCode": "BEL",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/649431"
+  },
+  {
+    "givenName": "Casper Cornelis",
+    "familyName": "VAN UDEN",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/226805"
+  },
+  {
+    "givenName": "Ilan",
+    "familyName": "VAN WILDER",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/165041"
+  },
+  {
+    "givenName": "Warre",
+    "familyName": "VANGHELUWE",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/649464"
+  },
+  {
+    "givenName": "Mauri",
+    "familyName": "VANSEVENANT",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/154227"
+  },
+  {
+    "givenName": " Kévin",
+    "familyName": "VAUQUELIN",
+    "countryCode": "FRA",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/672076"
+  },
+  {
+    "givenName": "Baptiste",
+    "familyName": "VEISTROFFER",
+    "countryCode": "FRA",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/1013332"
+  },
+  {
+    "givenName": "Simone",
+    "familyName": "VELASCO",
+    "countryCode": "ITA",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/80188"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "VENDRAME",
+    "countryCode": "ITA",
+    "teamName": "TEAM JAYCO ALULA (JAY)",
+    "url": "/rider-details/93924"
+  },
+  {
+    "givenName": "Otto",
+    "familyName": "VERGAERDE",
+    "countryCode": "BEL",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/77497"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "VERGALLITO",
+    "countryCode": "ITA",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/153896"
+  },
+  {
+    "givenName": "Kevin",
+    "familyName": "VERMAERKE",
+    "countryCode": "USA",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/504392"
+  },
+  {
+    "givenName": "Florian",
+    "familyName": "VERMEERSCH",
+    "countryCode": "BEL",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/109460"
+  },
+  {
+    "givenName": "Gianni",
+    "familyName": "VERMEERSCH",
+    "countryCode": "BEL",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/66562"
+  },
+  {
+    "givenName": "Ethan",
+    "familyName": "VERNON",
+    "countryCode": "GBR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/238213"
+  },
+  {
+    "givenName": "Carlos",
+    "familyName": "VERONA QUINTANILLA",
+    "countryCode": "ESP",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/75120"
+  },
+  {
+    "givenName": "Emiel",
+    "familyName": "VERSTRYNGE",
+    "countryCode": "BEL",
+    "teamName": "ALPECIN-PREMIER TECH (APT)",
+    "url": "/rider-details/649727"
+  },
+  {
+    "givenName": "Louis",
+    "familyName": "VERVAEKE",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/79702"
+  },
+  {
+    "givenName": "Jonathan",
+    "familyName": "VERVENNE",
+    "countryCode": "BEL",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/650242"
+  },
+  {
+    "givenName": "Jay",
+    "familyName": "VINE",
+    "countryCode": "AUS",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/148689"
+  },
+  {
+    "givenName": "Jonas",
+    "familyName": "VINGEGAARD HANSEN",
+    "countryCode": "DEN",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/112082"
+  },
+  {
+    "givenName": "Nicolya",
+    "familyName": "VINOKUROV",
+    "countryCode": "KAZ",
+    "teamName": "XDS ASTANA TEAM (XAT)",
+    "url": "/rider-details/462676"
+  },
+  {
+    "givenName": "Aleksandr",
+    "familyName": "VLASOV",
+    "countryCode": "RUS",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/97280"
+  },
+  {
+    "givenName": "Søren",
+    "familyName": "WÆRENSKJOLD",
+    "countryCode": "NOR",
+    "teamName": "UNO-X MOBILITY (UXM)",
+    "url": "/rider-details/156037"
+  },
+  {
+    "givenName": "Max",
+    "familyName": "WALKER",
+    "countryCode": "GBR",
+    "teamName": "EF EDUCATION - EASYPOST (EFE)",
+    "url": "/rider-details/238389"
+  },
+  {
+    "givenName": "Maximilian Richard",
+    "familyName": "WALSCHEID",
+    "countryCode": "GER",
+    "teamName": "LIDL-TREK (LTK)",
+    "url": "/rider-details/454633"
+  },
+  {
+    "givenName": "Frederik",
+    "familyName": "WANDAHL",
+    "countryCode": "DEN",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/361243"
+  },
+  {
+    "givenName": "Sam",
+    "familyName": "WATSON",
+    "countryCode": "GBR",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/238678"
+  },
+  {
+    "givenName": "Tim",
+    "familyName": "WELLENS",
+    "countryCode": "BEL",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/64531"
+  },
+  {
+    "givenName": "Sam",
+    "familyName": "WELSFORD",
+    "countryCode": "AUS",
+    "teamName": "INEOS GRENADIERS (IGD)",
+    "url": "/rider-details/91180"
+  },
+  {
+    "givenName": "Bram",
+    "familyName": "WELTEN",
+    "countryCode": "NED",
+    "teamName": "TEAM PICNIC POSTNL (TPP)",
+    "url": "/rider-details/93347"
+  },
+  {
+    "givenName": "Jarno",
+    "familyName": "WIDAR",
+    "countryCode": "BEL",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/651193"
+  },
+  {
+    "givenName": "Stephen",
+    "familyName": "WILLIAMS",
+    "countryCode": "GBR",
+    "teamName": "NSN CYCLING TEAM (NSN)",
+    "url": "/rider-details/100931"
+  },
+  {
+    "givenName": "Adam Richard",
+    "familyName": "YATES",
+    "countryCode": "GBR",
+    "teamName": "UAE TEAM EMIRATES XRG (UAD)",
+    "url": "/rider-details/70590"
+  },
+  {
+    "givenName": "Edoardo",
+    "familyName": "ZAMBANINI",
+    "countryCode": "ITA",
+    "teamName": "BAHRAIN VICTORIOUS (TBV)",
+    "url": "/rider-details/300493"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "ZANA",
+    "countryCode": "ITA",
+    "teamName": "SOUDAL QUICK-STEP (SOQ)",
+    "url": "/rider-details/158293"
+  },
+  {
+    "givenName": "Georg",
+    "familyName": "ZIMMERMANN",
+    "countryCode": "GER",
+    "teamName": "LOTTO INTERMARCHÉ (LOI)",
+    "url": "/rider-details/109668"
+  },
+  {
+    "givenName": "Axel",
+    "familyName": "ZINGLE",
+    "countryCode": "FRA",
+    "teamName": "TEAM VISMA | LEASE A BIKE (TVL)",
+    "url": "/rider-details/101278"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "ZWIEHOFF",
+    "countryCode": "GER",
+    "teamName": "RED BULL - BORA - HANSGROHE (RBH)",
+    "url": "/rider-details/77062"
+  },
+  {
+    "givenName": "Jon",
+    "familyName": "AGIRRE EGAÑA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/423815"
+  },
+  {
+    "givenName": "Yago",
+    "familyName": "AGUIRRE SUBIJANA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/877609"
+  },
+  {
+    "givenName": "Julian",
+    "familyName": "ALAPHILIPPE",
+    "countryCode": "FRA",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/71557"
+  },
+  {
+    "givenName": "Piet",
+    "familyName": "ALLEGAERT",
+    "countryCode": "BEL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/86604"
+  },
+  {
+    "givenName": " Clement",
+    "familyName": "ALLENO",
+    "countryCode": "FRA",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/235130"
+  },
+  {
+    "givenName": "Nicolas",
+    "familyName": "ALUSTIZA GOENAGA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/731739"
+  },
+  {
+    "givenName": "Rodrigo",
+    "familyName": "ALVAREZ RODRIGUEZ",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/419456"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "AMBROSINI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/1225915"
+  },
+  {
+    "givenName": "Stanisław",
+    "familyName": "ANIOŁKOWSKI",
+    "countryCode": "POL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/109575"
+  },
+  {
+    "givenName": "Mario",
+    "familyName": "APARICIO MUÑOZ",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/410366"
+  },
+  {
+    "givenName": "Alex",
+    "familyName": "ARANBURU DEVA",
+    "countryCode": "ESP",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/422863"
+  },
+  {
+    "givenName": "Yukiya",
+    "familyName": "ARASHIRO",
+    "countryCode": "JPN",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/45562"
+  },
+  {
+    "givenName": "Erasmo Franklin",
+    "familyName": "ARCHIBOLD CASTILLO",
+    "countryCode": "PAN",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/760573"
+  },
+  {
+    "givenName": "Hamish",
+    "familyName": "ARMITT",
+    "countryCode": "GBR",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/867194"
+  },
+  {
+    "givenName": "Julen",
+    "familyName": "ARRIOLA-BENGOA BEITIA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/417077"
+  },
+  {
+    "givenName": " Ronan",
+    "familyName": "AUGE",
+    "countryCode": "FRA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/695865"
+  },
+  {
+    "givenName": "Ibai",
+    "familyName": "AZANZA BURUSCO",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/424263"
+  },
+  {
+    "givenName": "Hugo",
+    "familyName": "AZNAR VIJUESCA",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/432625"
+  },
+  {
+    "givenName": "Unai",
+    "familyName": "AZNAR VIJUESCA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/432624"
+  },
+  {
+    "givenName": "Xabier Mikel",
+    "familyName": "AZPARREN IRURZUN",
+    "countryCode": "ESP",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/157091"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "BADILATTI",
+    "countryCode": "SUI",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/140939"
+  },
+  {
+    "givenName": "Christian",
+    "familyName": "BAGATIN",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/302064"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "BAIS",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/151318"
+  },
+  {
+    "givenName": "Mattia",
+    "familyName": "BAIS",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/138797"
+  },
+  {
+    "givenName": "Abel",
+    "familyName": "BALDERSTONE ROUMENS",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/405116"
+  },
+  {
+    "givenName": "Alexandre",
+    "familyName": "BALMER",
+    "countryCode": "SUI",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/165682"
+  },
+  {
+    "givenName": "Fernando",
+    "familyName": "BARCELO ARAGON",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/746439"
+  },
+  {
+    "givenName": "William",
+    "familyName": "BARTA",
+    "countryCode": "USA",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/100895"
+  },
+  {
+    "givenName": "Sjoerd",
+    "familyName": "BAX",
+    "countryCode": "NED",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/92200"
+  },
+  {
+    "givenName": "Hamish",
+    "familyName": "BEADLE",
+    "countryCode": "NZL",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/107475"
+  },
+  {
+    "givenName": "Dario Igor",
+    "familyName": "BELLETTA",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/292944"
+  },
+  {
+    "givenName": "Adrian",
+    "familyName": "BENITO GONZALEZ",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/531096"
+  },
+  {
+    "givenName": "Sam",
+    "familyName": "BENNETT",
+    "countryCode": "IRL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/65995"
+  },
+  {
+    "givenName": "Xabier",
+    "familyName": "BERASATEGI GARMENDIA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/235563"
+  },
+  {
+    "givenName": "Urko",
+    "familyName": "BERRADE FERNANDEZ",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/424785"
+  },
+  {
+    "givenName": "Sebastian",
+    "familyName": "BERWICK",
+    "countryCode": "AUS",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/156066"
+  },
+  {
+    "givenName": "Gabriele",
+    "familyName": "BESSEGA",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/634955"
+  },
+  {
+    "givenName": "Tommaso",
+    "familyName": "BESSEGA",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/634954"
+  },
+  {
+    "givenName": "Jenthe",
+    "familyName": "BIERMANS",
+    "countryCode": "BEL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/86633"
+  },
+  {
+    "givenName": "Mikel",
+    "familyName": "BIZKARRA ETXEGIBEL",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/76093"
+  },
+  {
+    "givenName": "Joren",
+    "familyName": "BLOEM",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/154384"
+  },
+  {
+    "givenName": "Samuel",
+    "familyName": "BOARDMAN",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/547934"
+  },
+  {
+    "givenName": " Thomas",
+    "familyName": "BONNET",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/97496"
+  },
+  {
+    "givenName": "Kamiel",
+    "familyName": "BONNEU",
+    "countryCode": "BEL",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/162235"
+  },
+  {
+    "givenName": "Joan",
+    "familyName": "BOU COMPANY",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/147399"
+  },
+  {
+    "givenName": "Geoffrey",
+    "familyName": "BOUCHARD",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/119427"
+  },
+  {
+    "givenName": "Georgios",
+    "familyName": "BOUGLAS",
+    "countryCode": "GRE",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/65992"
+  },
+  {
+    "givenName": " Rayan",
+    "familyName": "BOULAHOITE",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/670101"
+  },
+  {
+    "givenName": "Diego",
+    "familyName": "BRACALENTE",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/288841"
+  },
+  {
+    "givenName": "Sam",
+    "familyName": "BRAND",
+    "countryCode": "GBR",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/158098"
+  },
+  {
+    "givenName": "Marco",
+    "familyName": "BRENNER",
+    "countryCode": "GER",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/363549"
+  },
+  {
+    "givenName": "Nicolas",
+    "familyName": "BREUILLARD",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/257592"
+  },
+  {
+    "givenName": "Alexys",
+    "familyName": "BRUNEL",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/149163"
+  },
+  {
+    "givenName": "Marc",
+    "familyName": "BRUSTENGA MASAGUE",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/157694"
+  },
+  {
+    "givenName": "Emanuel",
+    "familyName": "BUCHMANN",
+    "countryCode": "GER",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/79882"
+  },
+  {
+    "givenName": "Marcin",
+    "familyName": "BUDZINSKI",
+    "countryCode": "POL",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/110268"
+  },
+  {
+    "givenName": "Nicolo'",
+    "familyName": "BURATTI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/300238"
+  },
+  {
+    "givenName": "Mathieu",
+    "familyName": "BURGAUDEAU",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/149475"
+  },
+  {
+    "givenName": " Josh",
+    "familyName": "BURNETT",
+    "countryCode": "NZL",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/690806"
+  },
+  {
+    "givenName": "James Aidan",
+    "familyName": "BUTTIGIEG",
+    "countryCode": "MLT",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/1122671"
+  },
+  {
+    "givenName": "Walter",
+    "familyName": "CALZONI",
+    "countryCode": "ITA",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/303483"
+  },
+  {
+    "givenName": "Marcel",
+    "familyName": "CAMPRUBI  PIJUAN",
+    "countryCode": "ESP",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/1020453"
+  },
+  {
+    "givenName": "Robin",
+    "familyName": "CARPENTER",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/1368737"
+  },
+  {
+    "givenName": "Simon",
+    "familyName": "CARR",
+    "countryCode": "GBR",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/266691"
+  },
+  {
+    "givenName": "Pablo",
+    "familyName": "CARRASCOSA MILLER",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/415879"
+  },
+  {
+    "givenName": "Jan",
+    "familyName": "CASTELLON RIBALTA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/436680"
+  },
+  {
+    "givenName": "Ezra",
+    "familyName": "CAUDELL",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/1177608"
+  },
+  {
+    "givenName": "Daniel",
+    "familyName": "CAVIA SANZ",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/418698"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "CETTOLIN",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/305859"
+  },
+  {
+    "givenName": " Camille",
+    "familyName": "CHARRET",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/657488"
+  },
+  {
+    "givenName": "Cesare",
+    "familyName": "CHESINI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/288386"
+  },
+  {
+    "givenName": "Fabio",
+    "familyName": "CHRISTEN",
+    "countryCode": "SUI",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/462391"
+  },
+  {
+    "givenName": "Sean",
+    "familyName": "CHRISTIAN",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/869231"
+  },
+  {
+    "givenName": "Cedrik Bakke",
+    "familyName": "CHRISTOPHERSEN",
+    "countryCode": "NOR",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/196633"
+  },
+  {
+    "givenName": "Sergio Geovani",
+    "familyName": "CHUMIL GONZALEZ",
+    "countryCode": "GUA",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/561696"
+  },
+  {
+    "givenName": "Edoardo",
+    "familyName": "CIPOLLINI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/293766"
+  },
+  {
+    "givenName": "Ivan",
+    "familyName": "COBO CAYON",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/235651"
+  },
+  {
+    "givenName": "Jacopo",
+    "familyName": "COLLADON",
+    "countryCode": "ITA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/327244"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "COLNAGHI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/155139"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "CONFORTI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/306573"
+  },
+  {
+    "givenName": "Valerio",
+    "familyName": "CONTI",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/75186"
+  },
+  {
+    "givenName": "Bryan",
+    "familyName": "COQUARD",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/68950"
+  },
+  {
+    "givenName": "Gorka",
+    "familyName": "CORRES IBAÑEZ DE OPAKUA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/980975"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "COVILI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/101857"
+  },
+  {
+    "givenName": "Tom",
+    "familyName": "CRABBE",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/651035"
+  },
+  {
+    "givenName": "Ludovico",
+    "familyName": "CRESCIOLI",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/305751"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "CRETTI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/301272"
+  },
+  {
+    "givenName": "Fabricio German",
+    "familyName": "CROZZOLO",
+    "countryCode": "ARG",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/978019"
+  },
+  {
+    "givenName": "Edward Santiago",
+    "familyName": "CRUZ MARTINEZ",
+    "countryCode": "COL",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/1266079"
+  },
+  {
+    "givenName": "Sergi",
+    "familyName": "DARDER GARI",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/405166"
+  },
+  {
+    "givenName": "Lucas",
+    "familyName": "DAUGE",
+    "countryCode": "FRA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/260332"
+  },
+  {
+    "givenName": "Florian",
+    "familyName": "DAUPHIN",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/254386"
+  },
+  {
+    "givenName": "Stefan",
+    "familyName": "DE BOD",
+    "countryCode": "RSA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/91451"
+  },
+  {
+    "givenName": "Aime",
+    "familyName": "DE GENDT",
+    "countryCode": "BEL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/77503"
+  },
+  {
+    "givenName": "Quinten",
+    "familyName": "DE GRAEVE",
+    "countryCode": "BEL",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/993801"
+  },
+  {
+    "givenName": "Arvid",
+    "familyName": "DE KLEIJN",
+    "countryCode": "NED",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/98176"
+  },
+  {
+    "givenName": "Hugo",
+    "familyName": "DE LA CALLE ARANGO",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/419759"
+  },
+  {
+    "givenName": "David",
+    "familyName": "DE LA CRUZ MELGAREJO",
+    "countryCode": "ESP",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/71758"
+  },
+  {
+    "givenName": "Hartthijs",
+    "familyName": "DE VRIES",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/98123"
+  },
+  {
+    "givenName": "Nicolas",
+    "familyName": "DEBEAUMARCHE",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/147756"
+  },
+  {
+    "givenName": "Joris",
+    "familyName": "DELBOVE",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/235710"
+  },
+  {
+    "givenName": "Alexandre",
+    "familyName": "DELETTRE",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/152876"
+  },
+  {
+    "givenName": "Brem",
+    "familyName": "DEMAN",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/649858"
+  },
+  {
+    "givenName": "Tuur",
+    "familyName": "DENS",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/163870"
+  },
+  {
+    "givenName": "Siebe",
+    "familyName": "DEWEIRDT",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/649842"
+  },
+  {
+    "givenName": "Alex",
+    "familyName": "DIAZ ALVAREZ",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/484174"
+  },
+  {
+    "givenName": "Jose Manuel",
+    "familyName": "DIAZ GALLEGO",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/430450"
+  },
+  {
+    "givenName": "Márton",
+    "familyName": "DINA",
+    "countryCode": "HUN",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/88167"
+  },
+  {
+    "givenName": "Djordje",
+    "familyName": "DJURIC",
+    "countryCode": "SRB",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/498090"
+  },
+  {
+    "givenName": "Mark Jamie",
+    "familyName": "DONOVAN",
+    "countryCode": "GBR",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/109559"
+  },
+  {
+    "givenName": "Robin",
+    "familyName": "DONZÉ",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/348059"
+  },
+  {
+    "givenName": "Fabien",
+    "familyName": "DOUBEY",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/72457"
+  },
+  {
+    "givenName": "Sandy",
+    "familyName": "DUJARDIN",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/94123"
+  },
+  {
+    "givenName": "Edward",
+    "familyName": "DUNBAR",
+    "countryCode": "IRL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/97939"
+  },
+  {
+    "givenName": "Odd Christian",
+    "familyName": "EIKING",
+    "countryCode": "NOR",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/86710"
+  },
+  {
+    "givenName": "Iñigo",
+    "familyName": "ELOSEGUI MOMEÑE",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/149912"
+  },
+  {
+    "givenName": "Jacob",
+    "familyName": "ERIKSSON",
+    "countryCode": "SWE",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/110487"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "FABBRO",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/90959"
+  },
+  {
+    "givenName": "Antonio Eric",
+    "familyName": "FAGUNDEZ LIMA",
+    "countryCode": "URU",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/583162"
+  },
+  {
+    "givenName": "Adrian",
+    "familyName": "FAJARDO TOLEDO",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/410265"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "FANCELLU",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/313876"
+  },
+  {
+    "givenName": "Jose Luis",
+    "familyName": "FAURA ASENSIO",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/409065"
+  },
+  {
+    "givenName": "Karsten Larsen",
+    "familyName": "FELDMANN",
+    "countryCode": "NOR",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/199296"
+  },
+  {
+    "givenName": "Samuel",
+    "familyName": "FERNANDEZ GARCIA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/415474"
+  },
+  {
+    "givenName": "Samuel",
+    "familyName": "FERNANDEZ HERES",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/417102"
+  },
+  {
+    "givenName": "Sinuhe",
+    "familyName": "FERNANDEZ RODRIGUEZ",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/419515"
+  },
+  {
+    "givenName": "Santiago",
+    "familyName": "FERRARO",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/330638"
+  },
+  {
+    "givenName": "Valentin",
+    "familyName": "FERRON",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/154663"
+  },
+  {
+    "givenName": "Tilen",
+    "familyName": "FINKŠT",
+    "countryCode": "SLO",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/109694"
+  },
+  {
+    "givenName": "Eivind Broholt",
+    "familyName": "FOUGNER",
+    "countryCode": "NOR",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/204019"
+  },
+  {
+    "givenName": "Milan",
+    "familyName": "FRETIN",
+    "countryCode": "BEL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/644196"
+  },
+  {
+    "givenName": "Frederik",
+    "familyName": "FRISON",
+    "countryCode": "BEL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/75246"
+  },
+  {
+    "givenName": "Robin",
+    "familyName": "FROIDEVAUX",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/101184"
+  },
+  {
+    "givenName": "Thomas",
+    "familyName": "GACHIGNARD",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/274749"
+  },
+  {
+    "givenName": "Ander",
+    "familyName": "GANZABAL BILBAO",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/583963"
+  },
+  {
+    "givenName": "Pablo",
+    "familyName": "GARCIA FRANCES",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/411897"
+  },
+  {
+    "givenName": "Carlos",
+    "familyName": "GARCIA PIERNA",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/162335"
+  },
+  {
+    "givenName": "Fernando",
+    "familyName": "GAVIRIA RENDON",
+    "countryCode": "COL",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/86568"
+  },
+  {
+    "givenName": "Michele",
+    "familyName": "GAZZOLI",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/153326"
+  },
+  {
+    "givenName": "Ferre",
+    "familyName": "GEERAERTS",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/774507"
+  },
+  {
+    "givenName": "Owen",
+    "familyName": "GELEIJN",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/227057"
+  },
+  {
+    "givenName": "Nil",
+    "familyName": "GIMENO FERRER",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/1077325"
+  },
+  {
+    "givenName": " Dario",
+    "familyName": "GIULIANO",
+    "countryCode": "FRA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/699748"
+  },
+  {
+    "givenName": "Thomas",
+    "familyName": "GLOAG",
+    "countryCode": "GBR",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/238945"
+  },
+  {
+    "givenName": "German Dario",
+    "familyName": "GOMEZ BECERRA",
+    "countryCode": "COL",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "statusCode": 2,
+    "url": "/rider-details/635998"
+  },
+  {
+    "givenName": "Iker",
+    "familyName": "GOMEZ LOPEZ DE GOICOECHEA",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/377143"
+  },
+  {
+    "givenName": "David",
+    "familyName": "GONZALEZ LOPEZ",
+    "countryCode": "ESP",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/418233"
+  },
+  {
+    "givenName": "Roberto",
+    "familyName": "GONZÁLEZ",
+    "countryCode": "PAN",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/97249"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "GRANGER",
+    "countryCode": "GBR",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/551950"
+  },
+  {
+    "givenName": "Fabien",
+    "familyName": "GRELLIER",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/89347"
+  },
+  {
+    "givenName": "Dylan",
+    "familyName": "GROENEWEGEN",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/72932"
+  },
+  {
+    "givenName": " Filip",
+    "familyName": "GRUSZCZYŃSKI",
+    "countryCode": "POL",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/780015"
+  },
+  {
+    "givenName": "Jaume",
+    "familyName": "GUARDEÑO ROMA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/410008"
+  },
+  {
+    "givenName": " Thibault",
+    "familyName": "GUERNALEC",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/102022"
+  },
+  {
+    "givenName": "Jorge",
+    "familyName": "GUTIERREZ GONZALEZ",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/429059"
+  },
+  {
+    "givenName": "Marco",
+    "familyName": "HALLER",
+    "countryCode": "AUT",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/64941"
+  },
+  {
+    "givenName": "William Lyndhurst Christopher",
+    "familyName": "HARPER",
+    "countryCode": "AUS",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/109960"
+  },
+  {
+    "givenName": "Kieran",
+    "familyName": "HAUG",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/1289798"
+  },
+  {
+    "givenName": "Leo William",
+    "familyName": "HAYTER",
+    "countryCode": "GBR",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/239635"
+  },
+  {
+    "givenName": " Paul",
+    "familyName": "HENNEQUIN",
+    "countryCode": "FRA",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/704278"
+  },
+  {
+    "givenName": "Quinten",
+    "familyName": "HERMANS",
+    "countryCode": "BEL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/79451"
+  },
+  {
+    "givenName": "Jesus",
+    "familyName": "HERRADA",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/59773"
+  },
+  {
+    "givenName": "Martin Santiago",
+    "familyName": "HERREÑO POLANIA",
+    "countryCode": "COL",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/1266557"
+  },
+  {
+    "givenName": "Jules",
+    "familyName": "HESTERS",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/107712"
+  },
+  {
+    "givenName": "Marc",
+    "familyName": "HIRSCHI",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/111440"
+  },
+  {
+    "givenName": " Emmanuel",
+    "familyName": "HOUCOU",
+    "countryCode": "FRA",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/724044"
+  },
+  {
+    "givenName": "Craig Damien",
+    "familyName": "HOWSON",
+    "countryCode": "AUS",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/67201"
+  },
+  {
+    "givenName": "Nolan",
+    "familyName": "HUYSMANS",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/731166"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "IACCHI",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/234709"
+  },
+  {
+    "givenName": "Javier",
+    "familyName": "IBAÑEZ BELTRAN DE SALAZAR",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/423862"
+  },
+  {
+    "givenName": "Unai",
+    "familyName": "IRIBAR JAUREGI",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/157100"
+  },
+  {
+    "givenName": "Declan Thomas",
+    "familyName": "IRVINE",
+    "countryCode": "AUS",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/161850"
+  },
+  {
+    "givenName": "Xabier",
+    "familyName": "ISASA LARRAÑAGA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/422877"
+  },
+  {
+    "givenName": "Ion",
+    "familyName": "IZAGUIRRE INSAUSTI",
+    "countryCode": "ESP",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/422366"
+  },
+  {
+    "givenName": "Clement",
+    "familyName": "IZQUIERDO",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/750178"
+  },
+  {
+    "givenName": " Emilien",
+    "familyName": "JEANNIERE",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/152898"
+  },
+  {
+    "givenName": "Jordan",
+    "familyName": "JEGAT",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/162430"
+  },
+  {
+    "givenName": "Yael",
+    "familyName": "JOALLAND",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/263907"
+  },
+  {
+    "givenName": "Jelle",
+    "familyName": "JOHANNINK",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/143659"
+  },
+  {
+    "givenName": "Alan",
+    "familyName": "JOUSSEAUME",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/162410"
+  },
+  {
+    "givenName": "Txomin",
+    "familyName": "JUARISTI ARRIETA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/153004"
+  },
+  {
+    "givenName": "Petr",
+    "familyName": "KELEMEN",
+    "countryCode": "CZE",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/471702"
+  },
+  {
+    "givenName": "Cole",
+    "familyName": "KESSLER",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/1108975"
+  },
+  {
+    "givenName": "Alex",
+    "familyName": "KIRSCH",
+    "countryCode": "LUX",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/66796"
+  },
+  {
+    "givenName": "Arthur",
+    "familyName": "KLUCKERS",
+    "countryCode": "LUX",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/165189"
+  },
+  {
+    "givenName": "Vojtěch",
+    "familyName": "KMÍNEK",
+    "countryCode": "CZE",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/480066"
+  },
+  {
+    "givenName": "Oliver",
+    "familyName": "KNIGHT",
+    "countryCode": "GBR",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/239560"
+  },
+  {
+    "givenName": "Sebastian",
+    "familyName": "KOLZE CHANGIZI",
+    "countryCode": "DEN",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/511064"
+  },
+  {
+    "givenName": "Casper Matyáš",
+    "familyName": "KOPECKÝ",
+    "countryCode": "CZE",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/227740"
+  },
+  {
+    "givenName": "Cornelius Tomas",
+    "familyName": "KOPECKÝ",
+    "countryCode": "CZE",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/112272"
+  },
+  {
+    "givenName": "Tomoya",
+    "familyName": "KOYAMA",
+    "countryCode": "JPN",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/548300"
+  },
+  {
+    "givenName": "Lukáš",
+    "familyName": "KUBIŠ",
+    "countryCode": "SVK",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/234791"
+  },
+  {
+    "givenName": "Merhawi",
+    "familyName": "KUDUS",
+    "countryCode": "ERI",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/88551"
+  },
+  {
+    "givenName": "Stefan",
+    "familyName": "KÜNG",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/74994"
+  },
+  {
+    "givenName": "Victor",
+    "familyName": "LAFAY",
+    "countryCode": "FRA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/136296"
+  },
+  {
+    "givenName": "Michiel",
+    "familyName": "LAMBRECHT",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/650138"
+  },
+  {
+    "givenName": "Milan",
+    "familyName": "LANHOVE",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/1082749"
+  },
+  {
+    "givenName": "Ellande",
+    "familyName": "LARRONDE",
+    "countryCode": "FRA",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/1229123"
+  },
+  {
+    "givenName": "Niklas",
+    "familyName": "LARSEN",
+    "countryCode": "DEN",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/94135"
+  },
+  {
+    "givenName": "Harry",
+    "familyName": "LASKER",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/1297275"
+  },
+  {
+    "givenName": "Jonathan",
+    "familyName": "LASTRA MARTINEZ",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/72454"
+  },
+  {
+    "givenName": " Mathis",
+    "familyName": "LE BERRE",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/695100"
+  },
+  {
+    "givenName": "Iúri",
+    "familyName": "LEITÃO",
+    "countryCode": "POR",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/108008"
+  },
+  {
+    "givenName": "Samuel",
+    "familyName": "LEROUX",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/89412"
+  },
+  {
+    "givenName": " Theo",
+    "familyName": "LEVEQUE",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/682823"
+  },
+  {
+    "givenName": "Fabian",
+    "familyName": "LIENHARD",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/71567"
+  },
+  {
+    "givenName": "Emils",
+    "familyName": "LIEPINS",
+    "countryCode": "LAT",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/75275"
+  },
+  {
+    "givenName": "Giovanni",
+    "familyName": "LONARDI",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/147049"
+  },
+  {
+    "givenName": "Lander",
+    "familyName": "LOOCKX",
+    "countryCode": "BEL",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/93608"
+  },
+  {
+    "givenName": "Jordi",
+    "familyName": "LOPEZ CARAVACA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/111531"
+  },
+  {
+    "givenName": "Joseba",
+    "familyName": "LOPEZ CUESTA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/423630"
+  },
+  {
+    "givenName": " Ian",
+    "familyName": "LOPEZ DE SAN ROMAN",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/718704"
+  },
+  {
+    "givenName": "Juan Jose",
+    "familyName": "LOPEZ RODRIGUEZ",
+    "countryCode": "ESP",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/379696"
+  },
+  {
+    "givenName": "Pablo",
+    "familyName": "LOSPITAO GONZALEZ",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/415885"
+  },
+  {
+    "givenName": "David",
+    "familyName": "LOZANO RIBA",
+    "countryCode": "ESP",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/48645"
+  },
+  {
+    "givenName": " Jan",
+    "familyName": "MAAS",
+    "countryCode": "NED",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/98122"
+  },
+  {
+    "givenName": "Cesar",
+    "familyName": "MACIAS ESTRADA",
+    "countryCode": "MEX",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/902208"
+  },
+  {
+    "givenName": "Donovan",
+    "familyName": "MACKIE",
+    "countryCode": "AUS",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/1476368"
+  },
+  {
+    "givenName": "Mirco",
+    "familyName": "MAESTRI",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/66848"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "MAGLI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/159189"
+  },
+  {
+    "givenName": "Adrien",
+    "familyName": "MAIRE",
+    "countryCode": "FRA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/766799"
+  },
+  {
+    "givenName": "Sam",
+    "familyName": "MAISONOBE",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/986348"
+  },
+  {
+    "givenName": "Bálint",
+    "familyName": "MAKRAI",
+    "countryCode": "HUN",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/1512159"
+  },
+  {
+    "givenName": "Kamil",
+    "familyName": "MAŁECKI",
+    "countryCode": "POL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/86286"
+  },
+  {
+    "givenName": "Marco",
+    "familyName": "MANENTI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/324155"
+  },
+  {
+    "givenName": "Lorrenzo",
+    "familyName": "MANZIN",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/72162"
+  },
+  {
+    "givenName": "Martin",
+    "familyName": "MARCELLUSI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/299321"
+  },
+  {
+    "givenName": " Nicola",
+    "familyName": "MARCEROU",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/665217"
+  },
+  {
+    "givenName": "Elias",
+    "familyName": "MARIS",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/163018"
+  },
+  {
+    "givenName": "Jose Maria",
+    "familyName": "MARTIN MUÑOZ",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/410198"
+  },
+  {
+    "givenName": "Gotzon",
+    "familyName": "MARTIN SANZ",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/91106"
+  },
+  {
+    "givenName": "Alessio",
+    "familyName": "MARTINELLI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/301021"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "MASCIARELLI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/316032"
+  },
+  {
+    "givenName": "Fausto",
+    "familyName": "MASNADA",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/89125"
+  },
+  {
+    "givenName": "Henri Alexandre",
+    "familyName": "MAYER",
+    "countryCode": "MRI",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/108443"
+  },
+  {
+    "givenName": "Marius",
+    "familyName": "MAYRHOFER",
+    "countryCode": "GER",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/364300"
+  },
+  {
+    "givenName": "Bailey",
+    "familyName": "MCDONALD",
+    "countryCode": "AUS",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/1115160"
+  },
+  {
+    "givenName": "Brody",
+    "familyName": "MCDONALD",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/839636"
+  },
+  {
+    "givenName": " Scott",
+    "familyName": "MCGILL",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/147575"
+  },
+  {
+    "givenName": "Jamie",
+    "familyName": "MEEHAN",
+    "countryCode": "IRL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/175116"
+  },
+  {
+    "givenName": "Felix James",
+    "familyName": "MEO",
+    "countryCode": "NZL",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/144773"
+  },
+  {
+    "givenName": "Sergio",
+    "familyName": "MERIS",
+    "countryCode": "ITA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/299985"
+  },
+  {
+    "givenName": "Xandro",
+    "familyName": "MEURISSE",
+    "countryCode": "BEL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/66427"
+  },
+  {
+    "givenName": "Andréa",
+    "familyName": "MIFSUD",
+    "countryCode": "MLT",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/154491"
+  },
+  {
+    "givenName": "Aivaras",
+    "familyName": "MIKUTIS",
+    "countryCode": "LTU",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/524353"
+  },
+  {
+    "givenName": "Iker",
+    "familyName": "MINTEGI CLAVER",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/424975"
+  },
+  {
+    "givenName": "Alex",
+    "familyName": "MOLENAAR",
+    "countryCode": "NED",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/1018973"
+  },
+  {
+    "givenName": "Sylvain",
+    "familyName": "MONIQUET",
+    "countryCode": "BEL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/152904"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "MONTAGNER",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/309509"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "MOSCHETTI",
+    "countryCode": "ITA",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/91890"
+  },
+  {
+    "givenName": "Wessel",
+    "familyName": "MOURIS",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/230533"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "MOZZATO",
+    "countryCode": "ITA",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/149918"
+  },
+  {
+    "givenName": "Anton",
+    "familyName": "MULLER",
+    "countryCode": "FRA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/257472"
+  },
+  {
+    "givenName": "Tobias",
+    "familyName": "MÜLLER",
+    "countryCode": "GER",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/364786"
+  },
+  {
+    "givenName": "Francisco",
+    "familyName": "MUÑOZ LLANA",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/395256"
+  },
+  {
+    "givenName": " Byron",
+    "familyName": "MUNTON",
+    "countryCode": "RSA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/177302"
+  },
+  {
+    "givenName": "Jokin",
+    "familyName": "MURGUIALDAY",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/423848"
+  },
+  {
+    "givenName": "Tommaso",
+    "familyName": "NENCINI",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/298220"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "NESPOLI",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/317538"
+  },
+  {
+    "givenName": "Joel",
+    "familyName": "NICOLAU BELTRAN",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/397239"
+  },
+  {
+    "givenName": "Ander",
+    "familyName": "OKAMIKA BENGOETXEA",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/400783"
+  },
+  {
+    "givenName": "Stefano",
+    "familyName": "OLDANI",
+    "countryCode": "ITA",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/149725"
+  },
+  {
+    "givenName": "Ben",
+    "familyName": "OLIVER",
+    "countryCode": "NZL",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/88141"
+  },
+  {
+    "givenName": "Jakub",
+    "familyName": "OTRUBA",
+    "countryCode": "CZE",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/150930"
+  },
+  {
+    "givenName": "Paul",
+    "familyName": "OURSELIN",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/111263"
+  },
+  {
+    "givenName": " Hugo",
+    "familyName": "PAGE",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/680702"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "PALETTI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/292829"
+  },
+  {
+    "givenName": "Nicolo'",
+    "familyName": "PARISINI",
+    "countryCode": "ITA",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/298587"
+  },
+  {
+    "givenName": "Jose Felix",
+    "familyName": "PARRA CUERDA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/149459"
+  },
+  {
+    "givenName": "Barnabás",
+    "familyName": "PEÁK",
+    "countryCode": "HUN",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/101998"
+  },
+  {
+    "givenName": "Manuel",
+    "familyName": "PEÑALVER ANIORTE",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/153911"
+  },
+  {
+    "givenName": "Francisco Joel",
+    "familyName": "PEÑUELA SANDOVAL",
+    "countryCode": "VEN",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/642800"
+  },
+  {
+    "givenName": "Cesar",
+    "familyName": "PEREZ LOPEZ",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/409362"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "PERON",
+    "countryCode": "ITA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/56603"
+  },
+  {
+    "givenName": "Davide",
+    "familyName": "PERSICO",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/300496"
+  },
+  {
+    "givenName": "Thomas",
+    "familyName": "PESENTI",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/297281"
+  },
+  {
+    "givenName": "Jannis",
+    "familyName": "PETER",
+    "countryCode": "GER",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/364430"
+  },
+  {
+    "givenName": "Riley",
+    "familyName": "PICKRELL",
+    "countryCode": "CAN",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/461427"
+  },
+  {
+    "givenName": "Joseph",
+    "familyName": "PIDCOCK",
+    "countryCode": "GBR",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/531926"
+  },
+  {
+    "givenName": "Thomas",
+    "familyName": "PIDCOCK",
+    "countryCode": "GBR",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/109775"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "PIETROBON",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/158275"
+  },
+  {
+    "givenName": "Mattia",
+    "familyName": "PINAZZI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/292095"
+  },
+  {
+    "givenName": "Andrea",
+    "familyName": "PIRAS",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/303110"
+  },
+  {
+    "givenName": "Rick",
+    "familyName": "PLUIMERS",
+    "countryCode": "NED",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/228521"
+  },
+  {
+    "givenName": "Wouter",
+    "familyName": "POELS",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/862522"
+  },
+  {
+    "givenName": "Antonio",
+    "familyName": "POLGA",
+    "countryCode": "ITA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/298184"
+  },
+  {
+    "givenName": "Umberto",
+    "familyName": "POLI",
+    "countryCode": "ITA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/138808"
+  },
+  {
+    "givenName": " Louis Marie",
+    "familyName": "POSNIC",
+    "countryCode": "FRA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/698283"
+  },
+  {
+    "givenName": "Eduard",
+    "familyName": "PRADES REVERTER",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/67372"
+  },
+  {
+    "givenName": "Lorenzo",
+    "familyName": "QUARTUCCI",
+    "countryCode": "ITA",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/159193"
+  },
+  {
+    "givenName": "Gabriele",
+    "familyName": "RACCAGNI",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/289200"
+  },
+  {
+    "givenName": "Dusan",
+    "familyName": "RAJOVIC",
+    "countryCode": "SRB",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/94362"
+  },
+  {
+    "givenName": "Unai",
+    "familyName": "RAMOS MURILLO",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/1136195"
+  },
+  {
+    "givenName": "Martijn",
+    "familyName": "RASENBERG",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/227219"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "REGNANTI",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/301643"
+  },
+  {
+    "givenName": "Elmar",
+    "familyName": "REINDERS",
+    "countryCode": "NED",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/66416"
+  },
+  {
+    "givenName": " Alexis",
+    "familyName": "RENARD",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/162411"
+  },
+  {
+    "givenName": "Valentin",
+    "familyName": "RETAILLEAU",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/235232"
+  },
+  {
+    "givenName": "Mikel",
+    "familyName": "RETEGI GOÑI",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/437033"
+  },
+  {
+    "givenName": "Martin",
+    "familyName": "REY VAZQUEZ",
+    "countryCode": "ESP",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/392096"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "RIDOLFO",
+    "countryCode": "ITA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/112303"
+  },
+  {
+    "givenName": "Ludovic",
+    "familyName": "ROBEET",
+    "countryCode": "BEL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/86385"
+  },
+  {
+    "givenName": "Vicente",
+    "familyName": "ROJAS NARANJO",
+    "countryCode": "CHI",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/792750"
+  },
+  {
+    "givenName": "Mathys",
+    "familyName": "RONDEL",
+    "countryCode": "FRA",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/819609"
+  },
+  {
+    "givenName": "Sergey",
+    "familyName": "ROSTOVTSEV",
+    "countryCode": "UZB",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/97375"
+  },
+  {
+    "givenName": "Louis",
+    "familyName": "ROULAND",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/735205"
+  },
+  {
+    "givenName": " Ibon",
+    "familyName": "RUIZ SEDANO",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/154693"
+  },
+  {
+    "givenName": "Jambaljamts",
+    "familyName": "SAINBAYAR",
+    "countryCode": "MGL",
+    "teamName": "BURGOS-BURPELLET-BH (BBH)",
+    "url": "/rider-details/91737"
+  },
+  {
+    "givenName": "Sergio",
+    "familyName": "SAMITIER SAMITIER",
+    "countryCode": "ESP",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/159829"
+  },
+  {
+    "givenName": "Ariel Carlos",
+    "familyName": "SAMUDIO CARRERA",
+    "countryCode": "PAN",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/145067"
+  },
+  {
+    "givenName": "Colin",
+    "familyName": "SAVIOZ",
+    "countryCode": "FRA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/814941"
+  },
+  {
+    "givenName": "Hugo",
+    "familyName": "SCALA JR.",
+    "countryCode": "USA",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/515862"
+  },
+  {
+    "givenName": "Javier",
+    "familyName": "SERRANO RODRIGUEZ",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/417266"
+  },
+  {
+    "givenName": "Diego Pablo",
+    "familyName": "SEVILLA LOPEZ",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/93338"
+  },
+  {
+    "givenName": "Nathan",
+    "familyName": "SMITH",
+    "countryCode": "GBR",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/238947"
+  },
+  {
+    "givenName": "Gorka",
+    "familyName": "SORARRAIN AGIRREZABALA",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/1240562"
+  },
+  {
+    "givenName": "Ivan Ramiro",
+    "familyName": "SOSA CUERVO",
+    "countryCode": "COL",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/162777"
+  },
+  {
+    "givenName": "Antonio Jesus",
+    "familyName": "SOTO GUIRAO",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/93100"
+  },
+  {
+    "givenName": "Mattia",
+    "familyName": "STENICO",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/778356"
+  },
+  {
+    "givenName": "Mark",
+    "familyName": "STEWART",
+    "countryCode": "GBR",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/93163"
+  },
+  {
+    "givenName": "Abram",
+    "familyName": "STOCKMAN",
+    "countryCode": "BEL",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/138924"
+  },
+  {
+    "givenName": "Michael",
+    "familyName": "STORER",
+    "countryCode": "AUS",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/102035"
+  },
+  {
+    "givenName": "Florian",
+    "familyName": "STORK",
+    "countryCode": "GER",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/106614"
+  },
+  {
+    "givenName": "Joel",
+    "familyName": "SUTER",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/151601"
+  },
+  {
+    "givenName": "David Louis",
+    "familyName": "SUTTON",
+    "countryCode": "GBR",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/758129"
+  },
+  {
+    "givenName": "Zsombor",
+    "familyName": "TAKÁCS",
+    "countryCode": "HUN",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/595013"
+  },
+  {
+    "givenName": "Manuele",
+    "familyName": "TAROZZI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/159196"
+  },
+  {
+    "givenName": "Fernando",
+    "familyName": "TERCERO LOPEZ",
+    "countryCode": "ESP",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/418969"
+  },
+  {
+    "givenName": " Lucas",
+    "familyName": "TERRIER",
+    "countryCode": "FRA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/679345"
+  },
+  {
+    "givenName": "Jason",
+    "familyName": "TESSON",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/153628"
+  },
+  {
+    "givenName": "Dylan",
+    "familyName": "TEUNS",
+    "countryCode": "BEL",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/75247"
+  },
+  {
+    "givenName": "Roland",
+    "familyName": "THALMANN",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/77391"
+  },
+  {
+    "givenName": " Pierre",
+    "familyName": "THIERRY",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/716204"
+  },
+  {
+    "givenName": "Benjamin",
+    "familyName": "THOMAS",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/91043"
+  },
+  {
+    "givenName": "Senne",
+    "familyName": "THONNON",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/650181"
+  },
+  {
+    "givenName": "Alex",
+    "familyName": "TOLIO",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/299289"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "TONELLI",
+    "countryCode": "ITA",
+    "teamName": "TEAM POLTI VISITMALTA (PTV)",
+    "url": "/rider-details/75277"
+  },
+  {
+    "givenName": "Artuur",
+    "familyName": "TORNEY",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/650340"
+  },
+  {
+    "givenName": "Adam",
+    "familyName": "ŤOUPALÍK",
+    "countryCode": "CZE",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/86245"
+  },
+  {
+    "givenName": "Damien",
+    "familyName": "TOUZE",
+    "countryCode": "FRA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/251352"
+  },
+  {
+    "givenName": "Lucas Joseph",
+    "familyName": "TOWERS",
+    "countryCode": "GBR",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/946606"
+  },
+  {
+    "givenName": "Rory",
+    "familyName": "TOWNSEND",
+    "countryCode": "IRL",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/109588"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "TRENTIN",
+    "countryCode": "ITA",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/47742"
+  },
+  {
+    "givenName": "Nikita",
+    "familyName": "TSVETKOV",
+    "countryCode": "UZB",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/810495"
+  },
+  {
+    "givenName": "Filippo",
+    "familyName": "TURCONI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/317851"
+  },
+  {
+    "givenName": "Matteo",
+    "familyName": "TURCONI",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/317852"
+  },
+  {
+    "givenName": " Anthony",
+    "familyName": "TURGIS",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/75920"
+  },
+  {
+    "givenName": "Gari",
+    "familyName": "UGARTE LARREA",
+    "countryCode": "ESP",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/977505"
+  },
+  {
+    "givenName": "Abner Santiago",
+    "familyName": "UMBA LOPEZ",
+    "countryCode": "COL",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/623901"
+  },
+  {
+    "givenName": "Diego",
+    "familyName": "URIARTE BELZUNEGI",
+    "countryCode": "ESP",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/424248"
+  },
+  {
+    "givenName": "Milan",
+    "familyName": "VADER",
+    "countryCode": "NED",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/88333"
+  },
+  {
+    "givenName": " Baptiste",
+    "familyName": "VADIC",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/690967"
+  },
+  {
+    "givenName": "Márk",
+    "familyName": "VALENT",
+    "countryCode": "HUN",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/733991"
+  },
+  {
+    "givenName": "Milan",
+    "familyName": "VAN DEN HAUTE",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/651165"
+  },
+  {
+    "givenName": "Axel",
+    "familyName": "VAN DER TUUK",
+    "countryCode": "NED",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/226986"
+  },
+  {
+    "givenName": "Danny",
+    "familyName": "VAN DER TUUK",
+    "countryCode": "POL",
+    "teamName": "EUSKALTEL-EUSKADI (EUS)",
+    "url": "/rider-details/155985"
+  },
+  {
+    "givenName": "Leander",
+    "familyName": "VAN HAUTEGEM",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/881575"
+  },
+  {
+    "givenName": "Vincent",
+    "familyName": "VAN HEMELEN",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/164962"
+  },
+  {
+    "givenName": "Brent",
+    "familyName": "VAN MOER",
+    "countryCode": "BEL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/152803"
+  },
+  {
+    "givenName": "Henri",
+    "familyName": "VANDENABEELE",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/164849"
+  },
+  {
+    "givenName": "Noah",
+    "familyName": "VANDENBRANDEN",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/649941"
+  },
+  {
+    "givenName": "Dylan",
+    "familyName": "VANDENSTORME",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/649821"
+  },
+  {
+    "givenName": "Ward",
+    "familyName": "VANHOOF",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/156876"
+  },
+  {
+    "givenName": "Harm",
+    "familyName": "VANHOUCKE",
+    "countryCode": "BEL",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/142768"
+  },
+  {
+    "givenName": "Clement",
+    "familyName": "VENTURINI",
+    "countryCode": "FRA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/70965"
+  },
+  {
+    "givenName": " Matteo",
+    "familyName": "VERCHER",
+    "countryCode": "FRA",
+    "teamName": "TOTALENERGIES (TEN)",
+    "url": "/rider-details/678427"
+  },
+  {
+    "givenName": "Victor",
+    "familyName": "VERCOUILLIE",
+    "countryCode": "BEL",
+    "teamName": "TEAM FLANDERS - BALOISE (TFB)",
+    "url": "/rider-details/760667"
+  },
+  {
+    "givenName": "Luca",
+    "familyName": "VERRANDO",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/292362"
+  },
+  {
+    "givenName": "Alessandro",
+    "familyName": "VERRE",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/291093"
+  },
+  {
+    "givenName": " Killian",
+    "familyName": "VERSCHUREN",
+    "countryCode": "FRA",
+    "teamName": "UNIBET ROSE ROCKETS (URR)",
+    "url": "/rider-details/682513"
+  },
+  {
+    "givenName": "Iker",
+    "familyName": "VILLAR GALDEANO",
+    "countryCode": "ESP",
+    "teamName": "CAJA RURAL-SEGUROS RGA (CJR)",
+    "url": "/rider-details/437079"
+  },
+  {
+    "givenName": "Attilio",
+    "familyName": "VIVIANI",
+    "countryCode": "ITA",
+    "teamName": "SOLUTION TECH NIPPO RALI (TFT)",
+    "url": "/rider-details/95011"
+  },
+  {
+    "givenName": "Yannis",
+    "familyName": "VOISARD",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/152373"
+  },
+  {
+    "givenName": "Lawrence",
+    "familyName": "WARBASSE",
+    "countryCode": "USA",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/60032"
+  },
+  {
+    "givenName": " Célestin",
+    "familyName": "WATTELLE",
+    "countryCode": "FRA",
+    "teamName": "TEAM NOVO NORDISK (TNN)",
+    "url": "/rider-details/695513"
+  },
+  {
+    "givenName": "Fabian",
+    "familyName": "WEISS",
+    "countryCode": "SUI",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/347780"
+  },
+  {
+    "givenName": "Mats",
+    "familyName": "WENZEL",
+    "countryCode": "LUX",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/350004"
+  },
+  {
+    "givenName": "Hannes",
+    "familyName": "WILKSCH",
+    "countryCode": "GER",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/585529"
+  },
+  {
+    "givenName": "Luc",
+    "familyName": "WIRTGEN",
+    "countryCode": "LUX",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/110298"
+  },
+  {
+    "givenName": "Alfred Brockwell",
+    "familyName": "WRIGHT",
+    "countryCode": "GBR",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/153275"
+  },
+  {
+    "givenName": "Paul",
+    "familyName": "WRIGHT",
+    "countryCode": "NZL",
+    "teamName": "MODERN ADVENTURE PRO CYCLING (MAP)",
+    "url": "/rider-details/101289"
+  },
+  {
+    "givenName": "Edoardo",
+    "familyName": "ZAMPERINI",
+    "countryCode": "ITA",
+    "teamName": "COFIDIS (COF)",
+    "url": "/rider-details/306326"
+  },
+  {
+    "givenName": "Enrico",
+    "familyName": "ZANONCELLO",
+    "countryCode": "ITA",
+    "teamName": "BARDIANI CSF 7 SABER (BCS)",
+    "url": "/rider-details/99746"
+  },
+  {
+    "givenName": "Maikel",
+    "familyName": "ZIJLAARD",
+    "countryCode": "NED",
+    "teamName": "TUDOR PRO CYCLING TEAM (TUD)",
+    "url": "/rider-details/155089"
+  },
+  {
+    "givenName": "Samuele",
+    "familyName": "ZOCCARATO",
+    "countryCode": "ITA",
+    "teamName": "MBH BANK CSB TELECOM FORT (MBH)",
+    "url": "/rider-details/151356"
+  },
+  {
+    "givenName": "Nickolas",
+    "familyName": "ZUKOWSKY",
+    "countryCode": "CAN",
+    "teamName": "PINARELLO-Q36.5 PRO CYCLING TEAM (PQT)",
+    "url": "/rider-details/160945"
+  },
+  {
+    "givenName": "彥誼 Yen Yi",
+    "familyName": "何 HO",
+    "countryCode": "TPE",
+    "teamName": "EQUIPO KERN PHARMA (EKP)",
+    "url": "/rider-details/632733"
+  }
+]

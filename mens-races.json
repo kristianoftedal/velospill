@@ -1,0 +1,3480 @@
+[
+  {
+    "month": 2,
+    "year": 2026,
+    "monthName": "February 2026",
+    "isCurrentMonth": true,
+    "items": [
+      {
+        "day": 17,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-17T00:00:00Z",
+        "items": [
+          {
+            "name": "UAE Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "UAE",
+            "continentCode": "ASI",
+            "dates": "16 Feb - 22 Feb 2026",
+            "detailsLink": {
+              "title": "UAE Tour",
+              "url": "/competition-details/2026/ROA/76894",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 18,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-18T00:00:00Z",
+        "items": [
+          {
+            "name": "UAE Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "UAE",
+            "continentCode": "ASI",
+            "dates": "16 Feb - 22 Feb 2026",
+            "detailsLink": {
+              "title": "UAE Tour",
+              "url": "/competition-details/2026/ROA/76894",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 19,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-19T00:00:00Z",
+        "items": [
+          {
+            "name": "UAE Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "UAE",
+            "continentCode": "ASI",
+            "dates": "16 Feb - 22 Feb 2026",
+            "detailsLink": {
+              "title": "UAE Tour",
+              "url": "/competition-details/2026/ROA/76894",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 20,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-20T00:00:00Z",
+        "items": [
+          {
+            "name": "UAE Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "UAE",
+            "continentCode": "ASI",
+            "dates": "16 Feb - 22 Feb 2026",
+            "detailsLink": {
+              "title": "UAE Tour",
+              "url": "/competition-details/2026/ROA/76894",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 21,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-21T00:00:00Z",
+        "items": [
+          {
+            "name": "UAE Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "UAE",
+            "continentCode": "ASI",
+            "dates": "16 Feb - 22 Feb 2026",
+            "detailsLink": {
+              "title": "UAE Tour",
+              "url": "/competition-details/2026/ROA/76894",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 22,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-22T00:00:00Z",
+        "items": [
+          {
+            "name": "UAE Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "UAE",
+            "continentCode": "ASI",
+            "dates": "16 Feb - 22 Feb 2026",
+            "detailsLink": {
+              "title": "UAE Tour",
+              "url": "/competition-details/2026/ROA/76894",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 28,
+        "month": 2,
+        "year": 2026,
+        "competitionDate": "2026-02-28T00:00:00Z",
+        "items": [
+          {
+            "name": "Omloop Nieuwsblad",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "28 Feb 2026",
+            "detailsLink": {
+              "title": "Omloop Nieuwsblad",
+              "url": "/competition-details/2026/ROA/76896",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 3,
+    "year": 2026,
+    "monthName": "March 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 7,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-07T00:00:00Z",
+        "items": [
+          {
+            "name": "Strade Bianche",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "07 Mar 2026",
+            "detailsLink": {
+              "title": "Strade Bianche",
+              "url": "/competition-details/2026/ROA/76897",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-08T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-09T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 10,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-10T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 11,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-11T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 12,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-12T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 13,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-13T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 14,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-14T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 15,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-15T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Nice",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "08 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Paris-Nice",
+              "url": "/competition-details/2026/ROA/76899",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Tirreno-Adriatico",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "09 Mar - 15 Mar 2026",
+            "detailsLink": {
+              "title": "Tirreno-Adriatico",
+              "url": "/competition-details/2026/ROA/76900",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 21,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-21T00:00:00Z",
+        "items": [
+          {
+            "name": "Milano-Sanremo",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "21 Mar 2026",
+            "detailsLink": {
+              "title": "Milano-Sanremo",
+              "url": "/competition-details/2026/ROA/76902",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 23,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-23T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 24,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-24T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 25,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-25T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Ronde Van Brugge - Tour of Bruges",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "25 Mar 2026",
+            "detailsLink": {
+              "title": "Ronde Van Brugge - Tour of Bruges",
+              "url": "/competition-details/2026/ROA/76905",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 26,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-26T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 27,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-27T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "E3 Saxo Classic",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "27 Mar 2026",
+            "detailsLink": {
+              "title": "E3 Saxo Classic",
+              "url": "/competition-details/2026/ROA/76907",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 28,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-28T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 29,
+        "month": 3,
+        "year": 2026,
+        "competitionDate": "2026-03-29T00:00:00Z",
+        "items": [
+          {
+            "name": "Volta Ciclista a Catalunya",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "23 Mar - 29 Mar 2026",
+            "detailsLink": {
+              "title": "Volta Ciclista a Catalunya",
+              "url": "/competition-details/2026/ROA/76904",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "In Flanders Fields - From Middelkerke to Wevelgem",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "29 Mar 2026",
+            "detailsLink": {
+              "title": "In Flanders Fields - From Middelkerke to Wevelgem",
+              "url": "/competition-details/2026/ROA/76909",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 4,
+    "year": 2026,
+    "monthName": "April 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 1,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-01T00:00:00Z",
+        "items": [
+          {
+            "name": "Dwars door Vlaanderen - A travers la Flandre",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "01 Apr 2026",
+            "detailsLink": {
+              "title": "Dwars door Vlaanderen - A travers la Flandre",
+              "url": "/competition-details/2026/ROA/76910",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 5,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-05T00:00:00Z",
+        "items": [
+          {
+            "name": "Ronde van Vlaanderen",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "05 Apr 2026",
+            "detailsLink": {
+              "title": "Ronde van Vlaanderen",
+              "url": "/competition-details/2026/ROA/76912",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 6,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-06T00:00:00Z",
+        "items": [
+          {
+            "name": "Itzulia Basque Country",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "06 Apr - 11 Apr 2026",
+            "detailsLink": {
+              "title": "Itzulia Basque Country",
+              "url": "/competition-details/2026/ROA/76914",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-07T00:00:00Z",
+        "items": [
+          {
+            "name": "Itzulia Basque Country",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "06 Apr - 11 Apr 2026",
+            "detailsLink": {
+              "title": "Itzulia Basque Country",
+              "url": "/competition-details/2026/ROA/76914",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-08T00:00:00Z",
+        "items": [
+          {
+            "name": "Itzulia Basque Country",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "06 Apr - 11 Apr 2026",
+            "detailsLink": {
+              "title": "Itzulia Basque Country",
+              "url": "/competition-details/2026/ROA/76914",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-09T00:00:00Z",
+        "items": [
+          {
+            "name": "Itzulia Basque Country",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "06 Apr - 11 Apr 2026",
+            "detailsLink": {
+              "title": "Itzulia Basque Country",
+              "url": "/competition-details/2026/ROA/76914",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 10,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-10T00:00:00Z",
+        "items": [
+          {
+            "name": "Itzulia Basque Country",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "06 Apr - 11 Apr 2026",
+            "detailsLink": {
+              "title": "Itzulia Basque Country",
+              "url": "/competition-details/2026/ROA/76914",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 11,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-11T00:00:00Z",
+        "items": [
+          {
+            "name": "Itzulia Basque Country",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "06 Apr - 11 Apr 2026",
+            "detailsLink": {
+              "title": "Itzulia Basque Country",
+              "url": "/competition-details/2026/ROA/76914",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 12,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-12T00:00:00Z",
+        "items": [
+          {
+            "name": "Paris-Roubaix Hauts-de-France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "12 Apr 2026",
+            "detailsLink": {
+              "title": "Paris-Roubaix Hauts-de-France",
+              "url": "/competition-details/2026/ROA/76916",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 19,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-19T00:00:00Z",
+        "items": [
+          {
+            "name": "Amstel Gold Race",
+            "colourCode": "road",
+            "venue": "",
+            "country": "NED",
+            "continentCode": "EUR",
+            "dates": "19 Apr 2026",
+            "detailsLink": {
+              "title": "Amstel Gold Race",
+              "url": "/competition-details/2026/ROA/76917",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 22,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-22T00:00:00Z",
+        "items": [
+          {
+            "name": "La Flèche Wallonne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "22 Apr 2026",
+            "detailsLink": {
+              "title": "La Flèche Wallonne",
+              "url": "/competition-details/2026/ROA/76920",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 26,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-26T00:00:00Z",
+        "items": [
+          {
+            "name": "Liège-Bastogne-Liège",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "26 Apr 2026",
+            "detailsLink": {
+              "title": "Liège-Bastogne-Liège",
+              "url": "/competition-details/2026/ROA/76922",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 28,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-28T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Romandie",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "28 Apr - 03 May 2026",
+            "detailsLink": {
+              "title": "Tour de Romandie",
+              "url": "/competition-details/2026/ROA/76923",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 29,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-29T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Romandie",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "28 Apr - 03 May 2026",
+            "detailsLink": {
+              "title": "Tour de Romandie",
+              "url": "/competition-details/2026/ROA/76923",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 30,
+        "month": 4,
+        "year": 2026,
+        "competitionDate": "2026-04-30T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Romandie",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "28 Apr - 03 May 2026",
+            "detailsLink": {
+              "title": "Tour de Romandie",
+              "url": "/competition-details/2026/ROA/76923",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 5,
+    "year": 2026,
+    "monthName": "May 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 1,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-01T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Romandie",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "28 Apr - 03 May 2026",
+            "detailsLink": {
+              "title": "Tour de Romandie",
+              "url": "/competition-details/2026/ROA/76923",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Eschborn-Frankfurt",
+            "colourCode": "road",
+            "venue": "",
+            "country": "GER",
+            "continentCode": "EUR",
+            "dates": "01 May 2026",
+            "detailsLink": {
+              "title": "Eschborn-Frankfurt",
+              "url": "/competition-details/2026/ROA/76924",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-02T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Romandie",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "28 Apr - 03 May 2026",
+            "detailsLink": {
+              "title": "Tour de Romandie",
+              "url": "/competition-details/2026/ROA/76923",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-03T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Romandie",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "28 Apr - 03 May 2026",
+            "detailsLink": {
+              "title": "Tour de Romandie",
+              "url": "/competition-details/2026/ROA/76923",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-08T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-09T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 10,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-10T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 11,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-11T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 12,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-12T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 13,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-13T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 14,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-14T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 15,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-15T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 16,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-16T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 17,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-17T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 18,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-18T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 19,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-19T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 20,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-20T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 21,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-21T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 22,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-22T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 23,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-23T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 24,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-24T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 25,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-25T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 26,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-26T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 27,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-27T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 28,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-28T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 29,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-29T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 30,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-30T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 31,
+        "month": 5,
+        "year": 2026,
+        "competitionDate": "2026-05-31T00:00:00Z",
+        "items": [
+          {
+            "name": "Giro d'Italia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "08 May - 31 May 2026",
+            "detailsLink": {
+              "title": "Giro d'Italia",
+              "url": "/competition-details/2026/ROA/76926",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 6,
+    "year": 2026,
+    "monthName": "June 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 7,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-07T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-08T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-09T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 10,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-10T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 11,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-11T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 12,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-12T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 13,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-13T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 14,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-14T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour Auvergne - Rhône-Alpes",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "07 Jun - 14 Jun 2026",
+            "detailsLink": {
+              "title": "Tour Auvergne - Rhône-Alpes",
+              "url": "/competition-details/2026/ROA/76930",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Copenhagen Sprint",
+            "colourCode": "road",
+            "venue": "",
+            "country": "DEN",
+            "continentCode": "EUR",
+            "dates": "14 Jun 2026",
+            "detailsLink": {
+              "title": "Copenhagen Sprint",
+              "url": "/competition-details/2026/ROA/76934",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 17,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-17T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Suisse",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "17 Jun - 21 Jun 2026",
+            "detailsLink": {
+              "title": "Tour de Suisse",
+              "url": "/competition-details/2026/ROA/76932",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 18,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-18T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Suisse",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "17 Jun - 21 Jun 2026",
+            "detailsLink": {
+              "title": "Tour de Suisse",
+              "url": "/competition-details/2026/ROA/76932",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 19,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-19T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Suisse",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "17 Jun - 21 Jun 2026",
+            "detailsLink": {
+              "title": "Tour de Suisse",
+              "url": "/competition-details/2026/ROA/76932",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 20,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-20T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Suisse",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "17 Jun - 21 Jun 2026",
+            "detailsLink": {
+              "title": "Tour de Suisse",
+              "url": "/competition-details/2026/ROA/76932",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 21,
+        "month": 6,
+        "year": 2026,
+        "competitionDate": "2026-06-21T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Suisse",
+            "colourCode": "road",
+            "venue": "",
+            "country": "SUI",
+            "continentCode": "EUR",
+            "dates": "17 Jun - 21 Jun 2026",
+            "detailsLink": {
+              "title": "Tour de Suisse",
+              "url": "/competition-details/2026/ROA/76932",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 7,
+    "year": 2026,
+    "monthName": "July 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 4,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-04T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 5,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-05T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 6,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-06T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-07T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-08T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-09T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 10,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-10T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 11,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-11T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 12,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-12T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 13,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-13T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 14,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-14T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 15,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-15T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 16,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-16T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 17,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-17T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 18,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-18T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 19,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-19T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 20,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-20T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 21,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-21T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 22,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-22T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 23,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-23T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 24,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-24T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 25,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-25T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 26,
+        "month": 7,
+        "year": 2026,
+        "competitionDate": "2026-07-26T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de France",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "04 Jul - 26 Jul 2026",
+            "detailsLink": {
+              "title": "Tour de France",
+              "url": "/competition-details/2026/ROA/76935",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 8,
+    "year": 2026,
+    "monthName": "August 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 1,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-01T00:00:00Z",
+        "items": [
+          {
+            "name": "DSSK (Donostia San Sebastian Klasikoa)",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "01 Aug 2026",
+            "detailsLink": {
+              "title": "DSSK (Donostia San Sebastian Klasikoa)",
+              "url": "/competition-details/2026/ROA/76936",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-03T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 4,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-04T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 5,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-05T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 6,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-06T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-07T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-08T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-09T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour de Pologne",
+            "colourCode": "road",
+            "venue": "",
+            "country": "POL",
+            "continentCode": "EUR",
+            "dates": "03 Aug - 09 Aug 2026",
+            "detailsLink": {
+              "title": "Tour de Pologne",
+              "url": "/competition-details/2026/ROA/76938",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 16,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-16T00:00:00Z",
+        "items": [
+          {
+            "name": "ADAC Cyclassics",
+            "colourCode": "road",
+            "venue": "",
+            "country": "GER",
+            "continentCode": "EUR",
+            "dates": "16 Aug 2026",
+            "detailsLink": {
+              "title": "ADAC Cyclassics",
+              "url": "/competition-details/2026/ROA/76939",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 19,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-19T00:00:00Z",
+        "items": [
+          {
+            "name": "Renewi Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "19 Aug - 23 Aug 2026",
+            "detailsLink": {
+              "title": "Renewi Tour",
+              "url": "/competition-details/2026/ROA/76940",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 20,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-20T00:00:00Z",
+        "items": [
+          {
+            "name": "Renewi Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "19 Aug - 23 Aug 2026",
+            "detailsLink": {
+              "title": "Renewi Tour",
+              "url": "/competition-details/2026/ROA/76940",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 21,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-21T00:00:00Z",
+        "items": [
+          {
+            "name": "Renewi Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "19 Aug - 23 Aug 2026",
+            "detailsLink": {
+              "title": "Renewi Tour",
+              "url": "/competition-details/2026/ROA/76940",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 22,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-22T00:00:00Z",
+        "items": [
+          {
+            "name": "Renewi Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "19 Aug - 23 Aug 2026",
+            "detailsLink": {
+              "title": "Renewi Tour",
+              "url": "/competition-details/2026/ROA/76940",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 23,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-23T00:00:00Z",
+        "items": [
+          {
+            "name": "Renewi Tour",
+            "colourCode": "road",
+            "venue": "",
+            "country": "BEL",
+            "continentCode": "EUR",
+            "dates": "19 Aug - 23 Aug 2026",
+            "detailsLink": {
+              "title": "Renewi Tour",
+              "url": "/competition-details/2026/ROA/76940",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 24,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-24T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 25,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-25T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 26,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-26T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 27,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-27T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 28,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-28T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 29,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-29T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 30,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-30T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Bretagne Classic - CIC",
+            "colourCode": "road",
+            "venue": "",
+            "country": "FRA",
+            "continentCode": "EUR",
+            "dates": "30 Aug 2026",
+            "detailsLink": {
+              "title": "Bretagne Classic - CIC",
+              "url": "/competition-details/2026/ROA/76944",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 31,
+        "month": 8,
+        "year": 2026,
+        "competitionDate": "2026-08-31T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 9,
+    "year": 2026,
+    "monthName": "September 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 1,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-01T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-02T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 3,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-03T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 4,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-04T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 5,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-05T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 6,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-06T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 7,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-07T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 8,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-08T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 9,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-09T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 10,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-10T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 11,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-11T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Grand Prix Cycliste de Québec",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CAN",
+            "continentCode": "AME",
+            "dates": "11 Sep 2026",
+            "detailsLink": {
+              "title": "Grand Prix Cycliste de Québec",
+              "url": "/competition-details/2026/ROA/76947",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 12,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-12T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 13,
+        "month": 9,
+        "year": 2026,
+        "competitionDate": "2026-09-13T00:00:00Z",
+        "items": [
+          {
+            "name": "La Vuelta Ciclista a España",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ESP",
+            "continentCode": "EUR",
+            "dates": "22 Aug - 13 Sep 2026",
+            "detailsLink": {
+              "title": "La Vuelta Ciclista a España",
+              "url": "/competition-details/2026/ROA/76942",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          },
+          {
+            "name": "Grand Prix Cycliste de Montréal",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CAN",
+            "continentCode": "AME",
+            "dates": "13 Sep 2026",
+            "detailsLink": {
+              "title": "Grand Prix Cycliste de Montréal",
+              "url": "/competition-details/2026/ROA/76948",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "month": 10,
+    "year": 2026,
+    "monthName": "October 2026",
+    "isCurrentMonth": false,
+    "items": [
+      {
+        "day": 10,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-10T00:00:00Z",
+        "items": [
+          {
+            "name": "Il Lombardia",
+            "colourCode": "road",
+            "venue": "",
+            "country": "ITA",
+            "continentCode": "EUR",
+            "dates": "10 Oct 2026",
+            "detailsLink": {
+              "title": "Il Lombardia",
+              "url": "/competition-details/2026/ROA/76949",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 13,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-13T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour of Guangxi",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CHN",
+            "continentCode": "ASI",
+            "dates": "13 Oct - 18 Oct 2026",
+            "detailsLink": {
+              "title": "Tour of Guangxi",
+              "url": "/competition-details/2026/ROA/76951",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 14,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-14T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour of Guangxi",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CHN",
+            "continentCode": "ASI",
+            "dates": "13 Oct - 18 Oct 2026",
+            "detailsLink": {
+              "title": "Tour of Guangxi",
+              "url": "/competition-details/2026/ROA/76951",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 15,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-15T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour of Guangxi",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CHN",
+            "continentCode": "ASI",
+            "dates": "13 Oct - 18 Oct 2026",
+            "detailsLink": {
+              "title": "Tour of Guangxi",
+              "url": "/competition-details/2026/ROA/76951",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 16,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-16T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour of Guangxi",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CHN",
+            "continentCode": "ASI",
+            "dates": "13 Oct - 18 Oct 2026",
+            "detailsLink": {
+              "title": "Tour of Guangxi",
+              "url": "/competition-details/2026/ROA/76951",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 17,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-17T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour of Guangxi",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CHN",
+            "continentCode": "ASI",
+            "dates": "13 Oct - 18 Oct 2026",
+            "detailsLink": {
+              "title": "Tour of Guangxi",
+              "url": "/competition-details/2026/ROA/76951",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      },
+      {
+        "day": 18,
+        "month": 10,
+        "year": 2026,
+        "competitionDate": "2026-10-18T00:00:00Z",
+        "items": [
+          {
+            "name": "Tour of Guangxi",
+            "colourCode": "road",
+            "venue": "",
+            "country": "CHN",
+            "continentCode": "ASI",
+            "dates": "13 Oct - 18 Oct 2026",
+            "detailsLink": {
+              "title": "Tour of Guangxi",
+              "url": "/competition-details/2026/ROA/76951",
+              "isExternal": false
+            },
+            "isUciEvent": false
+          }
+        ]
+      }
+    ]
+  }
+]

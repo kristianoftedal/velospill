@@ -1,9 +1,7 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "@/components/ui/button"
+import { createRider, updateRider } from "@/app/admin/riders/actions";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,22 +10,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { createRider, updateRider } from "@/app/admin/riders/actions"
-import { useState } from "react"
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const riderSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   team: z.string().min(1, "Team is required"),
-  nationality: z.string().length(3, "Use 3-letter country code (e.g., NOR, FRA)"),
+  nationality: z
+    .string()
+    .length(3, "Use 3-letter country code (e.g., NOR, FRA)"),
   gender: z.enum(["M", "F"]),
   specialty: z.enum([
     "sprinter",
@@ -37,25 +39,32 @@ const riderSchema = z.object({
     "allrounder",
     "time_trialist",
   ]),
-})
+});
 
-type RiderFormData = z.infer<typeof riderSchema>
+type RiderFormData = z.infer<typeof riderSchema>;
 
 interface RiderFormProps {
   initialData?: {
-    id: number
-    name: string
-    team: string
-    nationality: string
-    gender: "M" | "F"
-    specialty: "sprinter" | "climber" | "gc" | "classics" | "allrounder" | "time_trialist"
-  }
-  onSuccess?: () => void
+    id: number;
+    name: string;
+    team: string;
+    nationality: string;
+    gender: "M" | "F";
+    specialty:
+      | "sprinter"
+      | "climber"
+      | "gc"
+      | "classics"
+      | "allrounder"
+      | "time_trialist"
+      | "";
+  };
+  onSuccess?: () => void;
 }
 
 export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<RiderFormData>({
     resolver: zodResolver(riderSchema),
@@ -66,29 +75,33 @@ export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
       gender: initialData?.gender || "M",
       specialty: initialData?.specialty || "allrounder",
     },
-  })
+  });
 
   const onSubmit = async (data: RiderFormData) => {
-    setIsSubmitting(true)
-    setError(null)
+    setIsSubmitting(true);
+    setError(null);
 
     const result = initialData
       ? await updateRider(initialData.id, data)
-      : await createRider(data)
+      : await createRider(data);
 
-    setIsSubmitting(false)
+    setIsSubmitting(false);
 
     if (result.success) {
-      form.reset()
-      onSuccess?.()
+      form.reset();
+      onSuccess?.();
     } else {
-      if (typeof result.error === "object" && result.error && "_form" in result.error) {
-        setError((result.error as any)._form[0] || "Failed to save rider")
+      if (
+        typeof result.error === "object" &&
+        result.error &&
+        "_form" in result.error
+      ) {
+        setError((result.error as any)._form[0] || "Failed to save rider");
       } else {
-        setError("Failed to save rider")
+        setError("Failed to save rider");
       }
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -136,7 +149,9 @@ export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
               <FormControl>
                 <Input placeholder="SVN" maxLength={3} {...field} />
               </FormControl>
-              <FormDescription>3-letter country code (e.g., NOR, FRA)</FormDescription>
+              <FormDescription>
+                3-letter country code (e.g., NOR, FRA)
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -179,7 +194,9 @@ export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
                 <SelectContent>
                   <SelectItem value="sprinter">Sprinter</SelectItem>
                   <SelectItem value="climber">Climber</SelectItem>
-                  <SelectItem value="gc">GC (General Classification)</SelectItem>
+                  <SelectItem value="gc">
+                    GC (General Classification)
+                  </SelectItem>
                   <SelectItem value="classics">Classics</SelectItem>
                   <SelectItem value="allrounder">Allrounder</SelectItem>
                   <SelectItem value="time_trialist">Time Trialist</SelectItem>
@@ -195,11 +212,11 @@ export function RiderForm({ initialData, onSuccess }: RiderFormProps) {
             {isSubmitting
               ? "Saving..."
               : initialData
-              ? "Save Changes"
-              : "Add Rider"}
+                ? "Save Changes"
+                : "Add Rider"}
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

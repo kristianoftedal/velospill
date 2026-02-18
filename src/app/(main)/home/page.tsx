@@ -134,12 +134,12 @@ export default async function HomePage() {
     .limit(10);
 
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8">
-      <div className="space-y-8">
+    <div className="container mx-auto max-w-6xl px-4 py-12 md:py-16">
+      <div className="space-y-12">
         {/* League Section */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-foreground">Your Leagues</h2>
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold text-foreground">Your Leagues</h2>
             <Link
               href="/leagues"
               className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
@@ -149,7 +149,7 @@ export default async function HomePage() {
           </div>
           {myLeagues.length === 0 ? (
             <Card className="border-border bg-card">
-              <CardContent className="pt-6">
+              <CardContent className="py-8">
                 <p className="text-muted-foreground mb-4">
                   You haven&apos;t joined any leagues yet
                 </p>
@@ -164,16 +164,16 @@ export default async function HomePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {myLeagues.map((league) => (
                 <Card
                   key={league.id}
                   className="border-border bg-card hover:border-primary/30 transition-colors"
                 >
-                  <CardContent className="pt-6">
+                  <CardContent className="py-5">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-2">
                           <Link
                             href={`/leagues/${league.id}`}
                             className="font-semibold text-foreground hover:text-primary transition-colors"
@@ -213,11 +213,11 @@ export default async function HomePage() {
         </section>
 
         {/* Latest Races and Results */}
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-10 md:grid-cols-2">
           {/* Latest Race Results */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-foreground">
+          <section className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-bold text-foreground">
                 Latest Results
               </h2>
               <Link
@@ -229,18 +229,18 @@ export default async function HomePage() {
             </div>
             {latestResults.length === 0 ? (
               <Card className="border-border bg-card">
-                <CardContent className="pt-6">
+                <CardContent className="py-8">
                   <p className="text-muted-foreground text-sm">
                     No race results available yet.
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {latestResults.slice(0, 8).map((result, idx) => (
                   <Card key={idx} className="border-border bg-card">
-                    <CardContent className="py-3">
-                      <div className="flex items-start justify-between gap-2">
+                    <CardContent className="py-4">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-foreground">
                             {result.riderName}
@@ -270,9 +270,9 @@ export default async function HomePage() {
           </section>
 
           {/* Completed Races */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-foreground">
+          <section className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-bold text-foreground">
                 Completed Races
               </h2>
               <Link
@@ -284,21 +284,21 @@ export default async function HomePage() {
             </div>
             {latestRacesWithResults.length === 0 ? (
               <Card className="border-border bg-card">
-                <CardContent className="pt-6">
+                <CardContent className="py-8">
                   <p className="text-muted-foreground text-sm">
                     No completed races yet.
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {latestRacesWithResults.map((race) => (
                   <Card
                     key={race.raceId}
                     className="border-border bg-card hover:border-primary/30 transition-colors"
                   >
-                    <CardContent className="py-3">
-                      <div className="flex items-start justify-between gap-2">
+                    <CardContent className="py-4">
+                      <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
                           <p className="font-semibold text-foreground text-sm">
                             {race.raceName}
@@ -329,9 +329,9 @@ export default async function HomePage() {
         </div>
 
         {/* Upcoming Races Section */}
-        <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-foreground">
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-bold text-foreground">
               Upcoming Races
             </h2>
             <Link
@@ -343,14 +343,14 @@ export default async function HomePage() {
           </div>
           {parentRaces.length === 0 ? (
             <Card className="border-border bg-card">
-              <CardContent className="pt-6">
+              <CardContent className="py-8">
                 <p className="text-muted-foreground">
                   No upcoming races. Admin can add races from the calendar.
                 </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {parentRaces.map((race) => {
                 const isMultiDay =
                   race.endDate && !isSameDay(race.startDate, race.endDate);
@@ -363,8 +363,8 @@ export default async function HomePage() {
                     key={race.id}
                     className="border-border bg-card hover:border-primary/30 transition-colors"
                   >
-                    <CardContent className="py-3">
-                      <div className="flex items-center justify-between gap-2">
+                    <CardContent className="py-4">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex-1">
                           <h3 className="font-semibold text-foreground text-sm">
                             {race.name}

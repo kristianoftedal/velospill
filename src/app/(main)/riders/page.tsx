@@ -42,19 +42,18 @@ export default async function RidersPage() {
     }
   }
 
-  // Get all riders with their total points and specialty
+  // Get all riders with their total points
   const ridersData = await db
     .select({
       id: riders.id,
       name: riders.name,
       team: riders.team,
       nationality: riders.nationality,
-      specialty: riders.specialty,
       totalPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
     })
     .from(riders)
     .leftJoin(raceResults, sql`${riders.id} = ${raceResults.riderId}`)
-    .groupBy(riders.id, riders.name, riders.team, riders.nationality, riders.specialty)
+    .groupBy(riders.id, riders.name, riders.team, riders.nationality)
     .orderBy(sql`COALESCE(SUM(${raceResults.points}), 0) DESC`);
 
   // For each rider, get their race-by-race breakdown

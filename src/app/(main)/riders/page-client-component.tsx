@@ -18,7 +18,6 @@ interface RiderData {
   name: string
   team: string
   nationality: string
-  specialty: string
   totalPoints: number
   results: Array<{
     raceName: string
@@ -38,24 +37,6 @@ interface RiderData {
   raceCount: number
 }
 
-const specialtyLabels: Record<string, string> = {
-  sprinter: "Sprinter",
-  climber: "Climber",
-  gc: "GC",
-  classics: "Classics",
-  allrounder: "All-rounder",
-  time_trialist: "Time Trialist",
-}
-
-const specialtyColors: Record<string, string> = {
-  sprinter: "bg-amber-100 text-amber-700",
-  climber: "bg-rose-100 text-rose-700",
-  gc: "bg-blue-100 text-blue-700",
-  classics: "bg-purple-100 text-purple-700",
-  allrounder: "bg-green-100 text-green-700",
-  time_trialist: "bg-cyan-100 text-cyan-700",
-}
-
 export default function RidersPage({ 
   riders,
   userTeamRiderIds = []
@@ -64,17 +45,11 @@ export default function RidersPage({
   userTeamRiderIds?: string[]
 }) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([])
   const [selectedTeams, setSelectedTeams] = useState<string[]>([])
   const [showUnteamedOnly, setShowUnteamedOnly] = useState(false)
   const [sortBy, setSortBy] = useState<"points" | "name" | "avgPosition">("points")
 
   // Get unique values for filtering
-  const uniqueSpecialties = useMemo(() => {
-    const specialties = new Set(riders.map((r) => r.specialty))
-    return Array.from(specialties).sort()
-  }, [riders])
-
   const uniqueTeams = useMemo(() => {
     const teams = new Set(riders.map((r) => r.team).filter(t => t && t.length > 0))
     return Array.from(teams).sort()
@@ -88,14 +63,11 @@ export default function RidersPage({
         rider.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
         rider.nationality.toLowerCase().includes(searchTerm.toLowerCase())
 
-      const matchesSpecialty =
-        selectedSpecialties.length === 0 || selectedSpecialties.includes(rider.specialty)
-
       const matchesTeam = selectedTeams.length === 0 || selectedTeams.includes(rider.team)
 
       const matchesUnteamed = !showUnteamedOnly || !rider.team || rider.team.length === 0
 
-      return matchesSearch && matchesSpecialty && matchesTeam && matchesUnteamed
+      return matchesSearch && matchesTeam && matchesUnteamed
     })
 
     // Sort based on selected sort option
@@ -112,15 +84,7 @@ export default function RidersPage({
     }
 
     return filtered
-  }, [riders, searchTerm, selectedSpecialties, selectedTeams, showUnteamedOnly, sortBy])
-
-  const toggleSpecialty = (specialty: string) => {
-    setSelectedSpecialties((prev) =>
-      prev.includes(specialty)
-        ? prev.filter((s) => s !== specialty)
-        : [...prev, specialty]
-    )
-  }
+  }, [riders, searchTerm, selectedTeams, showUnteamedOnly, sortBy])
 
   const toggleTeam = (team: string) => {
     setSelectedTeams((prev) =>
@@ -130,7 +94,6 @@ export default function RidersPage({
 
   const clearAllFilters = () => {
     setSearchTerm("")
-    setSelectedSpecialties([])
     setSelectedTeams([])
     setShowUnteamedOnly(false)
     setSortBy("points")
@@ -138,7 +101,6 @@ export default function RidersPage({
 
   const hasActiveFilters =
     searchTerm !== "" ||
-    selectedSpecialties.length > 0 ||
     selectedTeams.length > 0 ||
     showUnteamedOnly ||
     sortBy !== "points"
@@ -200,46 +162,23 @@ export default function RidersPage({
                 </div>
               </div>
 
-              {/* Filter Groups */}
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Specialty Filter */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">By Specialty</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {uniqueSpecialties.map((specialty) => (
-                      <button
-                        key={specialty}
-                        onClick={() => toggleSpecialty(specialty)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                          selectedSpecialties.includes(specialty)
-                            ? `${specialtyColors[specialty] || "bg-gray-100 text-gray-700"} ring-2 ring-offset-1 ring-offset-background ring-primary`
-                            : "bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 text-foreground hover:border-primary"
-                        }`}
-                      >
-                        {specialtyLabels[specialty] || specialty}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Team Filter */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">By Team</h3>
-                  <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                    {uniqueTeams.map((team) => (
-                      <button
-                        key={team}
-                        onClick={() => toggleTeam(team)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                          selectedTeams.includes(team)
-                            ? "bg-gradient-green-blue text-white ring-2 ring-offset-1 ring-offset-background ring-primary"
-                            : "bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 text-foreground hover:border-primary"
-                        }`}
-                      >
-                        {team}
-                      </button>
-                    ))}
-                  </div>
+              {/* Team Filter */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">By Team</h3>
+                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                  {uniqueTeams.map((team) => (
+                    <button
+                      key={team}
+                      onClick={() => toggleTeam(team)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                        selectedTeams.includes(team)
+                          ? "bg-gradient-green-blue text-white ring-2 ring-offset-1 ring-offset-background ring-primary"
+                          : "bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 text-foreground hover:border-primary"
+                      }`}
+                    >
+                      {team}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -320,9 +259,6 @@ export default function RidersPage({
                                 {rider.totalPoints}
                               </p>
                             </div>
-                            <Badge className={`${specialtyColors[rider.specialty] || "bg-gray-100 text-gray-700"} text-[10px] font-semibold border-0 px-2 py-0.5`}>
-                              {specialtyLabels[rider.specialty] || rider.specialty}
-                            </Badge>
                           </div>
                         </div>
                       </AccordionTrigger>

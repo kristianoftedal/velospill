@@ -35,6 +35,13 @@ export function RiderPicker({
   const [teamFilter, setTeamFilter] = useState("");
   const [nationalityFilter, setNationalityFilter] = useState("");
 
+  const handlePick = (riderId: number) => {
+    onPick(riderId);
+    setSearchQuery("");
+    setTeamFilter("");
+    setNationalityFilter("");
+  };
+
   // Unique teams and nationalities for dropdown options
   const uniqueTeams = useMemo(
     () => Array.from(new Set(availableRiders.map((r) => r.team))).sort(),
@@ -167,7 +174,7 @@ export function RiderPicker({
                     size="sm"
                     variant={isMyTurn ? "default" : "outline"}
                     disabled={!isMyTurn || isPickPending}
-                    onClick={() => onPick(rider.id)}
+                    onClick={() => handlePick(rider.id)}
                     className="text-xs px-2 py-1 h-auto"
                   >
                     {isPickPending ? "..." : "Pick"}

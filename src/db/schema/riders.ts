@@ -1,5 +1,6 @@
 import {
   index,
+  integer,
   pgEnum,
   pgTable,
   serial,
@@ -17,6 +18,7 @@ export const riders = pgTable(
     team: text("team").notNull(),
     nationality: text("nationality").notNull(),
     gender: genderEnum("gender").notNull(),
+    draftRankings: integer("draft_rankings"),
     createdAt: timestamp("createdAt", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -28,5 +30,6 @@ export const riders = pgTable(
     nameIdx: index("riders_name_idx").on(table.name),
     teamIdx: index("riders_team_idx").on(table.team),
     nationalityIdx: index("riders_nationality_idx").on(table.nationality),
+    draftRankingsIdx: index("riders_draft_rankings_idx").on(table.draftRankings),
   }),
 );

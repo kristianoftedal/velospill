@@ -42,8 +42,8 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 
 ### Bug Fixes
 
-- [ ] **BUG-01**: Unassigned riders filter on /riders page returns correct results instead of empty list
-- [ ] **BUG-02**: Rider selection page for races has working SQL queries that don't fail
+- [x] **BUG-01**: Unassigned riders filter on /riders page returns correct results instead of empty list
+- [x] **BUG-02**: Rider selection page for races has working SQL queries that don't fail
 
 ## Future Requirements
 
@@ -68,8 +68,8 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 10 | Pending |
-| BUG-02 | Phase 10 | Pending |
+| BUG-01 | Phase 10 | Complete |
+| BUG-02 | Phase 10 | Complete |
 | SCORE-01 | Phase 11 | Pending |
 | SCORE-02 | Phase 11 | Pending |
 | SCORE-03 | Phase 11 | Pending |

@@ -68,38 +68,38 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SCORE-01 | — | Pending |
-| SCORE-02 | — | Pending |
-| SCORE-03 | — | Pending |
-| SCORE-04 | — | Pending |
-| SCORE-05 | — | Pending |
-| SCORE-06 | — | Pending |
-| SCORE-07 | — | Pending |
-| SCORE-08 | — | Pending |
-| SCORE-09 | — | Pending |
-| SCORE-10 | — | Pending |
-| ORDER-01 | — | Pending |
-| ORDER-02 | — | Pending |
-| ORDER-03 | — | Pending |
-| ORDER-04 | — | Pending |
-| ORDER-05 | — | Pending |
-| ORDER-06 | — | Pending |
-| ORDER-07 | — | Pending |
-| ORDER-08 | — | Pending |
-| RESULT-01 | — | Pending |
-| RESULT-02 | — | Pending |
-| RESULT-03 | — | Pending |
-| RESULT-04 | — | Pending |
-| RESULT-05 | — | Pending |
-| RESULT-06 | — | Pending |
-| BUG-01 | — | Pending |
-| BUG-02 | — | Pending |
+| BUG-01 | Phase 10 | Pending |
+| BUG-02 | Phase 10 | Pending |
+| SCORE-01 | Phase 11 | Pending |
+| SCORE-02 | Phase 11 | Pending |
+| SCORE-03 | Phase 11 | Pending |
+| SCORE-04 | Phase 11 | Pending |
+| SCORE-05 | Phase 11 | Pending |
+| SCORE-06 | Phase 11 | Pending |
+| SCORE-07 | Phase 11 | Pending |
+| SCORE-08 | Phase 11 | Pending |
+| SCORE-09 | Phase 11 | Pending |
+| SCORE-10 | Phase 11 | Pending |
+| RESULT-01 | Phase 12 | Pending |
+| RESULT-02 | Phase 12 | Pending |
+| RESULT-03 | Phase 12 | Pending |
+| RESULT-04 | Phase 12 | Pending |
+| RESULT-05 | Phase 12 | Pending |
+| RESULT-06 | Phase 12 | Pending |
+| ORDER-01 | Phase 13 | Pending |
+| ORDER-02 | Phase 13 | Pending |
+| ORDER-03 | Phase 13 | Pending |
+| ORDER-04 | Phase 13 | Pending |
+| ORDER-05 | Phase 13 | Pending |
+| ORDER-08 | Phase 13 | Pending |
+| ORDER-06 | Phase 14 | Pending |
+| ORDER-07 | Phase 15 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 (pending roadmap creation)
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after initial definition*
+*Last updated: 2026-02-20 after roadmap creation*

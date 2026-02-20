@@ -289,6 +289,13 @@ export async function makePick(leagueId: number, riderId: number) {
         ...(completedAt ? { completedAt } : {}),
       })
       .where(eq(draftSessions.leagueId, leagueId));
+
+    if (isComplete) {
+      await tx
+        .update(leagues)
+        .set({ status: "active", updatedAt: new Date() })
+        .where(and(eq(leagues.id, leagueId), eq(leagues.status, "drafting")));
+    }
   });
 
   // After transaction: trigger Pusher events first (so clients update immediately)
@@ -402,17 +409,26 @@ export async function skipPick(leagueId: number) {
       : draftSession.status;
   const completedAt = isComplete ? new Date() : null;
 
-  await db
-    .update(draftSessions)
-    .set({
-      currentPickIndex: nextPickIndex,
-      currentTeamId: nextTeamId,
-      currentGender: nextGender,
-      timerExpiresAt: nextTimerExpiresAt,
-      status: nextStatus as "men" | "women" | "complete" | "pending" | "paused",
-      ...(completedAt ? { completedAt } : {}),
-    })
-    .where(eq(draftSessions.leagueId, leagueId));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(draftSessions)
+      .set({
+        currentPickIndex: nextPickIndex,
+        currentTeamId: nextTeamId,
+        currentGender: nextGender,
+        timerExpiresAt: nextTimerExpiresAt,
+        status: nextStatus as "men" | "women" | "complete" | "pending" | "paused",
+        ...(completedAt ? { completedAt } : {}),
+      })
+      .where(eq(draftSessions.leagueId, leagueId));
+
+    if (isComplete) {
+      await tx
+        .update(leagues)
+        .set({ status: "active", updatedAt: new Date() })
+        .where(and(eq(leagues.id, leagueId), eq(leagues.status, "drafting")));
+    }
+  });
 
   // Trigger Pusher event
   try {

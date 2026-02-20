@@ -1,5 +1,5 @@
 import { draftPicks, draftSessions } from "@/db/schema/draft";
-import { teams } from "@/db/schema/leagues";
+import { teams, leagues } from "@/db/schema/leagues";
 import { db } from "@/lib/db";
 import {
   computeNextDraftState,
@@ -7,7 +7,7 @@ import {
 } from "@/lib/draft-queries";
 import { pusherServer } from "@/lib/pusher-server";
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, and } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -176,6 +176,13 @@ async function handler(request: NextRequest) {
         ...(completedAt ? { completedAt } : {}),
       })
       .where(eq(draftSessions.leagueId, leagueId));
+
+    if (isComplete) {
+      await tx
+        .update(leagues)
+        .set({ status: "active", updatedAt: new Date() })
+        .where(and(eq(leagues.id, leagueId), eq(leagues.status, "drafting")));
+    }
   });
 
   // After transaction: trigger Pusher events first (so clients update immediately)

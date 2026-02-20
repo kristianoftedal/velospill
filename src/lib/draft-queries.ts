@@ -47,7 +47,7 @@ export async function getAvailableRiders(
     .select()
     .from(riders)
     .where(and(...conditions))
-    .orderBy(asc(riders.name));
+    .orderBy(asc(riders.draftRankings), asc(riders.name));
 
   return result;
 }

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Trophy } from "lucide-react";
+import { Trophy, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 type RecapRider = {
@@ -37,9 +37,10 @@ interface DraftRecapProps {
   teams: RecapTeam[];
   picks: EnrichedPick[];
   leagueId: number;
+  isOwner: boolean;
 }
 
-export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
+export function DraftRecap({ teams, picks, leagueId, isOwner }: DraftRecapProps) {
   // Group picks by teamId
   const picksByTeam = new Map<number, EnrichedPick[]>();
   for (const team of teams) {
@@ -197,13 +198,19 @@ export function DraftRecap({ teams, picks, leagueId }: DraftRecapProps) {
         </div>
 
         {/* Footer */}
-        <div className="text-center">
+        <div className="text-center space-y-4">
           <Link
             href={`/leagues/${leagueId}`}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
           >
-            Back to League
+            Go to League
+            <ArrowRight className="h-4 w-4" />
           </Link>
+          {isOwner && (
+            <p className="text-sm text-gray-500">
+              The season is now active. Visit your league to manage race lineups and view standings.
+            </p>
+          )}
         </div>
       </div>
     </div>

@@ -530,7 +530,7 @@ export function DraftRoom({
     }));
 
     return (
-      <DraftRecap teams={recapTeams} picks={recapPicks} leagueId={leagueId} />
+      <DraftRecap teams={recapTeams} picks={recapPicks} leagueId={leagueId} isOwner={isOwner} />
     );
   }
 

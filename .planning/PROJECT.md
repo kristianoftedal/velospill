@@ -41,9 +41,29 @@ The live competitive experience of managing a fantasy cycling team through a rea
 
 ## Current State
 
-- **Version:** v1.0 (Milestone 1: Core Platform)
-- **Phases:** 8/8 complete
-- **Last updated:** 2026-02-16
+- **Version:** v1.0 shipped (2026-02-20)
+- **Phases:** 9 phases, 26 plans executed
+- **Codebase:** 126 TypeScript files, 20,924 LOC
+- **Known tech debt:** 11 items across 4 phases (see milestones/v1.0-MILESTONE-AUDIT.md)
+
+### What Shipped
+
+Complete cycling fantasy league platform:
+- User auth with admin RBAC
+- Admin race management and result entry with scoring preview and audit trails
+- Private leagues with invite links, team registration, lifecycle state machine
+- Real-time snake draft (Pusher presence channels, QStash auto-pick, auto-activation)
+- Scoring engine with league standings, per-race breakdowns, ownership-at-race-time
+- Waiver wire transfers with auto-generated windows, priority resolution, admin approval
+- 12 strategic order types with counter mechanics and full scoring integration
+- Per-league race calendar with downstream scoping across all features
+
+### Known Limitations
+
+- Result entry only supports finish/stage_finish categories (no sprint, mountain, jersey, TTT)
+- Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (no auto-calculation)
+- Shimanobil counter uses simplified team matching (documented TODO)
+- `npm run build` fails due to drizzle-kit 0.18.x type error in drizzle.config.ts (project source compiles cleanly)
 
 ---
-*Last updated: 2026-02-16 after v1.0 milestone*
+*Last updated: 2026-02-20 after v1.0 milestone shipped*

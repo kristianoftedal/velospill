@@ -41,10 +41,10 @@ Full details: milestones/v1.0-ROADMAP.md
 2. Admin can select riders for races without SQL query failures
 3. Rider selection page queries execute successfully for all race types
 
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 10-01: TBD during phase planning
+- [ ] 10-01-PLAN.md — Fix unassigned riders filter and admin results SQL queries
 
 ---
 
@@ -177,7 +177,7 @@ Plans:
 | 7. Strategic Orders | v1.0 | 5/5 | Complete | 2026-02-15 |
 | 8. UI Polish & Races | v1.0 | 3/3 | Complete | 2026-02-16 |
 | 9. Scoping & UX Fixes | v1.0 | 1/1 | Complete | 2026-02-20 |
-| 10. Bug Fixes | v1.1 | 0/TBD | Not started | — |
+| 10. Bug Fixes | v1.1 | 0/1 | Not started | — |
 | 11. Scoring Config | v1.1 | 0/TBD | Not started | — |
 | 12. Result Entry | v1.1 | 0/TBD | Not started | — |
 | 13. Order Config | v1.1 | 0/TBD | Not started | — |

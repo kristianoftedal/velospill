@@ -11,16 +11,16 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 10 of 15 (Bug Fixes)
-Plan: 0 of TBD
-Status: Ready to plan
-Last activity: 2026-02-20 — v1.1 roadmap created, milestone started
+Plan: 1 of TBD
+Status: In progress
+Last activity: 2026-02-20 — Completed plan 10-01 (rider workflow bug fixes)
 
 Progress: [████████████████░░░░] 60% (9 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26 (v1.0)
+- Total plans completed: 27 (26 v1.0 + 1 v1.1)
 - Average duration: Not tracked (v1.0 pre-metrics)
 - Total execution time: 11 days (v1.0 milestone)
 
@@ -37,11 +37,15 @@ Progress: [████████████████░░░░] 60% (9 
 | 8. UI Polish & Races | 3 | Complete |
 | 9. Scoping & UX Fixes | 1 | Complete |
 
+**By Phase (v1.1):**
+
+| Phase | Plan | Duration | Files | Commits | Completed |
+|-------|------|----------|-------|---------|-----------|
+| 10. Bug Fixes | 10-01 | 114s | 3 | 2 | 2026-02-20 |
+
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: Just started
-
-*Metrics will update after each v1.1 plan completion*
+- v1.1 milestone: In progress (1 plan completed)
 
 ## Accumulated Context
 
@@ -57,6 +61,12 @@ Recent decisions from PROJECT.md:
 - Phase 6: Waiver wire transfers with ownership-at-race-time scoring
 - Phase 7: 12 strategic order types with counter mechanics
 - Phase 8: league_races join table for per-league race scoping
+
+**v1.1 decisions:**
+
+- Phase 10 (10-01): Use literal SQL table names instead of Drizzle interpolation for EXISTS subqueries to avoid resolution failures
+- Phase 10 (10-01): Use Set for O(1) drafted rider lookup instead of array includes for performance
+- Phase 10 (10-01): Query all leagues' draft picks globally (not per-league) for unassigned filter simplicity
 
 ### Pending Todos
 
@@ -79,5 +89,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: v1.1 roadmap created, ready to plan Phase 10
+Stopped at: Completed plan 10-01 (rider workflow bug fixes)
 Resume file: None

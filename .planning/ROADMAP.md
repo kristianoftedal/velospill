@@ -44,7 +44,7 @@ Full details: milestones/v1.0-ROADMAP.md
 **Plans:** 1 plan
 
 Plans:
-- [ ] 10-01-PLAN.md — Fix unassigned riders filter and admin results SQL queries
+- [x] 10-01-PLAN.md — Fix unassigned riders filter and admin results SQL queries (completed 2026-02-20, 114s, 2 commits)
 
 ---
 

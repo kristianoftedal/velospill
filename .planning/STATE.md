@@ -3,8 +3,8 @@
 ## Current Position
 
 - **Phase:** 09-league-scoping-ux-fixes
-- **Current Plan:** 1/1 complete
-- **Status:** Complete
+- **Current Plan:** Not started
+- **Status:** Milestone complete
 - **Last session:** 2026-02-20
 - **Stopped at:** Completed 09-01-PLAN.md
 

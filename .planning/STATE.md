@@ -2,17 +2,18 @@
 
 ## Current Position
 
-- **Milestone:** v1.0 shipped (2026-02-20)
-- **Status:** Between milestones
-- **Last session:** 2026-02-20
-- **Next action:** `/gsd:new-milestone` to start next milestone
+- **Milestone:** v1.1 Scoring & Rules Update
+- **Phase:** Not started (defining requirements)
+- **Plan:** —
+- **Status:** Defining requirements
+- **Last activity:** 2026-02-20 — Milestone v1.1 started
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season
-**Current focus:** Planning next milestone
+**Current focus:** v1.1 — scoring rules, order mechanics, full result entry
 
 ## Blockers
 

@@ -39,10 +39,22 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 8 | 12 strategic order types with counter mechanics | Core game differentiator — boost/sabotage with risk/reward | 07 | Good |
 | 9 | league_races join table for per-league race scoping | All features scope to assigned races, not raw season | 08 | Good |
 
+## Current Milestone: v1.1 Scoring & Rules Update
+
+**Goal:** Update scoring rules, order mechanics, and result entry to match the 2026 season ruleset.
+
+**Target features:**
+- Updated scoring config (increased one-day points, TdF-specific stage/KOM/end-of-tour scoring)
+- Updated order mechanics (adjusted multipliers, changed counter mechanic to return-order)
+- New Uno-X order (bonus rider per GT from unowned pool, reverse standings draft)
+- New Kaptein for women's WC
+- Full result entry supporting all scoring categories (sprints, mountains, jerseys, TTT, end-of-tour)
+- Tech debt: fix build error, cleanup
+
 ## Current State
 
-- **Version:** v1.0 shipped (2026-02-20)
-- **Phases:** 9 phases, 26 plans executed
+- **Version:** v1.0 shipped (2026-02-20), v1.1 in progress
+- **Phases:** 9 phases, 26 plans executed (v1.0)
 - **Codebase:** 126 TypeScript files, 20,924 LOC
 - **Known tech debt:** 11 items across 4 phases (see milestones/v1.0-MILESTONE-AUDIT.md)
 

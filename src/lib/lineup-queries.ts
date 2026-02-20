@@ -4,7 +4,7 @@ import { races } from "@/db/schema/races"
 import { riders } from "@/db/schema/riders"
 import { rosterLimits } from "@/db/schema/config"
 import { draftPicks } from "@/db/schema/draft"
-import { teams } from "@/db/schema/leagues"
+import { teams, leagueRaces } from "@/db/schema/leagues"
 import { eq, and, gt, isNull, sql, count } from "drizzle-orm"
 
 /**
@@ -78,6 +78,10 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
       lineupCount: sql<number>`COALESCE("lineup_counts"."lineupCount", 0)`,
     })
     .from(races)
+    .innerJoin(leagueRaces, and(
+      eq(leagueRaces.raceId, races.id),
+      eq(leagueRaces.leagueId, leagueId)
+    ))
     .leftJoin(rosterLimits, eq(rosterLimits.raceType, races.raceType))
     .leftJoin(lineupCountSubquery, eq(lineupCountSubquery.raceId, races.id))
     .where(

@@ -1,7 +1,7 @@
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900 p-4">
@@ -10,15 +10,15 @@ export default function AuthLayout({
           <span className="text-2xl font-bold text-white">⚡</span>
         </div>
         <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">Velospill</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
+            Velospill
+          </h1>
           <p className="text-base text-muted-foreground">
-            Professional fantasy cycling for competitive enthusiasts
+            Fantasy cycling for competitive enthusiasts
           </p>
         </div>
       </div>
-      <div className="w-full max-w-md">
-        {children}
-      </div>
+      <div className="w-full max-w-md">{children}</div>
     </div>
-  )
+  );
 }

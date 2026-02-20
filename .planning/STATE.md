@@ -2,11 +2,11 @@
 
 ## Current Position
 
-- **Phase:** 08-ui-polish-let-admins-pick-races-from-global-list-to-leagues-they-admin
-- **Current Plan:** 3/3 complete
-- **Status:** Complete (verified, human-approved)
-- **Last session:** 2026-02-16
-- **Stopped at:** Phase 8 verified and approved
+- **Phase:** 09-league-scoping-ux-fixes
+- **Current Plan:** 1/1 complete
+- **Status:** Complete
+- **Last session:** 2026-02-20
+- **Stopped at:** Completed 09-01-PLAN.md
 
 ## Progress
 
@@ -15,10 +15,11 @@ Phase 05: [########] 2/2 plans complete ✓
 Phase 06: [########] 4/4 plans complete ✓
 Phase 07: [##########] 5/5 plans complete ✓
 Phase 08: [########] 3/3 plans complete ✓
+Phase 09: [########] 1/1 plans complete ✓
 ```
 
-Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05, 08-01, 08-02, 08-03
-Plans remaining: None — Milestone 1 complete
+Plans complete: 05-01, 05-02, 06-01, 06-02, 06-03, 06-04, 07-01, 07-02, 07-03, 07-04, 07-05, 08-01, 08-02, 08-03, 09-01
+Plans remaining: None
 
 ## Decisions
 
@@ -85,6 +86,9 @@ Plans remaining: None — Milestone 1 complete
 57. **08-03:** OR-based subquery pattern handles both parent races and stages: (id IN (SELECT raceId ...) OR parentRaceId IN (...))
 58. **08-03:** generateTransferWindows uses INNER JOIN on leagueRaces (not subquery) — cleaner for parent-only fetch
 59. **08-03:** getRaceScoreBreakdown intentionally not modified — already scoped by specific raceId from league-scoped caller
+60. **09-01:** nanoid downgraded from v5 (ESM-only) to v3.3.11 (CJS-compatible) to avoid build issues
+61. **09-01:** League auto-transition uses eq(leagues.status, 'drafting') WHERE guard for idempotency
+62. **09-01:** DraftRecap message says 'season is now active' (not 'start the season') because auto-transition happens before recap renders
 
 ## Performance Metrics
 
@@ -108,6 +112,7 @@ Plans remaining: None — Milestone 1 complete
 | 08    | 01   | ~2min    | 2     | 1     |
 | 08    | 02   | ~2min    | 2     | 4     |
 | 08    | 03   | ~2min    | 2     | 3     |
+| 09    | 01   | ~3min    | 3     | 6     |
 
 ## Accumulated Context
 
@@ -122,7 +127,7 @@ None
 
 ## Notes
 
-- nanoid is available as a transitive dependency (not in package.json directly)
+- nanoid v3.3.11 is a direct dependency in package.json (downgraded from v5 for CJS compatibility)
 - Database migrations are run manually during each plan execution via direct SQL (drizzle-kit version mismatch)
 - Zod v4.3.6 and date-fns v4.1.0 are installed
 - Pusher and QStash env vars required before testing draft features (see 04-01-SUMMARY.md User Setup section)
@@ -175,3 +180,6 @@ None
 - getLeagueStandings, getTeamRiderScores: league_races subquery in LEFT JOIN condition — zero-point teams still visible
 - getLeagueRacesWithScores: league_races subquery in WHERE clause
 - getRaceScoreBreakdown unchanged: scoped by specific raceId passed from league-scoped caller
+- getUpcomingRacesForLineup (lineup race picker) now scoped to league-assigned races via INNER JOIN on leagueRaces
+- Draft completion auto-transitions league from "drafting" to "active" in makePick, skipPick, and auto-pick (no manual activation needed)
+- DraftRecap shows green "Go to League" CTA button with ArrowRight icon; league owners see "The season is now active" message

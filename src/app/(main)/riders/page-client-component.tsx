@@ -38,17 +38,22 @@ interface RiderData {
   raceCount: number
 }
 
-export default function RidersPage({ 
+export default function RidersPage({
   riders,
-  userTeamRiderIds = []
-}: { 
+  userTeamRiderIds = [],
+  draftedRiderIds = []
+}: {
   riders: RiderData[]
   userTeamRiderIds?: number[]
+  draftedRiderIds?: number[]
 }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedGenders, setSelectedGenders] = useState<("M" | "F")[]>([])
   const [showUnteamedOnly, setShowUnteamedOnly] = useState(false)
   const [sortBy, setSortBy] = useState<"points" | "name" | "avgPosition">("points")
+
+  // Create a Set for O(1) lookup of drafted riders
+  const draftedSet = useMemo(() => new Set(draftedRiderIds), [draftedRiderIds])
 
   // Filter and sort riders based on search and filters
   const filteredRiders = useMemo(() => {
@@ -60,7 +65,7 @@ export default function RidersPage({
 
       const matchesGender = selectedGenders.length === 0 || selectedGenders.includes(rider.gender)
 
-      const matchesUnteamed = !showUnteamedOnly || !rider.team || rider.team.length === 0
+      const matchesUnteamed = !showUnteamedOnly || !draftedSet.has(rider.id)
 
       return matchesSearch && matchesGender && matchesUnteamed
     })

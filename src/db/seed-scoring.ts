@@ -21,13 +21,13 @@ async function seedScoring() {
   // ============================================================================
 
   const scoringEntries = [
-    // ONE-DAY RACE SCORING
+    // ONE-DAY RACE SCORING (2026 updates: 20 positions high-pri, 15 positions low-pri)
     {
       raceType: "high_priority_one_day",
       category: "finish",
       rules: {
-        "1": 40, "2": 30, "3": 25, "4": 20, "5": 18,
-        "6": 16, "7": 14, "8": 13, "9": 12, "10": 11,
+        "1": 50, "2": 40, "3": 35, "4": 30, "5": 25,
+        "6": 20, "7": 18, "8": 16, "9": 14, "10": 12,
         "11": 10, "12": 9, "13": 8, "14": 7, "15": 6,
         "16": 5, "17": 4, "18": 3, "19": 2, "20": 1
       },
@@ -38,15 +38,15 @@ async function seedScoring() {
       raceType: "low_priority_one_day",
       category: "finish",
       rules: {
-        "1": 25, "2": 20, "3": 16, "4": 12, "5": 11,
-        "6": 10, "7": 9, "8": 8, "9": 7, "10": 6,
+        "1": 30, "2": 25, "3": 20, "4": 16, "5": 14,
+        "6": 12, "7": 10, "8": 8, "9": 7, "10": 6,
         "11": 5, "12": 4, "13": 3, "14": 2, "15": 1
       },
       description: "Low priority one-day race finish scoring",
       validFrom,
     },
 
-    // GRAND TOUR STAGE SCORING
+    // GRAND TOUR STAGE SCORING (2026: Giro/Vuelta keep 10 positions, TdF gets 12 positions)
     {
       raceType: "grand_tour",
       category: "stage_finish",
@@ -58,35 +58,46 @@ async function seedScoring() {
       validFrom,
     },
     {
-      raceType: "grand_tour",
-      category: "tdf_stage_bonus",
-      rules: { "1": 2, "2": 1, "3": 1 },
-      description: "Tour de France additional stage bonus",
+      raceType: "grand_tour_tdf",
+      category: "stage_finish",
+      rules: {
+        "1": 15, "2": 12, "3": 10, "4": 9, "5": 8,
+        "6": 7, "7": 6, "8": 5, "9": 4, "10": 3,
+        "11": 2, "12": 1
+      },
+      description: "Tour de France stage finish",
       validFrom,
     },
 
-    // GRAND TOUR SPRINT SCORING
+    // GRAND TOUR SPRINT SCORING (2026: TdF 5 positions, Giro 2 sprints with 3 positions, Vuelta single sprint)
     {
       raceType: "grand_tour",
       category: "sprint",
-      rules: { "1": 2, "2": 2, "3": 1, "4": 1, "5": 1 },
-      description: "Single sprint classification",
+      rules: { "1": 2, "2": 1, "3": 1 },
+      description: "Vuelta single sprint classification",
       validFrom,
     },
     {
       raceType: "grand_tour",
-      category: "sprint_double",
+      category: "sprint_giro",
       rules: { "1": 2, "2": 1, "3": 1 },
-      description: "When 2 sprint classifications on stage",
+      description: "Giro sprint — when 2 sprints on stage, both score with these points",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "sprint",
+      rules: { "1": 3, "2": 2, "3": 2, "4": 1, "5": 1 },
+      description: "Tour de France sprint classification",
       validFrom,
     },
 
-    // GRAND TOUR MOUNTAIN SCORING
+    // GRAND TOUR MOUNTAIN SCORING (2026: Giro/Vuelta keep existing, TdF gets distinct categories)
     {
       raceType: "grand_tour",
       category: "mountain_cc_hcx2_af",
       rules: { "1": 3, "2": 2, "3": 2, "4": 1, "5": 1 },
-      description: "CC / HCx2 / Arrivee en Altitude",
+      description: "CC / HCx2 / Arrivee en Altitude (Giro/Vuelta)",
       validFrom,
     },
     {
@@ -117,34 +128,97 @@ async function seedScoring() {
       description: "3rd/4th category (4cat in Giro)",
       validFrom,
     },
+    {
+      raceType: "grand_tour_tdf",
+      category: "mountain_cc_hcx2_af",
+      rules: { "1": 4, "2": 3, "3": 2, "4": 2, "5": 1, "6": 1 },
+      description: "TdF CC / HCx2 / Arrivee en Altitude",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "mountain_hc",
+      rules: { "1": 4, "2": 3, "3": 2, "4": 1 },
+      description: "TdF HC climb",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "mountain_1cat",
+      rules: { "1": 3, "2": 2, "3": 1 },
+      description: "TdF 1st category",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "mountain_2cat",
+      rules: { "1": 2, "2": 1 },
+      description: "TdF 2nd category",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "mountain_3_4cat",
+      rules: { "1": 1 },
+      description: "TdF 3rd/4th category",
+      validFrom,
+    },
 
     // GRAND TOUR JERSEY BONUSES (per stage, not on final stage)
     {
       raceType: "grand_tour",
       category: "jersey_gc",
       rules: { "1": 2, "2": 1, "3": 1 },
-      description: "GC jersey per stage",
+      description: "GC jersey per stage (Giro/Vuelta)",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "jersey_points",
       rules: { "1": 1 },
-      description: "Points jersey per stage",
+      description: "Points jersey per stage (Giro/Vuelta)",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "jersey_kom",
       rules: { "1": 1 },
-      description: "KOM jersey per stage",
+      description: "KOM jersey per stage (Giro/Vuelta)",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "jersey_combative",
       rules: { "1": 2 },
-      description: "Combative jersey per stage",
+      description: "Combative jersey per stage (2026: 2 points)",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "jersey_gc",
+      rules: { "1": 2, "2": 1, "3": 1 },
+      description: "TdF GC jersey per stage",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "jersey_points",
+      rules: { "1": 1 },
+      description: "TdF Points jersey per stage",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "jersey_kom",
+      rules: { "1": 1 },
+      description: "TdF KOM jersey per stage",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "jersey_combative",
+      rules: { "1": 2 },
+      description: "TdF Combative jersey per stage (2026: 2 points)",
       validFrom,
     },
 
@@ -153,70 +227,130 @@ async function seedScoring() {
       raceType: "grand_tour",
       category: "ttt",
       rules: { "1": 6, "2": 4, "3": 2 },
-      description: "Team Time Trial",
+      description: "Team Time Trial (Giro/Vuelta)",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "ttt",
+      rules: { "1": 6, "2": 4, "3": 2 },
+      description: "TdF Team Time Trial",
       validFrom,
     },
 
-    // GRAND TOUR END RESULTS
+    // GRAND TOUR END RESULTS (2026: Giro/Vuelta 12 positions, TdF 15 positions)
     {
       raceType: "grand_tour",
       category: "end_gc",
       rules: {
         "1": 25, "2": 20, "3": 16, "4": 14, "5": 12,
-        "6": 10, "7": 9, "8": 8, "9": 7, "10": 6,
-        "11": 5, "12": 4, "13": 3, "14": 2, "15": 1
+        "6": 10, "7": 8, "8": 6, "9": 4, "10": 3,
+        "11": 2, "12": 1
       },
-      description: "GC final classification",
+      description: "Giro/Vuelta GC final classification",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "end_points",
       rules: { "1": 12, "2": 8, "3": 6, "4": 4, "5": 2 },
-      description: "Points classification final",
+      description: "Giro/Vuelta Points classification final",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "end_kom",
       rules: { "1": 12, "2": 8, "3": 6, "4": 4, "5": 2 },
-      description: "KOM classification final",
+      description: "Giro/Vuelta KOM classification final",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "end_youth",
-      rules: { "1": 6, "2": 4, "3": 2 },
-      description: "Youth classification final",
+      rules: { "1": 5, "2": 3, "3": 1 },
+      description: "Giro/Vuelta Youth classification final",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "end_combative",
       rules: { "1": 5 },
-      description: "Combative classification final",
+      description: "Giro/Vuelta Combative classification final",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "end_team",
-      rules: { "1": 6, "2": 4, "3": 2 },
-      description: "Team classification final",
+      rules: { "1": 5, "2": 3, "3": 1 },
+      description: "Giro/Vuelta Team classification final",
       validFrom,
     },
     {
       raceType: "grand_tour",
       category: "end_other",
       rules: { "1": 3 },
-      description: "Giro: Innlagt Spurt, Bruddkonkurransen, Intergiro. TdF: Best team mate.",
+      description: "Giro: Innlagt Spurt, Bruddkonkurransen, Intergiro",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_gc",
+      rules: {
+        "1": 30, "2": 25, "3": 20, "4": 16, "5": 14,
+        "6": 12, "7": 10, "8": 8, "9": 7, "10": 6,
+        "11": 5, "12": 4, "13": 3, "14": 2, "15": 1
+      },
+      description: "TdF GC final classification",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_points",
+      rules: { "1": 15, "2": 10, "3": 8, "4": 6, "5": 4, "6": 2 },
+      description: "TdF Points classification final",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_kom",
+      rules: { "1": 15, "2": 10, "3": 8, "4": 6, "5": 4, "6": 2 },
+      description: "TdF KOM classification final",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_youth",
+      rules: { "1": 6, "2": 4, "3": 2 },
+      description: "TdF Youth classification final",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_combative",
+      rules: { "1": 5 },
+      description: "TdF Combative classification final",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_team",
+      rules: { "1": 6, "2": 4, "3": 2 },
+      description: "TdF Team classification final",
+      validFrom,
+    },
+    {
+      raceType: "grand_tour_tdf",
+      category: "end_other",
+      rules: { "1": 3 },
+      description: "TdF Best team mate / other special classifications",
       validFrom,
     },
 
-    // MINI TOUR STAGE SCORING
+    // MINI TOUR STAGE SCORING (2026: 2nd place now 5 points, end_gc extended to 8 positions, mountain_highest 2/1)
     {
       raceType: "mini_tour",
       category: "stage_finish",
-      rules: { "1": 6, "2": 4, "3": 3, "4": 2, "5": 1 },
+      rules: { "1": 6, "2": 5, "3": 3, "4": 2, "5": 1 },
       description: "Mini tour stage finish",
       validFrom,
     },
@@ -230,8 +364,8 @@ async function seedScoring() {
     {
       raceType: "mini_tour",
       category: "mountain_highest",
-      rules: { "1": 1, "2": 1 },
-      description: "Highest category mountain",
+      rules: { "1": 2, "2": 1 },
+      description: "Highest category mountain (2026: 2/1 points)",
       validFrom,
     },
     {
@@ -277,11 +411,11 @@ async function seedScoring() {
       validFrom,
     },
 
-    // MINI TOUR END RESULTS
+    // MINI TOUR END RESULTS (2026: end_gc extended to 8 positions)
     {
       raceType: "mini_tour",
       category: "end_gc",
-      rules: { "1": 8, "2": 6, "3": 4, "4": 3, "5": 2, "6": 1 },
+      rules: { "1": 8, "2": 6, "3": 4, "4": 3, "5": 2, "6": 2, "7": 1, "8": 1 },
       description: "GC final classification",
       validFrom,
     },
@@ -449,13 +583,13 @@ async function seedScoring() {
       validFrom,
     },
 
-    // WOMEN'S ONE-DAY (same as high priority one-day)
+    // WOMEN'S ONE-DAY (2026: matches updated high priority one-day scoring)
     {
       raceType: "womens_one_day",
       category: "finish",
       rules: {
-        "1": 40, "2": 30, "3": 25, "4": 20, "5": 18,
-        "6": 16, "7": 14, "8": 13, "9": 12, "10": 11,
+        "1": 50, "2": 40, "3": 35, "4": 30, "5": 25,
+        "6": 20, "7": 18, "8": 16, "9": 14, "10": 12,
         "11": 10, "12": 9, "13": 8, "14": 7, "15": 6,
         "16": 5, "17": 4, "18": 3, "19": 2, "20": 1
       },
@@ -463,13 +597,13 @@ async function seedScoring() {
       validFrom,
     },
 
-    // WORLD CHAMPIONSHIP (same as high priority one-day)
+    // WORLD CHAMPIONSHIP (2026: matches updated high priority one-day scoring)
     {
       raceType: "world_championship",
       category: "finish",
       rules: {
-        "1": 40, "2": 30, "3": 25, "4": 20, "5": 18,
-        "6": 16, "7": 14, "8": 13, "9": 12, "10": 11,
+        "1": 50, "2": 40, "3": 35, "4": 30, "5": 25,
+        "6": 20, "7": 18, "8": 16, "9": 14, "10": 12,
         "11": 10, "12": 9, "13": 8, "14": 7, "15": 6,
         "16": 5, "17": 4, "18": 3, "19": 2, "20": 1
       },

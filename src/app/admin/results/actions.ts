@@ -174,6 +174,14 @@ export async function submitRaceResults(formData: ResultInput) {
       resolvedCategory = "finish"
     }
 
+    // Validate end-of-tour categories are only entered on parent races
+    if (resolvedCategory.startsWith("end_") && race.parentRaceId) {
+      return {
+        success: false,
+        error: { _form: ["End-of-tour classifications can only be entered on parent races, not stages."] },
+      }
+    }
+
     // Determine expected gender based on race type
     const expectedGender = race.raceType.startsWith("womens_") ? "F" : "M"
 

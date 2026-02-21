@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ResultEntryForm, categoryDisplayNames } from "@/components/admin/result-entry-form"
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
-import { getResultsForRace, getAuditTrail } from "./actions"
+import { getResultsForRace, getAuditTrail, getTeamNames } from "./actions"
 import { PencilIcon, ChevronLeftIcon } from "lucide-react"
 import {
   Table,
@@ -98,6 +98,7 @@ export function ResultsClient({ races, riders }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [existingResults, setExistingResults] = useState<any[] | null>(null)
   const [auditTrail, setAuditTrail] = useState<any[] | null>(null)
+  const [teamNames, setTeamNames] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
   const [selectedResult, setSelectedResult] = useState<any | null>(null)
@@ -121,6 +122,11 @@ export function ResultsClient({ races, riders }: Props) {
       setExistingResults(null)
       setAuditTrail(null)
     }
+
+    // Load team names for TTT
+    const expectedGender = (race?.raceType.startsWith("womens_") ? "F" : "M") as "M" | "F"
+    const teams = await getTeamNames(expectedGender)
+    setTeamNames(teams)
 
     setLoading(false)
   }
@@ -343,6 +349,7 @@ export function ResultsClient({ races, riders }: Props) {
               riders={riders}
               raceType={selectedRace?.raceType || ""}
               category={selectedCategory}
+              teams={teamNames}
               onSuccess={handleSuccess}
             />
           </div>

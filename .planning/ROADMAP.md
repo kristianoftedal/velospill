@@ -65,10 +65,11 @@ Plans:
 6. Mini tours use updated stage finish (5 for 2nd), KOM (2/1), and end-of-tour (8 GC positions) points
 7. GT per-stage combative jersey awards 2 points instead of 1
 
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 11-01: TBD during phase planning
+- [ ] 11-01-PLAN.md -- Update seed data and create migration script for 2026 scoring config values
+- [ ] 11-02-PLAN.md -- Update scoring preview logic for TdF-specific config resolution
 
 ---
 
@@ -178,7 +179,7 @@ Plans:
 | 8. UI Polish & Races | v1.0 | 3/3 | Complete | 2026-02-16 |
 | 9. Scoping & UX Fixes | v1.0 | 1/1 | Complete | 2026-02-20 |
 | 10. Bug Fixes | v1.1 | Complete    | 2026-02-20 | — |
-| 11. Scoring Config | v1.1 | 0/TBD | Not started | — |
+| 11. Scoring Config | v1.1 | 0/2 | Planned | — |
 | 12. Result Entry | v1.1 | 0/TBD | Not started | — |
 | 13. Order Config | v1.1 | 0/TBD | Not started | — |
 | 14. Counter Mechanic | v1.1 | 0/TBD | Not started | — |

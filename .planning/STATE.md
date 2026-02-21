@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 12 of 15 (Result Entry Expansion)
-Plan: 1 of 2
-Status: In Progress
-Last activity: 2026-02-21 — Completed plan 12-01 (category support backend)
+Plan: 2 of 2
+Status: Complete
+Last activity: 2026-02-21 — Completed plan 12-02 (category UI and multi-category workflow)
 
-Progress: [████████████████░░░░] 73% (11 of 15 phases complete)
+Progress: [████████████████░░░░] 80% (12 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30 (26 v1.0 + 4 v1.1)
-- Average duration: 152s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 606s (v1.1)
+- Total plans completed: 31 (26 v1.0 + 5 v1.1)
+- Average duration: 166s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 829s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -45,10 +45,11 @@ Progress: [████████████████░░░░] 73% (11
 | 11. Scoring Config Update | 11-01 | 212s | 2 | 2 | 2026-02-21 |
 | 11. Scoring Config Update | 11-02 | 110s | 2 | 2 | 2026-02-21 |
 | 12. Result Entry Expansion | 12-01 | 170s | 3 | 2 | 2026-02-21 |
+| 12. Result Entry Expansion | 12-02 | 223s | 3 | 2 | 2026-02-21 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (4 plans completed)
+- v1.1 milestone: In progress (5 plans completed, phase 12 complete)
 
 ## Accumulated Context
 
@@ -80,6 +81,11 @@ Recent decisions from PROJECT.md:
 - Phase 12 (12-01): Unique constraints scoped by category (raceId, riderId, category) and (raceId, position, category)
 - Phase 12 (12-01): Optional category parameter in previewScoringImpact preserves auto-detection when not provided
 - Phase 12 (12-01): Stage results without explicit category default to 'stage_finish' as before
+- Phase 12 (12-02): Category picker shows available categories based on race type and stage status
+- Phase 12 (12-02): Grand Tour stages show sprint, mountain (GT-specific), jersey, and TTT categories
+- Phase 12 (12-02): TdF detection uses race name pattern matching for category filtering
+- Phase 12 (12-02): Results grouped by category with human-readable labels from categoryDisplayNames map
+- Phase 12 (12-02): After submitting results, admin returns to category picker to enter more categories
 
 ### Pending Todos
 
@@ -95,11 +101,11 @@ None yet.
 **v1.1 scope:**
 - Phase 10: Fix rider filtering bugs before admin workflows can proceed (DONE)
 - Phase 11: Scoring config changes are seed data only (no schema changes expected) (DONE)
-- Phase 12: Result entry expansion requires schema changes for new categories (IN PROGRESS - backend done, UI pending)
+- Phase 12: Result entry expansion requires schema changes for new categories (DONE - backend and UI complete)
 - Phase 15: Uno-X order requires reverse standings draft UI (similar to phase 4 draft)
 
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed plan 12-01 (category support backend)
+Stopped at: Completed phase 12 (12-02: category UI and multi-category workflow)
 Resume file: None

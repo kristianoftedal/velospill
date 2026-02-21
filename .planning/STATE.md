@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Phase 10 - Bug Fixes
+**Current focus:** Phase 11 - Scoring Config Update
 
 ## Current Position
 
-Phase: 10 of 15 (Bug Fixes)
-Plan: 1 of TBD
+Phase: 11 of 15 (Scoring Config Update)
+Plan: 2 of 2
 Status: In progress
-Last activity: 2026-02-20 — Completed plan 10-01 (rider workflow bug fixes)
+Last activity: 2026-02-21 — Completed plan 11-01 (2026 scoring ruleset update)
 
-Progress: [████████████████░░░░] 60% (9 of 15 phases complete)
+Progress: [████████████████░░░░] 67% (10 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 27 (26 v1.0 + 1 v1.1)
-- Average duration: Not tracked (v1.0 pre-metrics)
-- Total execution time: 11 days (v1.0 milestone)
+- Total plans completed: 28 (26 v1.0 + 2 v1.1)
+- Average duration: 163s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 326s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -42,10 +42,11 @@ Progress: [████████████████░░░░] 60% (9 
 | Phase | Plan | Duration | Files | Commits | Completed |
 |-------|------|----------|-------|---------|-----------|
 | 10. Bug Fixes | 10-01 | 114s | 3 | 2 | 2026-02-20 |
+| 11. Scoring Config Update | 11-01 | 212s | 2 | 2 | 2026-02-21 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (1 plan completed)
+- v1.1 milestone: In progress (2 plans completed)
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions from PROJECT.md:
 - Phase 10 (10-01): Use literal SQL table names instead of Drizzle interpolation for EXISTS subqueries to avoid resolution failures
 - Phase 10 (10-01): Use Set for O(1) drafted rider lookup instead of array includes for performance
 - Phase 10 (10-01): Query all leagues' draft picks globally (not per-league) for unassigned filter simplicity
+- Phase 11 (11-01): Use grand_tour_tdf as new raceType for TdF-specific scoring (no schema change needed since raceType is text field)
+- Phase 11 (11-01): Remove tdf_stage_bonus and sprint_double categories, replace with dedicated TdF entries and sprint_giro
+- Phase 11 (11-01): Extend mini tour end_gc to 8 positions to match 2026 ruleset
 
 ### Pending Todos
 
@@ -88,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-20
-Stopped at: Completed plan 10-01 (rider workflow bug fixes)
+Last session: 2026-02-21
+Stopped at: Completed plan 11-01 (2026 scoring ruleset update)
 Resume file: None

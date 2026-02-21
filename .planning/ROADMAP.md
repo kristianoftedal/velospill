@@ -65,11 +65,11 @@ Plans:
 6. Mini tours use updated stage finish (5 for 2nd), KOM (2/1), and end-of-tour (8 GC positions) points
 7. GT per-stage combative jersey awards 2 points instead of 1
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans complete
 
 Plans:
-- [ ] 11-01-PLAN.md -- Update seed data and create migration script for 2026 scoring config values
-- [ ] 11-02-PLAN.md -- Update scoring preview logic for TdF-specific config resolution
+- [x] 11-01-PLAN.md — Update seed data and create migration script for 2026 scoring config values (completed 2026-02-21, 212s, 2 commits)
+- [ ] 11-02-PLAN.md — Update scoring preview logic for TdF-specific config resolution
 
 ---
 

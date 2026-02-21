@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Phase 11 - Scoring Config Update
+**Current focus:** Phase 12 - Result Entry Expansion
 
 ## Current Position
 
-Phase: 11 of 15 (Scoring Config Update)
-Plan: 2 of 2
-Status: Complete
-Last activity: 2026-02-21 — Completed plan 11-02 (scoring preview TdF routing)
+Phase: 12 of 15 (Result Entry Expansion)
+Plan: 1 of 2
+Status: In Progress
+Last activity: 2026-02-21 — Completed plan 12-01 (category support backend)
 
 Progress: [████████████████░░░░] 73% (11 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 29 (26 v1.0 + 3 v1.1)
-- Average duration: 145s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 436s (v1.1)
+- Total plans completed: 30 (26 v1.0 + 4 v1.1)
+- Average duration: 152s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 606s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -44,10 +44,11 @@ Progress: [████████████████░░░░] 73% (11
 | 10. Bug Fixes | 10-01 | 114s | 3 | 2 | 2026-02-20 |
 | 11. Scoring Config Update | 11-01 | 212s | 2 | 2 | 2026-02-21 |
 | 11. Scoring Config Update | 11-02 | 110s | 2 | 2 | 2026-02-21 |
+| 12. Result Entry Expansion | 12-01 | 170s | 3 | 2 | 2026-02-21 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (2 plans completed)
+- v1.1 milestone: In progress (4 plans completed)
 
 ## Accumulated Context
 
@@ -75,6 +76,10 @@ Recent decisions from PROJECT.md:
 - Phase 11 (11-02): Use race name pattern matching (includes 'tour de france' or 'tdf') to detect TdF races for scoring config routing
 - Phase 11 (11-02): Explicitly type raceTypeForScoring as string to allow grand_tour_tdf value beyond races enum
 - Phase 11 (11-02): Add fallback to grand_tour config if TdF-specific config is missing for backward compatibility
+- Phase 12 (12-01): Use category column with default 'finish' for backward compatibility
+- Phase 12 (12-01): Unique constraints scoped by category (raceId, riderId, category) and (raceId, position, category)
+- Phase 12 (12-01): Optional category parameter in previewScoringImpact preserves auto-detection when not provided
+- Phase 12 (12-01): Stage results without explicit category default to 'stage_finish' as before
 
 ### Pending Todos
 
@@ -83,19 +88,18 @@ None yet.
 ### Blockers/Concerns
 
 **Known from v1.0 limitations:**
-- Result entry only supports finish/stage_finish categories (Phase 12 will address)
 - Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (deferred to future)
 - Shimanobil counter uses simplified team matching (deferred to future)
 - npm run build fails due to drizzle-kit 0.18.x type error (out of v1.1 scope)
 
 **v1.1 scope:**
-- Phase 10: Fix rider filtering bugs before admin workflows can proceed
-- Phase 11: Scoring config changes are seed data only (no schema changes expected)
-- Phase 12: Result entry expansion requires schema changes for new categories
+- Phase 10: Fix rider filtering bugs before admin workflows can proceed (DONE)
+- Phase 11: Scoring config changes are seed data only (no schema changes expected) (DONE)
+- Phase 12: Result entry expansion requires schema changes for new categories (IN PROGRESS - backend done, UI pending)
 - Phase 15: Uno-X order requires reverse standings draft UI (similar to phase 4 draft)
 
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed plan 11-02 (scoring preview TdF routing)
+Stopped at: Completed plan 12-01 (category support backend)
 Resume file: None

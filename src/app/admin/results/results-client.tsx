@@ -5,11 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ResultEntryForm } from "@/components/admin/result-entry-form"
+import { ResultEntryForm, categoryDisplayNames } from "@/components/admin/result-entry-form"
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
 import { getResultsForRace, getAuditTrail } from "./actions"
-import { PencilIcon } from "lucide-react"
+import { PencilIcon, ChevronLeftIcon } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -42,8 +42,60 @@ type Props = {
   riders: Rider[]
 }
 
+function resolveScoringRaceType(raceType: string, raceName: string): string {
+  if (raceType === "grand_tour") {
+    const lower = raceName.toLowerCase()
+    if (lower.includes("tour de france") || lower.includes("tdf")) return "grand_tour_tdf"
+  }
+  return raceType
+}
+
+function getAvailableCategories(raceType: string, isStage: boolean, isParentRace: boolean): string[] {
+  // For one-day races (no parent, not multi-stage)
+  if (!isStage && !isParentRace) {
+    return ["finish"]
+  }
+
+  // For stages (has parentRaceId)
+  if (isStage) {
+    const perStage: string[] = ["stage_finish"]
+
+    if (raceType === "grand_tour" || raceType === "grand_tour_tdf" || raceType === "womens_grand_tour") {
+      perStage.push("sprint")
+      if (raceType === "grand_tour") perStage.push("sprint_giro")
+      // Mountain categories
+      if (raceType === "grand_tour" || raceType === "grand_tour_tdf") {
+        perStage.push("mountain_cc_hcx2_af", "mountain_hc", "mountain_1cat", "mountain_2cat", "mountain_3_4cat")
+      }
+      if (raceType === "womens_grand_tour") {
+        perStage.push("mountain_cc_hcx2_af", "mountain_1_2cat")
+      }
+      // Jersey categories
+      perStage.push("jersey_gc", "jersey_points", "jersey_kom", "jersey_combative")
+      // TTT (only on certain stages, but we let admin decide)
+      perStage.push("ttt")
+    }
+
+    if (raceType === "mini_tour") {
+      perStage.push("sprint", "mountain_highest", "mountain_2nd_highest")
+      perStage.push("jersey_gc", "jersey_points", "jersey_kom", "jersey_combative")
+      perStage.push("ttt")
+    }
+
+    return perStage
+  }
+
+  // For parent races (grand_tour, mini_tour, womens_grand_tour) -- end-of-tour
+  if (isParentRace) {
+    return ["end_gc", "end_points", "end_kom", "end_youth", "end_combative", "end_team", "end_other"]
+  }
+
+  return ["finish"]
+}
+
 export function ResultsClient({ races, riders }: Props) {
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [existingResults, setExistingResults] = useState<any[] | null>(null)
   const [auditTrail, setAuditTrail] = useState<any[] | null>(null)
   const [loading, setLoading] = useState(false)
@@ -54,6 +106,7 @@ export function ResultsClient({ races, riders }: Props) {
 
   const handleRaceSelect = async (raceId: number) => {
     setSelectedRaceId(raceId)
+    setSelectedCategory(null)  // Reset category when switching races
     setLoading(true)
 
     const race = races.find((r) => r.id === raceId)
@@ -74,6 +127,8 @@ export function ResultsClient({ races, riders }: Props) {
 
   const handleSuccess = async () => {
     if (!selectedRaceId) return
+    // Reset category to return to category picker
+    setSelectedCategory(null)
     // Refresh results and audit trail
     const [results, audit] = await Promise.all([
       getResultsForRace(selectedRaceId),
@@ -185,50 +240,75 @@ export function ResultsClient({ races, riders }: Props) {
               </TabsList>
 
               <TabsContent value="results" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{selectedRace?.name} Results</CardTitle>
-                    <CardDescription>
-                      Click the edit button to correct any result
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-20">Position</TableHead>
-                          <TableHead>Rider</TableHead>
-                          <TableHead>Team</TableHead>
-                          <TableHead>Time</TableHead>
-                          <TableHead className="text-right">Points</TableHead>
-                          <TableHead className="w-20"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {existingResults.map((result) => (
-                          <TableRow key={result.id}>
-                            <TableCell className="font-medium">{result.position}</TableCell>
-                            <TableCell>{result.riderName}</TableCell>
-                            <TableCell>{result.riderTeam}</TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {result.time || "—"}
-                            </TableCell>
-                            <TableCell className="text-right">{result.points}</TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditResult(result)}
-                              >
-                                <PencilIcon className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
+                <div className="space-y-6">
+                  {/* Group results by category */}
+                  {(() => {
+                    const groupedResults = existingResults.reduce((acc, result) => {
+                      const cat = result.category || "finish"
+                      if (!acc[cat]) acc[cat] = []
+                      acc[cat].push(result)
+                      return acc
+                    }, {} as Record<string, any[]>)
+
+                    return (Object.entries(groupedResults) as [string, any[]][]).map(([category, categoryResults]) => (
+                      <Card key={category}>
+                        <CardHeader>
+                          <CardTitle>{categoryDisplayNames[category] || category}</CardTitle>
+                          <CardDescription>
+                            Click the edit button to correct any result
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-20">Position</TableHead>
+                                <TableHead>Rider</TableHead>
+                                <TableHead>Team</TableHead>
+                                <TableHead>Time</TableHead>
+                                <TableHead className="text-right">Points</TableHead>
+                                <TableHead className="w-20"></TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {categoryResults.map((result: any) => (
+                                <TableRow key={result.id}>
+                                  <TableCell className="font-medium">{result.position}</TableCell>
+                                  <TableCell>{result.riderName}</TableCell>
+                                  <TableCell>{result.riderTeam}</TableCell>
+                                  <TableCell className="text-muted-foreground">
+                                    {result.time || "—"}
+                                  </TableCell>
+                                  <TableCell className="text-right">{result.points}</TableCell>
+                                  <TableCell>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleEditResult(result)}
+                                    >
+                                      <PencilIcon className="h-4 w-4" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </CardContent>
+                      </Card>
+                    ))
+                  })()}
+
+                  {/* Add more results button */}
+                  {!selectedCategory && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedCategory("__picker__")}
+                      className="w-full"
+                    >
+                      Add More Results
+                    </Button>
+                  )}
+                </div>
               </TabsContent>
 
               <TabsContent value="history" className="mt-4">
@@ -247,13 +327,75 @@ export function ResultsClient({ races, riders }: Props) {
               />
             )}
           </>
+        ) : selectedCategory && selectedCategory !== "__picker__" ? (
+          // Show result entry form for selected category
+          <div className="space-y-4">
+            <Button
+              variant="ghost"
+              onClick={() => setSelectedCategory(null)}
+              className="mb-2"
+            >
+              <ChevronLeftIcon className="h-4 w-4 mr-2" />
+              Back to category selection
+            </Button>
+            <ResultEntryForm
+              raceId={selectedRaceId}
+              riders={riders}
+              raceType={selectedRace?.raceType || ""}
+              category={selectedCategory}
+              onSuccess={handleSuccess}
+            />
+          </div>
         ) : (
-          <ResultEntryForm
-            raceId={selectedRaceId}
-            riders={riders}
-            raceType={selectedRace?.raceType || ""}
-            onSuccess={handleSuccess}
-          />
+          // Show category picker
+          (() => {
+            if (!selectedRace) return null
+
+            // Determine raceType for scoring
+            const isStage = !!selectedRace.parentRaceId
+            const parentRace = isStage ? races.find(r => r.id === selectedRace.parentRaceId) : null
+            const raceTypeForCategories = isStage && parentRace
+              ? resolveScoringRaceType(parentRace.raceType, parentRace.name)
+              : resolveScoringRaceType(selectedRace.raceType, selectedRace.name)
+
+            // Determine if this is a parent race (has stages)
+            const isParentRace = races.some(r => r.parentRaceId === selectedRace.id)
+
+            const availableCategories = getAvailableCategories(
+              raceTypeForCategories,
+              isStage,
+              isParentRace
+            )
+
+            return (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Select Result Category</CardTitle>
+                  <CardDescription>
+                    Choose the type of result you want to enter for {selectedRace.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {availableCategories.map((category) => (
+                      <Button
+                        key={category}
+                        variant="outline"
+                        onClick={() => setSelectedCategory(category)}
+                        className="h-auto py-4 px-4 text-left justify-start"
+                      >
+                        <div>
+                          <div className="font-medium">
+                            {categoryDisplayNames[category] || category}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })()
         )}
       </div>
     </div>

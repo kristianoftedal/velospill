@@ -89,10 +89,12 @@ Plans:
 5. Admin can enter end-of-tour classification results (GC, points, KOM, youth, combative, team, other) and see them in scoring preview
 6. Scoring preview accurately calculates points for all result categories using race-specific scoring config
 
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 12-01: TBD during phase planning
+- [ ] 12-01-PLAN.md — Add category column to raceResults schema and update backend for category-aware scoring
+- [ ] 12-02-PLAN.md — Add category selector UI and per-stage result entry for sprint, mountain, jersey
+- [ ] 12-03-PLAN.md — Add TTT team-based entry and end-of-tour classification entry on parent races
 
 ---
 
@@ -180,7 +182,7 @@ Plans:
 | 9. Scoping & UX Fixes | v1.0 | 1/1 | Complete | 2026-02-20 |
 | 10. Bug Fixes | v1.1 | 1/1 | Complete | 2026-02-20 |
 | 11. Scoring Config | v1.1 | Complete    | 2026-02-21 | 2026-02-21 |
-| 12. Result Entry | v1.1 | 0/TBD | Not started | — |
+| 12. Result Entry | v1.1 | 0/3 | Not started | — |
 | 13. Order Config | v1.1 | 0/TBD | Not started | — |
 | 14. Counter Mechanic | v1.1 | 0/TBD | Not started | — |
 | 15. Uno-X Order | v1.1 | 0/TBD | Not started | — |

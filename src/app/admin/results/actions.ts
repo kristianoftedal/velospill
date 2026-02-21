@@ -32,6 +32,7 @@ async function checkAdminAuth() {
 
 const resultSchema = z.object({
   raceId: z.number(),
+  category: z.string().optional().default("finish"),
   results: z
     .array(
       z.object({
@@ -104,6 +105,7 @@ export async function getResultsForRace(raceId: number) {
       position: raceResults.position,
       time: raceResults.time,
       points: raceResults.points,
+      category: raceResults.category,
       riderId: raceResults.riderId,
       riderName: riders.name,
       riderTeam: riders.team,
@@ -118,12 +120,13 @@ export async function getResultsForRace(raceId: number) {
 
 export async function previewResults(
   raceId: number,
-  results: Array<{ position: number; riderId: number }>
+  results: Array<{ position: number; riderId: number }>,
+  category?: string
 ) {
   await checkAdminAuth()
 
   try {
-    const preview = await previewScoringImpact(raceId, results)
+    const preview = await previewScoringImpact(raceId, results, category)
     return {
       success: true,
       data: preview,
@@ -148,10 +151,10 @@ export async function submitRaceResults(formData: ResultInput) {
     }
   }
 
-  const { raceId, results: resultData } = result.data
+  const { raceId, category, results: resultData } = result.data
 
   try {
-    // Get the race to check raceType
+    // Get the race to check raceType and determine category
     const race = await db.query.races.findFirst({
       where: eq(races.id, raceId),
     })
@@ -161,6 +164,14 @@ export async function submitRaceResults(formData: ResultInput) {
         success: false,
         error: { _form: ["Race not found"] },
       }
+    }
+
+    // For stages without explicit category, default to "stage_finish" (preserve existing behavior)
+    let resolvedCategory = category
+    if (!resolvedCategory && race.parentRaceId) {
+      resolvedCategory = "stage_finish"
+    } else if (!resolvedCategory) {
+      resolvedCategory = "finish"
     }
 
     // Determine expected gender based on race type
@@ -197,7 +208,7 @@ export async function submitRaceResults(formData: ResultInput) {
     }
 
     // Calculate points for all results using the scoring preview logic
-    const scoringPreview = await previewScoringImpact(raceId, resultData)
+    const scoringPreview = await previewScoringImpact(raceId, resultData, resolvedCategory)
     const pointsMap = new Map(
       scoringPreview.preview.map((p) => [p.riderId, p.pointsAwarded])
     )
@@ -210,6 +221,7 @@ export async function submitRaceResults(formData: ResultInput) {
         await tx.insert(raceResults).values({
           raceId,
           riderId: resultItem.riderId,
+          category: resolvedCategory,
           position: resultItem.position,
           time: resultItem.time || null,
           points,
@@ -221,7 +233,7 @@ export async function submitRaceResults(formData: ResultInput) {
         raceId,
         changeType: "BATCH_INSERT",
         changedBy: session.user.id,
-        newData: resultData as any,
+        newData: { category: resolvedCategory, results: resultData } as any,
       })
     })
 
@@ -295,7 +307,7 @@ export async function correctRaceResult(
       const raceId = currentResult.raceId
       const scoringPreview = await previewScoringImpact(raceId, [
         { position: updatedData.position, riderId: updatedData.riderId },
-      ])
+      ], currentResult.category)
       const newPoints = scoringPreview.preview[0]?.pointsAwarded || 0
 
       // Insert audit entry

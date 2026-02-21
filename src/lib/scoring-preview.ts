@@ -47,6 +47,7 @@ export type ScoringPreview = {
   totalPointsAwarded: number
   raceType: string
   raceName: string
+  category: string
 }
 
 /**
@@ -55,11 +56,13 @@ export type ScoringPreview = {
  *
  * @param raceId - The race ID
  * @param results - Array of results with position and riderId
+ * @param category - Optional category (sprint, mountain, jersey, etc.). If not provided, auto-detects finish/stage_finish
  * @returns Preview data showing points per rider
  */
 export async function previewScoringImpact(
   raceId: number,
-  results: Array<{ position: number; riderId: number }>
+  results: Array<{ position: number; riderId: number }>,
+  category?: string
 ): Promise<ScoringPreview> {
   // 1. Fetch the race to get its raceType and parentRaceId
   const race = await db.query.races.findFirst({
@@ -74,29 +77,48 @@ export async function previewScoringImpact(
   }
 
   // 2. Determine the scoring category
-  // For stages (has parentRaceId): use parent's raceType + "stage_finish" category
-  // For one-day races: use "finish" category
+  // If category is explicitly provided, use it directly (for sprint, mountain, jersey, TTT, end-of-tour)
+  // Otherwise, auto-detect based on race type (backward compatibility)
   let raceTypeForScoring: string = race.raceType
-  let category = "finish"
+  let resolvedCategory: string
 
-  if (race.parentRaceId) {
-    // This is a stage - use parent's raceType
-    if (race.parentRace) {
+  if (category) {
+    // Category explicitly provided - use it
+    resolvedCategory = category
+    // For stages with explicit category, still need to resolve raceType from parent
+    if (race.parentRaceId && race.parentRace) {
       raceTypeForScoring = resolveScoringRaceType(
         race.parentRace.raceType,
         race.parentRace.name
       )
+    } else {
+      raceTypeForScoring = resolveScoringRaceType(race.raceType, race.name)
     }
-    category = "stage_finish"
-  } else if (
-    race.raceType === "grand_tour" ||
-    race.raceType === "mini_tour" ||
-    race.raceType === "womens_grand_tour"
-  ) {
-    // Parent race for a multi-stage event
-    // Results should not be entered on parent races, but if they are, use "finish"
-    raceTypeForScoring = resolveScoringRaceType(race.raceType, race.name)
-    category = "finish"
+  } else {
+    // No category provided - auto-detect (backward compatibility)
+    // For stages (has parentRaceId): use parent's raceType + "stage_finish" category
+    // For one-day races: use "finish" category
+    if (race.parentRaceId) {
+      // This is a stage - use parent's raceType
+      if (race.parentRace) {
+        raceTypeForScoring = resolveScoringRaceType(
+          race.parentRace.raceType,
+          race.parentRace.name
+        )
+      }
+      resolvedCategory = "stage_finish"
+    } else if (
+      race.raceType === "grand_tour" ||
+      race.raceType === "mini_tour" ||
+      race.raceType === "womens_grand_tour"
+    ) {
+      // Parent race for a multi-stage event
+      // Results should not be entered on parent races, but if they are, use "finish"
+      raceTypeForScoring = resolveScoringRaceType(race.raceType, race.name)
+      resolvedCategory = "finish"
+    } else {
+      resolvedCategory = "finish"
+    }
   }
 
   // 3. Fetch the matching scoringConfig entry
@@ -104,7 +126,7 @@ export async function previewScoringImpact(
   let scoringRule = await db.query.scoringConfig.findFirst({
     where: and(
       eq(scoringConfig.raceType, raceTypeForScoring),
-      eq(scoringConfig.category, category),
+      eq(scoringConfig.category, resolvedCategory),
       lte(scoringConfig.validFrom, now),
       or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
     ),
@@ -115,7 +137,7 @@ export async function previewScoringImpact(
     scoringRule = await db.query.scoringConfig.findFirst({
       where: and(
         eq(scoringConfig.raceType, "grand_tour"),
-        eq(scoringConfig.category, category),
+        eq(scoringConfig.category, resolvedCategory),
         lte(scoringConfig.validFrom, now),
         or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
       ),
@@ -124,7 +146,7 @@ export async function previewScoringImpact(
 
   if (!scoringRule) {
     throw new Error(
-      `No scoring config found for raceType: ${raceTypeForScoring}, category: ${category}`
+      `No scoring config found for raceType: ${raceTypeForScoring}, category: ${resolvedCategory}`
     )
   }
 
@@ -161,5 +183,6 @@ export async function previewScoringImpact(
     totalPointsAwarded,
     raceType: raceTypeForScoring,
     raceName: race.name,
+    category: resolvedCategory,
   }
 }

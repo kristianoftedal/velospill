@@ -33,6 +33,9 @@ const lineupFilter = sql`(
 // This is implemented by filtering race results where races.startDate >= draftPicks.pickedAt.
 // For original draft picks, pickedAt is the draft timestamp (before any races), so all results flow through.
 // For transferred riders, only results from races on/after the transfer date count for the new team.
+//
+// TdF-specific scoring (grand_tour_tdf) is handled at result entry time in scoring-preview.ts.
+// This file aggregates pre-calculated points and does not need race-name-aware config lookups.
 
 /**
  * Returns all teams in a league ranked by total fantasy points for the given season.

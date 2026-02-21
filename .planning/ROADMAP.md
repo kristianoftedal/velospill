@@ -179,7 +179,7 @@ Plans:
 | 8. UI Polish & Races | v1.0 | 3/3 | Complete | 2026-02-16 |
 | 9. Scoping & UX Fixes | v1.0 | 1/1 | Complete | 2026-02-20 |
 | 10. Bug Fixes | v1.1 | 1/1 | Complete | 2026-02-20 |
-| 11. Scoring Config | v1.1 | 2/2 | Complete | 2026-02-21 |
+| 11. Scoring Config | v1.1 | Complete    | 2026-02-21 | 2026-02-21 |
 | 12. Result Entry | v1.1 | 0/TBD | Not started | — |
 | 13. Order Config | v1.1 | 0/TBD | Not started | — |
 | 14. Counter Mechanic | v1.1 | 0/TBD | Not started | — |

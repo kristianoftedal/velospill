@@ -9,16 +9,16 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 
 ### Scoring Config
 
-- [ ] **SCORE-01**: Scoring config updated with new one-day race point tables (high pri: 50/40/35/30/25/20/18/16/14/12/10/9/8/7/6/5/4/3/2/1, low pri: 30/25/20/16/14/12/10/8/7/6/5/4/3/2/1)
-- [ ] **SCORE-02**: Scoring engine uses TdF-specific stage finish points (15/12/10/9/8/7/6/5/4/3/2/1 for 12 positions) separate from Giro/Vuelta (12/10/8/7/6/5/4/3/2/1 for 10 positions)
-- [ ] **SCORE-03**: Scoring engine uses TdF-specific sprint points (3/2/2/1/1) separate from Giro (2/1/1 x2) and Vuelta (2/1/1)
-- [ ] **SCORE-04**: Scoring engine uses TdF-specific KOM points (HCx2: 4/3/2/2/1/1, HC: 4/3/2/1, 1cat: 3/2/1, 2cat: 2/1, 3/4cat: 1) separate from Giro/Vuelta (unchanged)
-- [ ] **SCORE-05**: Scoring engine uses TdF-specific end-of-tour points (GC: 30/25/20/16/14/12/10/8/7/6/5/4/3/2/1, Points/KOM: 15/10/8/6/4/2, Youth: 6/4/2, Team: 6/4/2)
-- [ ] **SCORE-06**: Giro/Vuelta end-of-tour GC trimmed to 12 positions (25/20/16/14/12/10/8/6/4/3/2/1), youth and team adjusted to 5/3/1
-- [ ] **SCORE-07**: GT per-stage combative jersey points updated from 1 to 2
-- [ ] **SCORE-08**: Mini tour stage finish 2nd place updated from 4 to 5 points
-- [ ] **SCORE-09**: Mini tour highest KOM category updated from 1/1 to 2/1
-- [ ] **SCORE-10**: Mini tour end-of-tour GC extended to 8 positions (8/6/4/3/2/2/1/1), end points/KOM adjusted to 4/2/1, youth/combative/team to 2
+- [x] **SCORE-01**: Scoring config updated with new one-day race point tables (high pri: 50/40/35/30/25/20/18/16/14/12/10/9/8/7/6/5/4/3/2/1, low pri: 30/25/20/16/14/12/10/8/7/6/5/4/3/2/1)
+- [x] **SCORE-02**: Scoring engine uses TdF-specific stage finish points (15/12/10/9/8/7/6/5/4/3/2/1 for 12 positions) separate from Giro/Vuelta (12/10/8/7/6/5/4/3/2/1 for 10 positions)
+- [x] **SCORE-03**: Scoring engine uses TdF-specific sprint points (3/2/2/1/1) separate from Giro (2/1/1 x2) and Vuelta (2/1/1)
+- [x] **SCORE-04**: Scoring engine uses TdF-specific KOM points (HCx2: 4/3/2/2/1/1, HC: 4/3/2/1, 1cat: 3/2/1, 2cat: 2/1, 3/4cat: 1) separate from Giro/Vuelta (unchanged)
+- [x] **SCORE-05**: Scoring engine uses TdF-specific end-of-tour points (GC: 30/25/20/16/14/12/10/8/7/6/5/4/3/2/1, Points/KOM: 15/10/8/6/4/2, Youth: 6/4/2, Team: 6/4/2)
+- [x] **SCORE-06**: Giro/Vuelta end-of-tour GC trimmed to 12 positions (25/20/16/14/12/10/8/6/4/3/2/1), youth and team adjusted to 5/3/1
+- [x] **SCORE-07**: GT per-stage combative jersey points updated from 1 to 2
+- [x] **SCORE-08**: Mini tour stage finish 2nd place updated from 4 to 5 points
+- [x] **SCORE-09**: Mini tour highest KOM category updated from 1/1 to 2/1
+- [x] **SCORE-10**: Mini tour end-of-tour GC extended to 8 positions (8/6/4/3/2/2/1/1), end points/KOM adjusted to 4/2/1, youth/combative/team to 2
 
 ### Orders
 
@@ -70,16 +70,16 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 |-------------|-------|--------|
 | BUG-01 | Phase 10 | Complete |
 | BUG-02 | Phase 10 | Complete |
-| SCORE-01 | Phase 11 | Pending |
-| SCORE-02 | Phase 11 | Pending |
-| SCORE-03 | Phase 11 | Pending |
-| SCORE-04 | Phase 11 | Pending |
-| SCORE-05 | Phase 11 | Pending |
-| SCORE-06 | Phase 11 | Pending |
-| SCORE-07 | Phase 11 | Pending |
-| SCORE-08 | Phase 11 | Pending |
-| SCORE-09 | Phase 11 | Pending |
-| SCORE-10 | Phase 11 | Pending |
+| SCORE-01 | Phase 11 | Complete |
+| SCORE-02 | Phase 11 | Complete |
+| SCORE-03 | Phase 11 | Complete |
+| SCORE-04 | Phase 11 | Complete |
+| SCORE-05 | Phase 11 | Complete |
+| SCORE-06 | Phase 11 | Complete |
+| SCORE-07 | Phase 11 | Complete |
+| SCORE-08 | Phase 11 | Complete |
+| SCORE-09 | Phase 11 | Complete |
+| SCORE-10 | Phase 11 | Complete |
 | RESULT-01 | Phase 12 | Pending |
 | RESULT-02 | Phase 12 | Pending |
 | RESULT-03 | Phase 12 | Pending |

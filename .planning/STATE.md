@@ -12,17 +12,17 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 Phase: 11 of 15 (Scoring Config Update)
 Plan: 2 of 2
-Status: In progress
-Last activity: 2026-02-21 — Completed plan 11-01 (2026 scoring ruleset update)
+Status: Complete
+Last activity: 2026-02-21 — Completed plan 11-02 (scoring preview TdF routing)
 
-Progress: [████████████████░░░░] 67% (10 of 15 phases complete)
+Progress: [████████████████░░░░] 73% (11 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 28 (26 v1.0 + 2 v1.1)
-- Average duration: 163s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 326s (v1.1)
+- Total plans completed: 29 (26 v1.0 + 3 v1.1)
+- Average duration: 145s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 436s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -43,6 +43,7 @@ Progress: [████████████████░░░░] 67% (10
 |-------|------|----------|-------|---------|-----------|
 | 10. Bug Fixes | 10-01 | 114s | 3 | 2 | 2026-02-20 |
 | 11. Scoring Config Update | 11-01 | 212s | 2 | 2 | 2026-02-21 |
+| 11. Scoring Config Update | 11-02 | 110s | 2 | 2 | 2026-02-21 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
@@ -71,6 +72,9 @@ Recent decisions from PROJECT.md:
 - Phase 11 (11-01): Use grand_tour_tdf as new raceType for TdF-specific scoring (no schema change needed since raceType is text field)
 - Phase 11 (11-01): Remove tdf_stage_bonus and sprint_double categories, replace with dedicated TdF entries and sprint_giro
 - Phase 11 (11-01): Extend mini tour end_gc to 8 positions to match 2026 ruleset
+- Phase 11 (11-02): Use race name pattern matching (includes 'tour de france' or 'tdf') to detect TdF races for scoring config routing
+- Phase 11 (11-02): Explicitly type raceTypeForScoring as string to allow grand_tour_tdf value beyond races enum
+- Phase 11 (11-02): Add fallback to grand_tour config if TdF-specific config is missing for backward compatibility
 
 ### Pending Todos
 
@@ -93,5 +97,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-21
-Stopped at: Completed plan 11-01 (2026 scoring ruleset update)
+Stopped at: Completed plan 11-02 (scoring preview TdF routing)
 Resume file: None

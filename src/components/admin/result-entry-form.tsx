@@ -61,10 +61,40 @@ type Props = {
   raceId: number
   riders: Rider[]
   raceType: string
+  category: string  // NEW
   onSuccess: () => void
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) {
+const categoryDisplayNames: Record<string, string> = {
+  "finish": "Race Finish",
+  "stage_finish": "Stage Finish",
+  "sprint": "Sprint Classification",
+  "sprint_giro": "Sprint (Giro double sprint)",
+  "mountain_cc_hcx2_af": "Mountain: CC/HCx2/Altitude Finish",
+  "mountain_hc": "Mountain: HC",
+  "mountain_1cat": "Mountain: 1st Category",
+  "mountain_2cat": "Mountain: 2nd Category",
+  "mountain_3_4cat": "Mountain: 3rd/4th Category",
+  "mountain_highest": "Mountain: Highest Category",
+  "mountain_2nd_highest": "Mountain: 2nd Highest Category",
+  "mountain_1_2cat": "Mountain: 1st/2nd Category",
+  "jersey_gc": "Jersey: GC Leader",
+  "jersey_points": "Jersey: Points Leader",
+  "jersey_kom": "Jersey: KOM Leader",
+  "jersey_combative": "Jersey: Most Combative",
+  "ttt": "Team Time Trial",
+  "end_gc": "End of Tour: GC",
+  "end_points": "End of Tour: Points",
+  "end_kom": "End of Tour: KOM",
+  "end_youth": "End of Tour: Youth",
+  "end_combative": "End of Tour: Combative",
+  "end_team": "End of Tour: Team",
+  "end_other": "End of Tour: Other",
+}
+
+export { categoryDisplayNames }
+
+export function ResultEntryForm({ raceId, riders, raceType, category, onSuccess }: Props) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewing, setIsPreviewing] = useState(false)
@@ -90,6 +120,7 @@ export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) 
 
     const result = await submitRaceResults({
       raceId,
+      category,
       results: data.results,
     })
 
@@ -123,7 +154,7 @@ export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) 
     const formData = form.getValues()
 
     setIsPreviewing(true)
-    const result = await previewResults(raceId, formData.results)
+    const result = await previewResults(raceId, formData.results, category)
     setIsPreviewing(false)
 
     if (result.success && result.data) {
@@ -139,7 +170,7 @@ export function ResultEntryForm({ raceId, riders, raceType, onSuccess }: Props) 
       <CardHeader>
         <CardTitle>Enter Race Results</CardTitle>
         <CardDescription>
-          Add rider finishing positions for this race ({expectedGender === "M" ? "Men" : "Women"})
+          {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"})
         </CardDescription>
       </CardHeader>
       <CardContent>

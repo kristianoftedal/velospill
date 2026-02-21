@@ -5,6 +5,23 @@ import { scoringConfig } from "@/db/schema/config"
 import { eq, and, lte, or, isNull, gt } from "drizzle-orm"
 
 /**
+ * Resolves the correct scoring raceType based on race name.
+ * Tour de France races use grand_tour_tdf, other grand tours use grand_tour.
+ * @param raceType - The base race type (e.g., "grand_tour")
+ * @param raceName - The name of the race
+ * @returns The raceType to use for scoring config lookup
+ */
+function resolveScoringRaceType(raceType: string, raceName: string): string {
+  if (raceType === "grand_tour") {
+    const lowerName = raceName.toLowerCase()
+    if (lowerName.includes("tour de france") || lowerName.includes("tdf")) {
+      return "grand_tour_tdf"
+    }
+  }
+  return raceType
+}
+
+/**
  * Pure function to calculate points for a single position
  * @param position - The finishing position (1, 2, 3, etc.)
  * @param scoringRules - The rules object from scoringConfig.rules JSONB
@@ -59,13 +76,16 @@ export async function previewScoringImpact(
   // 2. Determine the scoring category
   // For stages (has parentRaceId): use parent's raceType + "stage_finish" category
   // For one-day races: use "finish" category
-  let raceTypeForScoring = race.raceType
+  let raceTypeForScoring: string = race.raceType
   let category = "finish"
 
   if (race.parentRaceId) {
     // This is a stage - use parent's raceType
     if (race.parentRace) {
-      raceTypeForScoring = race.parentRace.raceType
+      raceTypeForScoring = resolveScoringRaceType(
+        race.parentRace.raceType,
+        race.parentRace.name
+      )
     }
     category = "stage_finish"
   } else if (
@@ -75,12 +95,13 @@ export async function previewScoringImpact(
   ) {
     // Parent race for a multi-stage event
     // Results should not be entered on parent races, but if they are, use "finish"
+    raceTypeForScoring = resolveScoringRaceType(race.raceType, race.name)
     category = "finish"
   }
 
   // 3. Fetch the matching scoringConfig entry
   const now = new Date()
-  const scoringRule = await db.query.scoringConfig.findFirst({
+  let scoringRule = await db.query.scoringConfig.findFirst({
     where: and(
       eq(scoringConfig.raceType, raceTypeForScoring),
       eq(scoringConfig.category, category),
@@ -88,6 +109,18 @@ export async function previewScoringImpact(
       or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
     ),
   })
+
+  // Fallback: if TdF-specific config not found, use generic grand_tour
+  if (!scoringRule && raceTypeForScoring === "grand_tour_tdf") {
+    scoringRule = await db.query.scoringConfig.findFirst({
+      where: and(
+        eq(scoringConfig.raceType, "grand_tour"),
+        eq(scoringConfig.category, category),
+        lte(scoringConfig.validFrom, now),
+        or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
+      ),
+    })
+  }
 
   if (!scoringRule) {
     throw new Error(

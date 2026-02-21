@@ -16,10 +16,18 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults, previewResults } from "@/app/admin/results/actions"
+import { submitRaceResults, previewResults, submitTttResults, previewTttResults } from "@/app/admin/results/actions"
 import { TrashIcon, PlusIcon } from "lucide-react"
 import { useState } from "react"
 import { ScoringPreview } from "@/components/admin/scoring-preview"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const resultSchema = z.object({
   results: z
@@ -47,7 +55,33 @@ const resultSchema = z.object({
     ),
 })
 
+const tttSchema = z.object({
+  teamPlacements: z
+    .array(
+      z.object({
+        position: z.number().min(1),
+        teamName: z.string().min(1, "Select a team"),
+      })
+    )
+    .min(1, "Enter at least one team placement")
+    .refine(
+      (placements) => {
+        const positions = placements.map((p) => p.position)
+        return positions.length === new Set(positions).size
+      },
+      { message: "Positions must be unique" }
+    )
+    .refine(
+      (placements) => {
+        const teamNames = placements.map((p) => p.teamName)
+        return teamNames.length === new Set(teamNames).size
+      },
+      { message: "Team names must be unique" }
+    ),
+})
+
 type ResultFormData = z.infer<typeof resultSchema>
+type TttFormData = z.infer<typeof tttSchema>
 
 type Rider = {
   id: number
@@ -62,6 +96,7 @@ type Props = {
   riders: Rider[]
   raceType: string
   category: string  // NEW
+  teams?: string[]  // NEW: distinct team names for TTT
   onSuccess: () => void
 }
 
@@ -94,7 +129,247 @@ const categoryDisplayNames: Record<string, string> = {
 
 export { categoryDisplayNames }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, onSuccess }: Props) {
+function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: number; teams: string[]; raceType: string; onSuccess: () => void }) {
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [previewData, setPreviewData] = useState<any | null>(null)
+  const [isPreviewing, setIsPreviewing] = useState(false)
+
+  const form = useForm<TttFormData>({
+    resolver: zodResolver(tttSchema),
+    defaultValues: {
+      teamPlacements: [{ position: 1, teamName: "" }],
+    },
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "teamPlacements",
+  })
+
+  const onSubmit = async (data: TttFormData) => {
+    setServerError(null)
+
+    const result = await submitTttResults({
+      raceId,
+      teamPlacements: data.teamPlacements,
+    })
+
+    if (result.success) {
+      toast.success("TTT results saved successfully!")
+      onSuccess()
+    } else {
+      const error = result.error as any
+      if (error?._form) {
+        setServerError(error._form[0])
+        toast.error(error._form[0])
+      } else {
+        toast.error("Failed to save TTT results")
+      }
+    }
+  }
+
+  const handleAddPlacement = () => {
+    const nextPosition = fields.length + 1
+    append({ position: nextPosition, teamName: "" })
+  }
+
+  const handlePreview = async () => {
+    const isValid = await form.trigger()
+    if (!isValid) {
+      toast.error("Please fix form errors before previewing")
+      return
+    }
+
+    const formData = form.getValues()
+
+    setIsPreviewing(true)
+    const result = await previewTttResults(raceId, formData.teamPlacements)
+    setIsPreviewing(false)
+
+    if (result.success && result.data) {
+      setPreviewData(result.data)
+      toast.success("Preview loaded!")
+    } else {
+      toast.error(result.error || "Failed to load preview")
+    }
+  }
+
+  const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Enter TTT Results</CardTitle>
+        <CardDescription>
+          Team Time Trial ({expectedGender === "M" ? "Men" : "Women"})
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Team placements */}
+          <div className="space-y-3">
+            {fields.map((field, index) => {
+              const teamName = form.watch(`teamPlacements.${index}.teamName`)
+
+              return (
+                <div key={field.id} className="flex items-start gap-3">
+                  {/* Position */}
+                  <div className="w-20">
+                    <Label htmlFor={`ttt-position-${index}`} className="text-xs">
+                      Pos.
+                    </Label>
+                    <Input
+                      id={`ttt-position-${index}`}
+                      type="number"
+                      min="1"
+                      {...form.register(`teamPlacements.${index}.position`, {
+                        valueAsNumber: true,
+                      })}
+                      className="h-9"
+                    />
+                  </div>
+
+                  {/* Team selector */}
+                  <div className="flex-1">
+                    <Label htmlFor={`ttt-team-${index}`} className="text-xs">
+                      Team
+                    </Label>
+                    <Combobox
+                      value={teamName || undefined}
+                      onValueChange={(value) => {
+                        if (value) {
+                          form.setValue(`teamPlacements.${index}.teamName`, value, {
+                            shouldValidate: true,
+                          })
+                        }
+                      }}
+                    >
+                      <ComboboxInput
+                        id={`ttt-team-${index}`}
+                        placeholder={teamName || "Select team..."}
+                        className="h-9"
+                      />
+                      <ComboboxContent>
+                        <ComboboxList>
+                          <ComboboxEmpty>No teams found</ComboboxEmpty>
+                          {teams.map((team) => (
+                            <ComboboxItem key={team} value={team}>
+                              {team}
+                            </ComboboxItem>
+                          ))}
+                        </ComboboxList>
+                      </ComboboxContent>
+                    </Combobox>
+                    {form.formState.errors.teamPlacements?.[index]?.teamName && (
+                      <p className="text-xs text-destructive mt-1">
+                        {form.formState.errors.teamPlacements[index]?.teamName?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Remove button */}
+                  <div className="pt-5">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => remove(index)}
+                      disabled={fields.length === 1}
+                      className="h-9 w-9"
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Form-level errors */}
+          {form.formState.errors.teamPlacements?.message && (
+            <p className="text-sm text-destructive">{form.formState.errors.teamPlacements.message}</p>
+          )}
+          {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+
+          {/* Add team placement button */}
+          <Button type="button" variant="outline" onClick={handleAddPlacement} className="w-full">
+            <PlusIcon className="h-4 w-4 mr-2" />
+            Add Team Placement
+          </Button>
+
+          {/* Preview section */}
+          {previewData && (
+            <div className="pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">TTT Scoring Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Position</TableHead>
+                        <TableHead>Team</TableHead>
+                        <TableHead className="text-right">Points per Rider</TableHead>
+                        <TableHead className="text-right">Riders on Team</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {previewData.map((item: any, idx: number) => (
+                        <TableRow key={idx}>
+                          <TableCell className="font-medium">{item.position}</TableCell>
+                          <TableCell>{item.teamName}</TableCell>
+                          <TableCell className="text-right">{item.pointsPerRider}</TableCell>
+                          <TableCell className="text-right">{item.riderCount}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Submit */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant={previewData ? "outline" : "default"}
+              onClick={handlePreview}
+              disabled={isPreviewing || form.formState.isSubmitting}
+            >
+              {isPreviewing ? "Loading..." : "Preview TTT Scoring"}
+            </Button>
+            <Button
+              type="submit"
+              variant={previewData ? "default" : "outline"}
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? "Saving..." : "Submit TTT Results"}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
+
+export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
+  // If TTT category, render the TTT-specific form
+  if (category === "ttt") {
+    if (!teams || teams.length === 0) {
+      return (
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">No teams available for TTT entry</p>
+          </CardContent>
+        </Card>
+      )
+    }
+    return <TttEntrySection raceId={raceId} teams={teams} raceType={raceType} onSuccess={onSuccess} />
+  }
+
+  // Regular rider-based entry form
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewing, setIsPreviewing] = useState(false)

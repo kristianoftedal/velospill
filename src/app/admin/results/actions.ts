@@ -429,3 +429,230 @@ export async function getAuditTrail(raceId: number) {
 
   return auditEntries
 }
+
+export async function getTeamNames(gender: "M" | "F"): Promise<string[]> {
+  await checkAdminAuth()
+
+  const teams = await db
+    .selectDistinct({ team: riders.team })
+    .from(riders)
+    .where(eq(riders.gender, gender))
+    .orderBy(riders.team)
+
+  return teams.map((t) => t.team)
+}
+
+export async function previewTttResults(
+  raceId: number,
+  teamPlacements: Array<{ position: number; teamName: string }>
+) {
+  await checkAdminAuth()
+
+  try {
+    // Get the race to determine raceType for scoring
+    const race = await db.query.races.findFirst({
+      where: eq(races.id, raceId),
+    })
+
+    if (!race) {
+      return {
+        success: false,
+        error: "Race not found",
+      }
+    }
+
+    // Resolve scoring raceType (detect TdF)
+    let raceTypeForScoring = race.raceType
+    if (race.raceType === "grand_tour") {
+      const lower = race.name.toLowerCase()
+      if (lower.includes("tour de france") || lower.includes("tdf")) {
+        raceTypeForScoring = "grand_tour_tdf"
+      }
+    }
+
+    // Fetch scoring config for "ttt" category
+    const [scoringRules] = await db
+      .select({
+        positions: scoringConfig.positions,
+      })
+      .from(scoringConfig)
+      .where(
+        and(
+          eq(scoringConfig.raceType, raceTypeForScoring),
+          eq(scoringConfig.category, "ttt")
+        )
+      )
+      .limit(1)
+
+    if (!scoringRules) {
+      return {
+        success: false,
+        error: `No TTT scoring config found for race type: ${raceTypeForScoring}`,
+      }
+    }
+
+    // For each team, calculate preview data
+    const previewData = await Promise.all(
+      teamPlacements.map(async ({ position, teamName }) => {
+        // Count riders on this team
+        const riderCount = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(riders)
+          .where(eq(riders.team, teamName))
+          .then((res) => Number(res[0]?.count || 0))
+
+        // Calculate points for this position
+        const points = calculatePoints(position, scoringRules.positions)
+
+        return {
+          teamName,
+          position,
+          pointsPerRider: points,
+          riderCount,
+        }
+      })
+    )
+
+    return {
+      success: true,
+      data: previewData,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: (error as Error).message,
+    }
+  }
+}
+
+export async function submitTttResults(formData: {
+  raceId: number
+  teamPlacements: Array<{ position: number; teamName: string }>
+}) {
+  const session = await checkAdminAuth()
+
+  try {
+    const { raceId, teamPlacements } = formData
+
+    // Validate at least one team placement
+    if (!teamPlacements || teamPlacements.length === 0) {
+      return {
+        success: false,
+        error: { _form: ["At least one team placement is required"] },
+      }
+    }
+
+    // Validate unique positions
+    const positions = teamPlacements.map((p) => p.position)
+    if (positions.length !== new Set(positions).size) {
+      return {
+        success: false,
+        error: { _form: ["Positions must be unique"] },
+      }
+    }
+
+    // Validate unique team names
+    const teamNames = teamPlacements.map((p) => p.teamName)
+    if (teamNames.length !== new Set(teamNames).size) {
+      return {
+        success: false,
+        error: { _form: ["Team names must be unique"] },
+      }
+    }
+
+    // Get the race to determine raceType for scoring
+    const race = await db.query.races.findFirst({
+      where: eq(races.id, raceId),
+    })
+
+    if (!race) {
+      return {
+        success: false,
+        error: { _form: ["Race not found"] },
+      }
+    }
+
+    // Resolve scoring raceType (detect TdF)
+    let raceTypeForScoring = race.raceType
+    if (race.raceType === "grand_tour") {
+      const lower = race.name.toLowerCase()
+      if (lower.includes("tour de france") || lower.includes("tdf")) {
+        raceTypeForScoring = "grand_tour_tdf"
+      }
+    }
+
+    // Fetch scoring config for "ttt" category
+    const [scoringRules] = await db
+      .select({
+        positions: scoringConfig.positions,
+      })
+      .from(scoringConfig)
+      .where(
+        and(
+          eq(scoringConfig.raceType, raceTypeForScoring),
+          eq(scoringConfig.category, "ttt")
+        )
+      )
+      .limit(1)
+
+    if (!scoringRules) {
+      return {
+        success: false,
+        error: { _form: [`No TTT scoring config found for race type: ${raceTypeForScoring}`] },
+      }
+    }
+
+    // Use transaction to insert all rider results
+    await db.transaction(async (tx) => {
+      // For each team placement
+      for (const { position, teamName } of teamPlacements) {
+        // Calculate points for this position
+        const points = calculatePoints(position, scoringRules.positions)
+
+        // Find all riders on this team
+        const teamRiders = await tx
+          .select({ id: riders.id })
+          .from(riders)
+          .where(eq(riders.team, teamName))
+
+        // Insert a result for each rider on the team
+        for (const rider of teamRiders) {
+          await tx.insert(raceResults).values({
+            raceId,
+            riderId: rider.id,
+            category: "ttt",
+            position,
+            time: null,
+            points,
+          })
+        }
+      }
+
+      // Insert audit entry
+      await tx.insert(resultAudit).values({
+        raceId,
+        changeType: "BATCH_INSERT",
+        changedBy: session.user.id,
+        newData: { category: "ttt", teamPlacements } as any,
+      })
+    })
+
+    revalidatePath("/admin/results")
+    return { success: true }
+  } catch (error: any) {
+    // Handle unique constraint violations
+    if (error.code === "23505") {
+      return {
+        success: false,
+        error: {
+          _form: ["Some riders from these teams already have TTT results for this race."],
+        },
+      }
+    }
+
+    return {
+      success: false,
+      error: { _form: [(error as Error).message] },
+    }
+  }
+}

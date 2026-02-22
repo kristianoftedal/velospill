@@ -22,14 +22,14 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 
 ### Orders
 
-- [ ] **ORDER-01**: Blodpose GT multiplier split — x3 for TdF, x3.5 for Giro/Vuelta
-- [ ] **ORDER-02**: Etappeseier changed to multiply finish points — x2 TdF, x2.25 Giro/Vuelta (all own riders)
-- [ ] **ORDER-03**: Hammer updated to 5 points per GC position lost, max 50
-- [ ] **ORDER-04**: Lagtempo updated to 10 points per top-20 placement
-- [ ] **ORDER-05**: Sponsorens ritt updated to 3x end-of-tour points
+- [x] **ORDER-01**: Blodpose GT multiplier split — x3 for TdF, x3.5 for Giro/Vuelta
+- [x] **ORDER-02**: Etappeseier changed to multiply finish points — x2 TdF, x2.25 Giro/Vuelta (all own riders)
+- [x] **ORDER-03**: Hammer updated to 5 points per GC position lost, max 50
+- [x] **ORDER-04**: Lagtempo updated to 10 points per top-20 placement
+- [x] **ORDER-05**: Sponsorens ritt updated to 3x end-of-tour points
 - [ ] **ORDER-06**: Counter mechanic changed — countered order returns to attacker for reuse instead of bounce-back effect
 - [ ] **ORDER-07**: New Uno-X order — each team picks a bonus rider per GT from unowned pool, reverse standings draft order
-- [ ] **ORDER-08**: New Kaptein/laginnsats for women's WC (x2 one rider or x1.5 all)
+- [x] **ORDER-08**: New Kaptein/laginnsats for women's WC (x2 one rider or x1.5 all)
 
 ### Result Entry
 

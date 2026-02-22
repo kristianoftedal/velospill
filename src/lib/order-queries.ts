@@ -109,11 +109,6 @@ export type CounterResult = {
   attackOrderId: number
   counterOrderId: number
   description: string
-  // Blowback: the attack effect is redirected to the attacker's team
-  blowbackTeamId: number
-  blowbackEffectType: string
-  blowbackTargetTeamId: number | null
-  blowbackTargetRiderId: number | null
 }
 
 /**
@@ -121,8 +116,8 @@ export type CounterResult = {
  *
  * Attack orders (shimanobil, covid, bondestreik) can be countered by the
  * targeted team if they have a defense order (etappeseier, blodpose_gt) for
- * the same race. When countered, the attack's effect bounces back to the
- * attacker's own team.
+ * the same race. When countered, the attack has no effect and is returned
+ * to the attacker for reuse in a future race. No penalty is applied.
  *
  * Defense orders always remain in effectiveOrders — they still provide their
  * own positive effect even if they countered an attack.
@@ -155,11 +150,7 @@ export function resolveCounters(activeOrders: ActiveOrder[]): {
         counterResults.push({
           attackOrderId: attack.orderId,
           counterOrderId: defenseForTargetedTeam.orderId,
-          description: `${attack.orderTypeName} was countered by ${defenseForTargetedTeam.orderTypeName} — effect returns to attacker (team ${attack.teamId})`,
-          blowbackTeamId: attack.teamId,
-          blowbackEffectType: attack.effectType,
-          blowbackTargetTeamId: attack.teamId,
-          blowbackTargetRiderId: attack.targetRiderId,
+          description: `${attack.orderTypeName} was countered by ${defenseForTargetedTeam.orderTypeName} — order returned to attacker (team ${attack.teamId}) for reuse`,
         })
       }
     } else {
@@ -172,11 +163,7 @@ export function resolveCounters(activeOrders: ActiveOrder[]): {
         counterResults.push({
           attackOrderId: attack.orderId,
           counterOrderId: defenseForTargetedTeam.orderId,
-          description: `${attack.orderTypeName} was countered by ${defenseForTargetedTeam.orderTypeName} — effect returns to attacker (team ${attack.teamId})`,
-          blowbackTeamId: attack.teamId,
-          blowbackEffectType: attack.effectType,
-          blowbackTargetTeamId: attack.teamId,
-          blowbackTargetRiderId: null,
+          description: `${attack.orderTypeName} was countered by ${defenseForTargetedTeam.orderTypeName} — order returned to attacker (team ${attack.teamId}) for reuse`,
         })
       }
     }
@@ -203,18 +190,15 @@ export type BaseScore = {
  *
  * Handles all 12 order types:
  * - multiplier: blodpose_one_day, blodpose_gt, gammel_venn
- * - zero_points: shimanobil (+ blowback)
- * - half_points: covid (+ blowback)
+ * - zero_points: shimanobil
+ * - half_points: covid
  * - multiply_finish_points: etappeseier
  * - gc_position_loss: hammer (admin bonus points)
  * - team_sprint_points: innlagt_spurt (admin bonus points)
  * - team_placement_points: lagtempo (admin bonus points)
- * - zero_finish_points: bondestreik (+ blowback)
+ * - zero_finish_points: bondestreik
  * - choice: kaptein
  * - multiply_end_tour: sponsorens_ritt
- *
- * For "blowback" orders from counter resolution, pass them with the
- * blowbackTeamId as the teamId.
  */
 export function applyOrderEffects(
   baseScores: BaseScore[],
@@ -427,63 +411,7 @@ export function applyOrderEffects(
     }
   }
 
-  // Apply blowback effects from counter resolution
-  for (const counter of counterResults) {
-    if (counter.blowbackEffectType === "zero_points") {
-      // Attacker's targeted rider gets 0 (the rider the attacker originally targeted)
-      const targetEntry = baseScores.find(
-        (s) => s.riderId === counter.blowbackTargetRiderId && s.teamId === counter.blowbackTeamId
-      )
-      if (targetEntry && targetEntry.points > 0) {
-        adjustments.push({
-          teamId: counter.blowbackTeamId,
-          riderId: counter.blowbackTargetRiderId,
-          raceId: baseScores[0]?.riderId ? baseScores[0].riderId : 0,  // use raceId from order context
-          basePoints: targetEntry.points,
-          adjustedPoints: 0,
-          orderTypeName: "blowback",
-          description: `Countered — blowback: 0 pts (attack returned)`,
-        })
-      }
-    } else if (counter.blowbackEffectType === "half_points") {
-      // Attacker's own riders get half points as blowback
-      const attackerEntries = baseScores.filter(
-        (s) => s.teamId === counter.blowbackTeamId
-      )
-      for (const entry of attackerEntries) {
-        const halved = Math.floor(entry.points / 2)
-        if (halved !== entry.points) {
-          adjustments.push({
-            teamId: counter.blowbackTeamId,
-            riderId: entry.riderId,
-            raceId: 0,
-            basePoints: entry.points,
-            adjustedPoints: halved,
-            orderTypeName: "blowback",
-            description: `Countered — blowback: half pts (attack returned)`,
-          })
-        }
-      }
-    } else if (counter.blowbackEffectType === "zero_finish_points") {
-      // Attacker's own riders get 0 as blowback
-      const attackerEntries = baseScores.filter(
-        (s) => s.teamId === counter.blowbackTeamId
-      )
-      for (const entry of attackerEntries) {
-        if (entry.points > 0) {
-          adjustments.push({
-            teamId: counter.blowbackTeamId,
-            riderId: entry.riderId,
-            raceId: 0,
-            basePoints: entry.points,
-            adjustedPoints: 0,
-            orderTypeName: "blowback",
-            description: `Countered — blowback: 0 pts (attack returned)`,
-          })
-        }
-      }
-    }
-  }
+  // Counter results tracked for display only — no blowback effects applied (2026 rules)
 
   // Add Gammel Venn bonuses (unowned rider points credited to order submitter's team)
   for (const bonus of gammelVennBonuses) {
@@ -658,7 +586,7 @@ export async function getOrderAdjustedStandings(
       gammelVennBonuses
     )
 
-    // Fix raceId in blowback adjustments (it was set to 0 above for simplicity)
+    // Fix raceId in adjustments that were set to 0 for simplicity
     for (const adj of adjustments) {
       if (adj.raceId === 0) adj.raceId = raceId
     }

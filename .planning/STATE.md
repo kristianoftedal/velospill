@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Phase 14 - Counter Mechanic Return Logic
+**Current focus:** Phase 15 - Uno-X Order Feature
 
 ## Current Position
 
-Phase: 14 of 15 (Counter Mechanic Return Logic)
+Phase: 15 of 15 (Uno-X Order Feature)
 Plan: 1 of 1
 Status: Complete
-Last activity: 2026-02-22 — Completed plan 14-01 (Counter mechanic return logic - removed blowback)
+Last activity: 2026-02-22 — Completed plan 15-01 (Uno-X order data foundation)
 
-Progress: [███████████████████░] 93.3% (14 of 15 phases complete)
+Progress: [████████████████████] 100.0% (15 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35 (26 v1.0 + 9 v1.1)
-- Average duration: 167s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 1506s (v1.1)
+- Total plans completed: 36 (26 v1.0 + 10 v1.1)
+- Average duration: 163s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 1628s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -50,10 +50,11 @@ Progress: [███████████████████░] 93.3% (
 | 13. Order Config Updates | 13-01 | 156s | 2 | 2 | 2026-02-22 |
 | 13. Order Config Updates | 13-02 | 169s | 2 | 2 | 2026-02-22 |
 | 14. Counter Mechanic Return Logic | 14-01 | 154s | 3 | 3 | 2026-02-22 |
+| 15. Uno-X Order Feature | 15-01 | 122s | 5 | 2 | 2026-02-22 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (9 plans completed, phase 14 complete)
+- v1.1 milestone: In progress (10 plans completed, phase 15 complete)
 
 ## Accumulated Context
 
@@ -106,6 +107,10 @@ Recent decisions from PROJECT.md:
 - Phase 14 (14-01): Counter descriptions now say "order returned to attacker for reuse"
 - Phase 14 (14-01): No penalty applied to attacking team when countered (2026 rules)
 - Phase 14 (14-01): Counter results displayed with blue neutral styling instead of yellow warning
+- Phase 15 (15-01): Bonus rider picks stored in dedicated bonus_riders table (not in orders or draft_picks)
+- Phase 15 (15-01): Unique constraint on (leagueId, raceId, teamId) enforces one bonus rider per team per GT
+- Phase 15 (15-01): Optional orderId reference links bonus rider back to Uno-X order that triggered draft
+- Phase 15 (15-01): Migration script combines DDL + seed data in single atomic transaction
 
 ### Pending Todos
 
@@ -129,5 +134,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed phase 14 (14-01: Counter mechanic return logic)
+Stopped at: Completed phase 15 (15-01: Uno-X order data foundation)
 Resume file: None

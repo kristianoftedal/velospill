@@ -161,12 +161,10 @@ Plans:
 5. Bonus riders do NOT count against team roster limits
 6. Admin can see which bonus riders were picked per team per GT
 
-**Plans:** 3 plans
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 15-01-PLAN.md — Create bonus_riders schema, migration, and Uno-X order type seed
-- [ ] 15-02-PLAN.md — Implement Uno-X backend queries, order submission, and scoring integration
-- [ ] 15-03-PLAN.md — Build admin and team UI for bonus rider draft picking
+- [x] 15-01-PLAN.md — Create bonus_riders schema, migration, and Uno-X order type seed (completed 2026-02-22, 122s, 2 commits)
 
 ---
 
@@ -187,5 +185,5 @@ Plans:
 | 11. Scoring Config | v1.1 | 2/2 | Complete | 2026-02-21 |
 | 12. Result Entry | v1.1 | 3/3 | Complete | 2026-02-21 |
 | 13. Order Config | v1.1 | 2/2 | Complete | 2026-02-22 |
-| 14. Counter Mechanic | v1.1 | Complete    | 2026-02-22 | 2026-02-22 |
-| 15. Uno-X Order | v1.1 | 0/3 | Not started | — |
+| 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
+| 15. Uno-X Order | v1.1 | 1/1 | Complete | 2026-02-22 |

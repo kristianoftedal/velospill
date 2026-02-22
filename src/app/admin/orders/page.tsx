@@ -1,7 +1,8 @@
 import { db } from "@/lib/db"
 import { orderTypes } from "@/db/schema/config"
-import { getPendingOrders, getOrderHistory, approveOrder, rejectOrder, setBonusPoints } from "./actions"
+import { getPendingOrders, getOrderHistory, approveOrder, rejectOrder, setBonusPoints, getActivatedUnoXOrders, getBonusRiderDraftState } from "./actions"
 import { OrderActions } from "./order-actions"
+import { BonusRiderDraft } from "./bonus-rider-draft"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -35,11 +36,28 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default async function OrdersPage() {
-  const [pendingOrders, orderHistory, allOrderTypes] = await Promise.all([
+  const [pendingOrders, orderHistory, allOrderTypes, activatedUnoXOrders] = await Promise.all([
     getPendingOrders(),
     getOrderHistory(),
     db.select().from(orderTypes).orderBy(orderTypes.name),
+    getActivatedUnoXOrders(),
   ])
+
+  // Group activated Uno-X orders by league+race for display
+  const uniqueUnoXDrafts = Array.from(
+    new Map(
+      activatedUnoXOrders.map((o) => [
+        `${o.leagueId}-${o.raceId}`,
+        {
+          leagueId: o.leagueId,
+          leagueName: o.leagueName,
+          raceId: o.raceId,
+          raceName: o.raceName,
+          season: o.season,
+        },
+      ])
+    ).values()
+  )
 
   return (
     <div className="space-y-6">
@@ -117,6 +135,26 @@ export default async function OrdersPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* Bonus Rider Draft Section */}
+        {uniqueUnoXDrafts.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Bonus Rider Draft</CardTitle>
+              <CardDescription>
+                {uniqueUnoXDrafts.length === 1
+                  ? "1 active bonus rider draft"
+                  : `${uniqueUnoXDrafts.length} active bonus rider drafts`}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BonusRiderDraft
+                activatedDrafts={uniqueUnoXDrafts}
+                getDraftState={getBonusRiderDraftState}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Order History */}
         <Card>

@@ -10,7 +10,7 @@ import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { eq, ne, desc, asc } from "drizzle-orm"
+import { eq, ne, desc, asc, and } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
 
 async function checkAdminAuth() {
@@ -208,6 +208,53 @@ export async function setBonusPoints(orderId: number, bonusPoints: number) {
     return { success: true }
   } catch (error: any) {
     return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function getActivatedUnoXOrders() {
+  await checkAdminAuth()
+
+  return db
+    .select({
+      leagueId: orders.leagueId,
+      leagueName: leagues.name,
+      raceId: orders.raceId,
+      raceName: races.name,
+      season: races.season,
+      orderId: orders.id,
+      teamId: orders.teamId,
+      teamName: teams.name,
+    })
+    .from(orders)
+    .innerJoin(leagues, eq(leagues.id, orders.leagueId))
+    .innerJoin(teams, eq(teams.id, orders.teamId))
+    .innerJoin(races, eq(races.id, orders.raceId))
+    .innerJoin(orderTypes, eq(orderTypes.id, orders.orderTypeId))
+    .where(
+      and(
+        eq(orders.status, "active"),
+        eq(orderTypes.name, "uno_x")
+      )
+    )
+    .orderBy(asc(races.startDate))
+}
+
+export async function getBonusRiderDraftState(leagueId: number, raceId: number, season: number) {
+  await checkAdminAuth()
+
+  const { computeReverseDraftOrder, getBonusRidersForRace } = await import("@/lib/order-queries")
+
+  const [draftOrder, picks] = await Promise.all([
+    computeReverseDraftOrder(leagueId, season),
+    getBonusRidersForRace(leagueId, raceId),
+  ])
+
+  const allPicked = draftOrder.length > 0 && picks.length === draftOrder.length
+
+  return {
+    draftOrder,
+    picks,
+    allPicked,
   }
 }
 

@@ -676,7 +676,7 @@ async function seedScoring() {
     {
       name: "kaptein",
       displayName: "Kaptein / Laginnsats",
-      applicableRaceTypes: ["world_championship"],
+      applicableRaceTypes: ["world_championship", "womens_one_day"],
       effect: {
         type: "choice",
         options: {
@@ -685,21 +685,29 @@ async function seedScoring() {
         },
         target: "own_rider_or_country",
       },
-      description: "x2 for one rider OR x1.5 for all riders from a chosen country",
+      description: "x2 for one rider OR x1.5 for all riders from a chosen country (WC and Women's races)",
     },
     {
       name: "blodpose_gt",
       displayName: "Blodpose",
       applicableRaceTypes: ["grand_tour", "womens_grand_tour"],
-      effect: { type: "multiplier", value: 3, target: "own_rider" },
-      description: "x3 for one of your riders",
+      effect: {
+        type: "multiplier",
+        values: { grand_tour: 3.5, grand_tour_tdf: 3 },
+        target: "own_rider",
+      },
+      description: "x3 for TdF or x3.5 for Giro/Vuelta for one of your riders",
     },
     {
       name: "etappeseier",
       displayName: "Etappeseier",
       applicableRaceTypes: ["grand_tour", "womens_grand_tour"],
-      effect: { type: "double_top10_stage", target: "all_own_riders" },
-      description: "All your riders get double top-10 stage finish points",
+      effect: {
+        type: "multiply_finish_points",
+        values: { grand_tour: 2.25, grand_tour_tdf: 2 },
+        target: "all_own_riders",
+      },
+      description: "All your riders get multiplied stage finish points (x2 TdF, x2.25 Giro/Vuelta)",
     },
     {
       name: "hammer",
@@ -707,12 +715,12 @@ async function seedScoring() {
       applicableRaceTypes: ["grand_tour"],
       effect: {
         type: "gc_position_loss",
-        points_per_position: 3,
-        max_points: 30,
+        points_per_position: 5,
+        max_points: 50,
         restriction: "stage_11_plus",
         target: "unowned_gc_top10",
       },
-      description: "Pick a GC top-10 rider not on your team, 3 pts per GC position lost, max 30 (stage 11+)",
+      description: "Pick a GC top-10 rider not on your team, 5 pts per GC position lost, max 50 (stage 11+)",
     },
     {
       name: "covid",
@@ -749,18 +757,18 @@ async function seedScoring() {
       applicableRaceTypes: ["grand_tour"],
       effect: {
         type: "team_placement_points",
-        points_per_top20: 5,
+        points_per_top20: 10,
         restriction: "vuelta_only_no_ttt",
         target: "real_team",
       },
-      description: "Choose a real team, 5 pts per top-20 placement (Vuelta only, can't play on TTT stage)",
+      description: "Choose a real team, 10 pts per top-20 placement (Vuelta only, can't play on TTT stage)",
     },
     {
       name: "sponsorens_ritt",
       displayName: "Sponsorens ritt",
       applicableRaceTypes: ["womens_grand_tour"],
-      effect: { type: "double_end_tour", target: "all_own_riders" },
-      description: "Double end-of-tour points for all your riders",
+      effect: { type: "multiply_end_tour", value: 3, target: "all_own_riders" },
+      description: "3x end-of-tour points for all your riders",
     },
   ]
 

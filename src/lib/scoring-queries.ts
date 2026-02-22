@@ -5,7 +5,8 @@ import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
 import { races } from "@/db/schema/races"
 import { raceLineups } from "@/db/schema/lineups"
-import { eq, desc, sql, and, asc, gte, lte } from "drizzle-orm"
+import { bonusRiders } from "@/db/schema/bonus-riders"
+import { eq, desc, sql, and, asc, gte, lte, or } from "drizzle-orm"
 
 /**
  * Lineup filter: if a lineup exists for this team/race, only riders in the lineup score.
@@ -91,7 +92,58 @@ export async function getLeagueStandings(leagueId: number, season: number) {
     }
   })
 
-  return ranked
+  // Add bonus rider points for Uno-X order
+  // Bonus riders score points only for the specific GT (parent race) they were picked for
+  const bonusPointsRows = await db
+    .select({
+      teamId: bonusRiders.teamId,
+      bonusPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+    })
+    .from(bonusRiders)
+    .innerJoin(raceResults, eq(raceResults.riderId, bonusRiders.riderId))
+    .innerJoin(races, eq(races.id, raceResults.raceId))
+    .where(
+      and(
+        eq(bonusRiders.leagueId, leagueId),
+        eq(races.season, season),
+        // Bonus rider scores include both the parent race itself and all its stages
+        or(
+          eq(races.id, bonusRiders.raceId),
+          eq(races.parentRaceId, bonusRiders.raceId)
+        ),
+        // League race scoping
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+      )
+    )
+    .groupBy(bonusRiders.teamId)
+
+  // Merge bonus points into standings
+  const bonusPointsMap = new Map<number, number>()
+  for (const row of bonusPointsRows) {
+    bonusPointsMap.set(row.teamId, Number(row.bonusPoints))
+  }
+
+  // Add bonus points to each standing
+  const standingsWithBonus = ranked.map((standing) => ({
+    ...standing,
+    totalPoints: standing.totalPoints + (bonusPointsMap.get(standing.teamId) ?? 0),
+  }))
+
+  // Re-sort by totalPoints DESC
+  standingsWithBonus.sort((a, b) => b.totalPoints - a.totalPoints)
+
+  // Re-derive ranks with tie handling
+  for (let i = 0; i < standingsWithBonus.length; i++) {
+    if (i === 0) {
+      standingsWithBonus[i].rank = 1
+    } else if (standingsWithBonus[i].totalPoints === standingsWithBonus[i - 1].totalPoints) {
+      standingsWithBonus[i].rank = standingsWithBonus[i - 1].rank
+    } else {
+      standingsWithBonus[i].rank = i + 1
+    }
+  }
+
+  return standingsWithBonus
 }
 
 /**
@@ -132,13 +184,62 @@ export async function getTeamRiderScores(teamId: number, leagueId: number, seaso
     .groupBy(draftPicks.riderId, riders.name, riders.team, riders.gender)
     .orderBy(desc(sql`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`))
 
-  return rows.map((row) => ({
+  const draftedRiders = rows.map((row) => ({
     riderId: row.riderId,
     riderName: row.riderName,
     riderTeam: row.riderTeam,
     gender: row.gender,
     totalPoints: Number(row.totalPoints),
-  })) satisfies TeamRiderScore[]
+    isBonus: false,
+  }))
+
+  // Add bonus riders for this team
+  const bonusRidersRows = await db
+    .select({
+      riderId: bonusRiders.riderId,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      gender: riders.gender,
+      totalPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+    })
+    .from(bonusRiders)
+    .innerJoin(riders, eq(riders.id, bonusRiders.riderId))
+    .leftJoin(raceResults, eq(raceResults.riderId, bonusRiders.riderId))
+    .leftJoin(races, eq(races.id, raceResults.raceId))
+    .where(
+      and(
+        eq(bonusRiders.teamId, teamId),
+        eq(bonusRiders.leagueId, leagueId),
+        // Only include results from the season and for the specific GT
+        or(
+          and(
+            eq(races.season, season),
+            or(
+              eq(races.id, bonusRiders.raceId),
+              eq(races.parentRaceId, bonusRiders.raceId)
+            ),
+            sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+          ),
+          sql`FALSE`  // fallback to handle NULL race results
+        )
+      )
+    )
+    .groupBy(bonusRiders.riderId, riders.name, riders.team, riders.gender)
+
+  const bonusRidersScores = bonusRidersRows.map((row) => ({
+    riderId: row.riderId,
+    riderName: row.riderName,
+    riderTeam: row.riderTeam,
+    gender: row.gender,
+    totalPoints: Number(row.totalPoints),
+    isBonus: true,
+  }))
+
+  // Combine drafted riders and bonus riders, sort by total points DESC
+  const allRiders = [...draftedRiders, ...bonusRidersScores]
+  allRiders.sort((a, b) => b.totalPoints - a.totalPoints)
+
+  return allRiders satisfies TeamRiderScore[]
 }
 
 export type LeagueStanding = {
@@ -155,6 +256,7 @@ export type TeamRiderScore = {
   riderTeam: string
   gender: "M" | "F"
   totalPoints: number
+  isBonus?: boolean
 }
 
 /**
@@ -192,7 +294,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
     .where(and(eq(raceResults.raceId, raceId), lineupFilter))
     .orderBy(asc(raceResults.position))
 
-  return rows.map((row) => ({
+  const draftedRiderEntries = rows.map((row) => ({
     teamId: row.teamId,
     teamName: row.teamName,
     riderId: row.riderId,
@@ -201,7 +303,55 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
     riderNationality: row.nationality,
     position: row.position,
     points: row.points,
-  })) satisfies RaceScoreEntry[]
+  }))
+
+  // Add bonus riders for this race (or parent race if this is a stage)
+  // Check if any bonus riders scored in this race
+  const bonusRiderRows = await db
+    .select({
+      teamId: bonusRiders.teamId,
+      teamName: teams.name,
+      riderId: bonusRiders.riderId,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      nationality: riders.nationality,
+      position: raceResults.position,
+      points: raceResults.points,
+    })
+    .from(bonusRiders)
+    .innerJoin(teams, eq(teams.id, bonusRiders.teamId))
+    .innerJoin(riders, eq(riders.id, bonusRiders.riderId))
+    .innerJoin(raceResults, eq(raceResults.riderId, bonusRiders.riderId))
+    .innerJoin(races, eq(races.id, raceResults.raceId))
+    .where(
+      and(
+        eq(bonusRiders.leagueId, leagueId),
+        eq(raceResults.raceId, raceId),
+        // Bonus rider must have been picked for this race (if parent) or the parent of this race (if stage)
+        or(
+          eq(bonusRiders.raceId, raceId),
+          eq(bonusRiders.raceId, races.parentRaceId)
+        )
+      )
+    )
+    .orderBy(asc(raceResults.position))
+
+  const bonusRiderEntries = bonusRiderRows.map((row) => ({
+    teamId: row.teamId,
+    teamName: row.teamName,
+    riderId: row.riderId,
+    riderName: row.riderName,
+    riderTeam: row.riderTeam,
+    riderNationality: row.nationality,
+    position: row.position,
+    points: row.points,
+  }))
+
+  // Combine and sort by position
+  const allEntries = [...draftedRiderEntries, ...bonusRiderEntries]
+  allEntries.sort((a, b) => a.position - b.position)
+
+  return allEntries satisfies RaceScoreEntry[]
 }
 
 /**

@@ -27,7 +27,7 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 - [x] **ORDER-03**: Hammer updated to 5 points per GC position lost, max 50
 - [x] **ORDER-04**: Lagtempo updated to 10 points per top-20 placement
 - [x] **ORDER-05**: Sponsorens ritt updated to 3x end-of-tour points
-- [ ] **ORDER-06**: Counter mechanic changed — countered order returns to attacker for reuse instead of bounce-back effect
+- [x] **ORDER-06**: Counter mechanic changed — countered order returns to attacker for reuse instead of bounce-back effect
 - [ ] **ORDER-07**: New Uno-X order — each team picks a bonus rider per GT from unowned pool, reverse standings draft order
 - [x] **ORDER-08**: New Kaptein/laginnsats for women's WC (x2 one rider or x1.5 all)
 
@@ -92,7 +92,7 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 | ORDER-04 | Phase 13 | Satisfied (13-01) |
 | ORDER-05 | Phase 13 | Satisfied (13-01) |
 | ORDER-08 | Phase 13 | Satisfied (13-01) |
-| ORDER-06 | Phase 14 | Pending |
+| ORDER-06 | Phase 14 | Complete |
 | ORDER-07 | Phase 15 | Pending |
 
 **Coverage:**

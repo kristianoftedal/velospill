@@ -205,13 +205,13 @@ export type BaseScore = {
  * - multiplier: blodpose_one_day, blodpose_gt, gammel_venn
  * - zero_points: shimanobil (+ blowback)
  * - half_points: covid (+ blowback)
- * - double_top10_stage: etappeseier
+ * - multiply_finish_points: etappeseier
  * - gc_position_loss: hammer (admin bonus points)
  * - team_sprint_points: innlagt_spurt (admin bonus points)
  * - team_placement_points: lagtempo (admin bonus points)
  * - zero_finish_points: bondestreik (+ blowback)
  * - choice: kaptein
- * - double_end_tour: sponsorens_ritt
+ * - multiply_end_tour: sponsorens_ritt
  *
  * For "blowback" orders from counter resolution, pass them with the
  * blowbackTeamId as the teamId.
@@ -240,9 +240,11 @@ export function applyOrderEffects(
           break
         }
         // blodpose_one_day, blodpose_gt — multiply own targeted rider
+        // For blodpose_gt: after migration, uses values: {grand_tour: 3.5, grand_tour_tdf: 3}
+        // The raceType passed here is from races.raceType which correctly reflects GT type for stages
         const multiplier = order.effectValues
           ? (order.effectValues[raceType] ?? 1)
-          : (order.effectValue ?? 3) // blodpose_gt uses value:3
+          : (order.effectValue ?? 3)
         const targetEntry = baseScores.find(
           (s) => s.riderId === order.targetRiderId && s.teamId === order.teamId
         )
@@ -301,10 +303,12 @@ export function applyOrderEffects(
         break
       }
 
-      case "double_top10_stage": {
-        // etappeseier — all own riders with position <= 10 get doubled points
+      case "multiply_finish_points": {
+        // etappeseier — multiply ALL own riders' finish points by race-specific multiplier
+        // After migration: values: {grand_tour: 2.25, grand_tour_tdf: 2}
+        const multiplier = order.effectValues?.[raceType] ?? 2
         const ownRiders = baseScores.filter(
-          (s) => s.teamId === order.teamId && (s.position ?? 999) <= 10
+          (s) => s.teamId === order.teamId
         )
         for (const entry of ownRiders) {
           if (entry.points > 0) {
@@ -313,9 +317,9 @@ export function applyOrderEffects(
               riderId: entry.riderId,
               raceId: order.raceId,
               basePoints: entry.points,
-              adjustedPoints: entry.points * 2,
+              adjustedPoints: Math.floor(entry.points * multiplier),
               orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} x2 (top-10)`,
+              description: `${order.orderTypeName} x${multiplier} (finish pts)`,
             })
           }
         }
@@ -362,8 +366,7 @@ export function applyOrderEffects(
       }
 
       case "choice": {
-        // kaptein — only applies in World Championship
-        if (!isWorldChampionship) break
+        // kaptein — applies in World Championship and women's one-day races
         const kapteinChoice = order.orderConfig?.kapteinChoice
         if (kapteinChoice === "single_rider") {
           const targetEntry = baseScores.find(
@@ -401,8 +404,10 @@ export function applyOrderEffects(
         break
       }
 
-      case "double_end_tour": {
-        // sponsorens_ritt — double all own riders' points for this race
+      case "multiply_end_tour": {
+        // sponsorens_ritt — multiply all own riders' end-of-tour points by configurable multiplier
+        // After migration: value: 3 (changed from x2 to x3)
+        const multiplier = order.effectValue ?? 3
         const ownRiders = baseScores.filter((s) => s.teamId === order.teamId)
         for (const entry of ownRiders) {
           if (entry.points > 0) {
@@ -411,9 +416,9 @@ export function applyOrderEffects(
               riderId: entry.riderId,
               raceId: order.raceId,
               basePoints: entry.points,
-              adjustedPoints: entry.points * 2,
+              adjustedPoints: Math.floor(entry.points * multiplier),
               orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} x2`,
+              description: `${order.orderTypeName} x${multiplier}`,
             })
           }
         }

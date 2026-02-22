@@ -188,4 +188,4 @@ Plans:
 | 12. Result Entry | v1.1 | 3/3 | Complete | 2026-02-21 |
 | 13. Order Config | v1.1 | 2/2 | Complete | 2026-02-22 |
 | 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
-| 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
+| 15. Uno-X Order | v1.1 | Complete    | 2026-02-22 | 2026-02-22 |

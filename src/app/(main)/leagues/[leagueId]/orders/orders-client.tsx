@@ -91,6 +91,7 @@ export function OrdersClient({
 
   // Filter order types based on the selected race's effective type
   // For stages, use the parent race type
+  // For women's one-day races (womens_one_day), kaptein is now applicable (as of v1.1)
   const effectiveRaceType = selectedRace?.parentRaceId
     ? (upcomingRaces.find((r) => r.id === selectedRace.parentRaceId)?.raceType ?? selectedRace.raceType)
     : selectedRace?.raceType

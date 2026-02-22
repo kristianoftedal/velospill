@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 15 of 15 (Uno-X Order Feature)
-Plan: 2 of 2
+Plan: 3 of 3
 Status: Complete
-Last activity: 2026-02-22 — Completed plan 15-02 (Uno-X order backend logic)
+Last activity: 2026-02-22 — Completed plan 15-03 (Uno-X order UI integration)
 
 Progress: [████████████████████] 100.0% (15 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 37 (26 v1.0 + 11 v1.1)
-- Average duration: 163s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 1796s (v1.1)
+- Total plans completed: 38 (26 v1.0 + 12 v1.1)
+- Average duration: 165s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 2029s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -52,10 +52,11 @@ Progress: [████████████████████] 100.0% 
 | 14. Counter Mechanic Return Logic | 14-01 | 154s | 3 | 3 | 2026-02-22 |
 | 15. Uno-X Order Feature | 15-01 | 122s | 5 | 2 | 2026-02-22 |
 | 15. Uno-X Order Feature | 15-02 | 168s | 2 | 2 | 2026-02-22 |
+| 15. Uno-X Order Feature | 15-03 | 233s | 7 | 2 | 2026-02-22 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (11 plans completed, phase 15 complete)
+- v1.1 milestone: In progress (12 plans completed, phase 15 complete)
 
 ## Accumulated Context
 
@@ -116,6 +117,10 @@ Recent decisions from PROJECT.md:
 - Phase 15 (15-02): Race matching uses OR(eq(races.id, bonusRiders.raceId), eq(races.parentRaceId, bonusRiders.raceId)) for GT stages
 - Phase 15 (15-02): Standings re-ranked after adding bonus points to account for point changes
 - Phase 15 (15-02): TeamRiderScore type extended with optional isBonus field for UI distinction
+- Phase 15 (15-03): Admin UI loads draft state on mount via server action for fresh data per request
+- Phase 15 (15-03): Team page pre-computes draft state server-side to avoid client async complexity
+- Phase 15 (15-03): Turn validation enforced server-side via pick count check (expectedPicksCount === pickOrder - 1)
+- Phase 15 (15-03): Bonus Draft Active badge added to My Orders table for visual feedback
 
 ### Pending Todos
 
@@ -133,11 +138,11 @@ None yet.
 - Phase 11: Scoring config changes are seed data only (no schema changes expected) (DONE)
 - Phase 12: Result entry expansion requires schema changes for new categories (DONE - full implementation complete including TTT and end-of-tour)
 - Phase 13: Order config updates are data-only (migration + seed updates) (DONE)
-- Phase 14+: Remaining v1.1 features (race calendar improvements, etc.)
-- Phase 15: Uno-X order requires reverse standings draft UI (similar to phase 4 draft)
+- Phase 14: Counter mechanic return logic updated to remove blowback (DONE)
+- Phase 15: Uno-X order requires reverse standings draft UI (DONE - complete with admin and team UI)
 
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed phase 15 (15-02: Uno-X order backend logic)
+Stopped at: Completed phase 15 (15-03: Uno-X order UI integration)
 Resume file: None

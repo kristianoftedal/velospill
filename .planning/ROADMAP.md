@@ -138,10 +138,10 @@ Plans:
 4. Admin can see in order history which orders were countered and returned
 5. Scoring accurately reflects the return mechanic (no double-counting, no bounce-back points)
 
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 14-01: TBD during phase planning
+- [ ] 14-01-PLAN.md — Remove blowback from counter mechanic, return countered orders to attacker for reuse
 
 ---
 
@@ -185,5 +185,5 @@ Plans:
 | 11. Scoring Config | v1.1 | 2/2 | Complete | 2026-02-21 |
 | 12. Result Entry | v1.1 | 3/3 | Complete | 2026-02-21 |
 | 13. Order Config | v1.1 | Complete    | 2026-02-22 | 2026-02-22 |
-| 14. Counter Mechanic | v1.1 | 0/TBD | Not started | — |
+| 14. Counter Mechanic | v1.1 | 0/1 | Not started | — |
 | 15. Uno-X Order | v1.1 | 0/TBD | Not started | — |

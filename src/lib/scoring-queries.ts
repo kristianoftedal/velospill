@@ -405,7 +405,7 @@ export async function getRaceScoreBreakdownWithOrders(
     const key = `${adj.teamId}:${adj.riderId}`
     const existing = adjMap.get(key)
     if (existing) {
-      // Multiple effects can stack (e.g. counter + blowback) — aggregate
+      // Multiple effects can stack (e.g. multiple order types) — aggregate
       existing.adjustedPoints = existing.adjustedPoints - adj.basePoints + adj.adjustedPoints
       existing.description = `${existing.description}, ${adj.description}`
     } else {

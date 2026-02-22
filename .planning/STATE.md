@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Phase 13 - Order Config Updates
+**Current focus:** Phase 14 - Counter Mechanic Return Logic
 
 ## Current Position
 
-Phase: 13 of 15 (Order Config Updates)
-Plan: 2 of 2
+Phase: 14 of 15 (Counter Mechanic Return Logic)
+Plan: 1 of 1
 Status: Complete
-Last activity: 2026-02-22 — Completed plan 13-02 (Order effect application logic updates for new effect types)
+Last activity: 2026-02-22 — Completed plan 14-01 (Counter mechanic return logic - removed blowback)
 
-Progress: [█████████████████░░░] 86.7% (13 of 15 phases complete)
+Progress: [███████████████████░] 93.3% (14 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34 (26 v1.0 + 8 v1.1)
-- Average duration: 169s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 1352s (v1.1)
+- Total plans completed: 35 (26 v1.0 + 9 v1.1)
+- Average duration: 167s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 1506s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -49,10 +49,11 @@ Progress: [█████████████████░░░] 86.7% (
 | 12. Result Entry Expansion | 12-03 | 198s | 3 | 2 | 2026-02-21 |
 | 13. Order Config Updates | 13-01 | 156s | 2 | 2 | 2026-02-22 |
 | 13. Order Config Updates | 13-02 | 169s | 2 | 2 | 2026-02-22 |
+| 14. Counter Mechanic Return Logic | 14-01 | 154s | 3 | 3 | 2026-02-22 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (8 plans completed, phase 13 complete)
+- v1.1 milestone: In progress (9 plans completed, phase 14 complete)
 
 ## Accumulated Context
 
@@ -101,6 +102,10 @@ Recent decisions from PROJECT.md:
 - Phase 13 (13-02): Sponsorens ritt uses configurable multiplier (3x) instead of hardcoded 2x
 - Phase 13 (13-02): Kaptein works for both World Championship and women's one-day races
 - Phase 13 (13-02): Blodpose GT multiplier resolution already handles per-GT values via existing effectValues code path
+- Phase 14 (14-01): Remove blowback fields from CounterResult type (down to 3 fields)
+- Phase 14 (14-01): Counter descriptions now say "order returned to attacker for reuse"
+- Phase 14 (14-01): No penalty applied to attacking team when countered (2026 rules)
+- Phase 14 (14-01): Counter results displayed with blue neutral styling instead of yellow warning
 
 ### Pending Todos
 
@@ -124,5 +129,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed phase 13 (13-02: Order effect application logic updates)
+Stopped at: Completed phase 14 (14-01: Counter mechanic return logic)
 Resume file: None

@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 13 of 15 (Order Config Updates)
-Plan: 1 of 1
+Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-22 — Completed plan 13-01 (Order type configuration updates for 2026 ruleset)
+Last activity: 2026-02-22 — Completed plan 13-02 (Order effect application logic updates for new effect types)
 
 Progress: [█████████████████░░░] 86.7% (13 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33 (26 v1.0 + 7 v1.1)
+- Total plans completed: 34 (26 v1.0 + 8 v1.1)
 - Average duration: 169s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 1183s (v1.1)
+- Total execution time: 11 days (v1.0 milestone) + 1352s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -48,10 +48,11 @@ Progress: [█████████████████░░░] 86.7% (
 | 12. Result Entry Expansion | 12-02 | 223s | 3 | 2 | 2026-02-21 |
 | 12. Result Entry Expansion | 12-03 | 198s | 3 | 2 | 2026-02-21 |
 | 13. Order Config Updates | 13-01 | 156s | 2 | 2 | 2026-02-22 |
+| 13. Order Config Updates | 13-02 | 169s | 2 | 2 | 2026-02-22 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (7 plans completed, phase 13 complete)
+- v1.1 milestone: In progress (8 plans completed, phase 13 complete)
 
 ## Accumulated Context
 
@@ -96,6 +97,10 @@ Recent decisions from PROJECT.md:
 - Phase 13 (13-01): Migration script uses @neondatabase/serverless Pool for consistency with project DB setup
 - Phase 13 (13-01): Order type updates wrapped in single transaction for atomicity
 - Phase 13 (13-01): Migration supports dry-run mode for safe testing before production execution
+- Phase 13 (13-02): Etappeseier now multiplies ALL own riders' finish points (not limited to top-10 positions)
+- Phase 13 (13-02): Sponsorens ritt uses configurable multiplier (3x) instead of hardcoded 2x
+- Phase 13 (13-02): Kaptein works for both World Championship and women's one-day races
+- Phase 13 (13-02): Blodpose GT multiplier resolution already handles per-GT values via existing effectValues code path
 
 ### Pending Todos
 
@@ -119,5 +124,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed phase 13 (13-01: Order type configuration updates)
+Stopped at: Completed phase 13 (13-02: Order effect application logic updates)
 Resume file: None

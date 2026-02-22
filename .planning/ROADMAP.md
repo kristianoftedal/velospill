@@ -115,11 +115,11 @@ Plans:
 6. New Kaptein/laginnsats order exists for women's WC (x2 one rider or x1.5 all)
 7. Admin can select and submit all updated orders with correct multipliers
 
-**Plans:** 2 plans (1 complete, 1 pending)
+**Plans:** 2/2 plans complete
 
 Plans:
-- [x] 13-01-PLAN.md — Update order type seed data and create migration script for 2026 multipliers (COMPLETE)
-- [ ] 13-02-PLAN.md — Update order effect application logic for new effect types and Kaptein on women's WC
+- [x] 13-01-PLAN.md — Update order type seed data and create migration script for 2026 multipliers (completed 2026-02-22, 156s, 2 commits)
+- [x] 13-02-PLAN.md — Update order effect application logic for new effect types and Kaptein on women's WC (completed 2026-02-22, 169s, 2 commits)
 
 ---
 
@@ -184,6 +184,6 @@ Plans:
 | 10. Bug Fixes | v1.1 | 1/1 | Complete | 2026-02-20 |
 | 11. Scoring Config | v1.1 | 2/2 | Complete | 2026-02-21 |
 | 12. Result Entry | v1.1 | 3/3 | Complete | 2026-02-21 |
-| 13. Order Config | v1.1 | 0/2 | Not started | — |
+| 13. Order Config | v1.1 | 2/2 | Complete | 2026-02-22 |
 | 14. Counter Mechanic | v1.1 | 0/TBD | Not started | — |
 | 15. Uno-X Order | v1.1 | 0/TBD | Not started | — |

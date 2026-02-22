@@ -11,9 +11,13 @@ import {
   getTeamRidersForOrders,
   getOpponentRiders,
   getOpponentTeams,
+  computeReverseDraftOrder,
+  getBonusRidersForRace,
+  getUnownedRidersForGT,
 } from "@/lib/order-queries"
 import { OrdersClient } from "./orders-client"
-import { submitOrder, cancelOrder } from "./actions"
+import { BonusRiderPick } from "./bonus-rider-pick"
+import { submitOrder, cancelOrder, pickBonusRider } from "./actions"
 
 interface PageProps {
   params: Promise<{ leagueId: string }>
@@ -116,6 +120,46 @@ export default async function OrdersPage({ params }: PageProps) {
       getOpponentTeams(leagueId, userTeamId),
     ])
 
+  // Check for active Uno-X orders for bonus rider draft
+  const activeUnoXOrders = teamOrders.filter(
+    (order) => order.status === "active" && order.orderTypeName === "uno_x"
+  )
+
+  // Prepare bonus rider draft data for each active Uno-X order
+  const bonusRiderDrafts = await Promise.all(
+    activeUnoXOrders.map(async (order) => {
+      const [draftOrder, existingPicks] = await Promise.all([
+        computeReverseDraftOrder(leagueId, seasonYear),
+        getBonusRidersForRace(leagueId, order.raceId),
+      ])
+
+      const myDraftPosition = draftOrder.find((t) => t.teamId === userTeamId)
+      const alreadyPicked = existingPicks.some((p) => p.teamId === userTeamId)
+      const myPickedRider = existingPicks.find((p) => p.teamId === userTeamId)
+      const isMyTurn = !alreadyPicked && existingPicks.length + 1 === (myDraftPosition?.pickOrder ?? 0)
+
+      // Get gender from first rider if available, otherwise default to M
+      const firstRider = teamRiders[0]
+      const gender = (firstRider?.gender as "M" | "F") ?? "M"
+
+      const availableRiders = await getUnownedRidersForGT(leagueId, gender, order.raceId)
+
+      return {
+        leagueId,
+        teamId: userTeamId,
+        raceId: order.raceId,
+        raceName: order.raceName,
+        draftOrder,
+        existingPicks,
+        availableRiders,
+        myPickOrder: myDraftPosition?.pickOrder ?? 0,
+        isMyTurn,
+        alreadyPicked,
+        myPickedRider,
+      }
+    })
+  )
+
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
       {/* Breadcrumb */}
@@ -152,6 +196,29 @@ export default async function OrdersPage({ params }: PageProps) {
         submitOrder={submitOrder}
         cancelOrder={cancelOrder}
       />
+
+      {/* Bonus Rider Draft Section */}
+      {bonusRiderDrafts.length > 0 && (
+        <div className="space-y-4">
+          {bonusRiderDrafts.map((draft) => (
+            <BonusRiderPick
+              key={draft.raceId}
+              leagueId={draft.leagueId}
+              teamId={draft.teamId}
+              raceId={draft.raceId}
+              raceName={draft.raceName}
+              draftOrder={draft.draftOrder}
+              existingPicks={draft.existingPicks}
+              availableRiders={draft.availableRiders}
+              myPickOrder={draft.myPickOrder}
+              isMyTurn={draft.isMyTurn}
+              alreadyPicked={draft.alreadyPicked}
+              myPickedRider={draft.myPickedRider}
+              pickBonusRider={pickBonusRider}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

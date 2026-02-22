@@ -273,6 +273,10 @@ export async function submitOrder(formData: {
     if (!targetProTeam || targetProTeam.trim() === "") {
       return { success: false, error: "You must specify a professional cycling team name" }
     }
+  } else if (effectTarget === "unowned_rider_pool") {
+    // uno_x — bonus rider draft
+    // No target needed at submission time; the bonus rider is picked later via the draft
+    // Simply allow the order through without any target fields
   }
 
   // 12. Insert the order
@@ -336,6 +340,154 @@ export async function cancelOrder(
   await db.delete(orders).where(eq(orders.id, orderId))
 
   // 4. Revalidate paths
+  revalidatePath(`/leagues/${leagueId}/orders`)
+  revalidatePath(`/admin/orders`)
+
+  return { success: true }
+}
+
+export async function pickBonusRider(
+  leagueId: number,
+  teamId: number,
+  riderId: number,
+  raceId: number
+): Promise<{ success: true } | { success: false; error: string }> {
+  // 1. Auth check
+  let session: Awaited<ReturnType<typeof getAuthenticatedUser>>
+  try {
+    session = await getAuthenticatedUser()
+  } catch {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  // 2. Check league membership
+  const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember || !team) {
+    return { success: false, error: "You are not a member of this league" }
+  }
+
+  // 3. Verify this is the user's team
+  if (team.id !== teamId) {
+    return { success: false, error: "You can only pick a bonus rider for your own team" }
+  }
+
+  // 4. Verify the team has an active Uno-X order for this race
+  const [orderType] = await db
+    .select()
+    .from(orderTypes)
+    .where(eq(orderTypes.name, "uno_x"))
+    .limit(1)
+
+  if (!orderType) {
+    return { success: false, error: "Uno-X order type not found" }
+  }
+
+  const [activeOrder] = await db
+    .select()
+    .from(orders)
+    .where(
+      and(
+        eq(orders.teamId, teamId),
+        eq(orders.leagueId, leagueId),
+        eq(orders.raceId, raceId),
+        eq(orders.orderTypeId, orderType.id),
+        eq(orders.status, "active")
+      )
+    )
+    .limit(1)
+
+  if (!activeOrder) {
+    return { success: false, error: "No active Uno-X order found for this race" }
+  }
+
+  // 5. Verify the rider is unowned (not drafted in this league)
+  const [draftedRider] = await db
+    .select()
+    .from(draftPicks)
+    .where(
+      and(
+        eq(draftPicks.leagueId, leagueId),
+        eq(draftPicks.riderId, riderId)
+      )
+    )
+    .limit(1)
+
+  if (draftedRider) {
+    return { success: false, error: "This rider is already drafted by a team in this league" }
+  }
+
+  // 6. Verify the rider is not already picked as a bonus rider for this league+race
+  const { bonusRiders } = await import("@/db/schema/bonus-riders")
+  const [existingBonusPick] = await db
+    .select()
+    .from(bonusRiders)
+    .where(
+      and(
+        eq(bonusRiders.leagueId, leagueId),
+        eq(bonusRiders.raceId, raceId),
+        eq(bonusRiders.riderId, riderId)
+      )
+    )
+    .limit(1)
+
+  if (existingBonusPick) {
+    return { success: false, error: "This rider has already been picked as a bonus rider by another team" }
+  }
+
+  // 7. Compute draft order and verify it's this team's turn
+  const { computeReverseDraftOrder, getBonusRidersForRace } = await import("@/lib/order-queries")
+
+  const [league] = await db
+    .select()
+    .from(leagues)
+    .where(eq(leagues.id, leagueId))
+    .limit(1)
+
+  if (!league) {
+    return { success: false, error: "League not found" }
+  }
+
+  const config = league.config as { seasonYear: number }
+  const season = config.seasonYear
+
+  const [draftOrder, existingPicks] = await Promise.all([
+    computeReverseDraftOrder(leagueId, season),
+    getBonusRidersForRace(leagueId, raceId),
+  ])
+
+  const teamDraftPosition = draftOrder.find((t) => t.teamId === teamId)
+  if (!teamDraftPosition) {
+    return { success: false, error: "Team not found in draft order" }
+  }
+
+  // Verify this team hasn't already picked
+  const alreadyPicked = existingPicks.some((p) => p.teamId === teamId)
+  if (alreadyPicked) {
+    return { success: false, error: "Your team has already picked a bonus rider for this race" }
+  }
+
+  // Verify it's this team's turn (picks count should match pickOrder - 1)
+  const expectedPicksCount = teamDraftPosition.pickOrder - 1
+  if (existingPicks.length !== expectedPicksCount) {
+    return { success: false, error: "It's not your turn yet. Please wait for teams ahead of you to pick." }
+  }
+
+  // 8. Save the bonus rider pick
+  const { saveBonusRiderPick } = await import("@/lib/order-queries")
+  const result = await saveBonusRiderPick(
+    leagueId,
+    teamId,
+    riderId,
+    raceId,
+    activeOrder.id,
+    teamDraftPosition.pickOrder
+  )
+
+  if (!result.success) {
+    return result
+  }
+
+  // 9. Revalidate paths
   revalidatePath(`/leagues/${leagueId}/orders`)
   revalidatePath(`/admin/orders`)
 

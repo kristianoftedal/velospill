@@ -597,18 +597,27 @@ export function OrdersClient({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {teamOrders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-medium text-sm">{order.raceName}</TableCell>
-                      <TableCell className="text-sm">{order.orderTypeDisplayName}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{formatTarget(order)}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(order.status)}`}
-                        >
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </span>
-                      </TableCell>
+                  {teamOrders.map((order) => {
+                    const isUnoXActive = order.status === "active" && order.orderTypeName === "uno_x"
+                    return (
+                      <TableRow key={order.id}>
+                        <TableCell className="font-medium text-sm">{order.raceName}</TableCell>
+                        <TableCell className="text-sm">
+                          {order.orderTypeDisplayName}
+                          {isUnoXActive && (
+                            <Badge variant="outline" className="ml-2 border-purple-500 text-purple-700">
+                              Bonus Draft Active
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm text-gray-600">{formatTarget(order)}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(order.status)}`}
+                          >
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </span>
+                        </TableCell>
                       <TableCell className="text-xs text-gray-500">
                         {new Date(order.submittedAt).toLocaleDateString("en-GB", {
                           day: "numeric",
@@ -627,9 +636,10 @@ export function OrdersClient({
                             Cancel
                           </Button>
                         )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
                 </TableBody>
               </Table>
             </div>

@@ -115,10 +115,10 @@ Plans:
 6. New Kaptein/laginnsats order exists for women's WC (x2 one rider or x1.5 all)
 7. Admin can select and submit all updated orders with correct multipliers
 
-**Plans:** 2 plans
+**Plans:** 2 plans (1 complete, 1 pending)
 
 Plans:
-- [ ] 13-01-PLAN.md — Update order type seed data and create migration script for 2026 multipliers
+- [x] 13-01-PLAN.md — Update order type seed data and create migration script for 2026 multipliers (COMPLETE)
 - [ ] 13-02-PLAN.md — Update order effect application logic for new effect types and Kaptein on women's WC
 
 ---

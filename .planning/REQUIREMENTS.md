@@ -86,12 +86,12 @@ Requirements for the Scoring & Rules Update milestone. Each maps to roadmap phas
 | RESULT-04 | Phase 12 | Pending |
 | RESULT-05 | Phase 12 | Pending |
 | RESULT-06 | Phase 12 | Pending |
-| ORDER-01 | Phase 13 | Pending |
-| ORDER-02 | Phase 13 | Pending |
-| ORDER-03 | Phase 13 | Pending |
-| ORDER-04 | Phase 13 | Pending |
-| ORDER-05 | Phase 13 | Pending |
-| ORDER-08 | Phase 13 | Pending |
+| ORDER-01 | Phase 13 | Satisfied (13-01) |
+| ORDER-02 | Phase 13 | Satisfied (13-01) |
+| ORDER-03 | Phase 13 | Satisfied (13-01) |
+| ORDER-04 | Phase 13 | Satisfied (13-01) |
+| ORDER-05 | Phase 13 | Satisfied (13-01) |
+| ORDER-08 | Phase 13 | Satisfied (13-01) |
 | ORDER-06 | Phase 14 | Pending |
 | ORDER-07 | Phase 15 | Pending |
 

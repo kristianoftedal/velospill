@@ -6,23 +6,23 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Phase 12 - Result Entry Expansion
+**Current focus:** Phase 13 - Order Config Updates
 
 ## Current Position
 
-Phase: 12 of 15 (Result Entry Expansion)
-Plan: 3 of 3
+Phase: 13 of 15 (Order Config Updates)
+Plan: 1 of 1
 Status: Complete
-Last activity: 2026-02-21 — Completed plan 12-03 (TTT and end-of-tour result entry)
+Last activity: 2026-02-22 — Completed plan 13-01 (Order type configuration updates for 2026 ruleset)
 
-Progress: [████████████████░░░░] 80% (12 of 15 phases complete)
+Progress: [█████████████████░░░] 86.7% (13 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32 (26 v1.0 + 6 v1.1)
-- Average duration: 171s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 1027s (v1.1)
+- Total plans completed: 33 (26 v1.0 + 7 v1.1)
+- Average duration: 169s (v1.1 tracked)
+- Total execution time: 11 days (v1.0 milestone) + 1183s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -47,10 +47,11 @@ Progress: [████████████████░░░░] 80% (12
 | 12. Result Entry Expansion | 12-01 | 170s | 3 | 2 | 2026-02-21 |
 | 12. Result Entry Expansion | 12-02 | 223s | 3 | 2 | 2026-02-21 |
 | 12. Result Entry Expansion | 12-03 | 198s | 3 | 2 | 2026-02-21 |
+| 13. Order Config Updates | 13-01 | 156s | 2 | 2 | 2026-02-22 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (6 plans completed, phase 12 complete)
+- v1.1 milestone: In progress (7 plans completed, phase 13 complete)
 
 ## Accumulated Context
 
@@ -92,6 +93,9 @@ Recent decisions from PROJECT.md:
 - Phase 12 (12-03): End-of-tour categories validated to only work on parent races (not stages)
 - Phase 12 (12-03): Team names loaded per-race based on gender for TTT entry
 - Phase 12 (12-03): All scoring categories now enterable via admin UI with full preview support
+- Phase 13 (13-01): Migration script uses @neondatabase/serverless Pool for consistency with project DB setup
+- Phase 13 (13-01): Order type updates wrapped in single transaction for atomicity
+- Phase 13 (13-01): Migration supports dry-run mode for safe testing before production execution
 
 ### Pending Todos
 
@@ -108,11 +112,12 @@ None yet.
 - Phase 10: Fix rider filtering bugs before admin workflows can proceed (DONE)
 - Phase 11: Scoring config changes are seed data only (no schema changes expected) (DONE)
 - Phase 12: Result entry expansion requires schema changes for new categories (DONE - full implementation complete including TTT and end-of-tour)
-- Phase 13+: Remaining v1.1 features (race calendar improvements, etc.)
+- Phase 13: Order config updates are data-only (migration + seed updates) (DONE)
+- Phase 14+: Remaining v1.1 features (race calendar improvements, etc.)
 - Phase 15: Uno-X order requires reverse standings draft UI (similar to phase 4 draft)
 
 ## Session Continuity
 
-Last session: 2026-02-21
-Stopped at: Completed phase 12 (12-03: TTT and end-of-tour result entry)
+Last session: 2026-02-22
+Stopped at: Completed phase 13 (13-01: Order type configuration updates)
 Resume file: None

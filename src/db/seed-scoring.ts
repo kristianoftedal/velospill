@@ -770,6 +770,17 @@ async function seedScoring() {
       effect: { type: "multiply_end_tour", value: 3, target: "all_own_riders" },
       description: "3x end-of-tour points for all your riders",
     },
+    {
+      name: "uno_x",
+      displayName: "Uno-X",
+      applicableRaceTypes: ["grand_tour", "womens_grand_tour"],
+      effect: {
+        type: "bonus_rider_draft",
+        target: "unowned_rider_pool",
+        description: "Each team picks one bonus rider from the unowned pool in reverse standings order"
+      },
+      description: "Pick a bonus rider from the unowned pool for this GT (reverse standings draft order)",
+    },
   ]
 
   console.log(`  Inserting ${orderEntries.length} order type entries...`)

@@ -11,18 +11,18 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 15 of 15 (Uno-X Order Feature)
-Plan: 1 of 1
+Plan: 2 of 2
 Status: Complete
-Last activity: 2026-02-22 — Completed plan 15-01 (Uno-X order data foundation)
+Last activity: 2026-02-22 — Completed plan 15-02 (Uno-X order backend logic)
 
 Progress: [████████████████████] 100.0% (15 of 15 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 36 (26 v1.0 + 10 v1.1)
+- Total plans completed: 37 (26 v1.0 + 11 v1.1)
 - Average duration: 163s (v1.1 tracked)
-- Total execution time: 11 days (v1.0 milestone) + 1628s (v1.1)
+- Total execution time: 11 days (v1.0 milestone) + 1796s (v1.1)
 
 **By Phase (v1.0):**
 
@@ -51,10 +51,11 @@ Progress: [████████████████████] 100.0% 
 | 13. Order Config Updates | 13-02 | 169s | 2 | 2 | 2026-02-22 |
 | 14. Counter Mechanic Return Logic | 14-01 | 154s | 3 | 3 | 2026-02-22 |
 | 15. Uno-X Order Feature | 15-01 | 122s | 5 | 2 | 2026-02-22 |
+| 15. Uno-X Order Feature | 15-02 | 168s | 2 | 2 | 2026-02-22 |
 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (10 plans completed, phase 15 complete)
+- v1.1 milestone: In progress (11 plans completed, phase 15 complete)
 
 ## Accumulated Context
 
@@ -111,6 +112,10 @@ Recent decisions from PROJECT.md:
 - Phase 15 (15-01): Unique constraint on (leagueId, raceId, teamId) enforces one bonus rider per team per GT
 - Phase 15 (15-01): Optional orderId reference links bonus rider back to Uno-X order that triggered draft
 - Phase 15 (15-01): Migration script combines DDL + seed data in single atomic transaction
+- Phase 15 (15-02): Bonus rider points queried separately and merged into standings (not via LEFT JOIN on main query)
+- Phase 15 (15-02): Race matching uses OR(eq(races.id, bonusRiders.raceId), eq(races.parentRaceId, bonusRiders.raceId)) for GT stages
+- Phase 15 (15-02): Standings re-ranked after adding bonus points to account for point changes
+- Phase 15 (15-02): TeamRiderScore type extended with optional isBonus field for UI distinction
 
 ### Pending Todos
 
@@ -134,5 +139,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-22
-Stopped at: Completed phase 15 (15-01: Uno-X order data foundation)
+Stopped at: Completed phase 15 (15-02: Uno-X order backend logic)
 Resume file: None

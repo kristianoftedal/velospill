@@ -493,6 +493,17 @@ export function OrdersClient({
                 </div>
               )}
 
+              {effectTarget === "unowned_rider_pool" && (
+                <div className="rounded-lg border border-purple-200 bg-purple-50 px-4 py-3">
+                  <p className="text-sm text-purple-800">
+                    This order triggers a <strong>bonus rider draft</strong> for this Grand Tour. Once activated by admin, each team will pick one bonus rider from the unowned pool in <strong>reverse standings order</strong> (last place picks first). No target selection needed now.
+                  </p>
+                  <Button className="mt-3 bg-purple-600 hover:bg-purple-700 text-white" size="sm" onClick={() => setStep(4)}>
+                    Continue to confirm
+                  </Button>
+                </div>
+              )}
+
               <Button variant="outline" size="sm" onClick={() => { setStep(2); setTargetRiderId(null); setTargetTeamId(null) }}>
                 Back to order types
               </Button>

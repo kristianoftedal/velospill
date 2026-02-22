@@ -330,9 +330,9 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
           </CardHeader>
           <CardContent className="space-y-2">
             {counterResults.map((cr, idx) => (
-              <div key={idx} className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-sm">
-                <span className="font-medium text-yellow-800">Counter:</span>{" "}
-                <span className="text-yellow-700">{cr.description}</span>
+              <div key={idx} className="p-3 bg-blue-50 border border-blue-200 rounded-md text-sm">
+                <span className="font-medium text-blue-800">Counter (returned):</span>{" "}
+                <span className="text-blue-700">{cr.description}</span>
               </div>
             ))}
           </CardContent>
@@ -355,12 +355,12 @@ export default async function RaceBreakdownPage({ params }: PageProps) {
 // ─── Helper component ──────────────────────────────────────────────────────────
 
 function OrderEffectBadge({ effect, isCountered }: { effect: string; isCountered: boolean }) {
-  const isAttack = effect.toLowerCase().includes("0 pts") || effect.toLowerCase().includes("half pts") || effect.toLowerCase().includes("blowback")
+  const isAttack = effect.toLowerCase().includes("0 pts") || effect.toLowerCase().includes("half pts")
   const isBoost = effect.toLowerCase().includes("x2") || effect.toLowerCase().includes("x3") || effect.toLowerCase().includes("x1.5")
 
   let className = "text-xs "
   if (isCountered) {
-    className += "bg-yellow-100 text-yellow-800 border-yellow-300"
+    className += "bg-blue-100 text-blue-800 border-blue-300"
   } else if (isAttack) {
     className += "bg-red-100 text-red-800 border-red-300"
   } else if (isBoost) {

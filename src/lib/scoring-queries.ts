@@ -416,13 +416,8 @@ export async function getRaceScoreBreakdownWithOrders(
     }
   }
 
-  // Determine countered rider IDs
+  // No blowback in 2026 rules — countered orders simply have no effect
   const counteredRiderIds = new Set<string>()
-  for (const cr of counterResults) {
-    if (cr.blowbackTargetRiderId != null) {
-      counteredRiderIds.add(`${cr.blowbackTeamId}:${cr.blowbackTargetRiderId}`)
-    }
-  }
 
   // Build enriched entries
   const entries: RaceScoreEntryWithOrders[] = baseEntries.map((entry) => {

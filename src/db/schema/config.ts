@@ -10,10 +10,10 @@ export const scoringConfig = pgTable("scoringConfig", {
   validUntil: timestamp("validUntil")
 })
 
-export const rosterLimits = pgTable("roster_limits", {
+export const rosterLimits = pgTable("rosterLimits", {
   id: serial("id").primaryKey(),
-  raceType: text("race_type").notNull().unique(),
-  rosterSize: integer("roster_size").notNull(),
+  raceType: text("raceType").notNull().unique(),
+  rosterSize: integer("rosterSize").notNull(),
   description: text("description")
 })
 

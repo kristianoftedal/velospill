@@ -18,7 +18,7 @@ export const riders = pgTable(
     team: text("team").notNull(),
     nationality: text("nationality").notNull(),
     gender: genderEnum("gender").notNull(),
-    draftRank: integer("draft_rank").notNull().default(9999),
+    draftRank: integer("draft_ranking").notNull().default(9999),
     createdAt: timestamp("createdAt", { withTimezone: true })
       .notNull()
       .defaultNow(),

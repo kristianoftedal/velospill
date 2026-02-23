@@ -7,7 +7,9 @@ import { teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
 import { leagueRaces } from "@/db/schema/leagues"
-import { eq, and, ne, gt, sql, desc, inArray } from "drizzle-orm"
+import { bonusRiders } from "@/db/schema/bonus-riders"
+import { eq, and, ne, gt, sql, desc, inArray, notInArray } from "drizzle-orm"
+import { revalidatePath } from "next/cache"
 
 // Alias for self-join on races (parent race)
 import { alias } from "drizzle-orm/pg-core"
@@ -406,6 +408,15 @@ export function applyOrderEffects(
             })
           }
         }
+        break
+      }
+
+      case "bonus_rider_draft": {
+        // uno_x — bonus rider draft order
+        // This effect type does NOT modify base scores directly.
+        // Bonus rider points are added at the scoring query level via LEFT JOIN on bonusRiders.
+        // This is a no-op here — the order submission triggers a draft, and bonus riders
+        // score through the scoring-queries.ts integration.
         break
       }
     }
@@ -807,3 +818,141 @@ export async function getOpponentTeams(leagueId: number, teamId: number) {
 }
 
 export type OpponentTeam = Awaited<ReturnType<typeof getOpponentTeams>>[number]
+
+// ─── Uno-X order: Bonus rider draft functions ────────────────────────────────
+
+/**
+ * Computes reverse draft order for bonus rider draft (last place picks first).
+ * Returns teams sorted by totalPoints ASC with 1-based pick order.
+ */
+export async function computeReverseDraftOrder(leagueId: number, season: number) {
+  const { getLeagueStandings } = await import("./scoring-queries")
+  const standings = await getLeagueStandings(leagueId, season)
+
+  // Sort by totalPoints ASC (last place first)
+  const reversed = [...standings].sort((a, b) => a.totalPoints - b.totalPoints)
+
+  return reversed.map((standing, index) => ({
+    teamId: standing.teamId,
+    teamName: standing.teamName,
+    totalPoints: standing.totalPoints,
+    pickOrder: index + 1,
+  }))
+}
+
+/**
+ * Returns riders not drafted by any team in this league and not already picked as bonus riders.
+ * Optionally filters by gender and excludes riders already picked for a specific GT.
+ */
+export async function getUnownedRidersForGT(
+  leagueId: number,
+  gender: "M" | "F",
+  raceId?: number
+) {
+  // Get all riderIds already drafted in this league
+  const draftedRiders = await db
+    .select({ riderId: draftPicks.riderId })
+    .from(draftPicks)
+    .where(eq(draftPicks.leagueId, leagueId))
+
+  const draftedIds = draftedRiders.map((p) => p.riderId)
+
+  // Get all riderIds already picked as bonus riders for this league (optionally filtered by race)
+  const bonusRiderConditions = [eq(bonusRiders.leagueId, leagueId)]
+  if (raceId) {
+    bonusRiderConditions.push(eq(bonusRiders.raceId, raceId))
+  }
+
+  const bonusRiderPicks = await db
+    .select({ riderId: bonusRiders.riderId })
+    .from(bonusRiders)
+    .where(and(...bonusRiderConditions))
+
+  const bonusRiderIds = bonusRiderPicks.map((p) => p.riderId)
+
+  // Combine both exclusion sets
+  const excludedIds = [...new Set([...draftedIds, ...bonusRiderIds])]
+
+  // Build where conditions
+  const conditions = [eq(riders.gender, gender)]
+  if (excludedIds.length > 0) {
+    conditions.push(notInArray(riders.id, excludedIds))
+  }
+
+  const result = await db
+    .select({
+      riderId: riders.id,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      nationality: riders.nationality,
+    })
+    .from(riders)
+    .where(and(...conditions))
+    .orderBy(riders.name)
+
+  return result
+}
+
+/**
+ * Returns all bonus rider picks for a league+race with team and rider details.
+ */
+export async function getBonusRidersForRace(leagueId: number, raceId: number) {
+  const rows = await db
+    .select({
+      teamId: bonusRiders.teamId,
+      teamName: teams.name,
+      riderId: bonusRiders.riderId,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      pickOrder: bonusRiders.pickOrder,
+      pickedAt: bonusRiders.pickedAt,
+    })
+    .from(bonusRiders)
+    .innerJoin(teams, eq(teams.id, bonusRiders.teamId))
+    .innerJoin(riders, eq(riders.id, bonusRiders.riderId))
+    .where(
+      and(
+        eq(bonusRiders.leagueId, leagueId),
+        eq(bonusRiders.raceId, raceId)
+      )
+    )
+    .orderBy(bonusRiders.pickOrder)
+
+  return rows
+}
+
+/**
+ * Saves a bonus rider pick to the database.
+ * Uses onConflictDoNothing to handle duplicates gracefully.
+ * Revalidates relevant paths.
+ */
+export async function saveBonusRiderPick(
+  leagueId: number,
+  teamId: number,
+  riderId: number,
+  raceId: number,
+  orderId: number | null,
+  pickOrder: number
+): Promise<{ success: true } | { success: false; error: string }> {
+  try {
+    await db
+      .insert(bonusRiders)
+      .values({
+        leagueId,
+        teamId,
+        riderId,
+        raceId,
+        orderId,
+        pickOrder,
+      })
+      .onConflictDoNothing()
+
+    revalidatePath(`/leagues/${leagueId}/standings`)
+    revalidatePath(`/leagues/${leagueId}/orders`)
+
+    return { success: true }
+  } catch (error) {
+    console.error("[saveBonusRiderPick] Error:", error)
+    return { success: false, error: "Failed to save bonus rider pick" }
+  }
+}

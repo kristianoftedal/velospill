@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Calendar, Users, Award } from "lucide-react"
+import { Home, Calendar, Users, Award, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserMenu } from "./user-menu"
 
@@ -18,6 +18,7 @@ const navItems = [
   { href: "/home", label: "Home", icon: Home },
   { href: "/riders", label: "Riders", icon: Award },
   { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/rankings", label: "Rankings", icon: TrendingUp },
   { href: "/leagues", label: "Leagues", icon: Users }
 ]
 

@@ -12,7 +12,9 @@
     "db:push": "dotenv -e .env.local -- drizzle-kit push",
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio",
     "db:seed": "dotenv -e .env.local -- npx tsx src/db/seed.ts",
-    "db:seed-scoring": "dotenv -e .env.local -- npx tsx src/db/seed-scoring.ts"
+    "db:seed-scoring": "dotenv -e .env.local -- npx tsx src/db/seed-scoring.ts",
+    "rankings:scrape": "npx tsx scripts/scrape-projected-rankings.ts",
+    "rankings:import": "dotenv -e .env.local -- npx tsx scripts/import-projected-rankings.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",
@@ -24,6 +26,7 @@
     "@upstash/qstash": "^2.9.0",
     "bcryptjs": "^3.0.3",
     "better-auth": "^1.4.6",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -53,7 +56,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv-cli": "^11.0.0",
-    "drizzle-kit": "^0.18.1",
+    "drizzle-kit": "^0.31.9",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "shadcn": "^3.8.4",

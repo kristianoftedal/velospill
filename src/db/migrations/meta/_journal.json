@@ -8,6 +8,13 @@
       "when": 1770677053368,
       "tag": "0000_wonderful_songbird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1771864654039,
+      "tag": "0001_slippery_gideon",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1902 @@
+[
+  {
+    "rank": 1,
+    "riderName": "GC",
+    "team": "33",
+    "nationality": "",
+    "projectedPoints": 5559.4,
+    "breakdown": {
+      "highPriorityOneDay": 82.7,
+      "lowPriorityOneDay": 129.1,
+      "grandTour": 2928.2,
+      "grandTourTdf": 1544.5,
+      "miniTour": 874.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.059Z"
+  },
+  {
+    "rank": 2,
+    "riderName": "Classic",
+    "team": "25",
+    "nationality": "",
+    "projectedPoints": 4324.1,
+    "breakdown": {
+      "highPriorityOneDay": 535.5,
+      "lowPriorityOneDay": 611.1,
+      "grandTour": 1339.8,
+      "grandTourTdf": 1520,
+      "miniTour": 317.7
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 3,
+    "riderName": "Climber",
+    "team": "26",
+    "nationality": "",
+    "projectedPoints": 3673.4,
+    "breakdown": {
+      "highPriorityOneDay": 271.9,
+      "lowPriorityOneDay": 97.6,
+      "grandTour": 1699.1,
+      "grandTourTdf": 1029.5,
+      "miniTour": 575.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 4,
+    "riderName": "Hills",
+    "team": "32",
+    "nationality": "",
+    "projectedPoints": 2228.6,
+    "breakdown": {
+      "highPriorityOneDay": 123.2,
+      "lowPriorityOneDay": 195.2,
+      "grandTour": 983.7,
+      "grandTourTdf": 699.8,
+      "miniTour": 226.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 5,
+    "riderName": "TT",
+    "team": "34",
+    "nationality": "",
+    "projectedPoints": 1823.5,
+    "breakdown": {
+      "highPriorityOneDay": 95.8,
+      "lowPriorityOneDay": 82.7,
+      "grandTour": 822.7,
+      "grandTourTdf": 372.1,
+      "miniTour": 450.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 6,
+    "riderName": "Sprint",
+    "team": "20",
+    "nationality": "",
+    "projectedPoints": 1585.5,
+    "breakdown": {
+      "highPriorityOneDay": 15.5,
+      "lowPriorityOneDay": 145.2,
+      "grandTour": 648,
+      "grandTourTdf": 442,
+      "miniTour": 334.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 7,
+    "riderName": "1",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 1188.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 363.2,
+      "grandTourTdf": 735,
+      "miniTour": 90.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 8,
+    "riderName": "11",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 1098.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 563.5,
+      "grandTourTdf": 485.4,
+      "miniTour": 49.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 9,
+    "riderName": ",,0:00",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 927.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 517.1,
+      "grandTourTdf": 275.5,
+      "miniTour": 134.5
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 10,
+    "riderName": "UAE Team Emirates - XRG",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 642.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 374.4,
+      "grandTourTdf": 183,
+      "miniTour": 85.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 11,
+    "riderName": "Team Visma | Lease a Bike",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 540,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 261.1,
+      "grandTourTdf": 234.6,
+      "miniTour": 44.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 12,
+    "riderName": "31",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 494.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 168.2,
+      "grandTourTdf": 296.3,
+      "miniTour": 29.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 13,
+    "riderName": "204",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 493.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 486.9,
+      "grandTourTdf": 0,
+      "miniTour": 6.5
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 14,
+    "riderName": "201",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 411.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 251.3,
+      "grandTourTdf": 59.9,
+      "miniTour": 100.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 15,
+    "riderName": "41",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 411.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 136.1,
+      "grandTourTdf": 174.2,
+      "miniTour": 100.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 16,
+    "riderName": "191",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 400.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 26.8,
+      "grandTourTdf": 362.4,
+      "miniTour": 11
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 17,
+    "riderName": "131",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 391.7,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 32.7,
+      "grandTourTdf": 343.4,
+      "miniTour": 15.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 18,
+    "riderName": "72",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 362.6,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 360,
+      "miniTour": 2.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 19,
+    "riderName": "81",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 340.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 54.3,
+      "grandTourTdf": 266,
+      "miniTour": 20.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 20,
+    "riderName": "7",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 332.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 208.1,
+      "grandTourTdf": 100.3,
+      "miniTour": 24
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 21,
+    "riderName": "21",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 331.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 24.2,
+      "grandTourTdf": 206,
+      "miniTour": 100.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 22,
+    "riderName": "116",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 330.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 302.4,
+      "grandTourTdf": 2.6,
+      "miniTour": 25.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 23,
+    "riderName": "228",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 323.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 293.2,
+      "grandTourTdf": 29.9,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 24,
+    "riderName": "Red Bull - BORA - hansgrohe",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 316,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 170.8,
+      "grandTourTdf": 111.4,
+      "miniTour": 33.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 25,
+    "riderName": "71",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 308.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 146.6,
+      "grandTourTdf": 101,
+      "miniTour": 61.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 26,
+    "riderName": "45",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 296.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 292.6,
+      "grandTourTdf": 0,
+      "miniTour": 3.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 27,
+    "riderName": "111",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 276.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 213.4,
+      "grandTourTdf": 15,
+      "miniTour": 48.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 28,
+    "riderName": "XDS Astana Team",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 272.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 175.4,
+      "grandTourTdf": 35.1,
+      "miniTour": 61.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 29,
+    "riderName": "27",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 265.7,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 265.7,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 30,
+    "riderName": "223",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 263.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 263.8,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 31,
+    "riderName": "Decathlon AG2R La Mondiale Team",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 220.7,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 76.6,
+      "grandTourTdf": 120.7,
+      "miniTour": 23.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 32,
+    "riderName": "Bahrain - Victorious",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 211.9,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 190.5,
+      "grandTourTdf": 2.6,
+      "miniTour": 18.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 33,
+    "riderName": "184",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 209.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 208.8,
+      "grandTourTdf": 0.6,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 34,
+    "riderName": "8",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 203.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 197,
+      "grandTourTdf": 6.5,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 35,
+    "riderName": "INEOS Grenadiers",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 202.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 53.7,
+      "grandTourTdf": 76.4,
+      "miniTour": 72.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 36,
+    "riderName": "23",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 200.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 181.3,
+      "grandTourTdf": 6.5,
+      "miniTour": 12.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 37,
+    "riderName": "Movistar Team",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 185.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 84.4,
+      "grandTourTdf": 50.2,
+      "miniTour": 50.7
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 38,
+    "riderName": "55",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 179.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 3.9,
+      "grandTourTdf": 153.1,
+      "miniTour": 22.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 39,
+    "riderName": "106",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 175.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 174.1,
+      "miniTour": 1.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 40,
+    "riderName": "62",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 175,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 62.2,
+      "grandTourTdf": 110.9,
+      "miniTour": 1.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 41,
+    "riderName": "171",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 173.7,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 87.7,
+      "grandTourTdf": 5.9,
+      "miniTour": 80.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 42,
+    "riderName": "167",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 171.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 137.4,
+      "grandTourTdf": 33.2,
+      "miniTour": 0.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 43,
+    "riderName": "17",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 171,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 36.7,
+      "grandTourTdf": 84.9,
+      "miniTour": 49.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 44,
+    "riderName": "57",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 170.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 170.8,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 45,
+    "riderName": "61",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 166.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 156.4,
+      "grandTourTdf": 0,
+      "miniTour": 9.7
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 46,
+    "riderName": "85",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 156,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 56.9,
+      "grandTourTdf": 79.6,
+      "miniTour": 19.5
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 47,
+    "riderName": "117",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 154.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 102.1,
+      "grandTourTdf": 47.5,
+      "miniTour": 5.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 48,
+    "riderName": "2",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 153,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 134.2,
+      "grandTourTdf": 18.8,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 49,
+    "riderName": "24",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 150.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 125,
+      "miniTour": 25.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 50,
+    "riderName": "52",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 149.7,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 127,
+      "grandTourTdf": 12.3,
+      "miniTour": 10.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 51,
+    "riderName": "227",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 149.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 134.2,
+      "grandTourTdf": 14.9,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 52,
+    "riderName": "15",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 147,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 100.8,
+      "miniTour": 46.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 53,
+    "riderName": "121",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 145.6,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 19.6,
+      "grandTourTdf": 72.6,
+      "miniTour": 53.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 54,
+    "riderName": "101",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 145.6,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 72.6,
+      "grandTourTdf": 23.5,
+      "miniTour": 49.5
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 55,
+    "riderName": "221",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 138.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 23.6,
+      "grandTourTdf": 83.6,
+      "miniTour": 31.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 56,
+    "riderName": "166",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 137.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 131.6,
+      "grandTourTdf": 5.8,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 57,
+    "riderName": "Arkéa - B&B Hotels",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 132.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 131.6,
+      "miniTour": 0.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 58,
+    "riderName": "188",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 128.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 128.3,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 59,
+    "riderName": "151",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 128.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 20.9,
+      "grandTourTdf": 107.2,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 60,
+    "riderName": "133",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 119.6,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 93.6,
+      "grandTourTdf": 20.2,
+      "miniTour": 5.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 61,
+    "riderName": "181",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 118.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 106.7,
+      "grandTourTdf": 0,
+      "miniTour": 11.7
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 62,
+    "riderName": "187",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 114.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 114.5,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 63,
+    "riderName": "32",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 112.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 101.4,
+      "grandTourTdf": 2.6,
+      "miniTour": 8.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 64,
+    "riderName": "178",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 111.9,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 103.4,
+      "grandTourTdf": 8.4,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 65,
+    "riderName": "3",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 111.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 7.9,
+      "grandTourTdf": 5.2,
+      "miniTour": 98.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 66,
+    "riderName": "Groupama - FDJ",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 109.9,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 3.9,
+      "grandTourTdf": 104.7,
+      "miniTour": 1.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 67,
+    "riderName": ",,0:09",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 107.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 4.6,
+      "grandTourTdf": 102.7,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 68,
+    "riderName": "217",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 106.6,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 100.8,
+      "grandTourTdf": 0,
+      "miniTour": 5.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 69,
+    "riderName": "51",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 106.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 21.6,
+      "grandTourTdf": 6.5,
+      "miniTour": 78.4
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 70,
+    "riderName": "147",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 103.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 99.5,
+      "grandTourTdf": 3.9,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 71,
+    "riderName": "122",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 102,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 85.7,
+      "grandTourTdf": 16.2,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 72,
+    "riderName": "Lidl - Trek",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 100,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 81.8,
+      "grandTourTdf": 0,
+      "miniTour": 18.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 73,
+    "riderName": "Soudal Quick-Step",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 100,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 75.9,
+      "grandTourTdf": 5.9,
+      "miniTour": 18.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 74,
+    "riderName": "103",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 99.9,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 27.5,
+      "grandTourTdf": 54.8,
+      "miniTour": 17.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 75,
+    "riderName": "66",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 90.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 82.5,
+      "miniTour": 7.8
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 76,
+    "riderName": "97",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 89.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 15.1,
+      "grandTourTdf": 30.1,
+      "miniTour": 44.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 77,
+    "riderName": "94",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 88.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 88.4,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 78,
+    "riderName": "38",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 87,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 87,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 79,
+    "riderName": "154",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 86.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 59.6,
+      "grandTourTdf": 0,
+      "miniTour": 26.7
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 80,
+    "riderName": "84",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 82.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 82.5,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 81,
+    "riderName": "198",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 82.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 59.6,
+      "grandTourTdf": 22.8,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 82,
+    "riderName": "203",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 81.7,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 7.9,
+      "grandTourTdf": 71.9,
+      "miniTour": 1.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 83,
+    "riderName": "142",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 81.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 72.6,
+      "grandTourTdf": 4.5,
+      "miniTour": 3.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 84,
+    "riderName": "145",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 80.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 66.8,
+      "grandTourTdf": 0.6,
+      "miniTour": 13
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 85,
+    "riderName": "14",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 79,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 37.3,
+      "grandTourTdf": 7.8,
+      "miniTour": 33.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 86,
+    "riderName": "91",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 78.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 69.4,
+      "grandTourTdf": 0,
+      "miniTour": 9.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 87,
+    "riderName": "25",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 77.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 3.9,
+      "grandTourTdf": 73.3,
+      "miniTour": 0.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 88,
+    "riderName": "EF Education - EasyPost",
+    "team": "WT",
+    "nationality": "",
+    "projectedPoints": 77.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 19.6,
+      "grandTourTdf": 48.3,
+      "miniTour": 9.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 89,
+    "riderName": "28",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 73.9,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 13.1,
+      "grandTourTdf": 60.8,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 90,
+    "riderName": "108",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 73.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 73.3,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 91,
+    "riderName": "141",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 72.5,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 3.3,
+      "grandTourTdf": 18.3,
+      "miniTour": 50.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 92,
+    "riderName": "211",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 71.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 11.8,
+      "grandTourTdf": 59.5,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 93,
+    "riderName": "125",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 69.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 66.1,
+      "grandTourTdf": 0,
+      "miniTour": 3.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 94,
+    "riderName": "42",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 68.1,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 0,
+      "miniTour": 68.1
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 95,
+    "riderName": "222",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 65.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 2.6,
+      "grandTourTdf": 60.8,
+      "miniTour": 1.9
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 96,
+    "riderName": "161",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 65.4,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 62.2,
+      "grandTourTdf": 1.9,
+      "miniTour": 1.3
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 97,
+    "riderName": "34",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 65.3,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 30.1,
+      "grandTourTdf": 32.6,
+      "miniTour": 2.6
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 98,
+    "riderName": "33",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 62.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 52.4,
+      "grandTourTdf": 10.4,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 99,
+    "riderName": "Caja Rural - Seguros RGA",
+    "team": "PRT",
+    "nationality": "",
+    "projectedPoints": 62.8,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 62.8,
+      "grandTourTdf": 0,
+      "miniTour": 0
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  },
+  {
+    "rank": 100,
+    "riderName": "104",
+    "team": "",
+    "nationality": "",
+    "projectedPoints": 62.2,
+    "breakdown": {
+      "highPriorityOneDay": 0,
+      "lowPriorityOneDay": 0,
+      "grandTour": 0,
+      "grandTourTdf": 0,
+      "miniTour": 62.2
+    },
+    "confirmedRaces": 0,
+    "injuryStatus": "healthy",
+    "injuryNote": null,
+    "season": 2026,
+    "lastUpdated": "2026-02-23T16:52:19.060Z"
+  }
+]

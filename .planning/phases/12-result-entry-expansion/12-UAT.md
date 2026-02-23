@@ -1,18 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 12-result-entry-expansion
 source: 12-01-SUMMARY.md, 12-02-SUMMARY.md, 12-03-SUMMARY.md
 started: 2026-02-22T12:00:00Z
-updated: 2026-02-22T12:05:00Z
+updated: 2026-02-22T12:10:00Z
 ---
 
 ## Current Test
 
-number: 6
-name: Results Grouped by Category
-expected: |
-  When viewing a race that has results in multiple categories, existing results are displayed grouped under separate cards with human-readable category headers (e.g., "Stage Finish", "Sprint Classification").
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -38,32 +34,32 @@ result: pass
 
 ### 6. Results Grouped by Category
 expected: When viewing a race that has results in multiple categories, existing results are displayed grouped under separate cards with human-readable category headers (e.g., "Stage Finish", "Sprint Classification").
-result: [pending]
+result: pass
 
 ### 7. TTT Team Selector UI
 expected: When selecting the "Team Time Trial" category, the result entry form shows team name selectors (combobox with team names) instead of the regular rider selectors. Each row has a position number and a team name dropdown.
-result: [pending]
+result: pass
 
 ### 8. TTT Preview and Submission
 expected: TTT preview shows a table with Team Name, Position, Points per Rider, and Rider Count per team. Submitting TTT results creates individual rider-level results for all riders on each placed team.
-result: [pending]
+result: pass
 
 ### 9. End-of-Tour Categories on Parent Race
 expected: Selecting a parent race (e.g., "Tour de France 2026" - not a stage) shows end-of-tour categories: GC, Points, KOM, Youth, Combative, Team, Other.
-result: [pending]
+result: pass
 
 ### 10. End-of-Tour Stage Validation
 expected: Attempting to enter an end-of-tour category result on a stage race returns a validation error: "End-of-tour classifications can only be entered on parent races, not stages."
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 10
-passed: 5
+passed: 10
 issues: 0
-pending: 5
+pending: 0
 skipped: 0
 
 ## Gaps
 
-[none yet]
+[none]

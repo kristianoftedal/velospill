@@ -39,7 +39,7 @@ export async function getRosterLimitForRace(raceId: number) {
       rosterSize: rosterLimits.rosterSize,
     })
     .from(races)
-    .innerJoin(rosterLimits, eq(rosterLimits.raceType, races.raceType))
+    .innerJoin(rosterLimits, sql`${rosterLimits.raceType} = ${races.raceType}::text`)
     .where(eq(races.id, raceId))
     .limit(1)
 
@@ -82,7 +82,7 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
       eq(leagueRaces.raceId, races.id),
       eq(leagueRaces.leagueId, leagueId)
     ))
-    .leftJoin(rosterLimits, eq(rosterLimits.raceType, races.raceType))
+    .leftJoin(rosterLimits, sql`${rosterLimits.raceType} = ${races.raceType}::text`)
     .leftJoin(lineupCountSubquery, eq(lineupCountSubquery.raceId, races.id))
     .where(
       and(

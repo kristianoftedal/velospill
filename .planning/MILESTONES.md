@@ -22,3 +22,29 @@
 
 ---
 
+
+## v1.1 Scoring & Rules Update (Shipped: 2026-02-26)
+
+**Phases completed:** 6 phases, 12 plans, 18 tasks
+**Timeline:** 6 days (2026-02-20 → 2026-02-26)
+**Codebase:** ~23,760 LOC TypeScript
+
+**Key accomplishments:**
+- Updated all scoring configuration to 2026 season ruleset — TdF-specific stage finish, sprint, KOM, and end-of-tour point tables separate from Giro/Vuelta
+- Extended admin result entry to support all scoring categories: sprint classification, mountain/KOM, jersey holders (GC/points/KOM/combative), TTT team results, and end-of-tour classifications
+- Revamped order mechanics — Blodpose GT-specific multipliers, Etappeseier changed to multiply finish points, Hammer/Lagtempo/Sponsorens ritt updated to 2026 values
+- Changed counter mechanic so countered orders return to the attacker for reuse (removed blowback effect)
+- Added Kaptein/laginnsats order for women's WC (x2 one rider or x1.5 all)
+- Implemented Uno-X bonus rider order — per-GT reverse-standings draft from unowned pool with dedicated schema, scoring integration, and admin + team UI
+
+**Known gaps (accepted):**
+- RESULT-01 through RESULT-06: Phase 12 VERIFICATION.md never created; code is implemented and integration-verified but formal verification skipped
+
+**Tech debt deferred:**
+- DEBT-01: drizzle-kit 0.18.x type error breaks npm run build
+- DEBT-02 to DEBT-04: Hammer/Innlagt Spurt/Lagtempo order auto-calculation (currently admin-entered)
+- DEBT-05: Shimanobil counter full team matching logic (simplified)
+- Minor: grand_tour_tdf enum type mismatch, duplicate resolveScoringRaceType()
+
+---
+

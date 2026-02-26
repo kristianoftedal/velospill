@@ -2,18 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-20)
+See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Phase 15 - Uno-X Order Feature
+**Current focus:** Planning next milestone (v1.2) — run `/gsd:new-milestone`
 
 ## Current Position
 
-Phase: 15 of 15 (Uno-X Order Feature)
-Plan: 3 of 3
-Status: Complete
-Last activity: 2026-02-22 — Completed plan 15-03 (Uno-X order UI integration)
+Phase: 15 of 15 (v1.1 complete)
+Status: Milestone v1.1 shipped
+Last activity: 2026-02-26 — Archived v1.1 Scoring & Rules Update milestone
 
 Progress: [████████████████████] 100.0% (15 of 15 phases complete)
 
@@ -55,8 +54,8 @@ Progress: [████████████████████] 100.0% 
 | 15. Uno-X Order Feature | 15-03 | 233s | 7 | 2 | 2026-02-22 |
 
 **Recent Trend:**
-- v1.0 milestone: Shipped successfully
-- v1.1 milestone: In progress (12 plans completed, phase 15 complete)
+- v1.0 milestone: Shipped successfully (2026-02-20)
+- v1.1 milestone: Shipped successfully (2026-02-26) — 6 phases, 12 plans, 2029s total execution
 
 ## Accumulated Context
 
@@ -143,6 +142,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-22
-Stopped at: Completed phase 15 (15-03: Uno-X order UI integration)
+Last session: 2026-02-26
+Stopped at: Archived v1.1 milestone, preparing for v1.2
 Resume file: None

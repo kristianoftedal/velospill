@@ -39,43 +39,40 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 8 | 12 strategic order types with counter mechanics | Core game differentiator — boost/sabotage with risk/reward | 07 | Good |
 | 9 | league_races join table for per-league race scoping | All features scope to assigned races, not raw season | 08 | Good |
 
-## Current Milestone: v1.1 Scoring & Rules Update
+## Key Decisions (continued from v1.1)
 
-**Goal:** Update scoring rules, order mechanics, and result entry to match the 2026 season ruleset.
-
-**Target features:**
-- Updated scoring config (increased one-day points, TdF-specific stage/KOM/end-of-tour scoring)
-- Updated order mechanics (adjusted multipliers, changed counter mechanic to return-order)
-- New Uno-X order (bonus rider per GT from unowned pool, reverse standings draft)
-- New Kaptein for women's WC
-- Full result entry supporting all scoring categories (sprints, mountains, jerseys, TTT, end-of-tour)
-- Tech debt: fix build error, cleanup
+| # | Decision | Rationale | Phase | Outcome |
+|---|----------|-----------|-------|---------|
+| 10 | grand_tour_tdf as new raceType text value | No schema change needed since raceType is text, not enum | 11 | Good |
+| 11 | Category column on raceResults (not separate tables) | Minimal schema change, reuses existing result entry patterns | 12 | Good |
+| 12 | Counter returns order to attacker (no blowback) | Simpler mechanics, more reuse, less punishing for attacker | 14 | Good |
+| 13 | bonus_riders separate table (not raceResults) | Bonus riders have distinct lifecycle (per-GT, no race scoping) | 15 | Good |
 
 ## Current State
 
-- **Version:** v1.0 shipped (2026-02-20), v1.1 in progress
-- **Phases:** 9 phases, 26 plans executed (v1.0)
-- **Codebase:** 126 TypeScript files, 20,924 LOC
-- **Known tech debt:** 11 items across 4 phases (see milestones/v1.0-MILESTONE-AUDIT.md)
+- **Version:** v1.1 shipped (2026-02-26)
+- **Phases:** 15 phases, 38 plans executed (v1.0 + v1.1)
+- **Codebase:** ~23,760 LOC TypeScript
+- **Planning next:** v1.2 (run `/gsd:new-milestone` to define)
 
-### What Shipped
+### What Shipped (v1.0 + v1.1)
 
-Complete cycling fantasy league platform:
+Complete cycling fantasy league platform with 2026 season ruleset:
 - User auth with admin RBAC
-- Admin race management and result entry with scoring preview and audit trails
+- Admin race management and result entry with scoring preview and audit trails — supports all categories (finish, sprint, mountain, jersey, TTT, end-of-tour)
 - Private leagues with invite links, team registration, lifecycle state machine
 - Real-time snake draft (Pusher presence channels, QStash auto-pick, auto-activation)
-- Scoring engine with league standings, per-race breakdowns, ownership-at-race-time
+- Scoring engine with league standings, per-race breakdowns, ownership-at-race-time, TdF-specific scoring configs
 - Waiver wire transfers with auto-generated windows, priority resolution, admin approval
-- 12 strategic order types with counter mechanics and full scoring integration
+- 13 strategic order types (incl. Uno-X bonus rider draft, Kaptein for women's WC) with updated counter mechanics and full scoring integration
 - Per-league race calendar with downstream scoping across all features
 
-### Known Limitations
+### Known Limitations / Tech Debt
 
-- Result entry only supports finish/stage_finish categories (no sprint, mountain, jersey, TTT)
-- Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (no auto-calculation)
-- Shimanobil counter uses simplified team matching (documented TODO)
-- `npm run build` fails due to drizzle-kit 0.18.x type error in drizzle.config.ts (project source compiles cleanly)
+- `npm run build` fails due to drizzle-kit 0.18.x type error (DEBT-01 — project source compiles cleanly)
+- Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (DEBT-02–04, no auto-calculation)
+- Shimanobil counter uses simplified team matching (DEBT-05)
+- Phase 12 VERIFICATION.md never created (code works, integration verified — accepted gap)
 
 ---
-*Last updated: 2026-02-20 after v1.0 milestone shipped*
+*Last updated: 2026-02-26 after v1.1 milestone shipped*

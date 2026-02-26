@@ -6,13 +6,14 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** Planning next milestone (v1.2) — run `/gsd:new-milestone`
+**Current focus:** v1.2 Player Visibility — defining requirements
 
 ## Current Position
 
-Phase: 15 of 15 (v1.1 complete)
-Status: Milestone v1.1 shipped
-Last activity: 2026-02-26 — Archived v1.1 Scoring & Rules Update milestone
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-26 — Milestone v1.2 Player Visibility started
 
 Progress: [████████████████████] 100.0% (15 of 15 phases complete)
 

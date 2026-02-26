@@ -48,12 +48,23 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 12 | Counter returns order to attacker (no blowback) | Simpler mechanics, more reuse, less punishing for attacker | 14 | Good |
 | 13 | bonus_riders separate table (not raceResults) | Bonus riders have distinct lifecycle (per-GT, no race scoping) | 15 | Good |
 
+## Current Milestone: v1.2 Player Visibility
+
+**Goal:** Give players a rich view of the season — rider profiles, team details, race lineups, and standings history.
+
+**Target features:**
+- Rider profile pages with season stats (points per race, categories, ownership history)
+- Race lineup accordion in league page (visible once set, scores once posted)
+- Season standings chart — cumulative points per team across all races
+- Race-by-race breakdown table with running totals
+- Team profile page — full squad roster + scoring history per race
+
 ## Current State
 
 - **Version:** v1.1 shipped (2026-02-26)
 - **Phases:** 15 phases, 38 plans executed (v1.0 + v1.1)
 - **Codebase:** ~23,760 LOC TypeScript
-- **Planning next:** v1.2 (run `/gsd:new-milestone` to define)
+- **Current milestone:** v1.2 Player Visibility
 
 ### What Shipped (v1.0 + v1.1)
 
@@ -75,4 +86,4 @@ Complete cycling fantasy league platform with 2026 season ruleset:
 - Phase 12 VERIFICATION.md never created (code works, integration verified — accepted gap)
 
 ---
-*Last updated: 2026-02-26 after v1.1 milestone shipped*
+*Last updated: 2026-02-26 after v1.2 milestone started*

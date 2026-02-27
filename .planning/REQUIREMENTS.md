@@ -54,23 +54,23 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RIDER-01 | — | Pending |
-| RIDER-02 | — | Pending |
-| RIDER-03 | — | Pending |
-| RIDER-04 | — | Pending |
-| LINEUP-01 | — | Pending |
-| LINEUP-02 | — | Pending |
-| LINEUP-03 | — | Pending |
-| HISTORY-01 | — | Pending |
-| HISTORY-02 | — | Pending |
-| TEAM-01 | — | Pending |
-| TEAM-02 | — | Pending |
+| RIDER-01 | Phase 16 | Pending |
+| RIDER-02 | Phase 16 | Pending |
+| RIDER-03 | Phase 16 | Pending |
+| RIDER-04 | Phase 16 | Pending |
+| LINEUP-01 | Phase 18 | Pending |
+| LINEUP-02 | Phase 18 | Pending |
+| LINEUP-03 | Phase 18 | Pending |
+| HISTORY-01 | Phase 19 | Pending |
+| HISTORY-02 | Phase 19 | Pending |
+| TEAM-01 | Phase 17 | Pending |
+| TEAM-02 | Phase 17 | Pending |
 
 **Coverage:**
 - v1.2 requirements: 11 total
-- Mapped to phases: 0 (roadmap not yet created)
-- Unmapped: 11 ⚠️
+- Mapped to phases: 11
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-26 after initial definition*
+*Last updated: 2026-02-26 after v1.2 roadmap created (phases 16-19)*

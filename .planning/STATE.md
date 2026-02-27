@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** v1.2 Player Visibility — defining requirements
+**Current focus:** v1.2 Player Visibility — Phase 16: Rider Profile Page
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 16 — Rider Profile Page
 Plan: —
-Status: Defining requirements
-Last activity: 2026-02-26 — Milestone v1.2 Player Visibility started
+Status: Not started (roadmap created, ready for planning)
+Last activity: 2026-02-26 — v1.2 roadmap created (phases 16-19)
 
-Progress: [████████████████████] 100.0% (15 of 15 phases complete)
+Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 0 of 4 phases started
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [████████████████████] 100.0% 
 **Recent Trend:**
 - v1.0 milestone: Shipped successfully (2026-02-20)
 - v1.1 milestone: Shipped successfully (2026-02-26) — 6 phases, 12 plans, 2029s total execution
+- v1.2 milestone: Roadmap created (2026-02-26) — 4 phases, ready for planning
 
 ## Accumulated Context
 
@@ -133,16 +134,14 @@ None yet.
 - Shimanobil counter uses simplified team matching (deferred to future)
 - npm run build fails due to drizzle-kit 0.18.x type error (out of v1.1 scope)
 
-**v1.1 scope:**
-- Phase 10: Fix rider filtering bugs before admin workflows can proceed (DONE)
-- Phase 11: Scoring config changes are seed data only (no schema changes expected) (DONE)
-- Phase 12: Result entry expansion requires schema changes for new categories (DONE - full implementation complete including TTT and end-of-tour)
-- Phase 13: Order config updates are data-only (migration + seed updates) (DONE)
-- Phase 14: Counter mechanic return logic updated to remove blowback (DONE)
-- Phase 15: Uno-X order requires reverse standings draft UI (DONE - complete with admin and team UI)
+**v1.2 scope:**
+- Phase 16: Build rider profile page — requires querying race results + scoring data across all races for a single rider
+- Phase 17: Build team profile page — requires per-rider, per-race scoring breakdown for all riders on a team
+- Phase 18: Add lineup accordion to league race list — requires querying submitted lineups per race
+- Phase 19: Add standings history to league page — requires cumulative points aggregation across all races
 
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Archived v1.1 milestone, preparing for v1.2
+Stopped at: v1.2 roadmap created (phases 16-19), ready to plan Phase 16
 Resume file: None

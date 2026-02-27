@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 16 — Rider Profile Page
-Plan: —
-Status: Not started (roadmap created, ready for planning)
-Last activity: 2026-02-26 — v1.2 roadmap created (phases 16-19)
+Plan: 01 (complete) — ready for Plan 02
+Status: In Progress (1 of 2 plans complete)
+Last activity: 2026-02-27 — 16-01 complete: getRiderSeasonProfile data query layer
 
 Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 0 of 4 phases started
 
@@ -58,6 +58,7 @@ Progress: [████████████████████] 100.0% 
 - v1.0 milestone: Shipped successfully (2026-02-20)
 - v1.1 milestone: Shipped successfully (2026-02-26) — 6 phases, 12 plans, 2029s total execution
 - v1.2 milestone: Roadmap created (2026-02-26) — 4 phases, ready for planning
+- v1.2 Phase 16-01: Complete (2026-02-27) — 58s, 1 task, 1 file
 
 ## Accumulated Context
 
@@ -122,6 +123,9 @@ Recent decisions from PROJECT.md:
 - Phase 15 (15-03): Team page pre-computes draft state server-side to avoid client async complexity
 - Phase 15 (15-03): Turn validation enforced server-side via pick count check (expectedPicksCount === pickOrder - 1)
 - Phase 15 (15-03): Bonus Draft Active badge added to My Orders table for visual feedback
+- [Phase 16-01]: Three separate queries instead of one massive join for getRiderSeasonProfile — improves readability and maintainability
+- [Phase 16-01]: Application-side grouping of race results by raceId instead of SQL JSON_AGG — simpler, portable, and debuggable
+- [Phase 16-01]: Ownership resolution iterates pickedAt <= startDate per league in memory, keeping latest pick — matches ownership-at-race-time pattern from Phase 6
 
 ### Pending Todos
 
@@ -142,6 +146,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: v1.2 roadmap created (phases 16-19), ready to plan Phase 16
+Last session: 2026-02-27
+Stopped at: Completed 16-01: rider-queries.ts with getRiderSeasonProfile — ready for Plan 02 (UI layer)
 Resume file: None

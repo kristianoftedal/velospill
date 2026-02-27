@@ -57,7 +57,7 @@ Full details: milestones/v1.1-ROADMAP.md
   2. Rider page lists each race the rider scored in with their points for that race
   3. For each scored race, the breakdown shows which categories contributed (e.g., finish, sprint, mountain, jersey)
   4. Rider page shows a chronological ownership history — which team held the rider at each race
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 16-01-PLAN.md — Data query layer: getRiderSeasonProfile (rider stats, per-race categories, ownership history)
@@ -111,7 +111,7 @@ Plans:
 | 13. Order Config | v1.1 | 2/2 | Complete | 2026-02-22 |
 | 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
 | 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
-| 16. Rider Profile Page | v1.2 | 0/2 | Not started | — |
+| 16. Rider Profile Page | 1/2 | In Progress|  | — |
 | 17. Team Profile Page | v1.2 | 0/? | Not started | — |
 | 18. Race Lineup Accordion | v1.2 | 0/? | Not started | — |
 | 19. Season Standings History | v1.2 | 0/? | Not started | — |

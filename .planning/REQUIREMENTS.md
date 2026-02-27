@@ -9,10 +9,10 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 
 ### Rider Profiles
 
-- [ ] **RIDER-01**: Player can view a rider's season stats page showing total points earned this season
-- [ ] **RIDER-02**: Rider stats page shows per-race points breakdown (which races they scored in and how much)
-- [ ] **RIDER-03**: Rider stats page shows which scoring categories contributed points per race (finish, sprint, mountain, jersey, etc.)
-- [ ] **RIDER-04**: Rider stats page shows ownership history (which team(s) held this rider and when)
+- [x] **RIDER-01**: Player can view a rider's season stats page showing total points earned this season
+- [x] **RIDER-02**: Rider stats page shows per-race points breakdown (which races they scored in and how much)
+- [x] **RIDER-03**: Rider stats page shows which scoring categories contributed points per race (finish, sprint, mountain, jersey, etc.)
+- [x] **RIDER-04**: Rider stats page shows ownership history (which team(s) held this rider and when)
 
 ### Race Lineups
 
@@ -54,10 +54,10 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RIDER-01 | Phase 16 | Pending |
-| RIDER-02 | Phase 16 | Pending |
-| RIDER-03 | Phase 16 | Pending |
-| RIDER-04 | Phase 16 | Pending |
+| RIDER-01 | Phase 16 | Complete |
+| RIDER-02 | Phase 16 | Complete |
+| RIDER-03 | Phase 16 | Complete |
+| RIDER-04 | Phase 16 | Complete |
 | LINEUP-01 | Phase 18 | Pending |
 | LINEUP-02 | Phase 18 | Pending |
 | LINEUP-03 | Phase 18 | Pending |

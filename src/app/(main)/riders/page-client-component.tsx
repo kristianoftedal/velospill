@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from "react"
+import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   Accordion,
@@ -243,9 +244,13 @@ export default function RidersPage({
                               {isOnUserTeam && (
                                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />
                               )}
-                              <p className="font-semibold text-sm text-foreground">
+                              <Link
+                                href={`/riders/${rider.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="font-semibold text-sm text-foreground hover:text-primary hover:underline transition-colors"
+                              >
                                 {rider.name}
-                              </p>
+                              </Link>
                               {isOnUserTeam && (
                                 <Badge className="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-1.5 py-0">My Team</Badge>
                               )}

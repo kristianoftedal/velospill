@@ -48,7 +48,10 @@ export function LineupForm({
   roster,
   currentLineup,
 }: LineupFormProps) {
-  const [selected, setSelected] = useState<Set<number>>(new Set(currentLineup))
+  const rosterIds = new Set(roster.map((r) => r.riderId))
+  const [selected, setSelected] = useState<Set<number>>(
+    new Set(currentLineup.filter((id) => rosterIds.has(id)))
+  )
   const [isPending, startTransition] = useTransition()
 
   // Filter by gender matching the race type

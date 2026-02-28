@@ -89,8 +89,11 @@ export function LineupForm({
     })
   }
 
-  const deadline = new Date(startDate)
-  deadline.setUTCHours(13, 0, 0, 0)
+  const startDateObj = new Date(startDate)
+  const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(startDateObj)
+  const noonUtc = new Date(`${parisDate}T12:00:00Z`)
+  const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
+  const deadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
   const isExpired = new Date() >= deadline
 
   return (

@@ -50,8 +50,10 @@ export async function setLineup(
     return { success: false, error: "Lineups are set on parent races only, not individual stages" }
   }
 
-  const raceDeadline = new Date(race.startDate)
-  raceDeadline.setUTCHours(13, 0, 0, 0)
+  const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(race.startDate)
+  const noonUtc = new Date(`${parisDate}T12:00:00Z`)
+  const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
+  const raceDeadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
   if (new Date() >= raceDeadline) {
     return { success: false, error: "Lineup deadline has passed (race has started)" }
   }

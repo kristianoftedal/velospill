@@ -87,7 +87,10 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
     .where(
       and(
         isNull(races.parentRaceId),
-        gt(sql`date_trunc('day', ${races.startDate} AT TIME ZONE 'UTC') + interval '13 hours'`, sql`now()`)
+        gt(
+          sql`(date_trunc('day', ${races.startDate} AT TIME ZONE 'Europe/Paris') + interval '13 hours') AT TIME ZONE 'Europe/Paris'`,
+          sql`now()`
+        )
       )
     )
     .orderBy(races.startDate)

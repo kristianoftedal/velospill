@@ -3,8 +3,7 @@ import { raceLineups } from "@/db/schema/lineups"
 import { races } from "@/db/schema/races"
 import { riders } from "@/db/schema/riders"
 import { rosterLimits } from "@/db/schema/config"
-import { draftPicks } from "@/db/schema/draft"
-import { teams, leagueRaces } from "@/db/schema/leagues"
+import { leagueRaces } from "@/db/schema/leagues"
 import { eq, and, gt, isNull, sql, count } from "drizzle-orm"
 
 /**
@@ -51,7 +50,8 @@ export async function getRosterLimitForRace(raceId: number) {
  * Shows lineup count per team to indicate submission status.
  */
 export async function getUpcomingRacesForLineup(leagueId: number, teamId: number) {
-  const now = new Date()
+  // All races are assumed to start at 13:00 UTC on their start date.
+  // A race is visible for lineup selection until 13:00 UTC on race day.
 
   const lineupCountSubquery = db
     .select({
@@ -87,7 +87,7 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
     .where(
       and(
         isNull(races.parentRaceId),
-        gt(races.startDate, now)
+        gt(sql`date_trunc('day', ${races.startDate} AT TIME ZONE 'UTC') + interval '13 hours'`, sql`now()`)
       )
     )
     .orderBy(races.startDate)

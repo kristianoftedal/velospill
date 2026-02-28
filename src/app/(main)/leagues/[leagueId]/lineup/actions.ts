@@ -50,7 +50,9 @@ export async function setLineup(
     return { success: false, error: "Lineups are set on parent races only, not individual stages" }
   }
 
-  if (new Date() >= race.startDate) {
+  const raceDeadline = new Date(race.startDate)
+  raceDeadline.setUTCHours(13, 0, 0, 0)
+  if (new Date() >= raceDeadline) {
     return { success: false, error: "Lineup deadline has passed (race has started)" }
   }
 

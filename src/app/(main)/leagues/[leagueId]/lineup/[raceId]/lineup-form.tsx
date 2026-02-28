@@ -90,6 +90,7 @@ export function LineupForm({
   }
 
   const deadline = new Date(startDate)
+  deadline.setUTCHours(13, 0, 0, 0)
   const isExpired = new Date() >= deadline
 
   return (

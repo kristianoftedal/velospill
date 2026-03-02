@@ -70,7 +70,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Player can navigate to any team in their league and see the full squad — all drafted riders currently on the roster
   2. Team profile shows each rider's points contribution broken down by race across the current season
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 17-01-PLAN.md — Data query layer: getTeamSeasonProfile (team metadata, full roster, per-rider per-race scoring breakdown)
@@ -116,6 +116,6 @@ Plans:
 | 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
 | 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
-| 17. Team Profile Page | v1.2 | 0/? | Not started | — |
+| 17. Team Profile Page | 1/2 | In Progress|  | — |
 | 18. Race Lineup Accordion | v1.2 | 0/? | Not started | — |
 | 19. Season Standings History | v1.2 | 0/? | Not started | — |

@@ -27,8 +27,8 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 
 ### Team Profiles
 
-- [ ] **TEAM-01**: Player can view any team's full squad roster (all drafted riders)
-- [ ] **TEAM-02**: Team profile shows each rider's points contribution per race this season
+- [x] **TEAM-01**: Player can view any team's full squad roster (all drafted riders)
+- [x] **TEAM-02**: Team profile shows each rider's points contribution per race this season
 
 ## Future Requirements
 
@@ -63,8 +63,8 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 | LINEUP-03 | Phase 18 | Pending |
 | HISTORY-01 | Phase 19 | Pending |
 | HISTORY-02 | Phase 19 | Pending |
-| TEAM-01 | Phase 17 | Pending |
-| TEAM-02 | Phase 17 | Pending |
+| TEAM-01 | Phase 17 | Complete |
+| TEAM-02 | Phase 17 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 11 total

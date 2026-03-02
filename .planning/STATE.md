@@ -6,14 +6,14 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** v1.2 Player Visibility — Phase 16: Rider Profile Page
+**Current focus:** v1.2 Player Visibility — Phase 17: Team Profile Page
 
 ## Current Position
 
-Phase: 16 — Rider Profile Page
+Phase: 17 — Team Profile Page
 Plan: 01 (complete) — ready for Plan 02
 Status: In Progress (1 of 2 plans complete)
-Last activity: 2026-02-27 — 16-01 complete: getRiderSeasonProfile data query layer
+Last activity: 2026-03-02 — 17-01 complete: getTeamSeasonProfile data query layer
 
 Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 0 of 4 phases started
 
@@ -59,6 +59,7 @@ Progress: [████████████████████] 100.0% 
 - v1.1 milestone: Shipped successfully (2026-02-26) — 6 phases, 12 plans, 2029s total execution
 - v1.2 milestone: Roadmap created (2026-02-26) — 4 phases, ready for planning
 - v1.2 Phase 16-01: Complete (2026-02-27) — 58s, 1 task, 1 file
+- v1.2 Phase 17-01: Complete (2026-03-02) — 83s, 1 task, 1 file
 
 ## Accumulated Context
 
@@ -126,6 +127,9 @@ Recent decisions from PROJECT.md:
 - [Phase 16-01]: Three separate queries instead of one massive join for getRiderSeasonProfile — improves readability and maintainability
 - [Phase 16-01]: Application-side grouping of race results by raceId instead of SQL JSON_AGG — simpler, portable, and debuggable
 - [Phase 16-01]: Ownership resolution iterates pickedAt <= startDate per league in memory, keeping latest pick — matches ownership-at-race-time pattern from Phase 6
+- [Phase 17-01]: Three-query pattern for getTeamSeasonProfile: team metadata, per-rider per-race results with lineupFilter, bonus riders — same as getRiderSeasonProfile for consistency
+- [Phase 17-01]: lineupFilter copied verbatim from scoring-queries.ts to ensure lineup-aware scoring matches standings calculation exactly
+- [Phase 17-01]: Application-side grouping via nested Map (riderId → raceMap → categories) instead of SQL JSON_AGG — simpler and consistent with Phase 16 pattern
 
 ### Pending Todos
 
@@ -146,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-27
-Stopped at: Completed 16-01: rider-queries.ts with getRiderSeasonProfile — ready for Plan 02 (UI layer)
+Last session: 2026-03-02
+Stopped at: Completed 17-01: team-queries.ts with getTeamSeasonProfile — ready for Plan 02 (UI layer)
 Resume file: None

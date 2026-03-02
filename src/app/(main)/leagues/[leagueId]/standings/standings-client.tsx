@@ -73,7 +73,12 @@ export function StandingsClient({
                   {standing.rank}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {standing.teamName}
+                  <Link
+                    href={`/leagues/${leagueId}/teams/${standing.teamId}`}
+                    className="text-blue-600 hover:underline font-medium"
+                  >
+                    {standing.teamName}
+                  </Link>
                 </TableCell>
                 <TableCell className="text-right">
                   {standing.totalPoints}

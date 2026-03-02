@@ -70,7 +70,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Player can navigate to any team in their league and see the full squad — all drafted riders currently on the roster
   2. Team profile shows each rider's points contribution broken down by race across the current season
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 17-01-PLAN.md — Data query layer: getTeamSeasonProfile (team metadata, full roster, per-rider per-race scoring breakdown)
+- [ ] 17-02-PLAN.md — Route page + client UI: /leagues/[leagueId]/teams/[teamId] profile with roster accordion + standings link
 
 ### Phase 18: Race Lineup Accordion
 **Goal**: Players can see all teams' race-day selections directly from the league race list, and after results are posted, each rider's earned points are shown alongside their name.

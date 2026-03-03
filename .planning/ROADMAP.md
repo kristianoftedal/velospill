@@ -42,7 +42,7 @@ Full details: milestones/v1.1-ROADMAP.md
 ### v1.2 Player Visibility (Phases 16-19)
 
 - [x] **Phase 16: Rider Profile Page** — Season stats, per-race breakdown, categories, and ownership history for any rider (completed 2026-03-02)
-- [ ] **Phase 17: Team Profile Page** — Full squad roster with per-rider scoring contribution per race
+- [x] **Phase 17: Team Profile Page** — Full squad roster with per-rider scoring contribution per race (completed 2026-03-03)
 - [ ] **Phase 18: Race Lineup Accordion** — Expandable per-race lineup panel on the league page, showing teams' picks and post-result points
 - [ ] **Phase 19: Season Standings History** — Cumulative points chart and race-by-race breakdown table on the league page
 
@@ -70,7 +70,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Player can navigate to any team in their league and see the full squad — all drafted riders currently on the roster
   2. Team profile shows each rider's points contribution broken down by race across the current season
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 17-01-PLAN.md — Data query layer: getTeamSeasonProfile (team metadata, full roster, per-rider per-race scoring breakdown)
@@ -116,6 +116,6 @@ Plans:
 | 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
 | 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
-| 17. Team Profile Page | 1/2 | In Progress|  | — |
+| 17. Team Profile Page | 2/2 | Complete   | 2026-03-03 | — |
 | 18. Race Lineup Accordion | v1.2 | 0/? | Not started | — |
 | 19. Season Standings History | v1.2 | 0/? | Not started | — |

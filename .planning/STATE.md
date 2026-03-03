@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 17 — Team Profile Page
-Plan: 01 (complete) — ready for Plan 02
-Status: In Progress (1 of 2 plans complete)
-Last activity: 2026-03-02 — 17-01 complete: getTeamSeasonProfile data query layer
+Plan: 02 (complete) — Phase 17 complete, ready for Phase 18
+Status: Complete (2 of 2 plans complete)
+Last activity: 2026-03-03 — 17-02 complete: team profile page UI with accordion roster + standings links
 
-Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 0 of 4 phases started
+Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 1 of 4 phases complete (Phase 17)
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Progress: [████████████████████] 100.0% 
 - v1.2 milestone: Roadmap created (2026-02-26) — 4 phases, ready for planning
 - v1.2 Phase 16-01: Complete (2026-02-27) — 58s, 1 task, 1 file
 - v1.2 Phase 17-01: Complete (2026-03-02) — 83s, 1 task, 1 file
+- v1.2 Phase 17-02: Complete (2026-03-03) — 3 tasks, 3 files — TEAM-01 + TEAM-02 delivered
 
 ## Accumulated Context
 
@@ -130,6 +131,10 @@ Recent decisions from PROJECT.md:
 - [Phase 17-01]: Three-query pattern for getTeamSeasonProfile: team metadata, per-rider per-race results with lineupFilter, bonus riders — same as getRiderSeasonProfile for consistency
 - [Phase 17-01]: lineupFilter copied verbatim from scoring-queries.ts to ensure lineup-aware scoring matches standings calculation exactly
 - [Phase 17-01]: Application-side grouping via nested Map (riderId → raceMap → categories) instead of SQL JSON_AGG — simpler and consistent with Phase 16 pattern
+- [Phase 17-02]: Server page parses leagueId and teamId from params, calls notFound() on NaN or missing profile — same guard pattern as rider profile page
+- [Phase 17-02]: TeamProfileClient uses shadcn Accordion (type=single collapsible) for per-rider race breakdown — consistent with Phase 16 UI style
+- [Phase 17-02]: Rider names in accordion trigger are Links to /riders/[riderId] with stopPropagation to prevent accordion toggle on link click
+- [Phase 17-02]: Standings team name column wraps existing text in a Link to /leagues/[leagueId]/teams/[teamId] with minimal styling change only
 
 ### Pending Todos
 
@@ -150,6 +155,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Completed 17-01: team-queries.ts with getTeamSeasonProfile — ready for Plan 02 (UI layer)
+Last session: 2026-03-03
+Stopped at: Completed 17-02: team profile page UI — TEAM-01 + TEAM-02 delivered, Phase 17 complete. Ready for Phase 18 (lineup accordion).
 Resume file: None

@@ -140,6 +140,12 @@ Recent decisions from PROJECT.md:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 1 | admin add results improvements: sort races by date ascending, prefill results by category, searchable rider dropdown showing name | 2026-03-03 | 19461d9 | [1-admin-add-results-improvements-sort-race](./quick/1-admin-add-results-improvements-sort-race/) |
+
 ### Blockers/Concerns
 
 **Known from v1.0 limitations:**
@@ -156,5 +162,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 17-02: team profile page UI — TEAM-01 + TEAM-02 delivered, Phase 17 complete. Ready for Phase 18 (lineup accordion).
+Last activity: 2026-03-03 - Completed quick task 1: admin add results improvements
 Resume file: None

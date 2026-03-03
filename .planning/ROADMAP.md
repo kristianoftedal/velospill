@@ -116,6 +116,6 @@ Plans:
 | 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
 | 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
-| 17. Team Profile Page | 2/2 | Complete   | 2026-03-03 | — |
+| 17. Team Profile Page | 2/2 | Complete    | 2026-03-03 | — |
 | 18. Race Lineup Accordion | v1.2 | 0/? | Not started | — |
 | 19. Season Standings History | v1.2 | 0/? | Not started | — |

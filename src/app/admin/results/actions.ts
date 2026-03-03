@@ -9,7 +9,7 @@ import { user } from "@/db/schema/users";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePoints, previewScoringImpact } from "@/lib/scoring-preview";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -74,7 +74,7 @@ export async function getRacesForResults() {
       hasResults: sql<boolean>`EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id})`,
     })
     .from(races)
-    .orderBy(desc(races.startDate));
+    .orderBy(asc(races.startDate));
 
   return allRaces;
 }

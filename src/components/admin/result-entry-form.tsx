@@ -127,6 +127,32 @@ const categoryDisplayNames: Record<string, string> = {
   "end_other": "End of Tour: Other",
 }
 
+const categoryPrefillCounts: Record<string, number> = {
+  "finish": 10,
+  "stage_finish": 10,
+  "sprint": 3,
+  "sprint_giro": 3,
+  "mountain_cc_hcx2_af": 5,
+  "mountain_hc": 5,
+  "mountain_1cat": 5,
+  "mountain_2cat": 5,
+  "mountain_3_4cat": 5,
+  "mountain_highest": 3,
+  "mountain_2nd_highest": 3,
+  "mountain_1_2cat": 5,
+  "jersey_gc": 1,
+  "jersey_points": 1,
+  "jersey_kom": 1,
+  "jersey_combative": 1,
+  "end_gc": 10,
+  "end_points": 10,
+  "end_kom": 10,
+  "end_youth": 10,
+  "end_combative": 1,
+  "end_team": 10,
+  "end_other": 5,
+}
+
 export { categoryDisplayNames }
 
 function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: number; teams: string[]; raceType: string; onSuccess: () => void }) {
@@ -378,10 +404,16 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
 
+  const prefillCount = categoryPrefillCounts[category] ?? 1
+
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
     defaultValues: {
-      results: [{ position: 1, riderId: 0, time: "" }],
+      results: Array.from({ length: prefillCount }, (_, i) => ({
+        position: i + 1,
+        riderId: 0,
+        time: "",
+      })),
     },
   })
 
@@ -480,25 +512,24 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                       Rider
                     </Label>
                     <Combobox
-                      value={riderId ? String(riderId) : undefined}
-                      onValueChange={(value) => {
-                        if (value) {
-                          form.setValue(`results.${index}.riderId`, Number(value), {
-                            shouldValidate: true,
-                          })
-                        }
+                      value={selectedRider?.name ?? ""}
+                      onValueChange={(name) => {
+                        const rider = filteredRiders.find((r) => r.name === name)
+                        form.setValue(`results.${index}.riderId`, rider?.id ?? 0, {
+                          shouldValidate: true,
+                        })
                       }}
                     >
                       <ComboboxInput
                         id={`rider-${index}`}
-                        placeholder={selectedRider?.name || "Select rider..."}
+                        placeholder="Search rider..."
                         className="h-9"
                       />
                       <ComboboxContent>
                         <ComboboxList>
                           <ComboboxEmpty>No riders found</ComboboxEmpty>
                           {filteredRiders.map((rider) => (
-                            <ComboboxItem key={rider.id} value={String(rider.id)}>
+                            <ComboboxItem key={rider.id} value={rider.name}>
                               <div className="flex flex-col">
                                 <span>{rider.name}</span>
                                 <span className="text-xs text-muted-foreground">

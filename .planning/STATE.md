@@ -145,6 +145,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 1 | admin add results improvements: sort races by date ascending, prefill results by category, searchable rider dropdown showing name | 2026-03-03 | 19461d9 | [1-admin-add-results-improvements-sort-race](./quick/1-admin-add-results-improvements-sort-race/) |
+| 2 | PCS import: scrape procyclingstats results page, fuzzy match riders, populate form | 2026-03-04 | 4f3d9e2 | [2-pcs-import-scrape-procyclingstats-result](./quick/2-pcs-import-scrape-procyclingstats-result/) |
 
 ### Blockers/Concerns
 
@@ -162,5 +163,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Last activity: 2026-03-03 - Completed quick task 1: admin add results improvements
+Last activity: 2026-03-04 - Completed quick task 2: PCS import with fuzzy rider matching
 Resume file: None

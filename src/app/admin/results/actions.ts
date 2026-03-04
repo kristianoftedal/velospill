@@ -696,7 +696,7 @@ export async function submitTttResults(formData: {
 }
 
 // ============================================================================
-// PCS SCRAPING + FUZZY MATCHING
+// FIRSTCYCLING SCRAPING + FUZZY MATCHING
 // ============================================================================
 
 function normalizeRiderName(name: string): string {
@@ -769,8 +769,8 @@ function findBestRiderMatch(
 export async function scrapeAndMatchPcsResults(url: string, raceId: number) {
   await checkAdminAuth();
 
-  if (!url.startsWith("https://www.procyclingstats.com/")) {
-    return { success: false as const, error: "URL must be from www.procyclingstats.com" };
+  if (!url.startsWith("https://firstcycling.com/")) {
+    return { success: false as const, error: "URL must be from firstcycling.com (e.g. https://firstcycling.com/race.php?r=53&y=2026)" };
   }
 
   const race = await db.query.races.findFirst({ where: eq(races.id, raceId) });
@@ -809,28 +809,23 @@ export async function scrapeAndMatchPcsResults(url: string, raceId: number) {
     };
   }
 
-  if (html.includes("Enable JavaScript and cookies to continue")) {
-    return {
-      success: false as const,
-      error:
-        "The page is protected by Cloudflare. Open the URL in your browser first (this primes the session), then retry the import.",
-    };
-  }
-
   const $ = cheerio.load(html);
   const scraped: Array<{ position: number; riderName: string; teamName: string }> = [];
 
-  $("table.results tbody tr").each((_, row) => {
+  $("table tbody tr").each((_, row) => {
     const cols = $(row).find("td");
-    const position = parseInt(cols.eq(0).text().trim(), 10);
+    if (cols.length < 3) return;
+
+    const posText = cols.eq(0).text().trim();
+    const position = parseInt(posText, 10);
     if (isNaN(position) || position < 1) return;
 
-    const riderName =
-      cols.eq(3).find("a").first().text().trim() || cols.eq(3).text().trim();
+    const riderAnchor = $(row).find("a[href*='rider.php']").first();
+    const riderName = riderAnchor.text().trim();
     if (!riderName) return;
 
-    const teamName =
-      cols.eq(4).find("a").first().text().trim() || cols.eq(4).text().trim();
+    const teamAnchor = $(row).find("a[href*='team.php']").first();
+    const teamName = teamAnchor.text().trim() || cols.eq(3).text().trim();
     scraped.push({ position, riderName, teamName });
   });
 
@@ -838,7 +833,7 @@ export async function scrapeAndMatchPcsResults(url: string, raceId: number) {
     return {
       success: false as const,
       error:
-        "No results found on page. Make sure this is a race results page on procyclingstats.com.",
+        "No results found on page. Make sure this is a race results page on firstcycling.com.",
     };
   }
 

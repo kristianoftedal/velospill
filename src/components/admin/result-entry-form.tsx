@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Combobox,
+  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxInput,
@@ -279,11 +280,13 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
                       <ComboboxContent>
                         <ComboboxList>
                           <ComboboxEmpty>No teams found</ComboboxEmpty>
-                          {teams.map((team) => (
-                            <ComboboxItem key={team} value={team}>
-                              {team}
-                            </ComboboxItem>
-                          ))}
+                          <ComboboxCollection>
+                            {teams.map((team) => (
+                              <ComboboxItem key={team} value={team}>
+                                {team}
+                              </ComboboxItem>
+                            ))}
+                          </ComboboxCollection>
                         </ComboboxList>
                       </ComboboxContent>
                     </Combobox>
@@ -520,24 +523,24 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
     form.setValue("results", newResults, { shouldValidate: false })
     setImportMatches(null)
     setPcsUrl("")
-    toast.success(`Applied ${newResults.length} results from PCS`)
+    toast.success(`Applied ${newResults.length} results from FirstCycling`)
   }
 
   return (
     <div className="space-y-4">
-      {/* PCS Import */}
+      {/* FirstCycling Import */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <DownloadIcon className="h-4 w-4" />
-            Import from ProCyclingStats
+            Import from FirstCycling
           </CardTitle>
-          <CardDescription>Paste a PCS results URL to auto-fill rider results</CardDescription>
+          <CardDescription>Paste a FirstCycling race URL to auto-fill rider results</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex gap-2">
             <Input
-              placeholder="https://www.procyclingstats.com/race/..."
+              placeholder="https://firstcycling.com/race.php?r=53&y=2026"
               value={pcsUrl}
               onChange={(e) => setPcsUrl(e.target.value)}
               className="h-9"
@@ -567,7 +570,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-12">Pos</TableHead>
-                      <TableHead>PCS Name</TableHead>
+                      <TableHead>Scraped Name</TableHead>
                       <TableHead>Matched Rider</TableHead>
                       <TableHead className="w-20">Conf.</TableHead>
                     </TableRow>
@@ -687,16 +690,18 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                         <ComboboxContent>
                           <ComboboxList>
                             <ComboboxEmpty>No riders found</ComboboxEmpty>
-                            {filteredRiders.map((rider) => (
-                              <ComboboxItem key={rider.id} value={rider.name}>
-                                <div className="flex flex-col">
-                                  <span>{rider.name}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {rider.team}
-                                  </span>
-                                </div>
-                              </ComboboxItem>
-                            ))}
+                            <ComboboxCollection>
+                              {filteredRiders.map((rider) => (
+                                <ComboboxItem key={rider.id} value={rider.name}>
+                                  <div className="flex flex-col">
+                                    <span>{rider.name}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {rider.team}
+                                    </span>
+                                  </div>
+                                </ComboboxItem>
+                              ))}
+                            </ComboboxCollection>
                           </ComboboxList>
                         </ComboboxContent>
                       </Combobox>

@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Combobox,
-  ComboboxCollection,
   ComboboxContent,
   ComboboxEmpty,
   ComboboxInput,
@@ -161,6 +160,7 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewing, setIsPreviewing] = useState(false)
+  const [teamSearchQueries, setTeamSearchQueries] = useState<Record<number, string>>({})
 
   const form = useForm<TttFormData>({
     resolver: zodResolver(tttSchema),
@@ -269,7 +269,11 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
                           form.setValue(`teamPlacements.${index}.teamName`, value, {
                             shouldValidate: true,
                           })
+                          setTeamSearchQueries((prev) => ({ ...prev, [index]: "" }))
                         }
+                      }}
+                      onInputValueChange={(inputValue) => {
+                        setTeamSearchQueries((prev) => ({ ...prev, [index]: inputValue }))
                       }}
                     >
                       <ComboboxInput
@@ -280,13 +284,15 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
                       <ComboboxContent>
                         <ComboboxList>
                           <ComboboxEmpty>No teams found</ComboboxEmpty>
-                          <ComboboxCollection>
-                            {teams.map((team) => (
+                          {(() => {
+                            const q = (teamSearchQueries[index] ?? "").toLowerCase()
+                            const filtered = q ? teams.filter((t) => t.toLowerCase().includes(q)) : teams
+                            return filtered.map((team) => (
                               <ComboboxItem key={team} value={team}>
                                 {team}
                               </ComboboxItem>
-                            ))}
-                          </ComboboxCollection>
+                            ))
+                          })()}
                         </ComboboxList>
                       </ComboboxContent>
                     </Combobox>
@@ -403,6 +409,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
   const [isImporting, setIsImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [importMatches, setImportMatches] = useState<ImportMatch[] | null>(null)
+  const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
@@ -680,6 +687,10 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                           form.setValue(`results.${index}.riderId`, rider?.id ?? 0, {
                             shouldValidate: true,
                           })
+                          setRiderSearchQueries((prev) => ({ ...prev, [index]: "" }))
+                        }}
+                        onInputValueChange={(inputValue) => {
+                          setRiderSearchQueries((prev) => ({ ...prev, [index]: inputValue }))
                         }}
                       >
                         <ComboboxInput
@@ -690,8 +701,12 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                         <ComboboxContent>
                           <ComboboxList>
                             <ComboboxEmpty>No riders found</ComboboxEmpty>
-                            <ComboboxCollection>
-                              {filteredRiders.map((rider) => (
+                            {(() => {
+                              const q = (riderSearchQueries[index] ?? "").toLowerCase()
+                              const visibleRiders = q
+                                ? filteredRiders.filter((r) => r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
+                                : filteredRiders
+                              return visibleRiders.map((rider) => (
                                 <ComboboxItem key={rider.id} value={rider.name}>
                                   <div className="flex flex-col">
                                     <span>{rider.name}</span>
@@ -700,8 +715,8 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                                     </span>
                                   </div>
                                 </ComboboxItem>
-                              ))}
-                            </ComboboxCollection>
+                              ))
+                            })()}
                           </ComboboxList>
                         </ComboboxContent>
                       </Combobox>

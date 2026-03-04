@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ResultEntryForm, categoryDisplayNames } from "@/components/admin/result-entry-form"
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
@@ -102,8 +103,12 @@ export function ResultsClient({ races, riders }: Props) {
   const [loading, setLoading] = useState(false)
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
   const [selectedResult, setSelectedResult] = useState<any | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const selectedRace = races.find((r) => r.id === selectedRaceId)
+
+  // Stage dedup: compute the selected parent race ID
+  const selectedParentId = selectedRace?.parentRaceId ?? selectedRaceId
 
   const handleRaceSelect = async (raceId: number) => {
     setSelectedRaceId(raceId)
@@ -129,10 +134,12 @@ export function ResultsClient({ races, riders }: Props) {
     setTeamNames(teams)
 
     setLoading(false)
+    setModalOpen(true)
   }
 
   const handleSuccess = async () => {
     if (!selectedRaceId) return
+    setModalOpen(false)
     // Reset category to return to category picker
     setSelectedCategory(null)
     // Refresh results and audit trail
@@ -163,9 +170,184 @@ export function ResultsClient({ races, riders }: Props) {
       return acc
     }, {} as Record<number, Race[]>)
 
+  // Modal content
+  const modalContent = loading ? (
+    <Card>
+      <CardContent className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Loading...</p>
+      </CardContent>
+    </Card>
+  ) : existingResults ? (
+    <>
+      <Tabs defaultValue="results" className="w-full">
+        <TabsList>
+          <TabsTrigger value="results">Results</TabsTrigger>
+          <TabsTrigger value="history">Change History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="results" className="mt-4">
+          <div className="space-y-6">
+            {/* Group results by category */}
+            {(() => {
+              const groupedResults = existingResults.reduce((acc, result) => {
+                const cat = result.category || "finish"
+                if (!acc[cat]) acc[cat] = []
+                acc[cat].push(result)
+                return acc
+              }, {} as Record<string, any[]>)
+
+              return (Object.entries(groupedResults) as [string, any[]][]).map(([category, categoryResults]) => (
+                <Card key={category}>
+                  <CardHeader>
+                    <CardTitle>{categoryDisplayNames[category] || category}</CardTitle>
+                    <CardDescription>
+                      Click the edit button to correct any result
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-20">Position</TableHead>
+                          <TableHead>Rider</TableHead>
+                          <TableHead>Team</TableHead>
+                          <TableHead>Time</TableHead>
+                          <TableHead className="text-right">Points</TableHead>
+                          <TableHead className="w-20"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {categoryResults.map((result: any) => (
+                          <TableRow key={result.id}>
+                            <TableCell className="font-medium">{result.position}</TableCell>
+                            <TableCell>{result.riderName}</TableCell>
+                            <TableCell>{result.riderTeam}</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {result.time || "—"}
+                            </TableCell>
+                            <TableCell className="text-right">{result.points}</TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditResult(result)}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ))
+            })()}
+
+            {/* Add more results button */}
+            {!selectedCategory && (
+              <Button
+                variant="outline"
+                onClick={() => setSelectedCategory("__picker__")}
+                className="w-full"
+              >
+                Add More Results
+              </Button>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-4">
+          {auditTrail && <ResultAuditTrail auditEntries={auditTrail} />}
+        </TabsContent>
+      </Tabs>
+
+      {selectedResult && (
+        <ResultCorrectionDialog
+          result={selectedResult}
+          riders={riders}
+          raceType={selectedRace?.raceType || ""}
+          open={correctionDialogOpen}
+          onOpenChange={setCorrectionDialogOpen}
+          onSuccess={handleSuccess}
+        />
+      )}
+    </>
+  ) : selectedCategory && selectedCategory !== "__picker__" ? (
+    // Show result entry form for selected category
+    <div className="space-y-4">
+      <Button
+        variant="ghost"
+        onClick={() => setSelectedCategory(null)}
+        className="mb-2"
+      >
+        <ChevronLeftIcon className="h-4 w-4 mr-2" />
+        Back to category selection
+      </Button>
+      <ResultEntryForm
+        raceId={selectedRaceId!}
+        riders={riders}
+        raceType={selectedRace?.raceType || ""}
+        category={selectedCategory}
+        teams={teamNames}
+        onSuccess={handleSuccess}
+      />
+    </div>
+  ) : (
+    // Show category picker
+    (() => {
+      if (!selectedRace) return null
+
+      // Determine raceType for scoring
+      const isStage = !!selectedRace.parentRaceId
+      const parentRace = isStage ? races.find(r => r.id === selectedRace.parentRaceId) : null
+      const raceTypeForCategories = isStage && parentRace
+        ? resolveScoringRaceType(parentRace.raceType, parentRace.name)
+        : resolveScoringRaceType(selectedRace.raceType, selectedRace.name)
+
+      // Determine if this is a parent race (has stages)
+      const isParentRace = races.some(r => r.parentRaceId === selectedRace.id)
+
+      const availableCategories = getAvailableCategories(
+        raceTypeForCategories,
+        isStage,
+        isParentRace
+      )
+
+      return (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Result Category</CardTitle>
+            <CardDescription>
+              Choose the type of result you want to enter for {selectedRace.name}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {availableCategories.map((category) => (
+                <Button
+                  key={category}
+                  variant="outline"
+                  onClick={() => setSelectedCategory(category)}
+                  className="h-auto py-4 px-4 text-left justify-start"
+                >
+                  <div>
+                    <div className="font-medium">
+                      {categoryDisplayNames[category] || category}
+                    </div>
+                  </div>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )
+    })()
+  )
+
   return (
-    <div className="grid gap-6 md:grid-cols-[300px,1fr]">
-      {/* Race selector */}
+    <div>
+      {/* Race selector — full width */}
       <Card>
         <CardHeader>
           <CardTitle>Select Race</CardTitle>
@@ -193,8 +375,8 @@ export function ResultsClient({ races, riders }: Props) {
                 </div>
               </button>
 
-              {/* Show stages if they exist */}
-              {stagesByParent[race.id] && (
+              {/* Show stages only for the currently selected parent or the parent of the selected stage */}
+              {stagesByParent[race.id] && race.id === selectedParentId && (
                 <div className="ml-4 space-y-1">
                   {stagesByParent[race.id]
                     .sort((a, b) => (a.stageNumber || 0) - (b.stageNumber || 0))
@@ -223,188 +405,15 @@ export function ResultsClient({ races, riders }: Props) {
         </CardContent>
       </Card>
 
-      {/* Results area */}
-      <div>
-        {!selectedRaceId ? (
-          <Card>
-            <CardContent className="flex items-center justify-center h-64">
-              <p className="text-muted-foreground">Select a race to get started</p>
-            </CardContent>
-          </Card>
-        ) : loading ? (
-          <Card>
-            <CardContent className="flex items-center justify-center h-64">
-              <p className="text-muted-foreground">Loading...</p>
-            </CardContent>
-          </Card>
-        ) : existingResults ? (
-          <>
-            <Tabs defaultValue="results" className="w-full">
-              <TabsList>
-                <TabsTrigger value="results">Results</TabsTrigger>
-                <TabsTrigger value="history">Change History</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="results" className="mt-4">
-                <div className="space-y-6">
-                  {/* Group results by category */}
-                  {(() => {
-                    const groupedResults = existingResults.reduce((acc, result) => {
-                      const cat = result.category || "finish"
-                      if (!acc[cat]) acc[cat] = []
-                      acc[cat].push(result)
-                      return acc
-                    }, {} as Record<string, any[]>)
-
-                    return (Object.entries(groupedResults) as [string, any[]][]).map(([category, categoryResults]) => (
-                      <Card key={category}>
-                        <CardHeader>
-                          <CardTitle>{categoryDisplayNames[category] || category}</CardTitle>
-                          <CardDescription>
-                            Click the edit button to correct any result
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="w-20">Position</TableHead>
-                                <TableHead>Rider</TableHead>
-                                <TableHead>Team</TableHead>
-                                <TableHead>Time</TableHead>
-                                <TableHead className="text-right">Points</TableHead>
-                                <TableHead className="w-20"></TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {categoryResults.map((result: any) => (
-                                <TableRow key={result.id}>
-                                  <TableCell className="font-medium">{result.position}</TableCell>
-                                  <TableCell>{result.riderName}</TableCell>
-                                  <TableCell>{result.riderTeam}</TableCell>
-                                  <TableCell className="text-muted-foreground">
-                                    {result.time || "—"}
-                                  </TableCell>
-                                  <TableCell className="text-right">{result.points}</TableCell>
-                                  <TableCell>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => handleEditResult(result)}
-                                    >
-                                      <PencilIcon className="h-4 w-4" />
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </CardContent>
-                      </Card>
-                    ))
-                  })()}
-
-                  {/* Add more results button */}
-                  {!selectedCategory && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedCategory("__picker__")}
-                      className="w-full"
-                    >
-                      Add More Results
-                    </Button>
-                  )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="history" className="mt-4">
-                {auditTrail && <ResultAuditTrail auditEntries={auditTrail} />}
-              </TabsContent>
-            </Tabs>
-
-            {selectedResult && (
-              <ResultCorrectionDialog
-                result={selectedResult}
-                riders={riders}
-                raceType={selectedRace?.raceType || ""}
-                open={correctionDialogOpen}
-                onOpenChange={setCorrectionDialogOpen}
-                onSuccess={handleSuccess}
-              />
-            )}
-          </>
-        ) : selectedCategory && selectedCategory !== "__picker__" ? (
-          // Show result entry form for selected category
-          <div className="space-y-4">
-            <Button
-              variant="ghost"
-              onClick={() => setSelectedCategory(null)}
-              className="mb-2"
-            >
-              <ChevronLeftIcon className="h-4 w-4 mr-2" />
-              Back to category selection
-            </Button>
-            <ResultEntryForm
-              raceId={selectedRaceId}
-              riders={riders}
-              raceType={selectedRace?.raceType || ""}
-              category={selectedCategory}
-              teams={teamNames}
-              onSuccess={handleSuccess}
-            />
-          </div>
-        ) : (
-          // Show category picker
-          (() => {
-            if (!selectedRace) return null
-
-            // Determine raceType for scoring
-            const isStage = !!selectedRace.parentRaceId
-            const parentRace = isStage ? races.find(r => r.id === selectedRace.parentRaceId) : null
-            const raceTypeForCategories = isStage && parentRace
-              ? resolveScoringRaceType(parentRace.raceType, parentRace.name)
-              : resolveScoringRaceType(selectedRace.raceType, selectedRace.name)
-
-            // Determine if this is a parent race (has stages)
-            const isParentRace = races.some(r => r.parentRaceId === selectedRace.id)
-
-            const availableCategories = getAvailableCategories(
-              raceTypeForCategories,
-              isStage,
-              isParentRace
-            )
-
-            return (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Select Result Category</CardTitle>
-                  <CardDescription>
-                    Choose the type of result you want to enter for {selectedRace.name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {availableCategories.map((category) => (
-                      <Button
-                        key={category}
-                        variant="outline"
-                        onClick={() => setSelectedCategory(category)}
-                        className="h-auto py-4 px-4 text-left justify-start"
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {categoryDisplayNames[category] || category}
-                          </div>
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })()
-        )}
-      </div>
+      {/* Modal dialog for results area */}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedRace?.name}</DialogTitle>
+          </DialogHeader>
+          {modalContent}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

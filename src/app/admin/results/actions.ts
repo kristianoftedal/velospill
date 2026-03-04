@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
+import * as cheerio from "cheerio";
 import { scoringConfig } from "@/db/schema/config";
 import { races } from "@/db/schema/races";
 import { raceResults, resultAudit } from "@/db/schema/results";
@@ -692,4 +693,172 @@ export async function submitTttResults(formData: {
       error: { _form: [(error as Error).message] },
     };
   }
+}
+
+// ============================================================================
+// PCS SCRAPING + FUZZY MATCHING
+// ============================================================================
+
+function normalizeRiderName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, "")
+    .trim();
+}
+
+function findBestRiderMatch(
+  scrapedName: string,
+  ridersList: Array<{ id: number; name: string; team: string }>,
+): {
+  rider: { id: number; name: string; team: string } | null;
+  score: number;
+  alternatives: Array<{ id: number; name: string; team: string }>;
+} {
+  const normalized = normalizeRiderName(scrapedName);
+  const parts = normalized.split(/\s+/).filter(Boolean);
+
+  const scored = ridersList
+    .map((rider) => {
+      const riderNorm = normalizeRiderName(rider.name);
+      const riderParts = riderNorm.split(/\s+/).filter(Boolean);
+
+      if (riderNorm === normalized) return { rider, score: 1.0 };
+
+      // PCS often uses "LASTNAME Firstname" — try reversed match
+      const reversed = [...parts].reverse().join(" ");
+      if (riderNorm === reversed) return { rider, score: 0.99 };
+
+      // All tokens match in any order
+      if (
+        parts.length > 0 &&
+        parts.every((p) =>
+          riderParts.some((rp) => rp === p || rp.startsWith(p) || p.startsWith(rp)),
+        )
+      ) {
+        return { rider, score: 0.95 };
+      }
+
+      // Last name match (strong signal in cycling)
+      const lastScraped = parts[parts.length - 1];
+      const lastRider = riderParts[riderParts.length - 1];
+      if (lastScraped && lastRider && lastScraped === lastRider && lastScraped.length > 3) {
+        return { rider, score: 0.8 };
+      }
+
+      // Partial token overlap score
+      const matchCount = parts.filter((p) =>
+        riderParts.some(
+          (rp) => rp === p || (p.length > 3 && (rp.startsWith(p) || p.startsWith(rp))),
+        ),
+      ).length;
+      const score = matchCount / Math.max(parts.length, riderParts.length);
+      return { rider, score };
+    })
+    .filter((m) => m.score > 0.4)
+    .sort((a, b) => b.score - a.score);
+
+  return {
+    rider: scored[0]?.rider ?? null,
+    score: scored[0]?.score ?? 0,
+    alternatives: scored.slice(1, 4).map((s) => s.rider),
+  };
+}
+
+export async function scrapeAndMatchPcsResults(url: string, raceId: number) {
+  await checkAdminAuth();
+
+  if (!url.startsWith("https://www.procyclingstats.com/")) {
+    return { success: false as const, error: "URL must be from www.procyclingstats.com" };
+  }
+
+  const race = await db.query.races.findFirst({ where: eq(races.id, raceId) });
+  if (!race) return { success: false as const, error: "Race not found" };
+
+  const expectedGender = race.raceType.startsWith("womens_") ? "F" : "M";
+
+  const ridersList = await db
+    .select({ id: riders.id, name: riders.name, team: riders.team })
+    .from(riders)
+    .where(eq(riders.gender, expectedGender))
+    .orderBy(riders.name);
+
+  let html: string;
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) {
+      return {
+        success: false as const,
+        error: `Failed to fetch page (HTTP ${response.status}). The page may be behind Cloudflare protection — try opening it in your browser first, then retry.`,
+      };
+    }
+    html = await response.text();
+  } catch (e: any) {
+    return {
+      success: false as const,
+      error: `Failed to fetch page: ${(e as Error).message}`,
+    };
+  }
+
+  if (html.includes("Enable JavaScript and cookies to continue")) {
+    return {
+      success: false as const,
+      error:
+        "The page is protected by Cloudflare. Open the URL in your browser first (this primes the session), then retry the import.",
+    };
+  }
+
+  const $ = cheerio.load(html);
+  const scraped: Array<{ position: number; riderName: string; teamName: string }> = [];
+
+  $("table.results tbody tr").each((_, row) => {
+    const cols = $(row).find("td");
+    const position = parseInt(cols.eq(0).text().trim(), 10);
+    if (isNaN(position) || position < 1) return;
+
+    const riderName =
+      cols.eq(3).find("a").first().text().trim() || cols.eq(3).text().trim();
+    if (!riderName) return;
+
+    const teamName =
+      cols.eq(4).find("a").first().text().trim() || cols.eq(4).text().trim();
+    scraped.push({ position, riderName, teamName });
+  });
+
+  if (scraped.length === 0) {
+    return {
+      success: false as const,
+      error:
+        "No results found on page. Make sure this is a race results page on procyclingstats.com.",
+    };
+  }
+
+  const results = scraped.map(({ position, riderName, teamName }) => {
+    const match = findBestRiderMatch(riderName, ridersList);
+    return {
+      position,
+      scrapedName: riderName,
+      scrapedTeam: teamName,
+      matchedRider: match.rider
+        ? { id: match.rider.id, name: match.rider.name, team: match.rider.team }
+        : null,
+      matchScore: match.score,
+      alternatives: match.alternatives.map((r) => ({
+        id: r.id,
+        name: r.name,
+        team: r.team,
+      })),
+    };
+  });
+
+  return { success: true as const, results, totalScraped: scraped.length };
 }

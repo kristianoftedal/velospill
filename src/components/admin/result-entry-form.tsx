@@ -16,8 +16,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults, previewResults, submitTttResults, previewTttResults } from "@/app/admin/results/actions"
-import { TrashIcon, PlusIcon } from "lucide-react"
+import { submitRaceResults, previewResults, submitTttResults, previewTttResults, scrapeAndMatchPcsResults } from "@/app/admin/results/actions"
+import { Badge } from "@/components/ui/badge"
+import { TrashIcon, PlusIcon, DownloadIcon } from "lucide-react"
 import { useState } from "react"
 import { ScoringPreview } from "@/components/admin/scoring-preview"
 import {
@@ -380,30 +381,28 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
-  // If TTT category, render the TTT-specific form
-  if (category === "ttt") {
-    if (!teams || teams.length === 0) {
-      return (
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">No teams available for TTT entry</p>
-          </CardContent>
-        </Card>
-      )
-    }
-    return <TttEntrySection raceId={raceId} teams={teams} raceType={raceType} onSuccess={onSuccess} />
-  }
+type ImportMatch = {
+  position: number
+  scrapedName: string
+  scrapedTeam: string
+  matchedRider: { id: number; name: string; team: string } | null
+  matchScore: number
+  alternatives: Array<{ id: number; name: string; team: string }>
+  selectedRiderId: number | null
+}
 
-  // Regular rider-based entry form
+export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
+  // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewing, setIsPreviewing] = useState(false)
+  const [pcsUrl, setPcsUrl] = useState("")
+  const [isImporting, setIsImporting] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importMatches, setImportMatches] = useState<ImportMatch[] | null>(null)
 
-  // Filter riders by gender
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
-
   const prefillCount = categoryPrefillCounts[category] ?? 1
 
   const form = useForm<ResultFormData>({
@@ -421,6 +420,20 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
     control: form.control,
     name: "results",
   })
+
+  // --- TTT early return (after all hooks) ---
+  if (category === "ttt") {
+    if (!teams || teams.length === 0) {
+      return (
+        <Card>
+          <CardContent className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground">No teams available for TTT entry</p>
+          </CardContent>
+        </Card>
+      )
+    }
+    return <TttEntrySection raceId={raceId} teams={teams} raceType={raceType} onSuccess={onSuccess} />
+  }
 
   const onSubmit = async (data: ResultFormData) => {
     setServerError(null)
@@ -451,7 +464,6 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
   }
 
   const handlePreview = async () => {
-    // Trigger form validation
     const isValid = await form.trigger()
     if (!isValid) {
       toast.error("Please fix form errors before previewing")
@@ -459,7 +471,6 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
     }
 
     const formData = form.getValues()
-
     setIsPreviewing(true)
     const result = await previewResults(raceId, formData.results, category)
     setIsPreviewing(false)
@@ -472,156 +483,305 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
     }
   }
 
+  const handleImport = async () => {
+    if (!pcsUrl.trim()) return
+    setIsImporting(true)
+    setImportError(null)
+    setImportMatches(null)
+
+    const result = await scrapeAndMatchPcsResults(pcsUrl.trim(), raceId)
+    setIsImporting(false)
+
+    if (!result.success) {
+      setImportError(result.error)
+      return
+    }
+
+    setImportMatches(
+      result.results.map((r) => ({
+        ...r,
+        selectedRiderId: r.matchedRider?.id ?? null,
+      })),
+    )
+  }
+
+  const updateImportMatch = (index: number, riderId: number | null) => {
+    setImportMatches((prev) =>
+      prev ? prev.map((m, i) => (i === index ? { ...m, selectedRiderId: riderId } : m)) : prev,
+    )
+  }
+
+  const handleApplyMatches = () => {
+    if (!importMatches) return
+    const newResults = importMatches
+      .filter((m) => m.selectedRiderId)
+      .map((m) => ({ position: m.position, riderId: m.selectedRiderId!, time: "" }))
+    if (newResults.length === 0) return
+    form.setValue("results", newResults, { shouldValidate: false })
+    setImportMatches(null)
+    setPcsUrl("")
+    toast.success(`Applied ${newResults.length} results from PCS`)
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Enter Race Results</CardTitle>
-        <CardDescription>
-          {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"})
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Field array */}
-          <div className="space-y-3">
-            {fields.map((field, index) => {
-              const riderId = form.watch(`results.${index}.riderId`)
-              const selectedRider = filteredRiders.find((r) => r.id === riderId)
-
-              return (
-                <div key={field.id} className="flex items-start gap-3">
-                  {/* Position */}
-                  <div className="w-20">
-                    <Label htmlFor={`position-${index}`} className="text-xs">
-                      Pos.
-                    </Label>
-                    <Input
-                      id={`position-${index}`}
-                      type="number"
-                      min="1"
-                      {...form.register(`results.${index}.position`, {
-                        valueAsNumber: true,
-                      })}
-                      className="h-9"
-                    />
-                  </div>
-
-                  {/* Rider selector */}
-                  <div className="flex-1">
-                    <Label htmlFor={`rider-${index}`} className="text-xs">
-                      Rider
-                    </Label>
-                    <Combobox
-                      value={selectedRider?.name ?? ""}
-                      onValueChange={(name) => {
-                        const rider = filteredRiders.find((r) => r.name === name)
-                        form.setValue(`results.${index}.riderId`, rider?.id ?? 0, {
-                          shouldValidate: true,
-                        })
-                      }}
-                    >
-                      <ComboboxInput
-                        id={`rider-${index}`}
-                        placeholder="Search rider..."
-                        className="h-9"
-                      />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          <ComboboxEmpty>No riders found</ComboboxEmpty>
-                          {filteredRiders.map((rider) => (
-                            <ComboboxItem key={rider.id} value={rider.name}>
-                              <div className="flex flex-col">
-                                <span>{rider.name}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {rider.team}
-                                </span>
-                              </div>
-                            </ComboboxItem>
-                          ))}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
-                    {form.formState.errors.results?.[index]?.riderId && (
-                      <p className="text-xs text-destructive mt-1">
-                        {form.formState.errors.results[index]?.riderId?.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Time */}
-                  <div className="w-32">
-                    <Label htmlFor={`time-${index}`} className="text-xs">
-                      Time (optional)
-                    </Label>
-                    <Input
-                      id={`time-${index}`}
-                      placeholder="4h32m10s"
-                      {...form.register(`results.${index}.time`)}
-                      className="h-9"
-                    />
-                  </div>
-
-                  {/* Remove button */}
-                  <div className="pt-5">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                      disabled={fields.length === 1}
-                      className="h-9 w-9"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Form-level errors */}
-          {form.formState.errors.results?.message && (
-            <p className="text-sm text-destructive">{form.formState.errors.results.message}</p>
-          )}
-          {serverError && <p className="text-sm text-destructive">{serverError}</p>}
-
-          {/* Add result button */}
-          <Button type="button" variant="outline" onClick={handleAddResult} className="w-full">
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Add Result
-          </Button>
-
-          {/* Preview section */}
-          {previewData && (
-            <div className="pt-4">
-              <ScoringPreview
-                preview={previewData.preview}
-                totalPointsAwarded={previewData.totalPointsAwarded}
-                raceName={previewData.raceName}
-              />
-            </div>
-          )}
-
-          {/* Submit */}
-          <div className="flex justify-end gap-3 pt-4">
+    <div className="space-y-4">
+      {/* PCS Import */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <DownloadIcon className="h-4 w-4" />
+            Import from ProCyclingStats
+          </CardTitle>
+          <CardDescription>Paste a PCS results URL to auto-fill rider results</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex gap-2">
+            <Input
+              placeholder="https://www.procyclingstats.com/race/..."
+              value={pcsUrl}
+              onChange={(e) => setPcsUrl(e.target.value)}
+              className="h-9"
+            />
             <Button
               type="button"
-              variant={previewData ? "outline" : "default"}
-              onClick={handlePreview}
-              disabled={isPreviewing || form.formState.isSubmitting}
+              variant="outline"
+              onClick={handleImport}
+              disabled={isImporting || !pcsUrl.trim()}
+              className="shrink-0"
             >
-              {isPreviewing ? "Loading..." : "Preview Scoring"}
-            </Button>
-            <Button
-              type="submit"
-              variant={previewData ? "default" : "outline"}
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Saving..." : "Submit Results"}
+              {isImporting ? "Importing..." : "Import"}
             </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+
+          {importError && (
+            <p className="text-sm text-destructive">{importError}</p>
+          )}
+
+          {importMatches && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                {importMatches.length} results scraped — review matches and click Apply
+              </p>
+              <div className="border rounded-md overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">Pos</TableHead>
+                      <TableHead>PCS Name</TableHead>
+                      <TableHead>Matched Rider</TableHead>
+                      <TableHead className="w-20">Conf.</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {importMatches.map((match, i) => (
+                      <TableRow key={i}>
+                        <TableCell className="font-medium">{match.position}</TableCell>
+                        <TableCell>
+                          <div className="text-sm">{match.scrapedName}</div>
+                          <div className="text-xs text-muted-foreground">{match.scrapedTeam}</div>
+                        </TableCell>
+                        <TableCell>
+                          <select
+                            value={match.selectedRiderId ?? ""}
+                            onChange={(e) =>
+                              updateImportMatch(i, e.target.value ? Number(e.target.value) : null)
+                            }
+                            className="text-sm border rounded px-2 py-1 w-full bg-background"
+                          >
+                            <option value="">— Not matched —</option>
+                            {filteredRiders.map((r) => (
+                              <option key={r.id} value={r.id}>
+                                {r.name}
+                              </option>
+                            ))}
+                          </select>
+                        </TableCell>
+                        <TableCell>
+                          {match.matchedRider ? (
+                            <Badge
+                              variant={
+                                match.matchScore >= 0.9
+                                  ? "default"
+                                  : match.matchScore >= 0.7
+                                    ? "secondary"
+                                    : "destructive"
+                              }
+                              className="text-xs"
+                            >
+                              {Math.round(match.matchScore * 100)}%
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive" className="text-xs">
+                              No match
+                            </Badge>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div className="flex justify-end">
+                <Button type="button" onClick={handleApplyMatches}>
+                  Apply {importMatches.filter((m) => m.selectedRiderId).length} Results to Form
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Main entry form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Enter Race Results</CardTitle>
+          <CardDescription>
+            {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"})
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Field array */}
+            <div className="space-y-3">
+              {fields.map((field, index) => {
+                const riderId = form.watch(`results.${index}.riderId`)
+                const selectedRider = filteredRiders.find((r) => r.id === riderId)
+
+                return (
+                  <div key={field.id} className="flex items-start gap-3">
+                    {/* Position */}
+                    <div className="w-20">
+                      <Label htmlFor={`position-${index}`} className="text-xs">
+                        Pos.
+                      </Label>
+                      <Input
+                        id={`position-${index}`}
+                        type="number"
+                        min="1"
+                        {...form.register(`results.${index}.position`, {
+                          valueAsNumber: true,
+                        })}
+                        className="h-9"
+                      />
+                    </div>
+
+                    {/* Rider selector */}
+                    <div className="flex-1">
+                      <Label htmlFor={`rider-${index}`} className="text-xs">
+                        Rider
+                      </Label>
+                      <Combobox
+                        value={selectedRider?.name ?? ""}
+                        onValueChange={(name) => {
+                          const rider = filteredRiders.find((r) => r.name === name)
+                          form.setValue(`results.${index}.riderId`, rider?.id ?? 0, {
+                            shouldValidate: true,
+                          })
+                        }}
+                      >
+                        <ComboboxInput
+                          id={`rider-${index}`}
+                          placeholder="Search rider..."
+                          className="h-9"
+                        />
+                        <ComboboxContent>
+                          <ComboboxList>
+                            <ComboboxEmpty>No riders found</ComboboxEmpty>
+                            {filteredRiders.map((rider) => (
+                              <ComboboxItem key={rider.id} value={rider.name}>
+                                <div className="flex flex-col">
+                                  <span>{rider.name}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {rider.team}
+                                  </span>
+                                </div>
+                              </ComboboxItem>
+                            ))}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                      {form.formState.errors.results?.[index]?.riderId && (
+                        <p className="text-xs text-destructive mt-1">
+                          {form.formState.errors.results[index]?.riderId?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Time */}
+                    <div className="w-32">
+                      <Label htmlFor={`time-${index}`} className="text-xs">
+                        Time (optional)
+                      </Label>
+                      <Input
+                        id={`time-${index}`}
+                        placeholder="4h32m10s"
+                        {...form.register(`results.${index}.time`)}
+                        className="h-9"
+                      />
+                    </div>
+
+                    {/* Remove button */}
+                    <div className="pt-5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(index)}
+                        disabled={fields.length === 1}
+                        className="h-9 w-9"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Form-level errors */}
+            {form.formState.errors.results?.message && (
+              <p className="text-sm text-destructive">{form.formState.errors.results.message}</p>
+            )}
+            {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+
+            {/* Add result button */}
+            <Button type="button" variant="outline" onClick={handleAddResult} className="w-full">
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Add Result
+            </Button>
+
+            {/* Preview section */}
+            {previewData && (
+              <div className="pt-4">
+                <ScoringPreview
+                  preview={previewData.preview}
+                  totalPointsAwarded={previewData.totalPointsAwarded}
+                  raceName={previewData.raceName}
+                />
+              </div>
+            )}
+
+            {/* Submit */}
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                type="button"
+                variant={previewData ? "outline" : "default"}
+                onClick={handlePreview}
+                disabled={isPreviewing || form.formState.isSubmitting}
+              >
+                {isPreviewing ? "Loading..." : "Preview Scoring"}
+              </Button>
+              <Button
+                type="submit"
+                variant={previewData ? "default" : "outline"}
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Saving..." : "Submit Results"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

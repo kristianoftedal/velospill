@@ -10,7 +10,7 @@ import { user } from "@/db/schema/users";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePoints, previewScoringImpact } from "@/lib/scoring-preview";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -230,13 +230,18 @@ export async function submitRaceResults(formData: ResultInput) {
       scoringPreview.preview.map((p) => [p.riderId, p.pointsAwarded]),
     );
 
-    // Use transaction to insert results and audit entry
-    await db.transaction(async (tx) => {
-      // Delete audit entries and existing results for this race+category (replace operation)
-      await tx.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`);
-      await tx.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory}`);
+    // Replace existing results: delete old ones outside transaction (avoids tx complexity)
+    const existing = await db.select({ id: raceResults.id })
+      .from(raceResults)
+      .where(and(eq(raceResults.raceId, raceId), eq(raceResults.category, resolvedCategory)));
+    if (existing.length > 0) {
+      const ids = existing.map((r) => r.id);
+      await db.delete(resultAudit).where(inArray(resultAudit.resultId, ids));
+      await db.delete(raceResults).where(inArray(raceResults.id, ids));
+    }
 
-      // Insert all results with calculated points
+    // Insert new results and audit entry
+    await db.transaction(async (tx) => {
       for (const resultItem of resultData) {
         const points = pointsMap.get(resultItem.riderId) || 0;
         await tx.insert(raceResults).values({
@@ -249,7 +254,6 @@ export async function submitRaceResults(formData: ResultInput) {
         });
       }
 
-      // Insert audit entry
       await tx.insert(resultAudit).values({
         raceId,
         changeType: "BATCH_INSERT",

@@ -646,24 +646,41 @@ export async function submitTttResults(formData: {
       };
     }
 
-    // Use transaction to insert all rider results
+    // Pre-fetch all riders for all teams (outside transaction — avoids Neon interactive tx limitation)
+    const allTeamNames = teamPlacements.map((p) => p.teamName);
+    const allTeamRiders = await db
+      .select({ id: riders.id, team: riders.team })
+      .from(riders)
+      .where(inArray(riders.team, allTeamNames));
+
+    // Build lookup map: teamName -> riderId[]
+    const teamRiderMap = new Map<string, number[]>();
+    for (const rider of allTeamRiders) {
+      if (!teamRiderMap.has(rider.team)) teamRiderMap.set(rider.team, []);
+      teamRiderMap.get(rider.team)!.push(rider.id);
+    }
+
+    // Replace existing TTT results (outside transaction — same pattern as submitRaceResults)
+    const existingTtt = await db
+      .select({ id: raceResults.id })
+      .from(raceResults)
+      .where(and(eq(raceResults.raceId, raceId), eq(raceResults.category, "ttt")));
+    if (existingTtt.length > 0) {
+      const ids = existingTtt.map((r) => r.id);
+      await db.delete(resultAudit).where(inArray(resultAudit.resultId, ids));
+      await db.delete(raceResults).where(inArray(raceResults.id, ids));
+    }
+
+    // INSERT-only transaction
     await db.transaction(async (tx) => {
-      // For each team placement
       for (const { position, teamName } of teamPlacements) {
-        // Calculate points for this position
         const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
+        const riderIds = teamRiderMap.get(teamName) ?? [];
 
-        // Find all riders on this team
-        const teamRiders = await tx
-          .select({ id: riders.id })
-          .from(riders)
-          .where(eq(riders.team, teamName));
-
-        // Insert a result for each rider on the team
-        for (const rider of teamRiders) {
+        for (const riderId of riderIds) {
           await tx.insert(raceResults).values({
             raceId,
-            riderId: rider.id,
+            riderId,
             category: "ttt",
             position,
             time: null,
@@ -672,7 +689,6 @@ export async function submitTttResults(formData: {
         }
       }
 
-      // Insert audit entry
       await tx.insert(resultAudit).values({
         raceId,
         changeType: "BATCH_INSERT",
@@ -684,18 +700,6 @@ export async function submitTttResults(formData: {
     revalidatePath("/admin/results");
     return { success: true };
   } catch (error: any) {
-    // Handle unique constraint violations
-    if (error.code === "23505") {
-      return {
-        success: false,
-        error: {
-          _form: [
-            "Some riders from these teams already have TTT results for this race.",
-          ],
-        },
-      };
-    }
-
     return {
       success: false,
       error: { _form: [(error as Error).message] },

@@ -232,13 +232,9 @@ export async function submitRaceResults(formData: ResultInput) {
 
     // Use transaction to insert results and audit entry
     await db.transaction(async (tx) => {
-      // Null out audit FK refs, then delete existing results for this race+category (replace operation)
-      await tx.update(resultAudit).set({ resultId: null }).where(
-        sql`${resultAudit.resultId} IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`
-      );
-      await tx.delete(raceResults).where(
-        and(eq(raceResults.raceId, raceId), eq(raceResults.category, resolvedCategory))
-      );
+      // Delete audit entries and existing results for this race+category (replace operation)
+      await tx.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`);
+      await tx.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory}`);
 
       // Insert all results with calculated points
       for (const resultItem of resultData) {

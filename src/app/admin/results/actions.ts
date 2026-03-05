@@ -232,6 +232,11 @@ export async function submitRaceResults(formData: ResultInput) {
 
     // Use transaction to insert results and audit entry
     await db.transaction(async (tx) => {
+      // Delete existing results for this race+category before inserting (replace operation)
+      await tx.delete(raceResults).where(
+        and(eq(raceResults.raceId, raceId), eq(raceResults.category, resolvedCategory))
+      );
+
       // Insert all results with calculated points
       for (const resultItem of resultData) {
         const points = pointsMap.get(resultItem.riderId) || 0;

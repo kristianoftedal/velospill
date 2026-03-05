@@ -10,7 +10,7 @@ import { user } from "@/db/schema/users";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePoints, previewScoringImpact } from "@/lib/scoring-preview";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -233,9 +233,15 @@ export async function submitRaceResults(formData: ResultInput) {
     // Use transaction to insert results and audit entry
     await db.transaction(async (tx) => {
       // Delete existing results for this race+category before inserting (replace operation)
-      await tx.delete(raceResults).where(
-        and(eq(raceResults.raceId, raceId), eq(raceResults.category, resolvedCategory))
-      );
+      const existingIds = await tx
+        .select({ id: raceResults.id })
+        .from(raceResults)
+        .where(and(eq(raceResults.raceId, raceId), eq(raceResults.category, resolvedCategory)));
+      if (existingIds.length > 0) {
+        const ids = existingIds.map((r) => r.id);
+        await tx.update(resultAudit).set({ resultId: null }).where(inArray(resultAudit.resultId, ids));
+        await tx.delete(raceResults).where(inArray(raceResults.id, ids));
+      }
 
       // Insert all results with calculated points
       for (const resultItem of resultData) {

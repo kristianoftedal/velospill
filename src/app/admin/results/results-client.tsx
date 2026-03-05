@@ -407,7 +407,7 @@ export function ResultsClient({ races, riders }: Props) {
 
       {/* Modal dialog for results area */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[80vw] sm:max-w-[80vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedRace?.name}</DialogTitle>
           </DialogHeader>

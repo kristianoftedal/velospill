@@ -16,9 +16,8 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults, previewResults, submitTttResults, previewTttResults, scrapeAndMatchPcsResults } from "@/app/admin/results/actions"
-import { Badge } from "@/components/ui/badge"
-import { TrashIcon, PlusIcon, DownloadIcon } from "lucide-react"
+import { submitRaceResults, previewResults, submitTttResults, previewTttResults } from "@/app/admin/results/actions"
+import { TrashIcon, PlusIcon } from "lucide-react"
 import { useState } from "react"
 import { ScoringPreview } from "@/components/admin/scoring-preview"
 import {
@@ -390,25 +389,11 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   )
 }
 
-type ImportMatch = {
-  position: number
-  scrapedName: string
-  scrapedTeam: string
-  matchedRider: { id: number; name: string; team: string } | null
-  matchScore: number
-  alternatives: Array<{ id: number; name: string; team: string }>
-  selectedRiderId: number | null
-}
-
 export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewing, setIsPreviewing] = useState(false)
-  const [pcsUrl, setPcsUrl] = useState("")
-  const [isImporting, setIsImporting] = useState(false)
-  const [importError, setImportError] = useState<string | null>(null)
-  const [importMatches, setImportMatches] = useState<ImportMatch[] | null>(null)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
@@ -493,154 +478,8 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
     }
   }
 
-  const handleImport = async () => {
-    if (!pcsUrl.trim()) return
-    setIsImporting(true)
-    setImportError(null)
-    setImportMatches(null)
-
-    const result = await scrapeAndMatchPcsResults(pcsUrl.trim(), raceId)
-    setIsImporting(false)
-
-    if (!result.success) {
-      setImportError(result.error)
-      return
-    }
-
-    setImportMatches(
-      result.results.map((r) => ({
-        ...r,
-        selectedRiderId: r.matchedRider?.id ?? null,
-      })),
-    )
-  }
-
-  const updateImportMatch = (index: number, riderId: number | null) => {
-    setImportMatches((prev) =>
-      prev ? prev.map((m, i) => (i === index ? { ...m, selectedRiderId: riderId } : m)) : prev,
-    )
-  }
-
-  const handleApplyMatches = () => {
-    if (!importMatches) return
-    const newResults = importMatches
-      .filter((m) => m.selectedRiderId)
-      .map((m) => ({ position: m.position, riderId: m.selectedRiderId!, time: "" }))
-    if (newResults.length === 0) return
-    form.setValue("results", newResults, { shouldValidate: false })
-    setImportMatches(null)
-    setPcsUrl("")
-    toast.success(`Applied ${newResults.length} results from FirstCycling`)
-  }
-
   return (
     <div className="space-y-4">
-      {/* FirstCycling Import */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <DownloadIcon className="h-4 w-4" />
-            Import from FirstCycling
-          </CardTitle>
-          <CardDescription>Paste a FirstCycling race URL to auto-fill rider results</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex gap-2">
-            <Input
-              placeholder="https://firstcycling.com/race.php?r=53&y=2026"
-              value={pcsUrl}
-              onChange={(e) => setPcsUrl(e.target.value)}
-              className="h-9"
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleImport}
-              disabled={isImporting || !pcsUrl.trim()}
-              className="shrink-0"
-            >
-              {isImporting ? "Importing..." : "Import"}
-            </Button>
-          </div>
-
-          {importError && (
-            <p className="text-sm text-destructive">{importError}</p>
-          )}
-
-          {importMatches && (
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                {importMatches.length} results scraped — review matches and click Apply
-              </p>
-              <div className="border rounded-md overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">Pos</TableHead>
-                      <TableHead>Scraped Name</TableHead>
-                      <TableHead>Matched Rider</TableHead>
-                      <TableHead className="w-20">Conf.</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {importMatches.map((match, i) => (
-                      <TableRow key={i}>
-                        <TableCell className="font-medium">{match.position}</TableCell>
-                        <TableCell>
-                          <div className="text-sm">{match.scrapedName}</div>
-                          <div className="text-xs text-muted-foreground">{match.scrapedTeam}</div>
-                        </TableCell>
-                        <TableCell>
-                          <select
-                            value={match.selectedRiderId ?? ""}
-                            onChange={(e) =>
-                              updateImportMatch(i, e.target.value ? Number(e.target.value) : null)
-                            }
-                            className="text-sm border rounded px-2 py-1 w-full bg-background"
-                          >
-                            <option value="">— Not matched —</option>
-                            {filteredRiders.map((r) => (
-                              <option key={r.id} value={r.id}>
-                                {r.name}
-                              </option>
-                            ))}
-                          </select>
-                        </TableCell>
-                        <TableCell>
-                          {match.matchedRider ? (
-                            <Badge
-                              variant={
-                                match.matchScore >= 0.9
-                                  ? "default"
-                                  : match.matchScore >= 0.7
-                                    ? "secondary"
-                                    : "destructive"
-                              }
-                              className="text-xs"
-                            >
-                              {Math.round(match.matchScore * 100)}%
-                            </Badge>
-                          ) : (
-                            <Badge variant="destructive" className="text-xs">
-                              No match
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <div className="flex justify-end">
-                <Button type="button" onClick={handleApplyMatches}>
-                  Apply {importMatches.filter((m) => m.selectedRiderId).length} Results to Form
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Main entry form */}
       <Card>
         <CardHeader>

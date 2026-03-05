@@ -230,15 +230,9 @@ export async function submitRaceResults(formData: ResultInput) {
       scoringPreview.preview.map((p) => [p.riderId, p.pointsAwarded]),
     );
 
-    // Replace existing results: delete old ones outside transaction (avoids tx complexity)
-    const existing = await db.select({ id: raceResults.id })
-      .from(raceResults)
-      .where(and(eq(raceResults.raceId, raceId), eq(raceResults.category, resolvedCategory)));
-    if (existing.length > 0) {
-      const ids = existing.map((r) => r.id);
-      await db.delete(resultAudit).where(inArray(resultAudit.resultId, ids));
-      await db.delete(raceResults).where(inArray(raceResults.id, ids));
-    }
+    // Replace existing results using raw SQL to avoid Drizzle/Neon query issues
+    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`);
+    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory}`);
 
     // Insert new results and audit entry
     await db.transaction(async (tx) => {
@@ -660,16 +654,9 @@ export async function submitTttResults(formData: {
       teamRiderMap.get(rider.team)!.push(rider.id);
     }
 
-    // Replace existing TTT results (outside transaction — same pattern as submitRaceResults)
-    const existingTtt = await db
-      .select({ id: raceResults.id })
-      .from(raceResults)
-      .where(and(eq(raceResults.raceId, raceId), eq(raceResults.category, "ttt")));
-    if (existingTtt.length > 0) {
-      const ids = existingTtt.map((r) => r.id);
-      await db.delete(resultAudit).where(inArray(resultAudit.resultId, ids));
-      await db.delete(raceResults).where(inArray(raceResults.id, ids));
-    }
+    // Replace existing TTT results using raw SQL to avoid Drizzle/Neon query issues
+    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt')`);
+    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt'`);
 
     // INSERT-only transaction
     await db.transaction(async (tx) => {

@@ -130,6 +130,15 @@ export default async function LeagueDetailPage({ params }: PageProps) {
 
   const showActions = league.status === "active" || league.status === "drafting"
 
+  // Show "View Draft" button only within 5 days of the draft completing
+  // updatedAt is set to now() when status transitions, so for active leagues
+  // it records when drafting -> active happened
+  const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
+  const showViewDraft =
+    league.status === "drafting" ||
+    (league.status === "active" &&
+      Date.now() - new Date(league.updatedAt).getTime() <= FIVE_DAYS_MS)
+
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
       {/* Breadcrumb */}
@@ -156,6 +165,39 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Actions — inline row of buttons, first content after header */}
+      {showActions && (
+        <div className="flex flex-wrap gap-2">
+          {showViewDraft && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/draft`}>
+                {league.status === "drafting" ? "Go to Draft" : "View Draft"}
+              </Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/transfers`}>Transfers</Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/lineup`}>Set Lineup</Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/orders`}>Orders</Link>
+            </Button>
+          )}
+          {isOwner && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/owner`}>League Settings</Link>
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Standings — show when league is active or complete */}
       {standings && (league.status === "active" || league.status === "complete") && (
         <Card>
@@ -171,105 +213,6 @@ export default async function LeagueDetailPage({ params }: PageProps) {
               userTeamId={userTeamId}
               races={races ?? []}
             />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Actions card — consolidated navigation for active/drafting leagues */}
-      {showActions && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {/* Draft row — show for drafting or active */}
-              {(league.status === "drafting" || league.status === "active") && (
-                <div className="flex items-center justify-between px-6 py-4">
-                  <div>
-                    <p className="font-semibold text-gray-900">Draft</p>
-                    <p className="text-sm text-gray-500">
-                      {league.status === "drafting"
-                        ? "Join the draft room to pick your riders"
-                        : "View your draft picks and team roster"}
-                    </p>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/leagues/${league.id}/draft`}>
-                      {league.status === "drafting" ? "Go to Draft" : "View Draft"}
-                    </Link>
-                  </Button>
-                </div>
-              )}
-
-              {/* Transfers row — active only */}
-              {league.status === "active" && (
-                <div className="flex items-center justify-between px-6 py-4">
-                  <div>
-                    <p className="font-semibold text-gray-900">Transfers</p>
-                    <p className="text-sm text-gray-500">
-                      Browse free agents and submit transfer bids
-                    </p>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/leagues/${league.id}/transfers`}>
-                      Go to Transfers
-                    </Link>
-                  </Button>
-                </div>
-              )}
-
-              {/* Set Lineup row — active only */}
-              {league.status === "active" && (
-                <div className="flex items-center justify-between px-6 py-4">
-                  <div>
-                    <p className="font-semibold text-gray-900">Race Lineup</p>
-                    <p className="text-sm text-gray-500">
-                      Set your starting lineup for upcoming races
-                    </p>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/leagues/${league.id}/lineup`}>
-                      Set Lineup
-                    </Link>
-                  </Button>
-                </div>
-              )}
-
-              {/* Orders row — active only */}
-              {league.status === "active" && (
-                <div className="flex items-center justify-between px-6 py-4">
-                  <div>
-                    <p className="font-semibold text-gray-900">Strategic Orders</p>
-                    <p className="text-sm text-gray-500">
-                      Deploy orders to boost your riders or sabotage opponents
-                    </p>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/leagues/${league.id}/orders`}>
-                      Go to Orders
-                    </Link>
-                  </Button>
-                </div>
-              )}
-
-              {/* League Settings row — owner only */}
-              {isOwner && (
-                <div className="flex items-center justify-between px-6 py-4 bg-primary/5 border-t border-primary/20">
-                  <div>
-                    <p className="font-semibold text-gray-900">League Settings</p>
-                    <p className="text-sm text-gray-500">
-                      Manage races, invitations, and league status
-                    </p>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/leagues/${league.id}/owner`}>
-                      Go to Settings
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </div>
           </CardContent>
         </Card>
       )}

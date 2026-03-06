@@ -72,12 +72,12 @@ export async function getRacesForResults() {
       startDate: races.startDate,
       parentRaceId: races.parentRaceId,
       stageNumber: races.stageNumber,
-      hasResults: sql<boolean>`EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id})`,
+      hasResults: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id}) THEN 1 ELSE 0 END`,
     })
     .from(races)
     .orderBy(asc(races.startDate));
 
-  return allRaces;
+  return allRaces.map(r => ({ ...r, hasResults: r.hasResults === 1 }));
 }
 
 export async function getRiders() {

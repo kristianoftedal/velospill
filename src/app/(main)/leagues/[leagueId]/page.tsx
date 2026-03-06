@@ -201,8 +201,14 @@ export default async function LeagueDetailPage({ params }: PageProps) {
       {/* Standings — show when league is active or complete */}
       {standings && (league.status === "active" || league.status === "complete") && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">League Standings</CardTitle>
+            <Link
+              href={`/leagues/${league.id}/standings/history`}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Season History →
+            </Link>
           </CardHeader>
           <CardContent>
             <StandingsClient

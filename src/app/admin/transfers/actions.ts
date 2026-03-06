@@ -55,7 +55,7 @@ export async function getPendingBids() {
     .from(transferBids)
     .innerJoin(leagues, eq(leagues.id, transferBids.leagueId))
     .innerJoin(teams, eq(teams.id, transferBids.teamId))
-    .innerJoin(outRider, eq(outRider.id, transferBids.outRiderId))
+    .leftJoin(outRider, eq(outRider.id, transferBids.outRiderId))
     .innerJoin(inRider, eq(inRider.id, transferBids.inRiderId))
     .where(eq(transferBids.status, "pending"))
     .orderBy(transferBids.submittedAt)
@@ -88,7 +88,7 @@ export async function getBidHistory(limit = 50) {
     .from(transferBids)
     .innerJoin(leagues, eq(leagues.id, transferBids.leagueId))
     .innerJoin(teams, eq(teams.id, transferBids.teamId))
-    .innerJoin(outRider, eq(outRider.id, transferBids.outRiderId))
+    .leftJoin(outRider, eq(outRider.id, transferBids.outRiderId))
     .innerJoin(inRider, eq(inRider.id, transferBids.inRiderId))
     .where(ne(transferBids.status, "pending"))
     .orderBy(desc(transferBids.resolvedAt))
@@ -119,16 +119,19 @@ export async function approveBid(bidId: number) {
         throw new Error("Incoming rider is no longer a free agent")
       }
 
-      // Step 3: Re-verify outRider still belongs to team
-      const currentPick = await tx.query.draftPicks.findFirst({
-        where: and(
-          eq(draftPicks.leagueId, bid.leagueId),
-          eq(draftPicks.teamId, bid.teamId),
-          eq(draftPicks.riderId, bid.outRiderId)
-        ),
-      })
-      if (!currentPick) {
-        throw new Error("Outgoing rider is no longer on this team")
+      // Step 3: Re-verify outRider still belongs to team (only if this is a swap)
+      let currentPick = null
+      if (bid.outRiderId != null) {
+        currentPick = await tx.query.draftPicks.findFirst({
+          where: and(
+            eq(draftPicks.leagueId, bid.leagueId),
+            eq(draftPicks.teamId, bid.teamId),
+            eq(draftPicks.riderId, bid.outRiderId)
+          ),
+        })
+        if (!currentPick) {
+          throw new Error("Outgoing rider is no longer on this team")
+        }
       }
 
       // Step 4: Get inRider gender (needed for new draftPick.gender)
@@ -139,8 +142,10 @@ export async function approveBid(bidId: number) {
         throw new Error("Incoming rider not found")
       }
 
-      // Step 5: Delete old draftPick
-      await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
+      // Step 5: Delete old draftPick (only for swaps, not free-slot pickups)
+      if (currentPick) {
+        await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
+      }
 
       // Step 6: Insert new draftPick
       // pickNumber = -(bidId) is a sentinel: negative = transfer-generated, unique per bid

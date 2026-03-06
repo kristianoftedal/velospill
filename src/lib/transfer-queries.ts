@@ -86,7 +86,7 @@ export async function getTeamBids(teamId: number, leagueId: number) {
       resolvedAt: transferBids.resolvedAt,
     })
     .from(transferBids)
-    .innerJoin(outRider, eq(outRider.id, transferBids.outRiderId))
+    .leftJoin(outRider, eq(outRider.id, transferBids.outRiderId))
     .innerJoin(inRider, eq(inRider.id, transferBids.inRiderId))
     .where(
       and(

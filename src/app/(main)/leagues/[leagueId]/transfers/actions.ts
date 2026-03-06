@@ -5,7 +5,7 @@ import { transferBids, transferAudit } from "@/db/schema/transfers"
 import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and } from "drizzle-orm"
+import { eq, and, sql } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import {
@@ -20,7 +20,7 @@ import {
 
 const submitBidSchema = z.object({
   leagueId: z.number(),
-  outRiderId: z.number(),
+  outRiderId: z.number().optional(),
   inRiderId: z.number(),
   bidAmount: z.number().int().min(0),
   reason: z.string().optional(),
@@ -28,7 +28,7 @@ const submitBidSchema = z.object({
 
 export async function submitTransferBid(formData: {
   leagueId: number
-  outRiderId: number
+  outRiderId?: number
   inRiderId: number
   bidAmount: number
   reason?: string
@@ -69,21 +69,23 @@ export async function submitTransferBid(formData: {
     return { success: false, error: "Transfers are only available for active leagues" }
   }
 
-  // 4. Validate outRider belongs to this team
-  const outPick = await db
-    .select()
-    .from(draftPicks)
-    .where(
-      and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.riderId, outRiderId)
+  // 4. Validate outRider belongs to this team (if provided)
+  if (outRiderId != null) {
+    const outPick = await db
+      .select()
+      .from(draftPicks)
+      .where(
+        and(
+          eq(draftPicks.teamId, team.id),
+          eq(draftPicks.leagueId, leagueId),
+          eq(draftPicks.riderId, outRiderId)
+        )
       )
-    )
-    .limit(1)
+      .limit(1)
 
-  if (!outPick[0]) {
-    return { success: false, error: "Rider to drop is not on your team" }
+    if (!outPick[0]) {
+      return { success: false, error: "Rider to drop is not on your team" }
+    }
   }
 
   // 5. Validate inRider is a free agent (no draftPick for this league + rider)
@@ -102,27 +104,56 @@ export async function submitTransferBid(formData: {
     return { success: false, error: "Selected rider is not a free agent" }
   }
 
-  // 6. Gender constraint: outgoing and incoming rider must have same gender
-  const [outRiderRecord] = await db
-    .select({ gender: riders.gender })
-    .from(riders)
-    .where(eq(riders.id, outRiderId))
-    .limit(1)
-
+  // 6. Gender constraint and roster slot check
   const [inRiderRecord] = await db
     .select({ gender: riders.gender })
     .from(riders)
     .where(eq(riders.id, inRiderId))
     .limit(1)
 
-  if (!outRiderRecord || !inRiderRecord) {
+  if (!inRiderRecord) {
     return { success: false, error: "Rider not found" }
   }
 
-  if (outRiderRecord.gender !== inRiderRecord.gender) {
-    return {
-      success: false,
-      error: "You can only swap riders within the same gender pool (men for men, women for women)",
+  if (outRiderId != null) {
+    // Swap: outgoing and incoming must have same gender
+    const [outRiderRecord] = await db
+      .select({ gender: riders.gender })
+      .from(riders)
+      .where(eq(riders.id, outRiderId))
+      .limit(1)
+
+    if (!outRiderRecord) {
+      return { success: false, error: "Rider not found" }
+    }
+
+    if (outRiderRecord.gender !== inRiderRecord.gender) {
+      return {
+        success: false,
+        error: "You can only swap riders within the same gender pool (men for men, women for women)",
+      }
+    }
+  } else {
+    // Pickup without drop: verify team has an available roster slot for this gender
+    const MAX_MEN = 18
+    const MAX_WOMEN = 6
+    const currentGenderCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(draftPicks)
+      .where(
+        and(
+          eq(draftPicks.teamId, team.id),
+          eq(draftPicks.leagueId, leagueId),
+          eq(draftPicks.gender, inRiderRecord.gender)
+        )
+      )
+    const count = Number(currentGenderCount[0]?.count ?? 0)
+    const max = inRiderRecord.gender === "M" ? MAX_MEN : MAX_WOMEN
+    if (count >= max) {
+      return {
+        success: false,
+        error: `Your roster is full for ${inRiderRecord.gender === "M" ? "men" : "women"} (${max} max). Drop a rider first.`,
+      }
     }
   }
 
@@ -172,7 +203,7 @@ export async function submitTransferBid(formData: {
     .values({
       leagueId,
       teamId: team.id,
-      outRiderId,
+      outRiderId: outRiderId ?? null,
       inRiderId,
       bidAmount,
       status: "pending",

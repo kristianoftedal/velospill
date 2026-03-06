@@ -19,7 +19,7 @@ type RejectBidFn = (bidId: number, adminNote: string) => Promise<{ success: bool
 
 interface BidActionsProps {
   bidId: number
-  outRiderName: string
+  outRiderName: string | null
   inRiderName: string
   approveBid: ApproveBidFn
   rejectBid: RejectBidFn
@@ -42,7 +42,9 @@ export function BidActions({
       const result = await approveBid(bidId)
       if (result.success) {
         toast.success("Transfer approved", {
-          description: `${outRiderName} dropped, ${inRiderName} picked up`,
+          description: outRiderName
+            ? `${outRiderName} dropped, ${inRiderName} picked up`
+            : `${inRiderName} picked up (free slot)`,
         })
       } else {
         toast.error("Approval failed", {
@@ -101,7 +103,10 @@ export function BidActions({
           <DialogHeader>
             <DialogTitle>Reject Transfer Bid</DialogTitle>
             <DialogDescription>
-              Rejecting: drop <strong>{outRiderName}</strong>, pick up <strong>{inRiderName}</strong>.
+              {outRiderName
+                ? <>Rejecting: drop <strong>{outRiderName}</strong>, pick up <strong>{inRiderName}</strong>.</>
+                : <>Rejecting: pick up <strong>{inRiderName}</strong> (free slot).</>
+              }{" "}
               Please provide a reason that will be shown to the team manager.
             </DialogDescription>
           </DialogHeader>

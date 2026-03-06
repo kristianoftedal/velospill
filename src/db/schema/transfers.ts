@@ -16,7 +16,7 @@ export const transferBids = pgTable("transfer_bids", {
   id: serial("id").primaryKey(),
   leagueId: integer("leagueId").notNull().references(() => leagues.id, { onDelete: "cascade" }),
   teamId: integer("teamId").notNull().references(() => teams.id),
-  outRiderId: integer("outRiderId").notNull().references(() => riders.id),
+  outRiderId: integer("outRiderId").references(() => riders.id),
   inRiderId: integer("inRiderId").notNull().references(() => riders.id),
   bidAmount: integer("bidAmount").notNull().default(0),
   status: transferBidStatusEnum("status").notNull().default("pending"),

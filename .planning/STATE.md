@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 Phase: 19 — Season Standings History
 Plan: TBD
 Status: Not started — Phase 18 resolved via quick task 5, ready for Phase 19
-Last activity: 2026-03-06 — Phase 18 marked complete (lineup accordion built in quick-5)
+Last activity: 2026-03-06 — Quick task 8: fixed scoring display bug for rider 268 (team 15, league 7)
 
 Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 1 of 4 phases complete (Phase 17)
 
@@ -176,6 +176,7 @@ None yet.
 | 5 | Redesign league page: consolidated Actions card, upcoming races with per-team lineup accordions, recent results with fantasy team badges; remove race sections from home page | 2026-03-06 | 44de3e6 | [5-redesign-league-page-move-upcoming-races](./quick/5-redesign-league-page-move-upcoming-races/) |
 | 6 | Fix admin results: Add More Results button broken due to ternary priority over existingResults | 2026-03-06 | a6b688c | [6-fix-admin-results-add-more-results-butto](./quick/6-fix-admin-results-add-more-results-butto/) |
 | 7 | Improve league page Actions: replace card-with-rows with inline button row, move before Standings, hide View Draft after 5 days | 2026-03-06 | 32f1b08 | [7-improve-league-page-actions-card-row-of-](./quick/7-improve-league-page-actions-card-row-of-/) |
+| 8 | Fix scoring display bug: rider 268 (Tobias Lund Andresen) 10pts from race 9 missing in team 15 standings — backdated pickedAt before race startDate | 2026-03-06 | 58a2933 | [8-fix-scoring-display-bug-rider-268-scored](./quick/8-fix-scoring-display-bug-rider-268-scored/) |
 
 ### Blockers/Concerns
 

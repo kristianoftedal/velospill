@@ -1,3 +1,18 @@
+---
+gsd_state_version: 1.0
+milestone: v1.2
+milestone_name: Player Visibility
+status: Not started — Phase 18 resolved via quick task 5, ready for Phase 19
+last_updated: "2026-03-06T11:35:43.112Z"
+last_activity: 2026-03-06 — Phase 18 marked complete (lineup accordion built in quick-5)
+progress:
+  total_phases: 4
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
+  percent: 0
+---
+
 # Project State
 
 ## Project Reference
@@ -167,6 +182,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-03
+Last session: 2026-03-06T11:35:43.110Z
 Last activity: 2026-03-06 - Completed quick task 7: improve league page actions — compact button row, first position, View Draft hidden after 5 days
-Resume file: None
+Resume file: .planning/phases/19-season-standings-history/19-CONTEXT.md

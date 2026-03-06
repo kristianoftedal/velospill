@@ -175,5 +175,5 @@ Plans:
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
 | 19. Season Standings History | v1.2 | 2/2 | Complete | 2026-03-06 |
 | 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
-| 21. Drop Rider | 1/1 | Complete   | 2026-03-06 | - |
+| 21. Drop Rider | 1/1 | Complete    | 2026-03-06 | - |
 | 22. IR Return Flow | v1.3 | TBD | Not started | - |

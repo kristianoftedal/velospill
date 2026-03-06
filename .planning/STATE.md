@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 Phase: 19 — Season Standings History
 Plan: TBD
 Status: Not started — Phase 18 resolved via quick task 5, ready for Phase 19
-Last activity: 2026-03-06 — Quick task 8: fixed scoring display bug for rider 268 (team 15, league 7)
+Last activity: 2026-03-06 — Quick task 9: updated 332 race startDates from midnight UTC to 12:00 UTC
 
 Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 1 of 4 phases complete (Phase 17)
 
@@ -177,6 +177,7 @@ None yet.
 | 6 | Fix admin results: Add More Results button broken due to ternary priority over existingResults | 2026-03-06 | a6b688c | [6-fix-admin-results-add-more-results-butto](./quick/6-fix-admin-results-add-more-results-butto/) |
 | 7 | Improve league page Actions: replace card-with-rows with inline button row, move before Standings, hide View Draft after 5 days | 2026-03-06 | 32f1b08 | [7-improve-league-page-actions-card-row-of-](./quick/7-improve-league-page-actions-card-row-of-/) |
 | 8 | Fix scoring display bug: rider 268 (Tobias Lund Andresen) 10pts from race 9 missing in team 15 standings — backdated pickedAt before race startDate | 2026-03-06 | 58a2933 | [8-fix-scoring-display-bug-rider-268-scored](./quick/8-fix-scoring-display-bug-rider-268-scored/) |
+| 9 | Update all races to have startDate time of 12:00 UTC instead of midnight — 332 rows updated via migration script | 2026-03-06 | 6e39c54 | [9-update-all-races-to-have-startdate-time-](./quick/9-update-all-races-to-have-startdate-time-/) |
 
 ### Blockers/Concerns
 
@@ -194,5 +195,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-06T11:59:52.173Z
-Last activity: 2026-03-06 - Completed quick task 8: fix scoring bug — rider 268 points missing from team 15 in league 7 (backdated pickedAt before race startDate)
+Last activity: 2026-03-06 - Completed quick task 9: fix race startDate times — 332 races updated from midnight UTC to 12:00 UTC
 Resume file: None

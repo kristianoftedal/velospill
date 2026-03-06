@@ -97,7 +97,7 @@ None.
 | 8 | Fix scoring display bug — rider 268 | 2026-03-06 | 58a2933 |
 | 9 | Fix race startDate times to 12:00 UTC | 2026-03-06 | 6e39c54 |
 | 10 | Add riders to roster if space available without dropping a rider | 2026-03-06 | 59aed39 |
-| 11 | Reseed scoring DB with correct 2026 values (grand_tour_tdf, one-day tables, mini tour) | 2026-03-06 | TBD |
+| 11 | Reseed scoring DB with correct 2026 values (grand_tour_tdf, one-day tables, mini tour) | 2026-03-06 | f0875a6 |
 
 ### Blockers/Concerns
 

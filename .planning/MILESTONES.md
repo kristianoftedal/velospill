@@ -1,5 +1,14 @@
 # Milestones
 
+## v1.2 Player Visibility (Shipped: 2026-03-06)
+
+**Phases completed:** 4 phases, 6 plans, 0 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
 ## v1.0 Core Platform (Shipped: 2026-02-20)
 
 **Phases completed:** 9 phases, 26 plans

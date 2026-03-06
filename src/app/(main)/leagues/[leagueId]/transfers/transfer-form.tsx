@@ -70,9 +70,11 @@ export function TransferForm({
 
   const menRoster = roster.filter((r) => r.gender === "M")
   const womenRoster = roster.filter((r) => r.gender === "F")
+  const activeMenRoster = menRoster.filter((r) => !r.isOnIR)
+  const activeWomenRoster = womenRoster.filter((r) => !r.isOnIR)
 
-  const hasMenSlot = menRoster.length < MAX_MEN_RIDERS
-  const hasWomenSlot = womenRoster.length < MAX_WOMEN_RIDERS
+  const hasMenSlot = activeMenRoster.length < MAX_MEN_RIDERS
+  const hasWomenSlot = activeWomenRoster.length < MAX_WOMEN_RIDERS
   const hasAnyFreeSlot = hasMenSlot || hasWomenSlot
   const rosterIsFull = !hasAnyFreeSlot
 
@@ -99,6 +101,8 @@ export function TransferForm({
   )
 
   function handleSelectOutRider(riderId: number) {
+    const rider = roster.find((r) => r.riderId === riderId)
+    if (rider?.isOnIR) return   // IR'd riders cannot be dropped via transfer
     if (selectedOutRiderId === riderId) {
       setSelectedOutRiderId(null)
     } else {
@@ -265,10 +269,10 @@ export function TransferForm({
             {hasAnyFreeSlot && (
               <div className="rounded-md bg-blue-50 border border-blue-200 px-3 py-2 text-sm text-blue-800">
                 {hasMenSlot && hasWomenSlot
-                  ? `You have available roster spots (${menRoster.length}/${MAX_MEN_RIDERS} men, ${womenRoster.length}/${MAX_WOMEN_RIDERS} women). You can pick up a rider without dropping one.`
+                  ? `You have available roster spots (${activeMenRoster.length}/${MAX_MEN_RIDERS} men, ${activeWomenRoster.length}/${MAX_WOMEN_RIDERS} women). You can pick up a rider without dropping one.`
                   : hasMenSlot
-                  ? `You have ${MAX_MEN_RIDERS - menRoster.length} available men's roster spot${MAX_MEN_RIDERS - menRoster.length !== 1 ? "s" : ""}. You can pick up a man without dropping one.`
-                  : `You have ${MAX_WOMEN_RIDERS - womenRoster.length} available women's roster spot${MAX_WOMEN_RIDERS - womenRoster.length !== 1 ? "s" : ""}. You can pick up a woman without dropping one.`
+                  ? `You have ${MAX_MEN_RIDERS - activeMenRoster.length} available men's roster spot${MAX_MEN_RIDERS - activeMenRoster.length !== 1 ? "s" : ""}. You can pick up a man without dropping one.`
+                  : `You have ${MAX_WOMEN_RIDERS - activeWomenRoster.length} available women's roster spot${MAX_WOMEN_RIDERS - activeWomenRoster.length !== 1 ? "s" : ""}. You can pick up a woman without dropping one.`
                 }
               </div>
             )}
@@ -284,19 +288,32 @@ export function TransferForm({
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Men</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {menRoster.map((r) => (
-                      <button
-                        key={r.riderId}
-                        type="button"
-                        onClick={() => handleSelectOutRider(r.riderId)}
-                        className={`text-left rounded-lg border px-3 py-2 transition-colors ${
-                          selectedOutRiderId === r.riderId
-                            ? "border-red-500 bg-red-50"
-                            : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        <p className="text-sm font-medium text-gray-900">{r.riderName}</p>
-                        <p className="text-xs text-gray-500">{r.riderTeam}</p>
-                      </button>
+                      r.isOnIR ? (
+                        <div
+                          key={r.riderId}
+                          className="text-left rounded-lg border px-3 py-2 opacity-60 cursor-not-allowed border-gray-100 bg-gray-50"
+                        >
+                          <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                            {r.riderName}
+                            <span className="text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 ml-1">On IR</span>
+                          </p>
+                          <p className="text-xs text-gray-500">{r.riderTeam}</p>
+                        </div>
+                      ) : (
+                        <button
+                          key={r.riderId}
+                          type="button"
+                          onClick={() => handleSelectOutRider(r.riderId)}
+                          className={`text-left rounded-lg border px-3 py-2 transition-colors ${
+                            selectedOutRiderId === r.riderId
+                              ? "border-red-500 bg-red-50"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <p className="text-sm font-medium text-gray-900">{r.riderName}</p>
+                          <p className="text-xs text-gray-500">{r.riderTeam}</p>
+                        </button>
+                      )
                     ))}
                   </div>
                 </div>
@@ -307,19 +324,32 @@ export function TransferForm({
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Women</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {womenRoster.map((r) => (
-                      <button
-                        key={r.riderId}
-                        type="button"
-                        onClick={() => handleSelectOutRider(r.riderId)}
-                        className={`text-left rounded-lg border px-3 py-2 transition-colors ${
-                          selectedOutRiderId === r.riderId
-                            ? "border-red-500 bg-red-50"
-                            : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                        }`}
-                      >
-                        <p className="text-sm font-medium text-gray-900">{r.riderName}</p>
-                        <p className="text-xs text-gray-500">{r.riderTeam}</p>
-                      </button>
+                      r.isOnIR ? (
+                        <div
+                          key={r.riderId}
+                          className="text-left rounded-lg border px-3 py-2 opacity-60 cursor-not-allowed border-gray-100 bg-gray-50"
+                        >
+                          <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                            {r.riderName}
+                            <span className="text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded px-1.5 py-0.5 ml-1">On IR</span>
+                          </p>
+                          <p className="text-xs text-gray-500">{r.riderTeam}</p>
+                        </div>
+                      ) : (
+                        <button
+                          key={r.riderId}
+                          type="button"
+                          onClick={() => handleSelectOutRider(r.riderId)}
+                          className={`text-left rounded-lg border px-3 py-2 transition-colors ${
+                            selectedOutRiderId === r.riderId
+                              ? "border-red-500 bg-red-50"
+                              : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          <p className="text-sm font-medium text-gray-900">{r.riderName}</p>
+                          <p className="text-xs text-gray-500">{r.riderTeam}</p>
+                        </button>
+                      )
                     ))}
                   </div>
                 </div>

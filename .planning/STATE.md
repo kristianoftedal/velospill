@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Quick task 10 — complete, human-verified
-last_updated: "2026-03-06T18:01:09.514Z"
-last_activity: 2026-03-06 - Completed quick task 10: Add riders to roster if space available without dropping a rider
+stopped_at: Quick task 11 — complete, human-verified
+last_updated: "2026-03-06T18:08:58.878Z"
+last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
   total_phases: 7
   completed_phases: 2
@@ -97,6 +97,7 @@ None.
 | 8 | Fix scoring display bug — rider 268 | 2026-03-06 | 58a2933 |
 | 9 | Fix race startDate times to 12:00 UTC | 2026-03-06 | 6e39c54 |
 | 10 | Add riders to roster if space available without dropping a rider | 2026-03-06 | 59aed39 |
+| 11 | Reseed scoring DB with correct 2026 values (grand_tour_tdf, one-day tables, mini tour) | 2026-03-06 | TBD |
 
 ### Blockers/Concerns
 
@@ -106,6 +107,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-06T18:01:09.512Z
-Stopped at: Quick task 10 — complete, human-verified
+Last session: 2026-03-06T18:08:58.876Z
+Stopped at: Quick task 11 — complete, human-verified
 Resume file: None

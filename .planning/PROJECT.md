@@ -57,7 +57,18 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 16 | recharts via shadcn chart component | Consistent with shadcn/ui stack; CSS chart vars already defined | 19 | Good |
 | 17 | Separate /standings/history page (not inline tab) | More space for chart + table; keeps league page lean | 19 | Good |
 
-## Current Milestone: v1.2 Player Visibility — SHIPPED 2026-03-06
+## Current Milestone: v1.3 IR List & Roster Management
+
+**Goal:** Give players tools to manage injured riders via an IR list and drop riders freely, with admin approval flow for IR placements.
+
+**Target features:**
+- Injured Reserve (IR) list — up to 2 riders per team, admin approval, frees roster slot
+- Rider return flow — admin marks eligible, player must return before transfers, drop mechanic for roster room
+- Drop rider — general action to instantly drop any rider from the roster
+
+---
+
+## Previous Milestone: v1.2 Player Visibility — SHIPPED 2026-03-06
 
 **Delivered:** Full player visibility suite — rider profiles, team profiles, race lineup accordions, and season standings history with recharts chart.
 
@@ -66,7 +77,7 @@ The live competitive experience of managing a fantasy cycling team through a rea
 - **Version:** v1.2 shipped (2026-03-06)
 - **Phases:** 19 phases, 44+ plans executed (v1.0 + v1.1 + v1.2)
 - **Codebase:** ~26,011 LOC TypeScript
-- **Next milestone:** TBD
+- **Next milestone:** v1.3 IR List & Roster Management
 
 ### What Shipped (v1.2)
 
@@ -82,11 +93,10 @@ The live competitive experience of managing a fantasy cycling team through a rea
 - Shimanobil counter uses simplified team matching (DEBT-05)
 - Unused `Tooltip` import + unused `leagueId` prop in history-client.tsx (minor, non-blocking)
 
-## Next Milestone
+## Active Requirements (v1.3)
 
-**Planned feature:** IR (Injured Reserve) list — players place up to 2 injured riders on IR, freeing a roster slot; admin approval required; admin alert when rider must return.
-
-**Other candidates:** Tech debt cleanup (DEBT-01 drizzle-kit build fix), admin UX improvements.
+- IR list with admin approval flow (IR-01 through IR-11)
+- Drop rider general action (ROST-01)
 - Season standings chart — cumulative points per team across all races
 - Race-by-race breakdown table with running totals
 - Team profile page — full squad roster + scoring history per race

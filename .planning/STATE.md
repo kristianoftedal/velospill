@@ -1,8 +1,8 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Player Visibility
-status: Not started — Phase 18 resolved via quick task 5, ready for Phase 19
+milestone: v1.3
+milestone_name: IR List & Roster Management
+status: Defining requirements
 last_updated: "2026-03-06T12:14:02.652Z"
 last_activity: 2026-03-06 — Phase 18 marked complete (lineup accordion built in quick-5)
 progress:
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 
 ## Current Position
 
-Phase: 19 — Season Standings History
-Plan: TBD
-Status: Not started — Phase 18 resolved via quick task 5, ready for Phase 19
-Last activity: 2026-03-06 — Quick task 9: updated 332 race startDates from midnight UTC to 12:00 UTC
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-06 — Milestone v1.3 started
 
 Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 1 of 4 phases complete (Phase 17)
 

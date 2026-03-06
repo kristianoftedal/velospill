@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
-status: planning
-stopped_at: Completed 20-02-PLAN.md — IR query + action layer live
-last_updated: "2026-03-06T15:35:18.325Z"
-last_activity: 2026-03-06 — v1.3 roadmap created, phases 20-22 defined
+status: executing
+stopped_at: Completed 20-03-PLAN.md — Phase 20 IR Foundation & Admin Approval complete
+last_updated: "2026-03-06T16:00:00.000Z"
+last_activity: 2026-03-06 — Phase 20 complete — player IR page, admin IR queue, approve/reject actions live
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
-  percent: 0
+  completed_plans: 3
+  percent: 14
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-06)
 
 ## Current Position
 
-Phase: 20 of 22 (IR Foundation & Admin Approval)
-Plan: — (not yet planned)
-Status: Ready to plan
-Last activity: 2026-03-06 — v1.3 roadmap created, phases 20-22 defined
+Phase: 20 of 22 (IR Foundation & Admin Approval) — COMPLETE
+Plan: 3 of 3 complete
+Status: Phase 20 done — ready to advance to Phase 21
+Last activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 
-Progress: [░░░░░░░░░░] 0% (v1.3) | v1.0-v1.2: 19/19 phases complete
+Progress: [█░░░░░░░░░] 14% (v1.3) | v1.0-v1.2: 19/19 phases complete
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Progress: [░░░░░░░░░░] 0% (v1.3) | v1.0-v1.2: 19/19 phases c
 **Recent Trend:** Stable. v1.2 shipped same day as v1.1 — 4 phases, 6 plans, plus 9 quick tasks.
 | Phase 20-ir-foundation-admin-approval P01 | 60 | 2 tasks | 3 files |
 | Phase 20-ir-foundation-admin-approval P02 | 145 | 2 tasks | 3 files |
+| Phase 20-ir-foundation-admin-approval P03 | ~15min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions relevant to v1.3:
 - [Phase 20-ir-foundation-admin-approval]: Migration applied as raw psql matching existing project SQL migration style
 - [Phase 20-ir-foundation-admin-approval]: getActiveRosterCount uses arithmetic: COUNT(draftPicks) - COUNT(approved irRequests)
 - [Phase 20-ir-foundation-admin-approval]: submitIrRequest uses inArray for status IN ('pending','approved') guard for both slot cap and duplicate checks
+- [Phase 20-ir-foundation-admin-approval P03]: IR form disabled when slotsUsed >= 2 (pending + approved count toward cap)
+- [Phase 20-ir-foundation-admin-approval P03]: IR-05 enforcement deferred to Phase 22 — getActiveRosterCount ready but no-outRider pickup path not yet exposed
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-06T15:35:18.324Z
-Stopped at: Completed 20-02-PLAN.md — IR query + action layer live
+Last session: 2026-03-06T16:00:00.000Z
+Stopped at: Completed 20-03-PLAN.md — Phase 20 IR Foundation & Admin Approval complete
 Resume file: None

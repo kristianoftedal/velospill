@@ -27,7 +27,7 @@ key_decisions:
 metrics:
   duration: 111s
   completed: "2026-03-06"
-  tasks_completed: 3
+  tasks_completed: 4
   tasks_total: 4
   files_created: 3
   files_modified: 3

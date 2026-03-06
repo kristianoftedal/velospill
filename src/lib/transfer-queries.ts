@@ -4,8 +4,9 @@ import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
 import { teams, leagueRaces } from "@/db/schema/leagues"
+import { irRequests } from "@/db/schema/ir"
 import { getLeagueStandings } from "@/lib/scoring-queries"
-import { eq, and, notInArray, lte, gt, gte, desc, count, isNull, asc } from "drizzle-orm"
+import { eq, and, notInArray, lte, gt, gte, desc, count, isNull, asc, sql } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
 
 /**
@@ -50,9 +51,19 @@ export async function getTeamRoster(teamId: number, leagueId: number) {
       nationality: riders.nationality,
       pickNumber: draftPicks.pickNumber,
       pickedAt: draftPicks.pickedAt,
+      isOnIR: sql<boolean>`${irRequests.id} IS NOT NULL`.as("isOnIR"),
     })
     .from(draftPicks)
     .innerJoin(riders, eq(riders.id, draftPicks.riderId))
+    .leftJoin(
+      irRequests,
+      and(
+        eq(irRequests.riderId, draftPicks.riderId),
+        eq(irRequests.teamId, draftPicks.teamId),
+        eq(irRequests.leagueId, draftPicks.leagueId),
+        eq(irRequests.status, "approved")
+      )
+    )
     .where(
       and(
         eq(draftPicks.teamId, teamId),

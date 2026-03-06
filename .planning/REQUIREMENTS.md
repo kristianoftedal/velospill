@@ -22,8 +22,8 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 
 ### Season Standings History
 
-- [ ] **HISTORY-01**: League page shows a chart of cumulative points per team across all completed races
-- [ ] **HISTORY-02**: League page shows a race-by-race breakdown table with each team's points per race and running totals
+- [x] **HISTORY-01**: League page shows a chart of cumulative points per team across all completed races
+- [x] **HISTORY-02**: League page shows a race-by-race breakdown table with each team's points per race and running totals
 
 ### Team Profiles
 
@@ -61,8 +61,8 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 | LINEUP-01 | Phase 18 | Pending |
 | LINEUP-02 | Phase 18 | Pending |
 | LINEUP-03 | Phase 18 | Pending |
-| HISTORY-01 | Phase 19 | Pending |
-| HISTORY-02 | Phase 19 | Pending |
+| HISTORY-01 | Phase 19 | Complete |
+| HISTORY-02 | Phase 19 | Complete |
 | TEAM-01 | Phase 17 | Complete |
 | TEAM-02 | Phase 17 | Complete |
 

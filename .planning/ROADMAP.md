@@ -44,7 +44,7 @@ Full details: milestones/v1.1-ROADMAP.md
 - [x] **Phase 16: Rider Profile Page** — Season stats, per-race breakdown, categories, and ownership history for any rider (completed 2026-03-02)
 - [x] **Phase 17: Team Profile Page** — Full squad roster with per-rider scoring contribution per race (completed 2026-03-03)
 - [x] **Phase 18: Race Lineup Accordion** — Expandable per-race lineup panel on the league page, showing teams' picks and post-result points (completed 2026-03-06 via quick task 5)
-- [ ] **Phase 19: Season Standings History** — Cumulative points chart and race-by-race breakdown table on the league page
+- [x] **Phase 19: Season Standings History** — Cumulative points chart and race-by-race breakdown table on the league page (completed 2026-03-06)
 
 ## Phase Details
 
@@ -122,4 +122,4 @@ Plans:
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
 | 17. Team Profile Page | 2/2 | Complete    | 2026-03-03 | — |
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
-| 19. Season Standings History | 1/2 | In Progress|  | — |
+| 19. Season Standings History | 2/2 | Complete   | 2026-03-06 | — |

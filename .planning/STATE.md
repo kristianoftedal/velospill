@@ -149,6 +149,7 @@ None yet.
 | 3 | Admin results: open form in dialog modal, fix stage dedup, switch to firstcycling.com import, fix rider/team search filtering | 2026-03-04 | b6d919f | [3-admin-results-open-form-in-modal-fix-sta](./quick/3-admin-results-open-form-in-modal-fix-sta/) |
 | 4 | Fix SQL error when submitting TTT race results: move SELECT outside transaction + add replace logic | 2026-03-05 | d83e1ad | [4-fix-sql-error-when-submitting-race-resul](./quick/4-fix-sql-error-when-submitting-race-resul/) |
 | 5 | Redesign league page: consolidated Actions card, upcoming races with per-team lineup accordions, recent results with fantasy team badges; remove race sections from home page | 2026-03-06 | 44de3e6 | [5-redesign-league-page-move-upcoming-races](./quick/5-redesign-league-page-move-upcoming-races/) |
+| 6 | Fix admin results: Add More Results button broken due to ternary priority over existingResults | 2026-03-06 | a6b688c | [6-fix-admin-results-add-more-results-butto](./quick/6-fix-admin-results-add-more-results-butto/) |
 
 ### Blockers/Concerns
 

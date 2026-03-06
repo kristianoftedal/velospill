@@ -122,4 +122,4 @@ Plans:
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
 | 17. Team Profile Page | 2/2 | Complete    | 2026-03-03 | — |
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
-| 19. Season Standings History | 2/2 | Complete   | 2026-03-06 | — |
+| 19. Season Standings History | 2/2 | Complete    | 2026-03-06 | — |

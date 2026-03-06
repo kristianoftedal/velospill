@@ -4,7 +4,8 @@
 
 - ✅ **v1.0 Core Platform** — Phases 1-9 (shipped 2026-02-20)
 - ✅ **v1.1 Scoring & Rules Update** — Phases 10-15 (shipped 2026-02-26)
-- 🔄 **v1.2 Player Visibility** — Phases 16-19 (in progress)
+- ✅ **v1.2 Player Visibility** — Phases 16-19 (shipped 2026-03-06)
+- 🚧 **v1.3 IR List & Roster Management** — Phases 20-22 (in progress)
 
 ## Phases
 
@@ -39,12 +40,21 @@ Full details: milestones/v1.1-ROADMAP.md
 
 </details>
 
-### v1.2 Player Visibility (Phases 16-19)
+<details>
+<summary>✅ v1.2 Player Visibility (Phases 16-19) — SHIPPED 2026-03-06</summary>
 
 - [x] **Phase 16: Rider Profile Page** — Season stats, per-race breakdown, categories, and ownership history for any rider (completed 2026-03-02)
 - [x] **Phase 17: Team Profile Page** — Full squad roster with per-rider scoring contribution per race (completed 2026-03-03)
 - [x] **Phase 18: Race Lineup Accordion** — Expandable per-race lineup panel on the league page, showing teams' picks and post-result points (completed 2026-03-06 via quick task 5)
 - [x] **Phase 19: Season Standings History** — Cumulative points chart and race-by-race breakdown table on the league page (completed 2026-03-06)
+
+</details>
+
+### v1.3 IR List & Roster Management (Phases 20-22)
+
+- [ ] **Phase 20: IR Foundation & Admin Approval** — Schema, player IR request flow, admin queue with approve/reject, and roster slot accounting when IR is approved
+- [ ] **Phase 21: Drop Rider** — Instant roster drop action for players, no approval required
+- [ ] **Phase 22: IR Return Flow** — Admin marks rider eligible, player sees banner, transfer block enforced, player returns rider (with roster-full drop gate) and waiver pickup slot freed
 
 ## Phase Details
 
@@ -100,6 +110,39 @@ Plans:
 - [ ] 19-01-PLAN.md — Data query layer: getStandingsHistory (per-team per-race points matrix with cumulative totals)
 - [ ] 19-02-PLAN.md — History page + client UI: /leagues/[leagueId]/standings/history with recharts line chart + scrollable race table + league page entry link
 
+### Phase 20: IR Foundation & Admin Approval
+**Goal**: Players can place riders on the Injured Reserve list (up to 2 slots), admins can approve or reject those requests, and approved IR riders are freed from the active roster limit so a waiver slot opens up.
+**Depends on**: Phase 6 (transfer/waiver system)
+**Requirements**: IR-01, IR-02, IR-03, IR-04, IR-05
+**Success Criteria** (what must be TRUE):
+  1. Player can submit an IR placement request for any rider on their roster, and is blocked from submitting a third if both IR slots are full
+  2. Player can see which riders currently occupy their IR slots and their approval status (pending / approved / rejected)
+  3. Admin sees a queue of all pending IR placement requests across all teams and can approve or reject each one
+  4. Once an IR request is approved, the rider no longer counts against the active roster limit and a waiver wire pickup becomes submittable
+**Plans**: TBD
+
+### Phase 21: Drop Rider
+**Goal**: Players can instantly remove any rider from their active roster without admin approval or a waiver period.
+**Depends on**: Phase 20 (IR schema and roster state in place)
+**Requirements**: ROST-01
+**Success Criteria** (what must be TRUE):
+  1. Player can drop any rider from their active roster from the team management UI
+  2. The drop takes effect immediately — the rider is gone from the roster with no waiting period or approval step
+  3. The dropped rider is no longer counted against the roster limit and the slot is immediately available
+**Plans**: TBD
+
+### Phase 22: IR Return Flow
+**Goal**: When an admin marks an IR rider as eligible to return, the player is notified via an in-app banner, blocked from any transfers until they act, and can return the rider to their active roster (dropping someone first if the roster is full).
+**Depends on**: Phase 20 (IR approval system), Phase 21 (drop mechanic)
+**Requirements**: IR-06, IR-07, IR-08, IR-09, IR-10, IR-11
+**Success Criteria** (what must be TRUE):
+  1. Player with an approved IR slot can submit a waiver wire pickup request using the freed roster slot
+  2. Admin can mark any approved IR rider as eligible to return, changing that rider's IR status
+  3. Player sees a persistent in-app banner when one of their IR riders is marked eligible to return
+  4. Player is prevented from submitting any transfer while they have a rider eligible to return
+  5. Player can return the eligible rider to their active roster; if the active roster is full, they must drop a rider first before the return is accepted
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -119,7 +162,10 @@ Plans:
 | 13. Order Config | v1.1 | 2/2 | Complete | 2026-02-22 |
 | 14. Counter Mechanic | v1.1 | 1/1 | Complete | 2026-02-22 |
 | 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
-| 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
-| 17. Team Profile Page | 2/2 | Complete    | 2026-03-03 | — |
+| 16. Rider Profile Page | v1.2 | 2/2 | Complete | 2026-03-02 |
+| 17. Team Profile Page | v1.2 | 2/2 | Complete | 2026-03-03 |
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
-| 19. Season Standings History | 2/2 | Complete    | 2026-03-06 | — |
+| 19. Season Standings History | v1.2 | 2/2 | Complete | 2026-03-06 |
+| 20. IR Foundation & Admin Approval | v1.3 | TBD | Not started | - |
+| 21. Drop Rider | v1.3 | TBD | Not started | - |
+| 22. IR Return Flow | v1.3 | TBD | Not started | - |

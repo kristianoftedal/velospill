@@ -37,28 +37,26 @@ _(None defined yet)_
 
 ## Traceability
 
-_Populated during roadmap creation._
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IR-01 | TBD | Pending |
-| IR-02 | TBD | Pending |
-| IR-03 | TBD | Pending |
-| IR-04 | TBD | Pending |
-| IR-05 | TBD | Pending |
-| IR-06 | TBD | Pending |
-| IR-07 | TBD | Pending |
-| IR-08 | TBD | Pending |
-| IR-09 | TBD | Pending |
-| IR-10 | TBD | Pending |
-| IR-11 | TBD | Pending |
-| ROST-01 | TBD | Pending |
+| IR-01 | Phase 20 | Pending |
+| IR-02 | Phase 20 | Pending |
+| IR-03 | Phase 20 | Pending |
+| IR-04 | Phase 20 | Pending |
+| IR-05 | Phase 20 | Pending |
+| IR-06 | Phase 22 | Pending |
+| IR-07 | Phase 22 | Pending |
+| IR-08 | Phase 22 | Pending |
+| IR-09 | Phase 22 | Pending |
+| IR-10 | Phase 22 | Pending |
+| IR-11 | Phase 22 | Pending |
+| ROST-01 | Phase 21 | Pending |
 
 **Coverage:**
 - v1.3 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12 ⚠️
+- Mapped to phases: 12
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-06*
-*Last updated: 2026-03-06 after initial definition*
+*Last updated: 2026-03-06 — traceability populated during v1.3 roadmap creation*

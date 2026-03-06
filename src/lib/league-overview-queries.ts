@@ -78,8 +78,9 @@ export async function getUpcomingRacesWithLineups(leagueId: number) {
   }
 
   // 5. Build the final nested structure
+  const emptyTeamMap = new Map<number, { riderId: number; riderName: string; riderTeam: string }[]>()
   return upcomingRaceRows.map((race) => {
-    const teamMap = raceTeamMap.get(race.raceId) ?? new Map()
+    const teamMap = raceTeamMap.get(race.raceId) ?? emptyTeamMap
     return {
       raceId: race.raceId,
       raceName: race.raceName,
@@ -88,7 +89,7 @@ export async function getUpcomingRacesWithLineups(leagueId: number) {
       teams: leagueTeams.map((team) => ({
         teamId: team.teamId,
         teamName: team.teamName,
-        riders: teamMap.get(team.teamId) ?? [],
+        riders: teamMap.get(team.teamId) ?? ([] as { riderId: number; riderName: string; riderTeam: string }[]),
       })),
     }
   })

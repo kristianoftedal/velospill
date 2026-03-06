@@ -150,6 +150,7 @@ None yet.
 | 4 | Fix SQL error when submitting TTT race results: move SELECT outside transaction + add replace logic | 2026-03-05 | d83e1ad | [4-fix-sql-error-when-submitting-race-resul](./quick/4-fix-sql-error-when-submitting-race-resul/) |
 | 5 | Redesign league page: consolidated Actions card, upcoming races with per-team lineup accordions, recent results with fantasy team badges; remove race sections from home page | 2026-03-06 | 44de3e6 | [5-redesign-league-page-move-upcoming-races](./quick/5-redesign-league-page-move-upcoming-races/) |
 | 6 | Fix admin results: Add More Results button broken due to ternary priority over existingResults | 2026-03-06 | a6b688c | [6-fix-admin-results-add-more-results-butto](./quick/6-fix-admin-results-add-more-results-butto/) |
+| 7 | Improve league page Actions: replace card-with-rows with inline button row, move before Standings, hide View Draft after 5 days | 2026-03-06 | 32f1b08 | [7-improve-league-page-actions-card-row-of-](./quick/7-improve-league-page-actions-card-row-of-/) |
 
 ### Blockers/Concerns
 
@@ -167,5 +168,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-03
-Last activity: 2026-03-06 - Completed quick task 5: redesign league overview page + simplify home page
+Last activity: 2026-03-06 - Completed quick task 7: improve league page actions — compact button row, first position, View Draft hidden after 5 days
 Resume file: None

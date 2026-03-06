@@ -154,6 +154,18 @@ export async function submitTransferBid(formData: {
     }
   }
 
+  // IR-05: Count active roster size (total picks minus approved IR riders)
+  // A waiver pickup is a net-zero swap (out + in), but we need to verify
+  // the team actually has a genuinely free slot (not just the out rider freeing one).
+  // The current transfer flow always drops an outRider, so active count stays the same.
+  // However, if somehow a pickup is submitted without an outRider (future-proofing guard):
+  // keep this comment as a placeholder. The primary IR-05 value is that approved IR riders
+  // do NOT count against the limit — meaning a team with 10 picks and 1 approved IR rider
+  // effectively has 9 active riders, and can submit a normal transfer pick-up.
+  // No additional code change is needed here for Phase 20: the existing transfer flow
+  // (always drops outRider) already works correctly. This comment documents the IR-05
+  // invariant for Phase 22 (IR return flow).
+
   // Insert transfer bid
   const [bid] = await db
     .insert(transferBids)

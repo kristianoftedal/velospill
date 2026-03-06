@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
-status: Ready to plan
-last_updated: "2026-03-06"
-last_activity: 2026-03-06 — v1.3 roadmap created (3 phases: 20-22)
+status: planning
+stopped_at: Completed 20-01-PLAN.md — IR schema and migration applied
+last_updated: "2026-03-06T15:32:03.253Z"
+last_activity: 2026-03-06 — v1.3 roadmap created, phases 20-22 defined
 progress:
-  total_phases: 3
+  total_phases: 7
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 3
+  completed_plans: 1
   percent: 0
 ---
 
@@ -48,6 +49,7 @@ Progress: [░░░░░░░░░░] 0% (v1.3) | v1.0-v1.2: 19/19 phases c
 | 19. Season Standings History | 2/2 | Complete — 2026-03-06 |
 
 **Recent Trend:** Stable. v1.2 shipped same day as v1.1 — 4 phases, 6 plans, plus 9 quick tasks.
+| Phase 20-ir-foundation-admin-approval P01 | 60 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,6 +67,8 @@ Recent decisions relevant to v1.3:
 - Return flow: admin marks eligible → player banner → transfer-blocked until rider returned
 - If roster full on return: player must drop someone first (ROST-01 is a prerequisite for IR-11)
 - Drop rider: instant, no approval, no waiver period
+- [Phase 20-ir-foundation-admin-approval]: IR status enum has 3 values (pending/approved/rejected) — no cancelled unlike transfer bids
+- [Phase 20-ir-foundation-admin-approval]: Migration applied as raw psql matching existing project SQL migration style
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-06
-Stopped at: v1.3 roadmap created — ready to plan Phase 20
+Last session: 2026-03-06T15:32:03.251Z
+Stopped at: Completed 20-01-PLAN.md — IR schema and migration applied
 Resume file: None

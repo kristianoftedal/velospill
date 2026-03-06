@@ -7,8 +7,8 @@
 
 ### Injured Reserve (IR)
 
-- [ ] **IR-01**: Player can request to place a rider on IR (max 2 IR slots per team)
-- [ ] **IR-02**: Player can view their current IR slots and which riders occupy them
+- [x] **IR-01**: Player can request to place a rider on IR (max 2 IR slots per team)
+- [x] **IR-02**: Player can view their current IR slots and which riders occupy them
 - [ ] **IR-03**: Admin can view a queue of pending IR placement requests
 - [ ] **IR-04**: Admin can approve or reject an IR placement request
 - [ ] **IR-05**: Approved IR riders do not count against the active roster limit, freeing a slot for a waiver wire pickup
@@ -39,8 +39,8 @@ _(None defined yet)_
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IR-01 | Phase 20 | Pending |
-| IR-02 | Phase 20 | Pending |
+| IR-01 | Phase 20 | Complete |
+| IR-02 | Phase 20 | Complete |
 | IR-03 | Phase 20 | Pending |
 | IR-04 | Phase 20 | Pending |
 | IR-05 | Phase 20 | Pending |

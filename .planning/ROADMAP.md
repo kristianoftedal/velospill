@@ -119,7 +119,7 @@ Plans:
   2. Player can see which riders currently occupy their IR slots and their approval status (pending / approved / rejected)
   3. Admin sees a queue of all pending IR placement requests across all teams and can approve or reject each one
   4. Once an IR request is approved, the rider no longer counts against the active roster limit and a waiver wire pickup becomes submittable
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 20-01-PLAN.md — Schema + migration: ir_requests table, irStatusEnum, Drizzle relations
@@ -171,6 +171,6 @@ Plans:
 | 17. Team Profile Page | v1.2 | 2/2 | Complete | 2026-03-03 |
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
 | 19. Season Standings History | v1.2 | 2/2 | Complete | 2026-03-06 |
-| 20. IR Foundation & Admin Approval | v1.3 | 0/3 | Not started | - |
+| 20. IR Foundation & Admin Approval | 1/3 | In Progress|  | - |
 | 21. Drop Rider | v1.3 | TBD | Not started | - |
 | 22. IR Return Flow | v1.3 | TBD | Not started | - |

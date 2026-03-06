@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Quick task 12 — complete
+stopped_at: Quick task 13 — complete
 last_updated: "2026-03-06T18:08:58.878Z"
 last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
@@ -99,6 +99,7 @@ None.
 | 10 | Add riders to roster if space available without dropping a rider | 2026-03-06 | 59aed39 |
 | 11 | Reseed scoring DB with correct 2026 values (grand_tour_tdf, one-day tables, mini tour) | 2026-03-06 | f0875a6 |
 | 12 | Add Michael Matthews and Neilson Powless to IR for team 11 | 2026-03-06 | 4d0077b |
+| 13 | Fix transfer form — IR'd riders free active slots, show On IR badge, non-selectable | 2026-03-06 | 38fe168 |
 
 ### Blockers/Concerns
 

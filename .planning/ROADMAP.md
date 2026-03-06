@@ -94,7 +94,11 @@ Plans:
   1. League page displays a line chart showing cumulative points per team across all completed races
   2. League page displays a race-by-race table with each team's points per individual race
   3. The table includes running totals so a player can see the exact standings at any point in the season
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 19-01-PLAN.md — Data query layer: getStandingsHistory (per-team per-race points matrix with cumulative totals)
+- [ ] 19-02-PLAN.md — History page + client UI: /leagues/[leagueId]/standings/history with recharts line chart + scrollable race table + league page entry link
 
 ## Progress
 
@@ -118,4 +122,4 @@ Plans:
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
 | 17. Team Profile Page | 2/2 | Complete    | 2026-03-03 | — |
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
-| 19. Season Standings History | v1.2 | 0/? | Not started | — |
+| 19. Season Standings History | v1.2 | 0/2 | Not started | — |

@@ -134,7 +134,10 @@ Plans:
   1. Player can drop any rider from their active roster from the team management UI
   2. The drop takes effect immediately — the rider is gone from the roster with no waiting period or approval step
   3. The dropped rider is no longer counted against the roster limit and the slot is immediately available
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 21-01-PLAN.md — dropRider server action + /roster page + RosterClient with confirmation dialog + Manage Roster league page button
 
 ### Phase 22: IR Return Flow
 **Goal**: When an admin marks an IR rider as eligible to return, the player is notified via an in-app banner, blocked from any transfers until they act, and can return the rider to their active roster (dropping someone first if the roster is full).
@@ -171,6 +174,6 @@ Plans:
 | 17. Team Profile Page | v1.2 | 2/2 | Complete | 2026-03-03 |
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
 | 19. Season Standings History | v1.2 | 2/2 | Complete | 2026-03-06 |
-| 20. IR Foundation & Admin Approval | 3/3 | Complete    | 2026-03-06 | - |
-| 21. Drop Rider | v1.3 | TBD | Not started | - |
+| 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
+| 21. Drop Rider | v1.3 | 1 | Not started | - |
 | 22. IR Return Flow | v1.3 | TBD | Not started | - |

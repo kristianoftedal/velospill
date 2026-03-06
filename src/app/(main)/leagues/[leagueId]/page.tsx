@@ -195,6 +195,11 @@ export default async function LeagueDetailPage({ params }: PageProps) {
               <Link href={`/leagues/${league.id}/ir`}>Injured Reserve</Link>
             </Button>
           )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/roster`}>Manage Roster</Link>
+            </Button>
+          )}
           {isOwner && (
             <Button asChild variant="outline" size="sm">
               <Link href={`/leagues/${league.id}/owner`}>League Settings</Link>

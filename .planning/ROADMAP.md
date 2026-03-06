@@ -43,7 +43,7 @@ Full details: milestones/v1.1-ROADMAP.md
 
 - [x] **Phase 16: Rider Profile Page** — Season stats, per-race breakdown, categories, and ownership history for any rider (completed 2026-03-02)
 - [x] **Phase 17: Team Profile Page** — Full squad roster with per-rider scoring contribution per race (completed 2026-03-03)
-- [ ] **Phase 18: Race Lineup Accordion** — Expandable per-race lineup panel on the league page, showing teams' picks and post-result points
+- [x] **Phase 18: Race Lineup Accordion** — Expandable per-race lineup panel on the league page, showing teams' picks and post-result points (completed 2026-03-06 via quick task 5)
 - [ ] **Phase 19: Season Standings History** — Cumulative points chart and race-by-race breakdown table on the league page
 
 ## Phase Details
@@ -84,7 +84,7 @@ Plans:
   1. Each race in the league race list has an expandable accordion that a player can open
   2. Once lineups are submitted, the expanded accordion shows each team's selected riders for that race
   3. After race results are posted, the accordion shows each selected rider's earned points next to their name
-**Plans**: TBD
+**Completed**: 2026-03-06 via quick task 5 (league page redesign — getUpcomingRacesWithLineups + per-team accordion + Recent Results section)
 
 ### Phase 19: Season Standings History
 **Goal**: Players can see the full competitive narrative of the season — how teams have accumulated points across every race, both as a chart and as a detailed table.
@@ -117,5 +117,5 @@ Plans:
 | 15. Uno-X Order | v1.1 | 3/3 | Complete | 2026-02-22 |
 | 16. Rider Profile Page | 2/2 | Complete    | 2026-03-02 | — |
 | 17. Team Profile Page | 2/2 | Complete    | 2026-03-03 | — |
-| 18. Race Lineup Accordion | v1.2 | 0/? | Not started | — |
+| 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
 | 19. Season Standings History | v1.2 | 0/? | Not started | — |

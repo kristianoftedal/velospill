@@ -16,9 +16,9 @@ Requirements for the Player Visibility milestone. Each maps to roadmap phases.
 
 ### Race Lineups
 
-- [ ] **LINEUP-01**: League race list shows an expandable accordion for each race
-- [ ] **LINEUP-02**: Accordion shows all teams' submitted lineups for that race once they are set
-- [ ] **LINEUP-03**: Once results are posted, the lineup accordion shows each rider's points alongside their name
+- [x] **LINEUP-01**: League race list shows an expandable accordion for each race
+- [x] **LINEUP-02**: Accordion shows all teams' submitted lineups for that race once they are set
+- [x] **LINEUP-03**: Once results are posted, the lineup accordion shows each rider's points alongside their name
 
 ### Season Standings History
 

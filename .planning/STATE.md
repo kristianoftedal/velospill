@@ -6,14 +6,14 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
 
-**Current focus:** v1.2 Player Visibility — Phase 17: Team Profile Page
+**Current focus:** v1.2 Player Visibility — Phase 19: Season Standings History
 
 ## Current Position
 
-Phase: 17 — Team Profile Page
-Plan: 02 (complete) — Phase 17 complete, ready for Phase 18
-Status: Complete (2 of 2 plans complete)
-Last activity: 2026-03-03 — 17-02 complete: team profile page UI with accordion roster + standings links
+Phase: 19 — Season Standings History
+Plan: TBD
+Status: Not started — Phase 18 resolved via quick task 5, ready for Phase 19
+Last activity: 2026-03-06 — Phase 18 marked complete (lineup accordion built in quick-5)
 
 Progress: [████████████████████] 100.0% (15 of 15 v1.0+v1.1 phases complete) | v1.2: 1 of 4 phases complete (Phase 17)
 

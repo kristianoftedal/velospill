@@ -194,5 +194,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-06T11:59:52.173Z
-Last activity: 2026-03-06 - Completed quick task 7: improve league page actions — compact button row, first position, View Draft hidden after 5 days
+Last activity: 2026-03-06 - Completed quick task 8: fix scoring bug — rider 268 points missing from team 15 in league 7 (backdated pickedAt before race startDate)
 Resume file: None

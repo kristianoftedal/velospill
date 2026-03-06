@@ -53,7 +53,7 @@ Full details: milestones/v1.1-ROADMAP.md
 ### v1.3 IR List & Roster Management (Phases 20-22)
 
 - [x] **Phase 20: IR Foundation & Admin Approval** — Schema, player IR request flow, admin queue with approve/reject, and roster slot accounting when IR is approved (completed 2026-03-06)
-- [ ] **Phase 21: Drop Rider** — Instant roster drop action for players, no approval required
+- [x] **Phase 21: Drop Rider** — Instant roster drop action for players, no approval required (completed 2026-03-06)
 - [ ] **Phase 22: IR Return Flow** — Admin marks rider eligible, player sees banner, transfer block enforced, player returns rider (with roster-full drop gate) and waiver pickup slot freed
 
 ## Phase Details
@@ -175,5 +175,5 @@ Plans:
 | 18. Race Lineup Accordion | v1.2 | — | Complete (quick-5) | 2026-03-06 |
 | 19. Season Standings History | v1.2 | 2/2 | Complete | 2026-03-06 |
 | 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
-| 21. Drop Rider | v1.3 | 1 | Not started | - |
+| 21. Drop Rider | 1/1 | Complete   | 2026-03-06 | - |
 | 22. IR Return Flow | v1.3 | TBD | Not started | - |

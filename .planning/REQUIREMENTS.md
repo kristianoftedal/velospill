@@ -21,7 +21,7 @@
 
 ### Roster Management
 
-- [ ] **ROST-01**: Player can drop any rider from their roster instantly (no admin approval, no waiver period)
+- [x] **ROST-01**: Player can drop any rider from their roster instantly (no admin approval, no waiver period)
 
 ## Future Requirements
 
@@ -50,7 +50,7 @@ _(None defined yet)_
 | IR-09 | Phase 22 | Pending |
 | IR-10 | Phase 22 | Pending |
 | IR-11 | Phase 22 | Pending |
-| ROST-01 | Phase 21 | Pending |
+| ROST-01 | Phase 21 | Complete |
 
 **Coverage:**
 - v1.3 requirements: 12 total

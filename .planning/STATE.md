@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Completed 20-03-PLAN.md — Phase 20 IR Foundation & Admin Approval complete
-last_updated: "2026-03-06T17:17:28.906Z"
+stopped_at: Completed 21-01-PLAN.md — Drop Rider feature complete
+last_updated: "2026-03-06T17:45:33.202Z"
 last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 2
+  total_plans: 4
+  completed_plans: 4
   percent: 14
 ---
 
@@ -52,6 +52,7 @@ Progress: [█░░░░░░░░░] 14% (v1.3) | v1.0-v1.2: 19/19 phases 
 | Phase 20-ir-foundation-admin-approval P01 | 60 | 2 tasks | 3 files |
 | Phase 20-ir-foundation-admin-approval P02 | 145 | 2 tasks | 3 files |
 | Phase 20-ir-foundation-admin-approval P03 | ~15min | 2 tasks | 7 files |
+| Phase 21-drop-rider P01 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ Recent decisions relevant to v1.3:
 - [Phase 20-ir-foundation-admin-approval]: submitIrRequest uses inArray for status IN ('pending','approved') guard for both slot cap and duplicate checks
 - [Phase 20-ir-foundation-admin-approval P03]: IR form disabled when slotsUsed >= 2 (pending + approved count toward cap)
 - [Phase 20-ir-foundation-admin-approval P03]: IR-05 enforcement deferred to Phase 22 — getActiveRosterCount ready but no-outRider pickup path not yet exposed
+- [Phase 21-drop-rider]: dropRider hard-deletes draftPicks row instantly — no waiver or approval period (ROST-01)
+- [Phase 21-drop-rider]: IR cleanup on drop uses inArray(['pending','approved']); transfer bid cleanup uses status='cancelled'
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-06T16:00:00.000Z
-Stopped at: Completed 20-03-PLAN.md — Phase 20 IR Foundation & Admin Approval complete
+Last session: 2026-03-06T17:45:33.201Z
+Stopped at: Completed 21-01-PLAN.md — Drop Rider feature complete
 Resume file: None

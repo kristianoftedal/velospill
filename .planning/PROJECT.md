@@ -57,6 +57,16 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 16 | recharts via shadcn chart component | Consistent with shadcn/ui stack; CSS chart vars already defined | 19 | Good |
 | 17 | Separate /standings/history page (not inline tab) | More space for chart + table; keeps league page lean | 19 | Good |
 
+## Current Milestone: v1.4 Roster Consolidation
+
+**Goal:** Replace scattered `draftPicks + irRequests` join logic with a single `roster_slots` table as the authoritative source of current team composition.
+
+**Target features:**
+- `roster_slots` schema + backfill migration
+- All write paths (draft, drop, transfer, IR approval, return) write to `roster_slots`
+- All read paths (roster count, team roster display, slot checks) read from `roster_slots`
+- Scoring and ownership-history queries on `draftPicks` remain unchanged
+
 ## Previous Milestone: v1.3 IR List & Roster Management — SHIPPED 2026-03-07
 
 **Delivered:** Full IR system — IR placement with admin approval flow, drop rider action, and IR return flow with transfer blocking and roster-full drop gate.

@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: TBD
+milestone_name: Roster Consolidation
 status: planning
-stopped_at: v1.3 archived — ready to define v1.4
+stopped_at: Requirements defined — ready to plan Phase 23
 last_updated: "2026-03-07T00:00:00.000Z"
-last_activity: 2026-03-07 — v1.3 milestone completed and archived
+last_activity: 2026-03-07 — v1.4 milestone started, requirements defined
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
-**Current focus:** v1.4 — to be defined
+**Current focus:** v1.4 Roster Consolidation — Phase 23: roster_slots Schema & Migration
 
 ## Current Position
 
-Phase: — (no phases planned yet)
-Status: v1.3 archived — run /gsd:new-milestone to define v1.4
-Last activity: 2026-03-07 — v1.3 milestone completed and archived
+Phase: 23 of 25 (roster_slots Schema & Migration) — NOT STARTED
+Status: Requirements defined — ready to plan Phase 23
+Last activity: 2026-03-07 — v1.4 milestone started, requirements defined
 
 Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases complete
 

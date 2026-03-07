@@ -6,6 +6,7 @@
 - ✅ **v1.1 Scoring & Rules Update** — Phases 10-15 (shipped 2026-02-26)
 - ✅ **v1.2 Player Visibility** — Phases 16-19 (shipped 2026-03-06)
 - ✅ **v1.3 IR List & Roster Management** — Phases 20-22 (shipped 2026-03-07)
+- 🚧 **v1.4 Roster Consolidation** — Phases 23-25 (in progress)
 
 ## Phases
 
@@ -115,6 +116,37 @@ Plans:
 - [ ] 19-01-PLAN.md — Data query layer: getStandingsHistory (per-team per-race points matrix with cumulative totals)
 - [ ] 19-02-PLAN.md — History page + client UI: /leagues/[leagueId]/standings/history with recharts line chart + scrollable race table + league page entry link
 
+### Phase 23: roster_slots Schema & Migration
+**Goal**: Introduce the `roster_slots` table and populate it with current live data so it accurately reflects every team's roster before any code reads from it.
+**Depends on**: Phase 22 (IR schema fully in place)
+**Requirements**: RSLOT-01, RSLOT-02
+**Success Criteria** (what must be TRUE):
+  1. `roster_slots` table exists in the database with columns for league, team, rider, status, and added_at
+  2. Every rider currently on a team's active roster has a corresponding `active` row in `roster_slots`
+  3. Every rider with an approved or return_eligible IR request has a corresponding `on_ir` / `return_eligible` row
+  4. `draftPicks` and `irRequests` tables are unchanged
+
+### Phase 24: Write Path Wiring
+**Goal**: All mutations that change roster state also write the corresponding change to `roster_slots`, keeping it in sync with `draftPicks`.
+**Depends on**: Phase 23 (roster_slots populated)
+**Requirements**: RSLOT-03, RSLOT-04, RSLOT-05, RSLOT-06, RSLOT-07, RSLOT-08
+**Success Criteria** (what must be TRUE):
+  1. Making a draft pick inserts a new `active` row into `roster_slots`
+  2. Dropping a rider removes their `roster_slots` row
+  3. Approving a transfer moves the rider's row to the new team
+  4. Approving an IR request sets the rider's status to `on_ir`
+  5. Marking return-eligible sets status to `return_eligible`; returning sets it back to `active`
+
+### Phase 25: Read Path Migration & Cleanup
+**Goal**: Replace all scattered `draftPicks + irRequests` join-based roster queries with direct reads from `roster_slots`, and remove the dead join code.
+**Depends on**: Phase 24 (roster_slots kept in sync by all write paths)
+**Requirements**: RSLOT-09, RSLOT-10, RSLOT-11
+**Success Criteria** (what must be TRUE):
+  1. `getActiveRosterCount` reads from `roster_slots` — no two-query arithmetic
+  2. Team roster display (transfer form, roster page) reads from `roster_slots`
+  3. Slot-check guards in transfer and IR server actions use `roster_slots` counts
+  4. No remaining code computes active roster count by joining `draftPicks` + `irRequests`
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -141,3 +173,6 @@ Plans:
 | 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
 | 21. Drop Rider | v1.3 | 1/1 | Complete | 2026-03-06 |
 | 22. IR Return Flow | v1.3 | 3/3 | Complete | 2026-03-07 |
+| 23. roster_slots Schema & Migration | v1.4 | — | Pending | — |
+| 24. Write Path Wiring | v1.4 | — | Pending | — |
+| 25. Read Path Migration & Cleanup | v1.4 | — | Pending | — |

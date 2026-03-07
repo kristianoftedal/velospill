@@ -136,3 +136,46 @@ export function IrActions({
     </div>
   )
 }
+
+interface MarkEligibleActionsProps {
+  requestId: number
+  riderName: string
+  teamName: string
+  markEligibleToReturn: (id: number) => Promise<{ success: boolean; error?: string }>
+}
+
+export function MarkEligibleActions({
+  requestId,
+  riderName,
+  teamName,
+  markEligibleToReturn,
+}: MarkEligibleActionsProps) {
+  const [isPending, startTransition] = useTransition()
+
+  function handleMarkEligible() {
+    startTransition(async () => {
+      const result = await markEligibleToReturn(requestId)
+      if (result.success) {
+        toast.success("Rider marked eligible to return", {
+          description: `${riderName} (${teamName}) — player will see banner`,
+        })
+      } else {
+        toast.error("Failed to mark eligible", {
+          description: result.error ?? "Unknown error",
+        })
+      }
+    })
+  }
+
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      className="border-amber-500 text-amber-700 hover:bg-amber-50"
+      onClick={handleMarkEligible}
+      disabled={isPending}
+    >
+      {isPending ? "Marking..." : "Mark Eligible to Return"}
+    </Button>
+  )
+}

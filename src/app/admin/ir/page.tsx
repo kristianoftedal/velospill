@@ -8,11 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { getPendingIrRequestsAction, approveIrRequest, rejectIrRequest } from "./actions"
-import { IrActions } from "./ir-actions"
+import {
+  getPendingIrRequestsAction,
+  approveIrRequest,
+  rejectIrRequest,
+  getApprovedIrRequestsAction,
+  markEligibleToReturn,
+} from "./actions"
+import { IrActions, MarkEligibleActions } from "./ir-actions"
 
 export default async function AdminIrPage() {
-  const pendingRequests = await getPendingIrRequestsAction()
+  const [pendingRequests, approvedRequests] = await Promise.all([
+    getPendingIrRequestsAction(),
+    getApprovedIrRequestsAction(),
+  ])
 
   return (
     <div className="space-y-6">
@@ -73,6 +82,63 @@ export default async function AdminIrPage() {
                         teamName={request.teamName}
                         approveIrRequest={approveIrRequest}
                         rejectIrRequest={rejectIrRequest}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CardTitle>Approved Riders (on IR)</CardTitle>
+            <Badge variant="secondary">{approvedRequests.length}</Badge>
+          </div>
+          <CardDescription>
+            Riders currently on IR — mark eligible when they should return to their team
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {approvedRequests.length === 0 ? (
+            <p className="text-muted-foreground text-sm py-4 text-center">
+              No riders currently on IR
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>League</TableHead>
+                  <TableHead>Team</TableHead>
+                  <TableHead>Rider</TableHead>
+                  <TableHead>Approved</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {approvedRequests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell className="font-medium">{request.leagueName}</TableCell>
+                    <TableCell>{request.teamName}</TableCell>
+                    <TableCell>{request.riderName}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {request.resolvedAt
+                        ? new Date(request.resolvedAt).toLocaleDateString("en-GB", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <MarkEligibleActions
+                        requestId={request.id}
+                        riderName={request.riderName}
+                        teamName={request.teamName}
+                        markEligibleToReturn={markEligibleToReturn}
                       />
                     </TableCell>
                   </TableRow>

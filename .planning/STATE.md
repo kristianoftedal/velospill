@@ -5,7 +5,7 @@ milestone_name: IR List & Roster Management
 status: completed
 stopped_at: Quick task 14 — complete
 last_updated: "2026-03-07T09:15:11.746Z"
-last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
+last_activity: 2026-03-07 - Completed quick task 15: Fix submitTransferBid roster-full false positive for IR teams
 progress:
   total_phases: 7
   completed_phases: 2
@@ -100,6 +100,8 @@ None.
 | 11 | Reseed scoring DB with correct 2026 values (grand_tour_tdf, one-day tables, mini tour) | 2026-03-06 | f0875a6 |
 | 12 | Add Michael Matthews and Neilson Powless to IR for team 11 | 2026-03-06 | 4d0077b |
 | 13 | Fix transfer form — IR'd riders free active slots, show On IR badge, non-selectable | 2026-03-06 | 38fe168 |
+| 14 | Retroactively recalculate all awarded points using updated 2026 scoring config | 2026-03-06 | 6d7408f |
+| 15 | Fix submitTransferBid action incorrectly rejecting free-slot pickups with roster-full error | 2026-03-07 | c8b0e97 |
 
 ### Blockers/Concerns
 

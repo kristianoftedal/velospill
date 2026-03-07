@@ -113,6 +113,7 @@ None.
 | 13 | Fix transfer form — IR'd riders free active slots, show On IR badge, non-selectable | 2026-03-06 | 38fe168 |
 | 14 | Retroactively recalculate all awarded points using updated 2026 scoring config | 2026-03-06 | 6d7408f |
 | 15 | Fix submitTransferBid action incorrectly rejecting free-slot pickups with roster-full error | 2026-03-07 | c8b0e97 |
+| 16 | Fix dropRider and submitTransferBid to handle return_eligible IR status | 2026-03-07 | f4d7c10 |
 
 ### Blockers/Concerns
 

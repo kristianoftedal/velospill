@@ -99,6 +99,46 @@ export async function getTeamIrSlots(teamId: number, leagueId: number): Promise<
   return rows.reverse()
 }
 
+export type ApprovedIrRequest = {
+  id: number
+  leagueId: number
+  leagueName: string
+  teamId: number
+  teamName: string
+  riderId: number
+  riderName: string
+  reason: string | null
+  submittedAt: Date
+  resolvedAt: Date | null
+}
+
+/**
+ * Returns all approved IR requests across all leagues for the admin "Mark Eligible" section.
+ * Excludes return_eligible and returned — only shows approved (pending return decision).
+ * Ordered by resolvedAt ASC (oldest approval first).
+ */
+export async function getApprovedIrRequests(): Promise<ApprovedIrRequest[]> {
+  return db
+    .select({
+      id: irRequests.id,
+      leagueId: irRequests.leagueId,
+      leagueName: leagues.name,
+      teamId: irRequests.teamId,
+      teamName: teams.name,
+      riderId: irRequests.riderId,
+      riderName: riders.name,
+      reason: irRequests.reason,
+      submittedAt: irRequests.submittedAt,
+      resolvedAt: irRequests.resolvedAt,
+    })
+    .from(irRequests)
+    .innerJoin(leagues, eq(leagues.id, irRequests.leagueId))
+    .innerJoin(teams, eq(teams.id, irRequests.teamId))
+    .innerJoin(riders, eq(riders.id, irRequests.riderId))
+    .where(eq(irRequests.status, "approved"))
+    .orderBy(irRequests.resolvedAt)
+}
+
 /**
  * Returns all pending IR requests across all leagues for the admin queue.
  * Joined with league name, team name, and rider name.

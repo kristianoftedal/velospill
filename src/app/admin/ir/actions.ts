@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { eq, and } from "drizzle-orm"
-import { getPendingIrRequests } from "@/lib/ir-queries"
+import { getPendingIrRequests, getApprovedIrRequests } from "@/lib/ir-queries"
 
 async function checkAdminAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -120,4 +120,54 @@ export async function rejectIrRequest(
   return { success: true }
 }
 
+/**
+ * Returns all approved IR requests for the admin "Mark Eligible" section.
+ */
+export async function getApprovedIrRequestsAction() {
+  await checkAdminAuth()
+  return getApprovedIrRequests()
+}
+
+/**
+ * Marks an approved IR request as return_eligible.
+ * Transitions: approved → return_eligible.
+ * The player will then be prompted to return their rider to the active roster.
+ */
+export async function markEligibleToReturn(
+  requestId: number
+): Promise<{ success: true } | { success: false; error: string }> {
+  let session: Awaited<ReturnType<typeof checkAdminAuth>>
+  try {
+    session = await checkAdminAuth()
+  } catch {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  const [request] = await db
+    .select()
+    .from(irRequests)
+    .where(and(eq(irRequests.id, requestId), eq(irRequests.status, "approved")))
+    .limit(1)
+
+  if (!request) {
+    return { success: false, error: "Request not found or not in approved status" }
+  }
+
+  await db
+    .update(irRequests)
+    .set({
+      status: "return_eligible",
+      resolvedAt: new Date(),
+      resolvedBy: session.user.id,
+    })
+    .where(eq(irRequests.id, requestId))
+
+  revalidatePath("/admin/ir")
+  revalidatePath(`/leagues/${request.leagueId}/ir`)
+  revalidatePath(`/leagues/${request.leagueId}`)
+
+  return { success: true }
+}
+
 export type { PendingIrRequest } from "@/lib/ir-queries"
+export type { ApprovedIrRequest } from "@/lib/ir-queries"

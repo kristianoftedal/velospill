@@ -125,7 +125,7 @@ Plans:
   2. Every rider currently on a team's active roster has a corresponding `active` row in `roster_slots`
   3. Every rider with an approved or return_eligible IR request has a corresponding `on_ir` / `return_eligible` row
   4. `draftPicks` and `irRequests` tables are unchanged
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 23-01-PLAN.md — Schema definition + SQL migration: roster_slot_status enum, roster_slots table, indexes applied to DB
@@ -178,6 +178,6 @@ Plans:
 | 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
 | 21. Drop Rider | v1.3 | 1/1 | Complete | 2026-03-06 |
 | 22. IR Return Flow | v1.3 | 3/3 | Complete | 2026-03-07 |
-| 23. roster_slots Schema & Migration | 1/2 | In Progress|  | — |
+| 23. roster_slots Schema & Migration | 2/2 | Complete   | 2026-03-07 | — |
 | 24. Write Path Wiring | v1.4 | — | Pending | — |
 | 25. Read Path Migration & Cleanup | v1.4 | — | Pending | — |

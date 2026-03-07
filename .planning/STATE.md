@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Roster Consolidation
 status: planning
-stopped_at: Completed 23-01-PLAN.md
-last_updated: "2026-03-07T17:22:12.316Z"
+stopped_at: Completed 23-02-PLAN.md
+last_updated: "2026-03-07T17:25:10.351Z"
 last_activity: 2026-03-07 — v1.4 milestone started, requirements defined
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases c
 
 **Quick Tasks (v1.3):** 16 completed (including post-audit GAP-01 and GAP-02 fixes)
 | Phase 23 P01 | 60 | 2 tasks | 3 files |
+| Phase 23-roster-slots-schema-migration P02 | 300 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,8 @@ Recent decisions relevant to next milestone:
 - [Phase 23]: roster_slot_status enum has 3 values: active/on_ir/return_eligible — no dropped/returned states (rows deleted)
 - [Phase 23]: unique index on (leagueId, riderId) enforces single-slot-per-rider-per-league invariant at DB level
 - [Phase 23]: addedAt column for audit trail only — scoring continues to use draftPicks.pickedAt for ownership-at-race-time
+- [Phase 23-roster-slots-schema-migration]: Approved IR riders with no draftPicks row (previously dropped) correctly receive no roster_slot — migration reflects actual roster state not historical IR data
+- [Phase 23-roster-slots-schema-migration]: Standalone backfill scripts use neon-http direct connection (not @/lib/db app client) for CLI portability
 
 ### Pending Todos
 
@@ -102,6 +105,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07T17:22:12.314Z
-Stopped at: Completed 23-01-PLAN.md
+Last session: 2026-03-07T17:25:10.350Z
+Stopped at: Completed 23-02-PLAN.md
 Resume file: None

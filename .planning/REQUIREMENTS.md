@@ -10,7 +10,7 @@ Requirements for the Roster Consolidation milestone. Each maps to a roadmap phas
 ### Schema
 
 - [x] **RSLOT-01**: A `roster_slots` table exists as the single source of truth for current team composition, with columns for league, team, rider, and status (active / on_ir / return_eligible)
-- [ ] **RSLOT-02**: Existing live data is backfilled into `roster_slots` from current `draftPicks` and `irRequests` records
+- [x] **RSLOT-02**: Existing live data is backfilled into `roster_slots` from current `draftPicks` and `irRequests` records
 
 ### Write Paths
 
@@ -41,7 +41,7 @@ Requirements for the Roster Consolidation milestone. Each maps to a roadmap phas
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | RSLOT-01 | Phase 23 | Complete |
-| RSLOT-02 | Phase 23 | Pending |
+| RSLOT-02 | Phase 23 | Complete |
 | RSLOT-03 | Phase 24 | Pending |
 | RSLOT-04 | Phase 24 | Pending |
 | RSLOT-05 | Phase 24 | Pending |

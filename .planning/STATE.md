@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Completed 22-ir-return-flow-01-PLAN.md
-last_updated: "2026-03-07T09:48:14.047Z"
+stopped_at: Completed 22-ir-return-flow-02-PLAN.md
+last_updated: "2026-03-07T09:51:15.627Z"
 last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 14
 ---
 
@@ -54,6 +54,7 @@ Progress: [█░░░░░░░░░] 14% (v1.3) | v1.0-v1.2: 19/19 phases 
 | Phase 20-ir-foundation-admin-approval P03 | ~15min | 2 tasks | 7 files |
 | Phase 21-drop-rider P01 | 2 | 2 tasks | 4 files |
 | Phase 22-ir-return-flow P01 | 5 | 2 tasks | 3 files |
+| Phase 22-ir-return-flow P02 | 31536175 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,9 @@ Recent decisions relevant to v1.3:
 - [Phase 21-drop-rider]: IR cleanup on drop uses inArray(['pending','approved']); transfer bid cleanup uses status='cancelled'
 - [Phase 22-ir-return-flow]: return_eligible riders still free a roster slot — slot only closes again when status becomes returned
 - [Phase 22-ir-return-flow]: getEligibleToReturnCount added as standalone helper for Plan 03 UI banner and transfer form blocking
+- [Phase 22-ir-return-flow]: returnRider checks gender-specific active count via LEFT JOIN to exclude IR riders before allowing return
+- [Phase 22-ir-return-flow]: dropAndReturnRider uses sequential DB ops (not transaction) — acceptable for low-concurrency app
+- [Phase 22-ir-return-flow]: IR-09 transfer block guard placed before window check so return_eligible state takes precedence
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07T09:48:14.045Z
-Stopped at: Completed 22-ir-return-flow-01-PLAN.md
+Last session: 2026-03-07T09:51:15.626Z
+Stopped at: Completed 22-ir-return-flow-02-PLAN.md
 Resume file: None

@@ -15,9 +15,9 @@
 - [x] **IR-06**: Player can use the freed slot to submit a waiver wire pickup request
 - [x] **IR-07**: Admin can mark an IR rider as eligible to return
 - [ ] **IR-08**: Player sees an in-app banner when one of their IR riders is marked eligible to return
-- [ ] **IR-09**: Player is blocked from making transfers while they have a rider eligible to return
-- [ ] **IR-10**: Player can return an eligible rider from IR to their active roster
-- [ ] **IR-11**: If the active roster is full when returning, player must drop a rider to make room first
+- [x] **IR-09**: Player is blocked from making transfers while they have a rider eligible to return
+- [x] **IR-10**: Player can return an eligible rider from IR to their active roster
+- [x] **IR-11**: If the active roster is full when returning, player must drop a rider to make room first
 
 ### Roster Management
 
@@ -47,9 +47,9 @@ _(None defined yet)_
 | IR-06 | Phase 22 | Complete |
 | IR-07 | Phase 22 | Complete |
 | IR-08 | Phase 22 | Pending |
-| IR-09 | Phase 22 | Pending |
-| IR-10 | Phase 22 | Pending |
-| IR-11 | Phase 22 | Pending |
+| IR-09 | Phase 22 | Complete |
+| IR-10 | Phase 22 | Complete |
+| IR-11 | Phase 22 | Complete |
 | ROST-01 | Phase 21 | Complete |
 
 **Coverage:**

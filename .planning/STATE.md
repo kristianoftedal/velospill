@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Roster Consolidation
 status: planning
-stopped_at: Requirements defined — ready to plan Phase 23
-last_updated: "2026-03-07T00:00:00.000Z"
+stopped_at: Completed 23-01-PLAN.md
+last_updated: "2026-03-07T17:22:12.316Z"
 last_activity: 2026-03-07 — v1.4 milestone started, requirements defined
 progress:
-  total_phases: 3
+  total_phases: 7
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -47,6 +47,7 @@ Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases c
 | 22. IR Return Flow | 3/3 | Complete — 2026-03-07 |
 
 **Quick Tasks (v1.3):** 16 completed (including post-audit GAP-01 and GAP-02 fixes)
+| Phase 23 P01 | 60 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ Recent decisions relevant to next milestone:
 - Phase 21: dropRider hard-deletes draftPicks row instantly — no waiver or approval period (ROST-01)
 - Phase 22: return_eligible riders still free a roster slot — slot only closes again when status becomes returned
 - Phase 22: IR-09 transfer block guard placed before window check so return_eligible state takes precedence
+- [Phase 23]: roster_slot_status enum has 3 values: active/on_ir/return_eligible — no dropped/returned states (rows deleted)
+- [Phase 23]: unique index on (leagueId, riderId) enforces single-slot-per-rider-per-league invariant at DB level
+- [Phase 23]: addedAt column for audit trail only — scoring continues to use draftPicks.pickedAt for ownership-at-race-time
 
 ### Pending Todos
 
@@ -98,6 +102,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07
-Stopped at: v1.3 archived — ready to define v1.4
+Last session: 2026-03-07T17:22:12.314Z
+Stopped at: Completed 23-01-PLAN.md
 Resume file: None

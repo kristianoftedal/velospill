@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Completed 22-ir-return-flow-02-PLAN.md
-last_updated: "2026-03-07T09:51:15.627Z"
+stopped_at: Completed 22-ir-return-flow-03-PLAN.md
+last_updated: "2026-03-07T09:56:21.258Z"
 last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 14
 ---
 
@@ -55,6 +55,7 @@ Progress: [█░░░░░░░░░] 14% (v1.3) | v1.0-v1.2: 19/19 phases 
 | Phase 21-drop-rider P01 | 2 | 2 tasks | 4 files |
 | Phase 22-ir-return-flow P01 | 5 | 2 tasks | 3 files |
 | Phase 22-ir-return-flow P02 | 31536175 | 2 tasks | 4 files |
+| Phase 22-ir-return-flow P03 | 158 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,9 @@ Recent decisions relevant to v1.3:
 - [Phase 22-ir-return-flow]: returnRider checks gender-specific active count via LEFT JOIN to exclude IR riders before allowing return
 - [Phase 22-ir-return-flow]: dropAndReturnRider uses sequential DB ops (not transaction) — acceptable for low-concurrency app
 - [Phase 22-ir-return-flow]: IR-09 transfer block guard placed before window check so return_eligible state takes precedence
+- [Phase 22-ir-return-flow]: IrReturnActions tries returnRider first; if error contains 'full', opens drop dialog — avoids needing gender on IrSlot
+- [Phase 22-ir-return-flow]: Transfer page blocking card is UI affordance only — server action already enforces the block
+- [Phase 22-ir-return-flow]: IR return banner is non-dismissible — re-fetched on every page load, disappears after rider returned
 
 ### Pending Todos
 
@@ -118,6 +122,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07T09:51:15.626Z
-Stopped at: Completed 22-ir-return-flow-02-PLAN.md
+Last session: 2026-03-07T09:56:09.712Z
+Stopped at: Completed 22-ir-return-flow-03-PLAN.md
 Resume file: None

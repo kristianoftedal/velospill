@@ -141,6 +141,12 @@ Plans:
   3. Approving a transfer moves the rider's row to the new team
   4. Approving an IR request sets the rider's status to `on_ir`
   5. Marking return-eligible sets status to `return_eligible`; returning sets it back to `active`
+**Plans:** 3 plans
+
+Plans:
+- [ ] 24-01-PLAN.md — Wire draft picks: makePick + auto-pick route insert active row into roster_slots (RSLOT-03)
+- [ ] 24-02-PLAN.md — Wire drop + transfer: dropRider deletes roster_slots row; approveBid moves row to new team (RSLOT-04, RSLOT-05)
+- [ ] 24-03-PLAN.md — Wire IR transitions: approveIrRequest, markEligibleToReturn, returnRider, dropAndReturnRider (RSLOT-06, RSLOT-07, RSLOT-08)
 
 ### Phase 25: Read Path Migration & Cleanup
 **Goal**: Replace all scattered `draftPicks + irRequests` join-based roster queries with direct reads from `roster_slots`, and remove the dead join code.
@@ -178,6 +184,6 @@ Plans:
 | 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
 | 21. Drop Rider | v1.3 | 1/1 | Complete | 2026-03-06 |
 | 22. IR Return Flow | v1.3 | 3/3 | Complete | 2026-03-07 |
-| 23. roster_slots Schema & Migration | 2/2 | Complete    | 2026-03-07 | — |
-| 24. Write Path Wiring | v1.4 | — | Pending | — |
+| 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
+| 24. Write Path Wiring | v1.4 | 3 plans | Pending | — |
 | 25. Read Path Migration & Cleanup | v1.4 | — | Pending | — |

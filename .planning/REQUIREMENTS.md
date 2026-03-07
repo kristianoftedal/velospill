@@ -12,8 +12,8 @@
 - [x] **IR-03**: Admin can view a queue of pending IR placement requests
 - [x] **IR-04**: Admin can approve or reject an IR placement request
 - [x] **IR-05**: Approved IR riders do not count against the active roster limit, freeing a slot for a waiver wire pickup
-- [ ] **IR-06**: Player can use the freed slot to submit a waiver wire pickup request
-- [ ] **IR-07**: Admin can mark an IR rider as eligible to return
+- [x] **IR-06**: Player can use the freed slot to submit a waiver wire pickup request
+- [x] **IR-07**: Admin can mark an IR rider as eligible to return
 - [ ] **IR-08**: Player sees an in-app banner when one of their IR riders is marked eligible to return
 - [ ] **IR-09**: Player is blocked from making transfers while they have a rider eligible to return
 - [ ] **IR-10**: Player can return an eligible rider from IR to their active roster
@@ -44,8 +44,8 @@ _(None defined yet)_
 | IR-03 | Phase 20 | Complete |
 | IR-04 | Phase 20 | Complete |
 | IR-05 | Phase 20 | Complete |
-| IR-06 | Phase 22 | Pending |
-| IR-07 | Phase 22 | Pending |
+| IR-06 | Phase 22 | Complete |
+| IR-07 | Phase 22 | Complete |
 | IR-08 | Phase 22 | Pending |
 | IR-09 | Phase 22 | Pending |
 | IR-10 | Phase 22 | Pending |

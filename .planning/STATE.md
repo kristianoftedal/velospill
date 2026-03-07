@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Phase 22 planned — 3 plans ready
-last_updated: "2026-03-07T09:44:28.077Z"
+stopped_at: Completed 22-ir-return-flow-01-PLAN.md
+last_updated: "2026-03-07T09:48:14.047Z"
 last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 7
-  completed_plans: 4
+  completed_plans: 5
   percent: 14
 ---
 
@@ -53,6 +53,7 @@ Progress: [█░░░░░░░░░] 14% (v1.3) | v1.0-v1.2: 19/19 phases 
 | Phase 20-ir-foundation-admin-approval P02 | 145 | 2 tasks | 3 files |
 | Phase 20-ir-foundation-admin-approval P03 | ~15min | 2 tasks | 7 files |
 | Phase 21-drop-rider P01 | 2 | 2 tasks | 4 files |
+| Phase 22-ir-return-flow P01 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions relevant to v1.3:
 - [Phase 20-ir-foundation-admin-approval P03]: IR-05 enforcement deferred to Phase 22 — getActiveRosterCount ready but no-outRider pickup path not yet exposed
 - [Phase 21-drop-rider]: dropRider hard-deletes draftPicks row instantly — no waiver or approval period (ROST-01)
 - [Phase 21-drop-rider]: IR cleanup on drop uses inArray(['pending','approved']); transfer bid cleanup uses status='cancelled'
+- [Phase 22-ir-return-flow]: return_eligible riders still free a roster slot — slot only closes again when status becomes returned
+- [Phase 22-ir-return-flow]: getEligibleToReturnCount added as standalone helper for Plan 03 UI banner and transfer form blocking
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07T09:44:28.076Z
-Stopped at: Phase 22 planned — 3 plans ready
-Resume file: .planning/phases/22-ir-return-flow/22-01-PLAN.md
+Last session: 2026-03-07T09:48:14.045Z
+Stopped at: Completed 22-ir-return-flow-01-PLAN.md
+Resume file: None

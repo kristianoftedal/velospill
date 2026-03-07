@@ -88,7 +88,7 @@ export async function dropRider(data: {
         eq(irRequests.teamId, team.id),
         eq(irRequests.leagueId, data.leagueId),
         eq(irRequests.riderId, data.riderId),
-        inArray(irRequests.status, ["pending", "approved"])
+        inArray(irRequests.status, ["pending", "approved", "return_eligible"])
       )
     )
 

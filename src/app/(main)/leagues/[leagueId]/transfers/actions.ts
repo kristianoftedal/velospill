@@ -5,7 +5,7 @@ import { transferBids, transferAudit } from "@/db/schema/transfers"
 import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, sql, isNull } from "drizzle-orm"
+import { eq, and, sql, isNull, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import {
@@ -147,7 +147,7 @@ export async function submitTransferBid(formData: {
         and(
           eq(irRequests.riderId, draftPicks.riderId),
           eq(irRequests.teamId, team.id),
-          eq(irRequests.status, "approved")
+          inArray(irRequests.status, ["approved", "return_eligible"])
         )
       )
       .where(

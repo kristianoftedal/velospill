@@ -3,7 +3,8 @@
 import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
 import { draftPicks } from "@/db/schema/draft"
-import { eq, and, inArray, count } from "drizzle-orm"
+import { riders } from "@/db/schema/riders"
+import { eq, and, inArray, isNull, sql, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
 
@@ -99,6 +100,202 @@ export async function submitIrRequest(data: {
   // 7. Revalidate relevant pages
   revalidatePath(`/leagues/${data.leagueId}/ir`)
   revalidatePath("/admin/ir")
+
+  return { success: true }
+}
+
+/**
+ * Returns an IR-eligible rider to the active roster when there is roster space.
+ * Transitions IR request status from 'return_eligible' → 'returned'.
+ * The rider stays in draftPicks (they were never removed — IR only adjusts the count).
+ */
+export async function returnRider(
+  requestId: number,
+  leagueId: number
+): Promise<{ success: true } | { success: false; error: string }> {
+  let session: Awaited<ReturnType<typeof getAuthenticatedUser>>
+  try {
+    session = await getAuthenticatedUser()
+  } catch {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember || !team) {
+    return { success: false, error: "You are not a member of this league" }
+  }
+
+  // Fetch and verify request is return_eligible and belongs to this team
+  const [request] = await db
+    .select()
+    .from(irRequests)
+    .where(
+      and(
+        eq(irRequests.id, requestId),
+        eq(irRequests.teamId, team.id),
+        eq(irRequests.leagueId, leagueId),
+        eq(irRequests.status, "return_eligible")
+      )
+    )
+    .limit(1)
+
+  if (!request) {
+    return { success: false, error: "IR request not found or not eligible for return" }
+  }
+
+  // Verify roster has space (active count must be < limit)
+  const [riderRecord] = await db
+    .select({ gender: riders.gender })
+    .from(riders)
+    .where(eq(riders.id, request.riderId))
+    .limit(1)
+
+  if (!riderRecord) {
+    return { success: false, error: "Rider not found" }
+  }
+
+  const MAX_MEN = 18
+  const MAX_WOMEN = 6
+  const maxForGender = riderRecord.gender === "M" ? MAX_MEN : MAX_WOMEN
+
+  // Count active riders of same gender (excluding IR riders with approved/return_eligible status)
+  // return_eligible already frees the returning rider's slot, so active count + 1 (rider returning) must be <= max
+  const genderActiveCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(draftPicks)
+    .leftJoin(
+      irRequests,
+      and(
+        eq(irRequests.riderId, draftPicks.riderId),
+        eq(irRequests.teamId, team.id),
+        inArray(irRequests.status, ["approved", "return_eligible"])
+      )
+    )
+    .where(
+      and(
+        eq(draftPicks.teamId, team.id),
+        eq(draftPicks.leagueId, leagueId),
+        eq(draftPicks.gender, riderRecord.gender),
+        isNull(irRequests.id)
+      )
+    )
+
+  const activeOfGender = Number(genderActiveCount[0]?.count ?? 0)
+
+  if (activeOfGender >= maxForGender) {
+    return {
+      success: false,
+      error: `Roster is full for ${riderRecord.gender === "M" ? "men" : "women"} (${maxForGender} max). Drop a rider first.`,
+    }
+  }
+
+  // Mark as returned
+  await db
+    .update(irRequests)
+    .set({ status: "returned", resolvedAt: new Date() })
+    .where(eq(irRequests.id, requestId))
+
+  revalidatePath(`/leagues/${leagueId}/ir`)
+  revalidatePath(`/leagues/${leagueId}`)
+  revalidatePath(`/leagues/${leagueId}/transfers`)
+
+  return { success: true }
+}
+
+/**
+ * Atomically drops a roster rider and returns the IR-eligible rider.
+ * Used when the roster is full — player selects who to drop in the dialog.
+ * Deletes the dropped rider's draftPicks row, then marks IR request as returned.
+ */
+export async function dropAndReturnRider(input: {
+  requestId: number
+  dropRiderId: number
+  leagueId: number
+}): Promise<{ success: true } | { success: false; error: string }> {
+  const { requestId, dropRiderId, leagueId } = input
+
+  let session: Awaited<ReturnType<typeof getAuthenticatedUser>>
+  try {
+    session = await getAuthenticatedUser()
+  } catch {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
+  if (!isMember || !team) {
+    return { success: false, error: "You are not a member of this league" }
+  }
+
+  // Verify IR request is return_eligible and belongs to this team
+  const [request] = await db
+    .select()
+    .from(irRequests)
+    .where(
+      and(
+        eq(irRequests.id, requestId),
+        eq(irRequests.teamId, team.id),
+        eq(irRequests.leagueId, leagueId),
+        eq(irRequests.status, "return_eligible")
+      )
+    )
+    .limit(1)
+
+  if (!request) {
+    return { success: false, error: "IR request not found or not eligible for return" }
+  }
+
+  // Verify the rider to drop is on this team
+  const [dropPick] = await db
+    .select()
+    .from(draftPicks)
+    .where(
+      and(
+        eq(draftPicks.teamId, team.id),
+        eq(draftPicks.leagueId, leagueId),
+        eq(draftPicks.riderId, dropRiderId)
+      )
+    )
+    .limit(1)
+
+  if (!dropPick) {
+    return { success: false, error: "Rider to drop is not on your team" }
+  }
+
+  // Verify the rider to drop is not themselves on IR (approved or return_eligible)
+  const [dropRiderIr] = await db
+    .select({ id: irRequests.id })
+    .from(irRequests)
+    .where(
+      and(
+        eq(irRequests.teamId, team.id),
+        eq(irRequests.riderId, dropRiderId),
+        inArray(irRequests.status, ["approved", "return_eligible"])
+      )
+    )
+    .limit(1)
+
+  if (dropRiderIr) {
+    return { success: false, error: "Cannot drop a rider who is currently on IR" }
+  }
+
+  // Atomically: delete draftPick for dropped rider, then update IR to returned
+  await db.delete(draftPicks).where(
+    and(
+      eq(draftPicks.teamId, team.id),
+      eq(draftPicks.leagueId, leagueId),
+      eq(draftPicks.riderId, dropRiderId)
+    )
+  )
+
+  await db
+    .update(irRequests)
+    .set({ status: "returned", resolvedAt: new Date() })
+    .where(eq(irRequests.id, requestId))
+
+  revalidatePath(`/leagues/${leagueId}/ir`)
+  revalidatePath(`/leagues/${leagueId}`)
+  revalidatePath(`/leagues/${leagueId}/transfers`)
+  revalidatePath(`/leagues/${leagueId}/roster`)
 
   return { success: true }
 }

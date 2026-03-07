@@ -168,6 +168,26 @@ export async function submitTransferBid(formData: {
     }
   }
 
+  // IR-09: Block transfers if any IR rider for this team is return_eligible
+  const [eligibleReturn] = await db
+    .select({ id: irRequests.id })
+    .from(irRequests)
+    .where(
+      and(
+        eq(irRequests.teamId, team.id),
+        eq(irRequests.leagueId, leagueId),
+        eq(irRequests.status, "return_eligible")
+      )
+    )
+    .limit(1)
+
+  if (eligibleReturn) {
+    return {
+      success: false,
+      error: "You have riders eligible to return from IR. Return them before submitting a transfer.",
+    }
+  }
+
   // 7. Transfer window validation
   const activeWindow = await getActiveTransferWindow(leagueId)
 

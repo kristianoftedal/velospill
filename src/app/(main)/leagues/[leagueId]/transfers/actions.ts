@@ -5,7 +5,7 @@ import { transferBids, transferAudit } from "@/db/schema/transfers"
 import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, sql } from "drizzle-orm"
+import { eq, and, sql, isNull } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import {
@@ -17,6 +17,7 @@ import {
   getTeamTransferCount,
   getTeamBudget,
 } from "@/lib/transfer-queries"
+import { irRequests } from "@/db/schema/ir"
 
 const submitBidSchema = z.object({
   leagueId: z.number(),
@@ -134,17 +135,27 @@ export async function submitTransferBid(formData: {
       }
     }
   } else {
-    // Pickup without drop: verify team has an available roster slot for this gender
+    // Pickup without drop: verify team has an available roster slot for this gender.
+    // Active count = draftPicks (for this gender) minus approved IR riders (they free a slot).
     const MAX_MEN = 18
     const MAX_WOMEN = 6
     const currentGenderCount = await db
       .select({ count: sql<number>`count(*)` })
       .from(draftPicks)
+      .leftJoin(
+        irRequests,
+        and(
+          eq(irRequests.riderId, draftPicks.riderId),
+          eq(irRequests.teamId, team.id),
+          eq(irRequests.status, "approved")
+        )
+      )
       .where(
         and(
           eq(draftPicks.teamId, team.id),
           eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.gender, inRiderRecord.gender)
+          eq(draftPicks.gender, inRiderRecord.gender),
+          isNull(irRequests.id)
         )
       )
     const count = Number(currentGenderCount[0]?.count ?? 0)
@@ -184,18 +195,6 @@ export async function submitTransferBid(formData: {
       }
     }
   }
-
-  // IR-05: Count active roster size (total picks minus approved IR riders)
-  // A waiver pickup is a net-zero swap (out + in), but we need to verify
-  // the team actually has a genuinely free slot (not just the out rider freeing one).
-  // The current transfer flow always drops an outRider, so active count stays the same.
-  // However, if somehow a pickup is submitted without an outRider (future-proofing guard):
-  // keep this comment as a placeholder. The primary IR-05 value is that approved IR riders
-  // do NOT count against the limit — meaning a team with 10 picks and 1 approved IR rider
-  // effectively has 9 active riders, and can submit a normal transfer pick-up.
-  // No additional code change is needed here for Phase 20: the existing transfer flow
-  // (always drops outRider) already works correctly. This comment documents the IR-05
-  // invariant for Phase 22 (IR return flow).
 
   // Insert transfer bid
   const [bid] = await db

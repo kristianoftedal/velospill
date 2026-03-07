@@ -3,13 +3,13 @@ import { irRequests } from "@/db/schema/ir"
 import { draftPicks } from "@/db/schema/draft"
 import { leagues, teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
-import { eq, and, count } from "drizzle-orm"
+import { eq, and, count, inArray } from "drizzle-orm"
 
 export type IrSlot = {
   id: number
   riderId: number
   riderName: string
-  status: "pending" | "approved" | "rejected"
+  status: "pending" | "approved" | "rejected" | "return_eligible" | "returned"
   reason: string | null
   adminNote: string | null
   submittedAt: Date
@@ -26,6 +26,52 @@ export type PendingIrRequest = {
   riderName: string
   reason: string | null
   submittedAt: Date
+}
+
+/**
+ * Returns the active roster count for a team:
+ *   active = total draft picks - (approved OR return_eligible IR requests)
+ * Both approved and return_eligible riders free a slot — they haven't returned yet.
+ */
+export async function getActiveRosterCount(teamId: number, leagueId: number): Promise<number> {
+  const [picksResult] = await db
+    .select({ value: count() })
+    .from(draftPicks)
+    .where(and(eq(draftPicks.teamId, teamId), eq(draftPicks.leagueId, leagueId)))
+
+  const [irResult] = await db
+    .select({ value: count() })
+    .from(irRequests)
+    .where(
+      and(
+        eq(irRequests.teamId, teamId),
+        eq(irRequests.leagueId, leagueId),
+        inArray(irRequests.status, ["approved", "return_eligible"])
+      )
+    )
+
+  const totalPicks = picksResult?.value ?? 0
+  const irCount = irResult?.value ?? 0
+
+  return Number(totalPicks) - Number(irCount)
+}
+
+/**
+ * Returns the count of IR requests for a team with status 'return_eligible'.
+ * Used by the league page banner and transfer form blocking.
+ */
+export async function getEligibleToReturnCount(teamId: number, leagueId: number): Promise<number> {
+  const [result] = await db
+    .select({ value: count() })
+    .from(irRequests)
+    .where(
+      and(
+        eq(irRequests.teamId, teamId),
+        eq(irRequests.leagueId, leagueId),
+        eq(irRequests.status, "return_eligible")
+      )
+    )
+  return Number(result?.value ?? 0)
 }
 
 /**
@@ -51,34 +97,6 @@ export async function getTeamIrSlots(teamId: number, leagueId: number): Promise<
 
   // Return in DESC order (newest first)
   return rows.reverse()
-}
-
-/**
- * Returns the active roster count for a team:
- *   active = total draft picks - approved IR requests
- * Approved IR riders are freed from the active roster limit.
- */
-export async function getActiveRosterCount(teamId: number, leagueId: number): Promise<number> {
-  const [picksResult] = await db
-    .select({ value: count() })
-    .from(draftPicks)
-    .where(and(eq(draftPicks.teamId, teamId), eq(draftPicks.leagueId, leagueId)))
-
-  const [approvedIrResult] = await db
-    .select({ value: count() })
-    .from(irRequests)
-    .where(
-      and(
-        eq(irRequests.teamId, teamId),
-        eq(irRequests.leagueId, leagueId),
-        eq(irRequests.status, "approved")
-      )
-    )
-
-  const totalPicks = picksResult?.value ?? 0
-  const approvedIr = approvedIrResult?.value ?? 0
-
-  return Number(totalPicks) - Number(approvedIr)
 }
 
 /**

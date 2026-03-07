@@ -4,7 +4,7 @@ import { leagues, teams } from "./leagues"
 import { riders } from "./riders"
 import { user } from "./users"
 
-export const irStatusEnum = pgEnum("ir_status", ["pending", "approved", "rejected"])
+export const irStatusEnum = pgEnum("ir_status", ["pending", "approved", "rejected", "return_eligible", "returned"])
 
 export const irRequests = pgTable("ir_requests", {
   id: serial("id").primaryKey(),

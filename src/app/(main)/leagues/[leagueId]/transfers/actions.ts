@@ -175,7 +175,7 @@ export async function submitTransferBid(formData: {
     return { success: false, error: "No active transfer window" }
   }
 
-  if (activeWindow.maxTransfers != null) {
+  if (activeWindow.maxTransfers != null && outRiderId != null) {
     const usedTransfers = await getTeamTransferCount(team.id, leagueId, activeWindow.id)
     if (usedTransfers >= activeWindow.maxTransfers) {
       return {

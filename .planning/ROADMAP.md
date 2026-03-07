@@ -149,7 +149,12 @@ Plans:
   3. Player sees a persistent in-app banner when one of their IR riders is marked eligible to return
   4. Player is prevented from submitting any transfer while they have a rider eligible to return
   5. Player can return the eligible rider to their active roster; if the active roster is full, they must drop a rider first before the return is accepted
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 22-01-PLAN.md — Schema migration (return_eligible + returned enum values) + query layer (getActiveRosterCount fix, getEligibleToReturnCount)
+- [ ] 22-02-PLAN.md — Server actions: admin markEligibleToReturn, player returnRider + dropAndReturnRider, transfer block guard in submitTransferBid
+- [ ] 22-03-PLAN.md — UI: admin IR second section, league page banner, IR page return buttons + roster-full dialog, transfer page block
 
 ## Progress
 
@@ -176,4 +181,4 @@ Plans:
 | 19. Season Standings History | v1.2 | 2/2 | Complete | 2026-03-06 |
 | 20. IR Foundation & Admin Approval | v1.3 | 3/3 | Complete | 2026-03-06 |
 | 21. Drop Rider | 1/1 | Complete    | 2026-03-06 | - |
-| 22. IR Return Flow | v1.3 | TBD | Not started | - |
+| 22. IR Return Flow | v1.3 | 3 plans | Not started | - |

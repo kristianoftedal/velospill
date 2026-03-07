@@ -8,6 +8,8 @@ import {
   getFreeAgents,
   getTeamBudget,
 } from "@/lib/transfer-queries"
+import { getEligibleToReturnCount } from "@/lib/ir-queries"
+import { Card, CardContent } from "@/components/ui/card"
 import { TransferForm } from "./transfer-form"
 
 interface PageProps {
@@ -116,14 +118,16 @@ export default async function TransfersPage({ params }: PageProps) {
   }
 
   // Parallel data fetch
-  const [roster, bids, activeWindow, freeAgentsMen, freeAgentsWomen, teamBudget] = await Promise.all([
-    getTeamRoster(userTeamId, leagueId),
-    getTeamBids(userTeamId, leagueId),
-    getActiveTransferWindow(leagueId),
-    getFreeAgents(leagueId, "M"),
-    getFreeAgents(leagueId, "F"),
-    getTeamBudget(userTeamId),
-  ])
+  const [roster, bids, activeWindow, freeAgentsMen, freeAgentsWomen, teamBudget, eligibleCount] =
+    await Promise.all([
+      getTeamRoster(userTeamId, leagueId),
+      getTeamBids(userTeamId, leagueId),
+      getActiveTransferWindow(leagueId),
+      getFreeAgents(leagueId, "M"),
+      getFreeAgents(leagueId, "F"),
+      getTeamBudget(userTeamId),
+      getEligibleToReturnCount(userTeamId, leagueId),
+    ])
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -149,6 +153,20 @@ export default async function TransfersPage({ params }: PageProps) {
           Submit transfer bids to swap riders on your team
         </p>
       </div>
+
+      {eligibleCount > 0 && (
+        <Card className="border-red-300 bg-red-50">
+          <CardContent className="pt-4 pb-4">
+            <p className="font-semibold text-red-800">Transfers blocked</p>
+            <p className="text-sm text-red-700 mt-1">
+              You have riders eligible to return from IR. Return them before submitting a transfer.{" "}
+              <Link href={`/leagues/${leagueId}/ir`} className="underline">
+                Go to IR page
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       <TransferForm
         roster={roster}

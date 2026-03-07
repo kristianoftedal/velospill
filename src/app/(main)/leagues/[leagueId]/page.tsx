@@ -21,6 +21,7 @@ import {
 import { getLeagueDetails } from "./actions"
 import { getLeagueStandingsWithOrders, getTeamRiderScores, getLeagueRacesWithScores } from "@/lib/scoring-queries"
 import { getUpcomingRacesWithLineups, getRecentRaceResults, UpcomingRaceWithLineups, RecentRaceResult } from "@/lib/league-overview-queries"
+import { getEligibleToReturnCount } from "@/lib/ir-queries"
 import { StandingsClient } from "./standings/standings-client"
 import { LeagueConfig } from "@/db/schema/leagues"
 
@@ -122,6 +123,12 @@ export default async function LeagueDetailPage({ params }: PageProps) {
     upcomingRaces = await getUpcomingRacesWithLineups(league.id)
   }
 
+  // Check IR return banner when league is active and user has a team
+  let eligibleToReturnCount = 0
+  if (league.status === "active" && userTeamId != null) {
+    eligibleToReturnCount = await getEligibleToReturnCount(userTeamId, leagueId)
+  }
+
   // Find user's team for standings highlighting
   const userStanding = standings && userTeamId != null
     ? standings.find((s) => s.teamId === userTeamId) ?? null
@@ -206,6 +213,25 @@ export default async function LeagueDetailPage({ params }: PageProps) {
             </Button>
           )}
         </div>
+      )}
+
+      {/* IR Return Banner — shown when player has eligible-to-return riders */}
+      {league.status === "active" && eligibleToReturnCount > 0 && (
+        <Card className="border-red-300 bg-red-50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold text-red-800">Action required: IR return pending</p>
+                <p className="text-sm text-red-700 mt-0.5">
+                  You have riders eligible to return from IR. Transfers are blocked until resolved.
+                </p>
+              </div>
+              <Button asChild variant="destructive" size="sm" className="shrink-0">
+                <Link href={`/leagues/${leagueId}/ir`}>Go to IR page</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Standings — show when league is active or complete */}

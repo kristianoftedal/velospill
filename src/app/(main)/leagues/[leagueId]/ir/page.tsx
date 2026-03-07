@@ -7,6 +7,7 @@ import { getLeagueDetails } from "../actions"
 import { getTeamIrSlots } from "@/lib/ir-queries"
 import { getTeamRoster } from "@/lib/transfer-queries"
 import { IrForm } from "./ir-form"
+import { IrReturnActions } from "./ir-return-actions"
 
 interface PageProps {
   params: Promise<{ leagueId: string }>
@@ -16,6 +17,8 @@ const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
   approved: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
+  return_eligible: "bg-amber-100 text-amber-800",
+  returned: "bg-gray-100 text-gray-600",
 }
 
 export default async function IrPage({ params }: PageProps) {
@@ -113,8 +116,15 @@ export default async function IrPage({ params }: PageProps) {
     getTeamRoster(userTeamId, leagueId),
   ])
 
-  // Count occupied slots (pending or approved)
+  // Count occupied slots (pending or approved — return_eligible slots are still "open" for the active roster)
   const slotsUsed = irSlots.filter((s) => s.status === "pending" || s.status === "approved").length
+
+  // Compute active roster riders (excluding those with approved/return_eligible IR)
+  // These are shown in the drop dialog when roster is full
+  const activeRosterRiders = roster.filter((r) => {
+    const irSlot = irSlots.find((s) => s.riderId === r.riderId)
+    return !irSlot || (irSlot.status !== "approved" && irSlot.status !== "return_eligible")
+  })
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -157,7 +167,9 @@ export default async function IrPage({ params }: PageProps) {
                       <div className="flex items-center justify-between gap-2 flex-wrap">
                         <span className="font-medium text-gray-900">{slot.riderName}</span>
                         <Badge className={statusColors[slot.status] ?? ""}>
-                          {slot.status.charAt(0).toUpperCase() + slot.status.slice(1)}
+                          {slot.status === "return_eligible"
+                            ? "Eligible to Return"
+                            : slot.status.charAt(0).toUpperCase() + slot.status.slice(1)}
                         </Badge>
                       </div>
                       <p className="text-xs text-gray-500">
@@ -172,6 +184,22 @@ export default async function IrPage({ params }: PageProps) {
                         <p className="text-xs text-red-700 bg-red-50 rounded px-2 py-1">
                           <span className="font-medium">Admin note:</span> {slot.adminNote}
                         </p>
+                      )}
+                      {slot.status === "return_eligible" && (
+                        <div className="mt-2">
+                          <p className="text-xs font-semibold text-amber-700 mb-1">
+                            Eligible to return — action required
+                          </p>
+                          <IrReturnActions
+                            requestId={slot.id}
+                            riderName={slot.riderName}
+                            leagueId={leagueId}
+                            activeRoster={activeRosterRiders.map((r) => ({
+                              riderId: r.riderId,
+                              riderName: r.riderName,
+                            }))}
+                          />
+                        </div>
                       )}
                     </>
                   ) : (

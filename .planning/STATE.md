@@ -1,100 +1,75 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: IR List & Roster Management
-status: completed
-stopped_at: Completed quick-16
-last_updated: "2026-03-07T13:08:13.634Z"
-last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
+milestone: v1.4
+milestone_name: TBD
+status: planning
+stopped_at: v1.3 archived — ready to define v1.4
+last_updated: "2026-03-07T00:00:00.000Z"
+last_activity: 2026-03-07 — v1.3 milestone completed and archived
 progress:
-  total_phases: 7
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
-  percent: 14
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-06)
+See: .planning/PROJECT.md (updated 2026-03-07)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
-**Current focus:** v1.3 IR List & Roster Management — Phase 20: IR Foundation & Admin Approval
+**Current focus:** v1.4 — to be defined
 
 ## Current Position
 
-Phase: 20 of 22 (IR Foundation & Admin Approval) — COMPLETE
-Plan: 3 of 3 complete
-Status: Phase 20 done — ready to advance to Phase 21
-Last activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
+Phase: — (no phases planned yet)
+Status: v1.3 archived — run /gsd:new-milestone to define v1.4
+Last activity: 2026-03-07 — v1.3 milestone completed and archived
 
-Progress: [█░░░░░░░░░] 14% (v1.3) | v1.0-v1.2: 19/19 phases complete
+Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 44+ (v1.0–v1.2)
+- Total plans completed: 51+ (v1.0–v1.3)
 - Average duration: ~165s (v1.1 baseline)
-- Total execution time: 11 days (v1.0) + 2029s (v1.1) + multiple sessions (v1.2)
+- Total execution time: 11 days (v1.0) + 2029s (v1.1) + multiple sessions (v1.2) + multiple sessions (v1.3)
 
-**v1.2 Summary:**
+**v1.3 Summary:**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
-| 16. Rider Profile Page | 2/2 | Complete — 2026-03-02 |
-| 17. Team Profile Page | 2/2 | Complete — 2026-03-03 |
-| 18. Race Lineup Accordion | — | Complete (quick-5) — 2026-03-06 |
-| 19. Season Standings History | 2/2 | Complete — 2026-03-06 |
+| 20. IR Foundation & Admin Approval | 3/3 | Complete — 2026-03-06 |
+| 21. Drop Rider | 1/1 | Complete — 2026-03-06 |
+| 22. IR Return Flow | 3/3 | Complete — 2026-03-07 |
 
-**Recent Trend:** Stable. v1.2 shipped same day as v1.1 — 4 phases, 6 plans, plus 9 quick tasks.
-| Phase 20-ir-foundation-admin-approval P01 | 60 | 2 tasks | 3 files |
-| Phase 20-ir-foundation-admin-approval P02 | 145 | 2 tasks | 3 files |
-| Phase 20-ir-foundation-admin-approval P03 | ~15min | 2 tasks | 7 files |
-| Phase 21-drop-rider P01 | 2 | 2 tasks | 4 files |
-| Phase 22-ir-return-flow P01 | 5 | 2 tasks | 3 files |
-| Phase 22-ir-return-flow P02 | 31536175 | 2 tasks | 4 files |
-| Phase 22-ir-return-flow P03 | 158 | 2 tasks | 6 files |
+**Quick Tasks (v1.3):** 16 completed (including post-audit GAP-01 and GAP-02 fixes)
 
 ## Accumulated Context
 
 ### Decisions
 
-Recent decisions relevant to v1.3:
+Recent decisions relevant to next milestone:
 
 - Phase 6: Waiver wire transfers — priority by standings, admin approval, transfer windows
 - Phase 6: Ownership-at-race-time — points stay with original team after transfer
 - Phase 15: bonus_riders separate table — distinct lifecycle from main roster
 - Phase 16-17: Three-query application-side assembly pattern — avoid SQL JSON_AGG complexity
-
-**v1.3 design decisions (from instructions):**
-- IR max 2 slots per team; approved riders freed from active roster limit
-- Return flow: admin marks eligible → player banner → transfer-blocked until rider returned
-- If roster full on return: player must drop someone first (ROST-01 is a prerequisite for IR-11)
-- Drop rider: instant, no approval, no waiver period
-- [Phase 20-ir-foundation-admin-approval]: IR status enum has 3 values (pending/approved/rejected) — no cancelled unlike transfer bids
-- [Phase 20-ir-foundation-admin-approval]: Migration applied as raw psql matching existing project SQL migration style
-- [Phase 20-ir-foundation-admin-approval]: getActiveRosterCount uses arithmetic: COUNT(draftPicks) - COUNT(approved irRequests)
-- [Phase 20-ir-foundation-admin-approval]: submitIrRequest uses inArray for status IN ('pending','approved') guard for both slot cap and duplicate checks
-- [Phase 20-ir-foundation-admin-approval P03]: IR form disabled when slotsUsed >= 2 (pending + approved count toward cap)
-- [Phase 20-ir-foundation-admin-approval P03]: IR-05 enforcement deferred to Phase 22 — getActiveRosterCount ready but no-outRider pickup path not yet exposed
-- [Phase 21-drop-rider]: dropRider hard-deletes draftPicks row instantly — no waiver or approval period (ROST-01)
-- [Phase 21-drop-rider]: IR cleanup on drop uses inArray(['pending','approved']); transfer bid cleanup uses status='cancelled'
-- [Phase 22-ir-return-flow]: return_eligible riders still free a roster slot — slot only closes again when status becomes returned
-- [Phase 22-ir-return-flow]: getEligibleToReturnCount added as standalone helper for Plan 03 UI banner and transfer form blocking
-- [Phase 22-ir-return-flow]: returnRider checks gender-specific active count via LEFT JOIN to exclude IR riders before allowing return
-- [Phase 22-ir-return-flow]: dropAndReturnRider uses sequential DB ops (not transaction) — acceptable for low-concurrency app
-- [Phase 22-ir-return-flow]: IR-09 transfer block guard placed before window check so return_eligible state takes precedence
-- [Phase 22-ir-return-flow]: IrReturnActions tries returnRider first; if error contains 'full', opens drop dialog — avoids needing gender on IrSlot
-- [Phase 22-ir-return-flow]: Transfer page blocking card is UI affordance only — server action already enforces the block
-- [Phase 22-ir-return-flow]: IR return banner is non-dismissible — re-fetched on every page load, disappears after rider returned
+- Phase 20: IR max 2 slots per team; approved riders freed from active roster limit
+- Phase 20: IR status enum has 3 values (pending/approved/rejected) — no cancelled unlike transfer bids
+- Phase 20: getActiveRosterCount uses arithmetic: COUNT(draftPicks) - COUNT(approved+return_eligible irRequests)
+- Phase 21: dropRider hard-deletes draftPicks row instantly — no waiver or approval period (ROST-01)
+- Phase 22: return_eligible riders still free a roster slot — slot only closes again when status becomes returned
+- Phase 22: IR-09 transfer block guard placed before window check so return_eligible state takes precedence
 
 ### Pending Todos
 
 None.
 
-### Quick Tasks Completed
+### Quick Tasks Completed (v1.3)
 
 | # | Description | Date | Commit |
 |---|-------------|------|--------|
@@ -108,7 +83,7 @@ None.
 | 8 | Fix scoring display bug — rider 268 | 2026-03-06 | 58a2933 |
 | 9 | Fix race startDate times to 12:00 UTC | 2026-03-06 | 6e39c54 |
 | 10 | Add riders to roster if space available without dropping a rider | 2026-03-06 | 59aed39 |
-| 11 | Reseed scoring DB with correct 2026 values (grand_tour_tdf, one-day tables, mini tour) | 2026-03-06 | f0875a6 |
+| 11 | Reseed scoring DB with correct 2026 values | 2026-03-06 | f0875a6 |
 | 12 | Add Michael Matthews and Neilson Powless to IR for team 11 | 2026-03-06 | 4d0077b |
 | 13 | Fix transfer form — IR'd riders free active slots, show On IR badge, non-selectable | 2026-03-06 | 38fe168 |
 | 14 | Retroactively recalculate all awarded points using updated 2026 scoring config | 2026-03-06 | 6d7408f |
@@ -123,6 +98,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07T13:08:13.632Z
-Stopped at: Completed quick-16
+Last session: 2026-03-07
+Stopped at: v1.3 archived — ready to define v1.4
 Resume file: None

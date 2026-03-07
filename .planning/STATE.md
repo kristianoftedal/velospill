@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: IR List & Roster Management
 status: completed
-stopped_at: Phase 22 context gathered
-last_updated: "2026-03-07T09:31:53.964Z"
+stopped_at: Phase 22 planned — 3 plans ready
+last_updated: "2026-03-07T09:44:28.077Z"
 last_activity: 2026-03-06 — Phase 20 complete, all 3 plans executed
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 4
+  total_plans: 7
   completed_plans: 4
   percent: 14
 ---
@@ -111,6 +111,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-07T09:31:53.963Z
-Stopped at: Phase 22 context gathered
-Resume file: .planning/phases/22-ir-return-flow/22-CONTEXT.md
+Last session: 2026-03-07T09:44:28.076Z
+Stopped at: Phase 22 planned — 3 plans ready
+Resume file: .planning/phases/22-ir-return-flow/22-01-PLAN.md

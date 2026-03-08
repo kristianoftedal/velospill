@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
 import { draftPicks } from "@/db/schema/draft"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
 import { eq, and, inArray, isNull, sql, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -189,11 +190,23 @@ export async function returnRider(
     }
   }
 
-  // Mark as returned
-  await db
-    .update(irRequests)
-    .set({ status: "returned", resolvedAt: new Date() })
-    .where(eq(irRequests.id, requestId))
+  // Mark as returned and update roster_slots atomically
+  await db.transaction(async (tx) => {
+    await tx
+      .update(irRequests)
+      .set({ status: "returned", resolvedAt: new Date() })
+      .where(eq(irRequests.id, requestId))
+
+    await tx
+      .update(rosterSlots)
+      .set({ status: "active" })
+      .where(
+        and(
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.riderId, request.riderId)
+        )
+      )
+  })
 
   revalidatePath(`/leagues/${leagueId}/ir`)
   revalidatePath(`/leagues/${leagueId}`)
@@ -278,19 +291,42 @@ export async function dropAndReturnRider(input: {
     return { success: false, error: "Cannot drop a rider who is currently on IR" }
   }
 
-  // Atomically: delete draftPick for dropped rider, then update IR to returned
-  await db.delete(draftPicks).where(
-    and(
-      eq(draftPicks.teamId, team.id),
-      eq(draftPicks.leagueId, leagueId),
-      eq(draftPicks.riderId, dropRiderId)
+  // Atomically: delete draftPick and roster_slots for dropped rider, update IR to returned, activate returning rider's slot
+  await db.transaction(async (tx) => {
+    // Delete draftPicks row for dropped rider
+    await tx.delete(draftPicks).where(
+      and(
+        eq(draftPicks.teamId, team.id),
+        eq(draftPicks.leagueId, leagueId),
+        eq(draftPicks.riderId, dropRiderId)
+      )
     )
-  )
 
-  await db
-    .update(irRequests)
-    .set({ status: "returned", resolvedAt: new Date() })
-    .where(eq(irRequests.id, requestId))
+    // Delete roster_slots row for dropped rider
+    await tx.delete(rosterSlots).where(
+      and(
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.riderId, dropRiderId)
+      )
+    )
+
+    // Update irRequests to returned
+    await tx
+      .update(irRequests)
+      .set({ status: "returned", resolvedAt: new Date() })
+      .where(eq(irRequests.id, requestId))
+
+    // Update returning rider's roster_slots to active
+    await tx
+      .update(rosterSlots)
+      .set({ status: "active" })
+      .where(
+        and(
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.riderId, request.riderId)
+        )
+      )
+  })
 
   revalidatePath(`/leagues/${leagueId}/ir`)
   revalidatePath(`/leagues/${leagueId}`)

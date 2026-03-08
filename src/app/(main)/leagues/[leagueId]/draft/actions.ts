@@ -3,6 +3,7 @@
 import { draftPicks, draftSessions } from "@/db/schema/draft";
 import { leagues, teams } from "@/db/schema/leagues";
 import { riders } from "@/db/schema/riders";
+import { rosterSlots } from "@/db/schema/roster-slots";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import {
@@ -272,6 +273,13 @@ export async function makePick(leagueId: number, riderId: number) {
       })
       .returning();
     insertedPick = p;
+
+    await tx.insert(rosterSlots).values({
+      leagueId,
+      teamId: team.id,
+      riderId,
+      status: "active",
+    });
 
     await tx
       .update(draftSessions)

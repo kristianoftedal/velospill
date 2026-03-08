@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
@@ -58,14 +59,26 @@ export async function approveIrRequest(
     return { success: false, error: "Request not found or not pending" }
   }
 
-  await db
-    .update(irRequests)
-    .set({
-      status: "approved",
-      resolvedAt: new Date(),
-      resolvedBy: session.user.id,
-    })
-    .where(eq(irRequests.id, requestId))
+  await db.transaction(async (tx) => {
+    await tx
+      .update(irRequests)
+      .set({
+        status: "approved",
+        resolvedAt: new Date(),
+        resolvedBy: session.user.id,
+      })
+      .where(eq(irRequests.id, requestId))
+
+    await tx
+      .update(rosterSlots)
+      .set({ status: "on_ir" })
+      .where(
+        and(
+          eq(rosterSlots.leagueId, request.leagueId),
+          eq(rosterSlots.riderId, request.riderId)
+        )
+      )
+  })
 
   revalidatePath("/admin/ir")
   revalidatePath(`/leagues/${request.leagueId}/ir`)
@@ -153,14 +166,26 @@ export async function markEligibleToReturn(
     return { success: false, error: "Request not found or not in approved status" }
   }
 
-  await db
-    .update(irRequests)
-    .set({
-      status: "return_eligible",
-      resolvedAt: new Date(),
-      resolvedBy: session.user.id,
-    })
-    .where(eq(irRequests.id, requestId))
+  await db.transaction(async (tx) => {
+    await tx
+      .update(irRequests)
+      .set({
+        status: "return_eligible",
+        resolvedAt: new Date(),
+        resolvedBy: session.user.id,
+      })
+      .where(eq(irRequests.id, requestId))
+
+    await tx
+      .update(rosterSlots)
+      .set({ status: "return_eligible" })
+      .where(
+        and(
+          eq(rosterSlots.leagueId, request.leagueId),
+          eq(rosterSlots.riderId, request.riderId)
+        )
+      )
+  })
 
   revalidatePath("/admin/ir")
   revalidatePath(`/leagues/${request.leagueId}/ir`)

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Roster Consolidation
 status: verifying
-stopped_at: Completed 25-01-PLAN.md
-last_updated: "2026-03-08T13:50:44.753Z"
+stopped_at: Completed 25-02-PLAN.md
+last_updated: "2026-03-08T13:51:27.124Z"
 last_activity: 2026-03-08 — Phase 24 write-path-wiring execution complete
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases c
 | Phase 23 P01 | 60 | 2 tasks | 3 files |
 | Phase 23-roster-slots-schema-migration P02 | 300 | 2 tasks | 1 files |
 | Phase 25 P01 | 75 | 2 tasks | 2 files |
+| Phase 25 P02 | 105 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,7 @@ Recent decisions relevant to next milestone:
 - [Phase 23-roster-slots-schema-migration]: Standalone backfill scripts use neon-http direct connection (not @/lib/db app client) for CLI portability
 - [Phase 25]: getActiveRosterCount: single SELECT COUNT(*) from roster_slots WHERE status='active' replaces two-query draftPicks-minus-irRequests subtraction
 - [Phase 25]: getTeamRoster: sources from rosterSlots innerJoin riders+draftPicks; isOnIR from status IN (on_ir, return_eligible); pickedAt still from draftPicks for ownership-at-race-time
+- [Phase 25]: Slot-check guards in submitTransferBid and returnRider now count from roster_slots WHERE status='active' joined to riders for gender — eliminates all draftPicks+irRequests join arithmetic for active roster size
 
 ### Pending Todos
 
@@ -108,6 +110,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-08T13:50:44.752Z
-Stopped at: Completed 25-01-PLAN.md
+Last session: 2026-03-08T13:51:27.122Z
+Stopped at: Completed 25-02-PLAN.md
 Resume file: None

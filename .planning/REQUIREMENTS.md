@@ -23,8 +23,8 @@ Requirements for the Roster Consolidation milestone. Each maps to a roadmap phas
 
 ### Read Paths
 
-- [ ] **RSLOT-09**: `getActiveRosterCount` reads directly from `roster_slots` — no more two-query arithmetic across `draftPicks` and `irRequests`
-- [ ] **RSLOT-10**: Team roster display reads from `roster_slots` instead of joining `draftPicks` + `irRequests`
+- [x] **RSLOT-09**: `getActiveRosterCount` reads directly from `roster_slots` — no more two-query arithmetic across `draftPicks` and `irRequests`
+- [x] **RSLOT-10**: Team roster display reads from `roster_slots` instead of joining `draftPicks` + `irRequests`
 - [ ] **RSLOT-11**: All slot-check guards in server actions (transfer bids, IR requests) use `roster_slots` counts
 
 ## Out of Scope
@@ -48,8 +48,8 @@ Requirements for the Roster Consolidation milestone. Each maps to a roadmap phas
 | RSLOT-06 | Phase 24 | Pending |
 | RSLOT-07 | Phase 24 | Pending |
 | RSLOT-08 | Phase 24 | Pending |
-| RSLOT-09 | Phase 25 | Pending |
-| RSLOT-10 | Phase 25 | Pending |
+| RSLOT-09 | Phase 25 | Complete |
+| RSLOT-10 | Phase 25 | Complete |
 | RSLOT-11 | Phase 25 | Pending |
 
 **Coverage:**

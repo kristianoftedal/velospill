@@ -157,7 +157,7 @@ Plans:
   2. Team roster display (transfer form, roster page) reads from `roster_slots`
   3. Slot-check guards in transfer and IR server actions use `roster_slots` counts
   4. No remaining code computes active roster count by joining `draftPicks` + `irRequests`
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 25-01-PLAN.md — Migrate getActiveRosterCount + getTeamRoster to read from roster_slots
@@ -191,4 +191,4 @@ Plans:
 | 22. IR Return Flow | v1.3 | 3/3 | Complete | 2026-03-07 |
 | 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
 | 24. Write Path Wiring | 3/3 | Complete    | 2026-03-08 | — |
-| 25. Read Path Migration & Cleanup | v1.4 | — | Pending | — |
+| 25. Read Path Migration & Cleanup | 1/2 | In Progress|  | — |

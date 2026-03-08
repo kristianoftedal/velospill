@@ -1,9 +1,9 @@
 import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
-import { draftPicks } from "@/db/schema/draft"
 import { leagues, teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
-import { eq, and, count, inArray } from "drizzle-orm"
+import { rosterSlots } from "@/db/schema/roster-slots"
+import { eq, and, count } from "drizzle-orm"
 
 export type IrSlot = {
   id: number
@@ -29,31 +29,22 @@ export type PendingIrRequest = {
 }
 
 /**
- * Returns the active roster count for a team:
- *   active = total draft picks - (approved OR return_eligible IR requests)
- * Both approved and return_eligible riders free a slot — they haven't returned yet.
+ * Returns the active roster count for a team.
+ * Reads directly from roster_slots WHERE status = 'active'.
+ * roster_slots is the authoritative source for current team composition.
  */
 export async function getActiveRosterCount(teamId: number, leagueId: number): Promise<number> {
-  const [picksResult] = await db
+  const [result] = await db
     .select({ value: count() })
-    .from(draftPicks)
-    .where(and(eq(draftPicks.teamId, teamId), eq(draftPicks.leagueId, leagueId)))
-
-  const [irResult] = await db
-    .select({ value: count() })
-    .from(irRequests)
+    .from(rosterSlots)
     .where(
       and(
-        eq(irRequests.teamId, teamId),
-        eq(irRequests.leagueId, leagueId),
-        inArray(irRequests.status, ["approved", "return_eligible"])
+        eq(rosterSlots.teamId, teamId),
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.status, "active")
       )
     )
-
-  const totalPicks = picksResult?.value ?? 0
-  const irCount = irResult?.value ?? 0
-
-  return Number(totalPicks) - Number(irCount)
+  return Number(result?.value ?? 0)
 }
 
 /**

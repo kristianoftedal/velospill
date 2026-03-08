@@ -5,7 +5,7 @@ import { irRequests } from "@/db/schema/ir"
 import { draftPicks } from "@/db/schema/draft"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
-import { eq, and, inArray, isNull, sql, count } from "drizzle-orm"
+import { eq, and, inArray, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
 
@@ -159,29 +159,21 @@ export async function returnRider(
   const MAX_WOMEN = 6
   const maxForGender = riderRecord.gender === "M" ? MAX_MEN : MAX_WOMEN
 
-  // Count active riders of same gender (excluding IR riders with approved/return_eligible status)
-  // return_eligible already frees the returning rider's slot, so active count + 1 (rider returning) must be <= max
-  const genderActiveCount = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(draftPicks)
-    .leftJoin(
-      irRequests,
-      and(
-        eq(irRequests.riderId, draftPicks.riderId),
-        eq(irRequests.teamId, team.id),
-        inArray(irRequests.status, ["approved", "return_eligible"])
-      )
-    )
+  // Count active roster slots for this gender to check if there is space
+  const [genderCountResult] = await db
+    .select({ value: count() })
+    .from(rosterSlots)
+    .innerJoin(riders, eq(riders.id, rosterSlots.riderId))
     .where(
       and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.gender, riderRecord.gender),
-        isNull(irRequests.id)
+        eq(rosterSlots.teamId, team.id),
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.status, "active"),
+        eq(riders.gender, riderRecord.gender)
       )
     )
 
-  const activeOfGender = Number(genderActiveCount[0]?.count ?? 0)
+  const activeOfGender = Number(genderCountResult?.value ?? 0)
 
   if (activeOfGender >= maxForGender) {
     return {

@@ -157,6 +157,11 @@ Plans:
   2. Team roster display (transfer form, roster page) reads from `roster_slots`
   3. Slot-check guards in transfer and IR server actions use `roster_slots` counts
   4. No remaining code computes active roster count by joining `draftPicks` + `irRequests`
+**Plans:** 2 plans
+
+Plans:
+- [ ] 25-01-PLAN.md — Migrate getActiveRosterCount + getTeamRoster to read from roster_slots
+- [ ] 25-02-PLAN.md — Migrate slot-check guards in submitTransferBid and returnRider to use roster_slots counts
 
 ## Progress
 

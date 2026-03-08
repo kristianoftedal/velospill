@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
 import { draftPicks } from "@/db/schema/draft"
 import { transferBids } from "@/db/schema/transfers"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { leagues } from "@/db/schema/leagues"
 import { eq, and, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -69,41 +70,53 @@ export async function dropRider(data: {
     return { success: false, error: "Rider is not on your team" }
   }
 
-  // 5. Delete the draftPicks row
-  await db
-    .delete(draftPicks)
-    .where(
-      and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, data.leagueId),
-        eq(draftPicks.riderId, data.riderId)
+  await db.transaction(async (tx) => {
+    // 5. Delete the draftPicks row
+    await tx
+      .delete(draftPicks)
+      .where(
+        and(
+          eq(draftPicks.teamId, team.id),
+          eq(draftPicks.leagueId, data.leagueId),
+          eq(draftPicks.riderId, data.riderId)
+        )
       )
-    )
 
-  // 6. Cleanup IR — hard-delete pending or approved IR requests for this rider
-  await db
-    .delete(irRequests)
-    .where(
-      and(
-        eq(irRequests.teamId, team.id),
-        eq(irRequests.leagueId, data.leagueId),
-        eq(irRequests.riderId, data.riderId),
-        inArray(irRequests.status, ["pending", "approved", "return_eligible"])
+    // 5b. Delete the roster_slots row
+    await tx
+      .delete(rosterSlots)
+      .where(
+        and(
+          eq(rosterSlots.leagueId, data.leagueId),
+          eq(rosterSlots.riderId, data.riderId)
+        )
       )
-    )
 
-  // 7. Cleanup transfer bids — cancel pending bids with this rider as outgoing
-  await db
-    .update(transferBids)
-    .set({ status: "cancelled" })
-    .where(
-      and(
-        eq(transferBids.teamId, team.id),
-        eq(transferBids.leagueId, data.leagueId),
-        eq(transferBids.outRiderId, data.riderId),
-        eq(transferBids.status, "pending")
+    // 6. Cleanup IR — hard-delete pending or approved IR requests for this rider
+    await tx
+      .delete(irRequests)
+      .where(
+        and(
+          eq(irRequests.teamId, team.id),
+          eq(irRequests.leagueId, data.leagueId),
+          eq(irRequests.riderId, data.riderId),
+          inArray(irRequests.status, ["pending", "approved", "return_eligible"])
+        )
       )
-    )
+
+    // 7. Cleanup transfer bids — cancel pending bids with this rider as outgoing
+    await tx
+      .update(transferBids)
+      .set({ status: "cancelled" })
+      .where(
+        and(
+          eq(transferBids.teamId, team.id),
+          eq(transferBids.leagueId, data.leagueId),
+          eq(transferBids.outRiderId, data.riderId),
+          eq(transferBids.status, "pending")
+        )
+      )
+  })
 
   // 8. Revalidate
   revalidatePath(`/leagues/${data.leagueId}/roster`)

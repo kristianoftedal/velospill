@@ -4,7 +4,7 @@ import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
 import { teams, leagueRaces } from "@/db/schema/leagues"
-import { irRequests } from "@/db/schema/ir"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { getLeagueStandings } from "@/lib/scoring-queries"
 import { eq, and, notInArray, lte, gt, gte, desc, count, isNull, asc, sql } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
@@ -38,36 +38,37 @@ export async function getFreeAgents(leagueId: number, gender: "M" | "F") {
 }
 
 /**
- * Returns all riders on a team via draftPicks, joined with riders for name/team/gender.
+ * Returns all riders on a team roster via roster_slots, joined with riders for metadata
+ * and draftPicks for pickedAt + pickNumber (needed for ownership-at-race-time context).
+ * isOnIR derived from roster_slots.status IN ('on_ir', 'return_eligible').
  * Ordered by gender (M first), then rider name.
  */
 export async function getTeamRoster(teamId: number, leagueId: number) {
   return db
     .select({
-      riderId: draftPicks.riderId,
+      riderId: rosterSlots.riderId,
       riderName: riders.name,
       riderTeam: riders.team,
       gender: riders.gender,
       nationality: riders.nationality,
       pickNumber: draftPicks.pickNumber,
       pickedAt: draftPicks.pickedAt,
-      isOnIR: sql<boolean>`${irRequests.id} IS NOT NULL`.as("isOnIR"),
+      isOnIR: sql<boolean>`${rosterSlots.status} IN ('on_ir', 'return_eligible')`.as("isOnIR"),
     })
-    .from(draftPicks)
-    .innerJoin(riders, eq(riders.id, draftPicks.riderId))
-    .leftJoin(
-      irRequests,
+    .from(rosterSlots)
+    .innerJoin(riders, eq(riders.id, rosterSlots.riderId))
+    .innerJoin(
+      draftPicks,
       and(
-        eq(irRequests.riderId, draftPicks.riderId),
-        eq(irRequests.teamId, draftPicks.teamId),
-        eq(irRequests.leagueId, draftPicks.leagueId),
-        eq(irRequests.status, "approved")
+        eq(draftPicks.riderId, rosterSlots.riderId),
+        eq(draftPicks.teamId, rosterSlots.teamId),
+        eq(draftPicks.leagueId, rosterSlots.leagueId)
       )
     )
     .where(
       and(
-        eq(draftPicks.teamId, teamId),
-        eq(draftPicks.leagueId, leagueId)
+        eq(rosterSlots.teamId, teamId),
+        eq(rosterSlots.leagueId, leagueId)
       )
     )
     .orderBy(riders.gender, riders.name)

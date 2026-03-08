@@ -141,7 +141,7 @@ Plans:
   3. Approving a transfer moves the rider's row to the new team
   4. Approving an IR request sets the rider's status to `on_ir`
   5. Marking return-eligible sets status to `return_eligible`; returning sets it back to `active`
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 24-01-PLAN.md — Wire draft picks: makePick + auto-pick route insert active row into roster_slots (RSLOT-03)
@@ -185,5 +185,5 @@ Plans:
 | 21. Drop Rider | v1.3 | 1/1 | Complete | 2026-03-06 |
 | 22. IR Return Flow | v1.3 | 3/3 | Complete | 2026-03-07 |
 | 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
-| 24. Write Path Wiring | v1.4 | 3 plans | Pending | — |
+| 24. Write Path Wiring | 3/3 | Complete   | 2026-03-08 | — |
 | 25. Read Path Migration & Cleanup | v1.4 | — | Pending | — |

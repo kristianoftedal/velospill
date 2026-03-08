@@ -5,7 +5,7 @@ import { transferBids, transferAudit } from "@/db/schema/transfers"
 import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, sql, isNull, inArray } from "drizzle-orm"
+import { eq, and, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import {
@@ -18,6 +18,7 @@ import {
   getTeamBudget,
 } from "@/lib/transfer-queries"
 import { irRequests } from "@/db/schema/ir"
+import { rosterSlots } from "@/db/schema/roster-slots"
 
 const submitBidSchema = z.object({
   leagueId: z.number(),
@@ -136,31 +137,23 @@ export async function submitTransferBid(formData: {
     }
   } else {
     // Pickup without drop: verify team has an available roster slot for this gender.
-    // Active count = draftPicks (for this gender) minus approved IR riders (they free a slot).
     const MAX_MEN = 18
     const MAX_WOMEN = 6
-    const currentGenderCount = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(draftPicks)
-      .leftJoin(
-        irRequests,
-        and(
-          eq(irRequests.riderId, draftPicks.riderId),
-          eq(irRequests.teamId, team.id),
-          inArray(irRequests.status, ["approved", "return_eligible"])
-        )
-      )
+    const [genderCountResult] = await db
+      .select({ value: count() })
+      .from(rosterSlots)
+      .innerJoin(riders, eq(riders.id, rosterSlots.riderId))
       .where(
         and(
-          eq(draftPicks.teamId, team.id),
-          eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.gender, inRiderRecord.gender),
-          isNull(irRequests.id)
+          eq(rosterSlots.teamId, team.id),
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.status, "active"),
+          eq(riders.gender, inRiderRecord.gender)
         )
       )
-    const count = Number(currentGenderCount[0]?.count ?? 0)
+    const activeCount = Number(genderCountResult?.value ?? 0)
     const max = inRiderRecord.gender === "M" ? MAX_MEN : MAX_WOMEN
-    if (count >= max) {
+    if (activeCount >= max) {
       return {
         success: false,
         error: `Your roster is full for ${inRiderRecord.gender === "M" ? "men" : "women"} (${max} max). Drop a rider first.`,

@@ -1,5 +1,6 @@
 import { draftPicks, draftSessions } from "@/db/schema/draft";
 import { teams, leagues } from "@/db/schema/leagues";
+import { rosterSlots } from "@/db/schema/roster-slots";
 import { db } from "@/lib/db";
 import {
   computeNextDraftState,
@@ -159,6 +160,13 @@ async function handler(request: NextRequest) {
       })
       .returning();
     insertedPick = p;
+
+    await tx.insert(rosterSlots).values({
+      leagueId,
+      teamId: currentTeamId,
+      riderId: rider.id,
+      status: "active",
+    });
 
     await tx
       .update(draftSessions)

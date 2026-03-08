@@ -185,5 +185,5 @@ Plans:
 | 21. Drop Rider | v1.3 | 1/1 | Complete | 2026-03-06 |
 | 22. IR Return Flow | v1.3 | 3/3 | Complete | 2026-03-07 |
 | 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
-| 24. Write Path Wiring | 3/3 | Complete   | 2026-03-08 | — |
+| 24. Write Path Wiring | 3/3 | Complete    | 2026-03-08 | — |
 | 25. Read Path Migration & Cleanup | v1.4 | — | Pending | — |

@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { transferBids, transferWindows, transferAudit } from "@/db/schema/transfers"
 import { draftPicks } from "@/db/schema/draft"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
 import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
@@ -145,6 +146,13 @@ export async function approveBid(bidId: number) {
       // Step 5: Delete old draftPick (only for swaps, not free-slot pickups)
       if (currentPick) {
         await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
+        // Delete outgoing rider's roster_slots row
+        await tx.delete(rosterSlots).where(
+          and(
+            eq(rosterSlots.leagueId, bid.leagueId),
+            eq(rosterSlots.riderId, bid.outRiderId!)
+          )
+        )
       }
 
       // Step 6: Insert new draftPick
@@ -160,6 +168,23 @@ export async function approveBid(bidId: number) {
         wasAutomatic: false,
         pickedAt: new Date(),
       })
+
+      // Insert (or update if stale row exists) roster_slots for incoming rider
+      await tx
+        .insert(rosterSlots)
+        .values({
+          leagueId: bid.leagueId,
+          teamId: bid.teamId,
+          riderId: bid.inRiderId,
+          status: "active",
+        })
+        .onConflictDoUpdate({
+          target: [rosterSlots.leagueId, rosterSlots.riderId],
+          set: {
+            teamId: bid.teamId,
+            status: "active",
+          },
+        })
 
       // Step 7: Update bid status
       await tx

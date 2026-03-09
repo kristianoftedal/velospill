@@ -66,6 +66,12 @@ export default async function AdminLayout({
             >
               Orders
             </Link>
+            <Link
+              href="/admin/ir"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Injured Reserve
+            </Link>
           </nav>
           <Link
             href="/home"

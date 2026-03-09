@@ -75,7 +75,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                   <TableRow key={bid.bidId}>
                     <TableCell className="font-medium">{bid.leagueName}</TableCell>
                     <TableCell>{bid.teamName}</TableCell>
-                    <TableCell className="text-red-600">{bid.outRiderName}</TableCell>
+                    <TableCell className="text-red-600">{bid.outRiderName ?? <span className="text-gray-400 italic">free slot</span>}</TableCell>
                     <TableCell className="text-green-600">{bid.inRiderName}</TableCell>
                     <TableCell>{bid.bidAmount} EUR</TableCell>
                     <TableCell className="text-muted-foreground max-w-[200px] truncate">
@@ -139,7 +139,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                   <TableRow key={bid.bidId}>
                     <TableCell className="font-medium">{bid.leagueName}</TableCell>
                     <TableCell>{bid.teamName}</TableCell>
-                    <TableCell>{bid.outRiderName}</TableCell>
+                    <TableCell>{bid.outRiderName ?? <span className="text-gray-400 italic">free slot</span>}</TableCell>
                     <TableCell>{bid.inRiderName}</TableCell>
                     <TableCell>{bid.bidAmount} EUR</TableCell>
                     <TableCell>

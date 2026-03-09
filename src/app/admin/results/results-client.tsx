@@ -177,7 +177,7 @@ export function ResultsClient({ races, riders }: Props) {
         <p className="text-muted-foreground">Loading...</p>
       </CardContent>
     </Card>
-  ) : existingResults ? (
+  ) : existingResults && !selectedCategory ? (
     <>
       <Tabs defaultValue="results" className="w-full">
         <TabsList>

@@ -48,13 +48,55 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 12 | Counter returns order to attacker (no blowback) | Simpler mechanics, more reuse, less punishing for attacker | 14 | Good |
 | 13 | bonus_riders separate table (not raceResults) | Bonus riders have distinct lifecycle (per-GT, no race scoping) | 15 | Good |
 
-## Current Milestone: v1.2 Player Visibility
+## Key Decisions (continued from v1.2)
 
-**Goal:** Give players a rich view of the season — rider profiles, team details, race lineups, and standings history.
+| # | Decision | Rationale | Phase | Outcome |
+|---|----------|-----------|-------|---------|
+| 14 | Three-query application-side assembly pattern | Avoids SQL JSON_AGG complexity; reusable across rider/team/standings queries | 16–19 | Good |
+| 15 | COALESCE(parentRaceId, id) for stage roll-up | Groups stage results to parent race without schema changes | 19 | Good |
+| 16 | recharts via shadcn chart component | Consistent with shadcn/ui stack; CSS chart vars already defined | 19 | Good |
+| 17 | Separate /standings/history page (not inline tab) | More space for chart + table; keeps league page lean | 19 | Good |
+
+## Current Milestone: v1.3 IR List & Roster Management
+
+**Goal:** Give players tools to manage injured riders via an IR list and drop riders freely, with admin approval flow for IR placements.
 
 **Target features:**
-- Rider profile pages with season stats (points per race, categories, ownership history)
-- Race lineup accordion in league page (visible once set, scores once posted)
+- Injured Reserve (IR) list — up to 2 riders per team, admin approval, frees roster slot
+- Rider return flow — admin marks eligible, player must return before transfers, drop mechanic for roster room
+- Drop rider — general action to instantly drop any rider from the roster
+
+---
+
+## Previous Milestone: v1.2 Player Visibility — SHIPPED 2026-03-06
+
+**Delivered:** Full player visibility suite — rider profiles, team profiles, race lineup accordions, and season standings history with recharts chart.
+
+## Current State
+
+- **Version:** v1.2 shipped (2026-03-06)
+- **Phases:** 19 phases, 44+ plans executed (v1.0 + v1.1 + v1.2)
+- **Codebase:** ~26,011 LOC TypeScript
+- **Next milestone:** v1.3 IR List & Roster Management
+
+### What Shipped (v1.2)
+
+- Rider profile pages — `/riders/[riderId]` with season total, per-race breakdown, scoring categories, ownership history
+- Team profile pages — `/leagues/[leagueId]/teams/[teamId]` with roster accordion + per-rider per-race points
+- Race lineup accordion on league page — per-team lineup cards for upcoming races + recent results with fantasy team badges
+- Season standings history — `/standings/history` with recharts cumulative line chart + scrollable race-by-race table
+
+### Known Limitations / Tech Debt (carried from v1.1)
+
+- `npm run build` fails due to drizzle-kit 0.18.x type error (DEBT-01)
+- Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (DEBT-02–04)
+- Shimanobil counter uses simplified team matching (DEBT-05)
+- Unused `Tooltip` import + unused `leagueId` prop in history-client.tsx (minor, non-blocking)
+
+## Active Requirements (v1.3)
+
+- IR list with admin approval flow (IR-01 through IR-11)
+- Drop rider general action (ROST-01)
 - Season standings chart — cumulative points per team across all races
 - Race-by-race breakdown table with running totals
 - Team profile page — full squad roster + scoring history per race
@@ -86,4 +128,4 @@ Complete cycling fantasy league platform with 2026 season ruleset:
 - Phase 12 VERIFICATION.md never created (code works, integration verified — accepted gap)
 
 ---
-*Last updated: 2026-02-26 after v1.2 milestone started*
+*Last updated: 2026-03-06 after v1.2 milestone shipped*

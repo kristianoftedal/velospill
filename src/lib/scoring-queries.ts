@@ -6,7 +6,7 @@ import { raceResults } from "@/db/schema/results"
 import { races } from "@/db/schema/races"
 import { raceLineups } from "@/db/schema/lineups"
 import { bonusRiders } from "@/db/schema/bonus-riders"
-import { eq, desc, sql, and, asc, gte, lte, or } from "drizzle-orm"
+import { eq, desc, sql, and, asc, gte, lte, or, isNull } from "drizzle-orm"
 
 /**
  * Lineup filter: if a lineup exists for this team/race, only riders in the lineup score.
@@ -630,5 +630,229 @@ export async function getRaceScoreBreakdownWithOrders(
     entries,
     counterResults,
     hasOrders: true,
+  }
+}
+
+// ─── Standings History ─────────────────────────────────────────────────────────
+
+export type RaceColumn = {
+  raceId: number
+  raceName: string
+  raceType: string
+  startDate: Date
+}
+
+export type TeamRacePoints = {
+  teamId: number
+  teamName: string
+  userId: string
+  pointsByRace: Record<number, number>   // raceId -> points earned in that race
+  cumulativeByRace: Record<number, number> // raceId -> cumulative total up to and including that race
+  totalPoints: number
+}
+
+export type StandingsHistory = {
+  races: RaceColumn[]
+  teams: TeamRacePoints[]
+}
+
+/**
+ * Returns per-team per-race points and cumulative totals for all completed parent races
+ * in a league season. Races are ordered chronologically (startDate ASC).
+ *
+ * Only parent races (parentRaceId IS NULL) appear as columns — stage results roll up
+ * to their parent race. Only races with at least one result appear as columns.
+ *
+ * Uses the same ownership-at-race-time and league-scoping patterns as getLeagueStandings.
+ * Bonus rider points (from Uno-X orders) are included per parent race.
+ */
+export async function getStandingsHistory(leagueId: number, season: number): Promise<StandingsHistory> {
+  // Step A: Get completed parent races for this league, ordered by startDate ASC.
+  // A race is "completed" if at least one raceResult exists that belongs to this league.
+  const parentRaceRows = await db
+    .select({
+      raceId: races.id,
+      raceName: races.name,
+      raceType: races.raceType,
+      startDate: races.startDate,
+    })
+    .from(races)
+    .innerJoin(raceResults, eq(raceResults.raceId, races.id))
+    .innerJoin(
+      draftPicks,
+      and(
+        eq(draftPicks.riderId, raceResults.riderId),
+        eq(draftPicks.leagueId, leagueId)
+      )
+    )
+    .where(
+      and(
+        isNull(races.parentRaceId),
+        eq(races.season, season),
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+      )
+    )
+    .groupBy(races.id, races.name, races.raceType, races.startDate)
+    .orderBy(asc(races.startDate))
+
+  // Deduplicate races (multiple join rows can produce duplicates before group-by settles)
+  const seenRaceIds = new Set<number>()
+  const raceColumns: RaceColumn[] = []
+  for (const row of parentRaceRows) {
+    if (!seenRaceIds.has(row.raceId)) {
+      seenRaceIds.add(row.raceId)
+      raceColumns.push({
+        raceId: row.raceId,
+        raceName: row.raceName,
+        raceType: row.raceType,
+        startDate: row.startDate,
+      })
+    }
+  }
+
+  if (raceColumns.length === 0) {
+    // No completed races yet — return empty result with all teams at zero
+    const teamRows = await db
+      .select({ teamId: teams.id, teamName: teams.name, userId: teams.userId })
+      .from(teams)
+      .where(eq(teams.leagueId, leagueId))
+
+    return {
+      races: [],
+      teams: teamRows.map((t) => ({
+        teamId: t.teamId,
+        teamName: t.teamName,
+        userId: t.userId,
+        pointsByRace: {},
+        cumulativeByRace: {},
+        totalPoints: 0,
+      })),
+    }
+  }
+
+  // Step B: Per-team per-parent-race points using ownership-at-race-time.
+  // COALESCE(races.parentRaceId, races.id) buckets stage results under their parent.
+  const perRacePointsRows = await db
+    .select({
+      teamId: teams.id,
+      teamName: teams.name,
+      userId: teams.userId,
+      parentRaceId: sql<number>`COALESCE(${races.parentRaceId}, ${races.id})`,
+      racePoints: sql<number>`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`,
+    })
+    .from(teams)
+    .leftJoin(
+      draftPicks,
+      and(
+        eq(draftPicks.teamId, teams.id),
+        eq(draftPicks.leagueId, leagueId)
+      )
+    )
+    .leftJoin(raceResults, eq(raceResults.riderId, draftPicks.riderId))
+    .leftJoin(
+      races,
+      and(
+        eq(races.id, raceResults.raceId),
+        eq(races.season, season),
+        gte(races.startDate, draftPicks.pickedAt),  // ownership-at-race-time
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+      )
+    )
+    .where(eq(teams.leagueId, leagueId))
+    .groupBy(
+      teams.id,
+      teams.name,
+      teams.userId,
+      sql`COALESCE(${races.parentRaceId}, ${races.id})`
+    )
+
+  // Step C: Bonus rider points per parent race (mirror getLeagueStandings bonus query).
+  const bonusPerRaceRows = await db
+    .select({
+      teamId: bonusRiders.teamId,
+      parentRaceId: bonusRiders.raceId,
+      bonusPoints: sql<number>`COALESCE(SUM(${raceResults.points}), 0)`,
+    })
+    .from(bonusRiders)
+    .innerJoin(raceResults, eq(raceResults.riderId, bonusRiders.riderId))
+    .innerJoin(races, eq(races.id, raceResults.raceId))
+    .where(
+      and(
+        eq(bonusRiders.leagueId, leagueId),
+        eq(races.season, season),
+        or(
+          eq(races.id, bonusRiders.raceId),
+          eq(races.parentRaceId, bonusRiders.raceId)
+        ),
+        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+      )
+    )
+    .groupBy(bonusRiders.teamId, bonusRiders.raceId)
+
+  // Step D: Application-side assembly.
+
+  // Build bonus lookup: teamId -> parentRaceId -> bonusPoints
+  const bonusMap = new Map<number, Map<number, number>>()
+  for (const row of bonusPerRaceRows) {
+    if (!bonusMap.has(row.teamId)) bonusMap.set(row.teamId, new Map())
+    const teamBonus = bonusMap.get(row.teamId)!
+    teamBonus.set(row.parentRaceId, (teamBonus.get(row.parentRaceId) ?? 0) + Number(row.bonusPoints))
+  }
+
+  // Collect all unique teams from Step B rows (deduplicate by teamId)
+  const teamMap = new Map<number, { teamId: number; teamName: string; userId: string }>()
+  for (const row of perRacePointsRows) {
+    if (!teamMap.has(row.teamId)) {
+      teamMap.set(row.teamId, { teamId: row.teamId, teamName: row.teamName, userId: row.userId })
+    }
+  }
+
+  // Build per-team per-race points map: teamId -> parentRaceId -> draftPoints
+  const draftPointsMap = new Map<number, Map<number, number>>()
+  for (const row of perRacePointsRows) {
+    if (row.parentRaceId == null) continue
+    if (!seenRaceIds.has(Number(row.parentRaceId))) continue
+    if (!draftPointsMap.has(row.teamId)) draftPointsMap.set(row.teamId, new Map())
+    const teamRaceMap = draftPointsMap.get(row.teamId)!
+    const existing = teamRaceMap.get(Number(row.parentRaceId)) ?? 0
+    teamRaceMap.set(Number(row.parentRaceId), existing + Number(row.racePoints))
+  }
+
+  // Assemble final team entries
+  const resultTeams: TeamRacePoints[] = Array.from(teamMap.values()).map((team) => {
+    const draftRaceMap = draftPointsMap.get(team.teamId) ?? new Map<number, number>()
+    const teamBonusMap = bonusMap.get(team.teamId) ?? new Map<number, number>()
+
+    const pointsByRace: Record<number, number> = {}
+    for (const col of raceColumns) {
+      const draft = draftRaceMap.get(col.raceId) ?? 0
+      const bonus = teamBonusMap.get(col.raceId) ?? 0
+      pointsByRace[col.raceId] = draft + bonus
+    }
+
+    // Compute cumulative points in race-date order
+    const cumulativeByRace: Record<number, number> = {}
+    let running = 0
+    for (const col of raceColumns) {
+      running += pointsByRace[col.raceId] ?? 0
+      cumulativeByRace[col.raceId] = running
+    }
+
+    return {
+      teamId: team.teamId,
+      teamName: team.teamName,
+      userId: team.userId,
+      pointsByRace,
+      cumulativeByRace,
+      totalPoints: running,
+    }
+  })
+
+  // Sort teams by totalPoints DESC
+  resultTeams.sort((a, b) => b.totalPoints - a.totalPoints)
+
+  return {
+    races: raceColumns,
+    teams: resultTeams,
   }
 }

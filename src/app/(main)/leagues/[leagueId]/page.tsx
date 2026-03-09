@@ -3,6 +3,13 @@ import { notFound } from "next/navigation"
 import { format } from "date-fns"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import {
   Table,
   TableBody,
@@ -13,6 +20,7 @@ import {
 } from "@/components/ui/table"
 import { getLeagueDetails } from "./actions"
 import { getLeagueStandingsWithOrders, getTeamRiderScores, getLeagueRacesWithScores } from "@/lib/scoring-queries"
+import { getUpcomingRacesWithLineups, getRecentRaceResults, UpcomingRaceWithLineups, RecentRaceResult } from "@/lib/league-overview-queries"
 import { StandingsClient } from "./standings/standings-client"
 import { LeagueConfig } from "@/db/schema/leagues"
 
@@ -21,6 +29,26 @@ const statusColors: Record<string, string> = {
   drafting: "bg-yellow-100 text-yellow-800",
   active: "bg-green-100 text-green-800",
   complete: "bg-gray-100 text-gray-800",
+}
+
+const raceTypeLabels: Record<string, string> = {
+  grand_tour: "Grand Tour",
+  high_priority_one_day: "Major One-Day",
+  low_priority_one_day: "One-Day",
+  mini_tour: "Mini Tour",
+  womens_grand_tour: "Women's Grand Tour",
+  womens_one_day: "Women's One-Day",
+  world_championship: "World Championship",
+}
+
+const raceTypeColors: Record<string, string> = {
+  grand_tour: "bg-blue-100 text-blue-800",
+  high_priority_one_day: "bg-purple-100 text-purple-800",
+  low_priority_one_day: "bg-gray-100 text-gray-800",
+  mini_tour: "bg-green-100 text-green-800",
+  womens_grand_tour: "bg-pink-100 text-pink-800",
+  womens_one_day: "bg-rose-100 text-rose-800",
+  world_championship: "bg-amber-100 text-amber-800",
 }
 
 interface PageProps {
@@ -66,15 +94,17 @@ export default async function LeagueDetailPage({ params }: PageProps) {
 
   const { league, teams, isOwner, userTeamId } = details
 
-  // Fetch standings data if league is active or complete
+  // Fetch standings + overview data if league is active or complete
   let standings = null
   let myTeamRiders = null
   let races = null
-  
+  let upcomingRaces: UpcomingRaceWithLineups[] = []
+  let recentResults: RecentRaceResult[] = []
+
   if ((league.status === "active" || league.status === "complete") && league.config) {
     const config = league.config as LeagueConfig
     const seasonYear = config.seasonYear
-    
+
     ;[standings, myTeamRiders, races] = await Promise.all([
       getLeagueStandingsWithOrders(league.id, seasonYear),
       userTeamId != null
@@ -82,6 +112,14 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         : Promise.resolve(null),
       getLeagueRacesWithScores(league.id, seasonYear),
     ])
+    const [fetchedUpcoming, fetchedRecent] = await Promise.all([
+      getUpcomingRacesWithLineups(league.id),
+      getRecentRaceResults(league.id),
+    ])
+    upcomingRaces = fetchedUpcoming
+    recentResults = fetchedRecent
+  } else if (league.status === "drafting") {
+    upcomingRaces = await getUpcomingRacesWithLineups(league.id)
   }
 
   // Find user's team for standings highlighting
@@ -89,6 +127,17 @@ export default async function LeagueDetailPage({ params }: PageProps) {
     ? standings.find((s) => s.teamId === userTeamId) ?? null
     : null
   const userTeamName = userStanding?.teamName ?? null
+
+  const showActions = league.status === "active" || league.status === "drafting"
+
+  // Show "View Draft" button only within 5 days of the draft completing
+  // updatedAt is set to now() when status transitions, so for active leagues
+  // it records when drafting -> active happened
+  const FIVE_DAYS_MS = 5 * 24 * 60 * 60 * 1000
+  const showViewDraft =
+    league.status === "drafting" ||
+    (league.status === "active" &&
+      Date.now() - new Date(league.updatedAt).getTime() <= FIVE_DAYS_MS)
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -116,11 +165,60 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Actions — inline row of buttons, first content after header */}
+      {showActions && (
+        <div className="flex flex-wrap gap-2">
+          {showViewDraft && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/draft`}>
+                {league.status === "drafting" ? "Go to Draft" : "View Draft"}
+              </Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/transfers`}>Transfers</Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/lineup`}>Set Lineup</Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/orders`}>Orders</Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/ir`}>Injured Reserve</Link>
+            </Button>
+          )}
+          {league.status === "active" && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/roster`}>Manage Roster</Link>
+            </Button>
+          )}
+          {isOwner && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/leagues/${league.id}/owner`}>League Settings</Link>
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Standings — show when league is active or complete */}
       {standings && (league.status === "active" || league.status === "complete") && (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">League Standings</CardTitle>
+            <Link
+              href={`/leagues/${league.id}/standings/history`}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Season History →
+            </Link>
           </CardHeader>
           <CardContent>
             <StandingsClient
@@ -135,101 +233,8 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Draft Link — show when league is in drafting status or has draft session */}
-      {(league.status === "drafting" || league.status === "active") && (
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">
-                  {league.status === "drafting" ? "Draft is ready!" : "Draft completed"}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {league.status === "drafting"
-                    ? "Join the draft room to pick your riders"
-                    : "View your draft picks and team roster"
-                  }
-                </p>
-              </div>
-              <Link
-                href={`/leagues/${league.id}/draft`}
-                className="px-4 py-2 rounded-md bg-yellow-500 text-white text-sm font-medium hover:bg-yellow-600 transition-colors"
-              >
-                {league.status === "drafting" ? "Go to Draft" : "View Draft"}
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Transfers Link — show when league is active */}
-      {league.status === "active" && (
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">Transfers</p>
-                <p className="text-sm text-gray-500">
-                  Browse free agents and submit transfer bids
-                </p>
-              </div>
-              <Link
-                href={`/leagues/${league.id}/transfers`}
-                className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                Go to Transfers
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Race Lineup Link — show when league is active */}
-      {league.status === "active" && (
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">Race Lineup</p>
-                <p className="text-sm text-gray-500">
-                  Set your starting lineup for upcoming races
-                </p>
-              </div>
-              <Link
-                href={`/leagues/${league.id}/lineup`}
-                className="px-4 py-2 rounded-md bg-orange-600 text-white text-sm font-medium hover:bg-orange-700 transition-colors"
-              >
-                Set Lineup
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Strategic Orders Link — show when league is active */}
-      {league.status === "active" && (
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-gray-900">Strategic Orders</p>
-                <p className="text-sm text-gray-500">
-                  Deploy orders to boost your riders or sabotage opponents
-                </p>
-              </div>
-              <Link
-                href={`/leagues/${league.id}/orders`}
-                className="px-4 py-2 rounded-md bg-purple-600 text-white text-sm font-medium hover:bg-purple-700 transition-colors"
-              >
-                Go to Orders
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Owner Settings Link — owner only */}
-      {isOwner && (
+      {/* Owner Settings — show for setup/complete leagues where showActions is false */}
+      {!showActions && isOwner && (
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-4">
             <div className="flex items-center justify-between">
@@ -239,13 +244,121 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                   Manage races, invitations, and league status
                 </p>
               </div>
-              <Link
-                href={`/leagues/${league.id}/owner`}
-                className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                Go to Settings
-              </Link>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/leagues/${league.id}/owner`}>
+                  Go to Settings
+                </Link>
+              </Button>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Upcoming Races section — show when active/drafting and there are upcoming races */}
+      {(league.status === "active" || league.status === "drafting") && upcomingRaces.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Upcoming Races</h2>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="multiple" className="w-full">
+              {upcomingRaces.map((race) => (
+                <AccordionItem key={race.raceId} value={String(race.raceId)}>
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3 text-left">
+                      <span className="font-medium">{race.raceName}</span>
+                      <span className="text-sm text-gray-500">
+                        {format(race.startDate, "d MMM yyyy")}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          raceTypeColors[race.raceType] ?? raceTypeColors.low_priority_one_day
+                        }`}
+                      >
+                        {raceTypeLabels[race.raceType] ?? race.raceType}
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                      {race.teams.map((team) => (
+                        <div key={team.teamId} className="bg-gray-50 rounded-md p-3">
+                          <p className="text-sm font-semibold text-gray-900 mb-1">
+                            {team.teamName}
+                          </p>
+                          {team.riders.length === 0 ? (
+                            <p className="text-xs text-muted-foreground">(no lineup set)</p>
+                          ) : (
+                            <p className="text-xs text-gray-600">
+                              {team.riders.map((r) => r.riderName).join(", ")}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recent Results section — show when active/complete and there are results */}
+      {(league.status === "active" || league.status === "complete") && recentResults.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Recent Results</h2>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="multiple" className="w-full">
+              {recentResults.map((race) => {
+                const totalPoints = race.results.reduce((sum: number, r) => sum + r.points, 0)
+                return (
+                  <AccordionItem key={race.raceId} value={String(race.raceId)}>
+                    <AccordionTrigger className="hover:no-underline">
+                      <div className="flex items-center gap-3 text-left">
+                        <span className="font-medium">{race.raceName}</span>
+                        <span className="text-sm text-gray-500">
+                          {format(race.startDate, "d MMM yyyy")}
+                        </span>
+                        <span className="text-xs font-medium text-primary">
+                          {totalPoints} pts
+                        </span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-1 pt-2">
+                        {race.results.map((result, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-2 py-1.5 border-b last:border-0 border-gray-100"
+                          >
+                            <span className="text-sm font-medium text-gray-500 w-6 shrink-0">
+                              {result.position}.
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-sm font-medium text-gray-900">
+                                {result.riderName}
+                              </span>
+                              <span className="text-xs text-gray-500 ml-1.5">
+                                {result.riderTeam}
+                              </span>
+                            </div>
+                            <Badge variant="outline" className="text-xs shrink-0">
+                              {result.fantasyTeamName}
+                            </Badge>
+                            <span className="text-xs font-semibold text-primary shrink-0 w-14 text-right">
+                              {result.points} pts
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )
+              })}
+            </Accordion>
           </CardContent>
         </Card>
       )}

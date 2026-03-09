@@ -10,7 +10,7 @@ import { user } from "@/db/schema/users";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePoints, previewScoringImpact } from "@/lib/scoring-preview";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -72,12 +72,12 @@ export async function getRacesForResults() {
       startDate: races.startDate,
       parentRaceId: races.parentRaceId,
       stageNumber: races.stageNumber,
-      hasResults: sql<boolean>`EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id})`,
+      hasResults: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id}) THEN 1 ELSE 0 END`,
     })
     .from(races)
     .orderBy(asc(races.startDate));
 
-  return allRaces;
+  return allRaces.map(r => ({ ...r, hasResults: r.hasResults === 1 }));
 }
 
 export async function getRiders() {
@@ -230,13 +230,12 @@ export async function submitRaceResults(formData: ResultInput) {
       scoringPreview.preview.map((p) => [p.riderId, p.pointsAwarded]),
     );
 
-    // Use transaction to insert results and audit entry
-    await db.transaction(async (tx) => {
-      // Delete audit entries and existing results for this race+category (replace operation)
-      await tx.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`);
-      await tx.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory}`);
+    // Replace existing results using raw SQL to avoid Drizzle/Neon query issues
+    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`);
+    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory}`);
 
-      // Insert all results with calculated points
+    // Insert new results and audit entry
+    await db.transaction(async (tx) => {
       for (const resultItem of resultData) {
         const points = pointsMap.get(resultItem.riderId) || 0;
         await tx.insert(raceResults).values({
@@ -249,7 +248,6 @@ export async function submitRaceResults(formData: ResultInput) {
         });
       }
 
-      // Insert audit entry
       await tx.insert(resultAudit).values({
         raceId,
         changeType: "BATCH_INSERT",
@@ -642,24 +640,34 @@ export async function submitTttResults(formData: {
       };
     }
 
-    // Use transaction to insert all rider results
+    // Pre-fetch all riders for all teams (outside transaction — avoids Neon interactive tx limitation)
+    const allTeamNames = teamPlacements.map((p) => p.teamName);
+    const allTeamRiders = await db
+      .select({ id: riders.id, team: riders.team })
+      .from(riders)
+      .where(inArray(riders.team, allTeamNames));
+
+    // Build lookup map: teamName -> riderId[]
+    const teamRiderMap = new Map<string, number[]>();
+    for (const rider of allTeamRiders) {
+      if (!teamRiderMap.has(rider.team)) teamRiderMap.set(rider.team, []);
+      teamRiderMap.get(rider.team)!.push(rider.id);
+    }
+
+    // Replace existing TTT results using raw SQL to avoid Drizzle/Neon query issues
+    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt')`);
+    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt'`);
+
+    // INSERT-only transaction
     await db.transaction(async (tx) => {
-      // For each team placement
       for (const { position, teamName } of teamPlacements) {
-        // Calculate points for this position
         const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
+        const riderIds = teamRiderMap.get(teamName) ?? [];
 
-        // Find all riders on this team
-        const teamRiders = await tx
-          .select({ id: riders.id })
-          .from(riders)
-          .where(eq(riders.team, teamName));
-
-        // Insert a result for each rider on the team
-        for (const rider of teamRiders) {
+        for (const riderId of riderIds) {
           await tx.insert(raceResults).values({
             raceId,
-            riderId: rider.id,
+            riderId,
             category: "ttt",
             position,
             time: null,
@@ -668,7 +676,6 @@ export async function submitTttResults(formData: {
         }
       }
 
-      // Insert audit entry
       await tx.insert(resultAudit).values({
         raceId,
         changeType: "BATCH_INSERT",
@@ -680,18 +687,6 @@ export async function submitTttResults(formData: {
     revalidatePath("/admin/results");
     return { success: true };
   } catch (error: any) {
-    // Handle unique constraint violations
-    if (error.code === "23505") {
-      return {
-        success: false,
-        error: {
-          _form: [
-            "Some riders from these teams already have TTT results for this race.",
-          ],
-        },
-      };
-    }
-
     return {
       success: false,
       error: { _form: [(error as Error).message] },

@@ -38,100 +38,58 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 7 | Ownership-at-race-time scoring | Historical points stay with original team after transfer | 06 | Good |
 | 8 | 12 strategic order types with counter mechanics | Core game differentiator — boost/sabotage with risk/reward | 07 | Good |
 | 9 | league_races join table for per-league race scoping | All features scope to assigned races, not raw season | 08 | Good |
-
-## Key Decisions (continued from v1.1)
-
-| # | Decision | Rationale | Phase | Outcome |
-|---|----------|-----------|-------|---------|
 | 10 | grand_tour_tdf as new raceType text value | No schema change needed since raceType is text, not enum | 11 | Good |
 | 11 | Category column on raceResults (not separate tables) | Minimal schema change, reuses existing result entry patterns | 12 | Good |
 | 12 | Counter returns order to attacker (no blowback) | Simpler mechanics, more reuse, less punishing for attacker | 14 | Good |
 | 13 | bonus_riders separate table (not raceResults) | Bonus riders have distinct lifecycle (per-GT, no race scoping) | 15 | Good |
-
-## Key Decisions (continued from v1.2)
-
-| # | Decision | Rationale | Phase | Outcome |
-|---|----------|-----------|-------|---------|
 | 14 | Three-query application-side assembly pattern | Avoids SQL JSON_AGG complexity; reusable across rider/team/standings queries | 16–19 | Good |
 | 15 | COALESCE(parentRaceId, id) for stage roll-up | Groups stage results to parent race without schema changes | 19 | Good |
-| 16 | recharts via shadcn chart component | Consistent with shadcn/ui stack; CSS chart vars already defined | 19 | Good |
-| 17 | Separate /standings/history page (not inline tab) | More space for chart + table; keeps league page lean | 19 | Good |
-
-## Current Milestone: v1.4 Roster Consolidation
-
-**Goal:** Replace scattered `draftPicks + irRequests` join logic with a single `roster_slots` table as the authoritative source of current team composition.
-
-**Target features:**
-- `roster_slots` schema + backfill migration
-- All write paths (draft, drop, transfer, IR approval, return) write to `roster_slots`
-- All read paths (roster count, team roster display, slot checks) read from `roster_slots`
-- Scoring and ownership-history queries on `draftPicks` remain unchanged
-
-## Previous Milestone: v1.3 IR List & Roster Management — SHIPPED 2026-03-07
-
-**Delivered:** Full IR system — IR placement with admin approval flow, drop rider action, and IR return flow with transfer blocking and roster-full drop gate.
-
-## Previous Milestone: v1.2 Player Visibility — SHIPPED 2026-03-06
-
-**Delivered:** Full player visibility suite — rider profiles, team profiles, race lineup accordions, and season standings history with recharts chart.
+| 16 | IR max 2 slots per team; approved riders freed from active roster limit | Keeps gameplay balanced; IR slot is separate from active roster count | 20 | Good |
+| 17 | IR status enum: pending/approved/rejected (no cancelled) | Simpler than transfer bids — IR doesn't have the same cancellation semantics | 20 | Good |
+| 18 | dropRider hard-deletes draftPicks instantly | No waiver or approval period; instant roster management | 21 | Good |
+| 19 | return_eligible riders free a roster slot until status becomes returned | Slot only closes again when rider fully returns | 22 | Good |
+| 20 | roster_slots as separate table (not derived view) | Source of truth for current composition; write path enforces consistency | 23 | Good |
+| 21 | roster_slot_status enum: active/on_ir/return_eligible only | No dropped/returned states — rows deleted instead; clean lifecycle | 23 | Good |
+| 22 | Unique index on (leagueId, riderId) in roster_slots | Enforces single-slot-per-rider-per-league invariant at DB level | 23 | Good |
+| 23 | draftPicks.pickedAt preserved for scoring; roster_slots.addedAt for audit only | Scoring ownership-at-race-time must use original pick timestamp | 23–25 | Good |
+| 24 | All roster mutations wrapped in transactions with roster_slots writes | Atomicity guarantees — no orphaned draftPicks or out-of-sync slots | 24 | Good |
+| 25 | getTeamRoster keeps draftPicks innerJoin for pickedAt/pickNumber | Roster display still shows pick metadata; scoring invariant preserved | 25 | Good |
 
 ## Current State
 
-- **Version:** v1.3 shipped (2026-03-07)
-- **Phases:** 22 phases, 51+ plans executed (v1.0 + v1.1 + v1.2 + v1.3)
-- **Codebase:** ~26,011 LOC TypeScript
-- **Next milestone:** v1.4 (to be defined)
+- **Version:** v1.4 shipped (2026-03-09)
+- **Phases:** 25 phases, 58+ plans executed (v1.0–v1.4)
+- **Codebase:** ~26,500 LOC TypeScript
+- **Next milestone:** v1.5 (to be defined)
+
+### What Shipped (v1.4)
+
+- `roster_slots` table as single source of truth for current team composition (schema + backfill migration)
+- All write paths (draft, drop, transfer, IR approval, return) atomically write to `roster_slots` in the same transaction as the primary `draftPicks` mutation
+- All read paths (`getActiveRosterCount`, `getTeamRoster`, slot-check guards in transfer and IR actions) read directly from `roster_slots`
+- Dead `draftPicks + irRequests` join-based roster count code removed
+- Correctness fix: `isOnIR` now correctly includes `return_eligible` riders (not just `approved`)
 
 ### What Shipped (v1.3)
 
 - IR placement flow — players request IR (max 2 slots), admin approves/rejects, approved riders freed from active roster limit
 - Drop rider — instant roster removal, no approval required
 - IR return flow — admin marks eligible, persistent banner, transfer block enforced, return with roster-full drop gate
-- 16 quick tasks completed during v1.3 (including two post-audit bug fixes)
-
-### What Shipped (v1.2)
-
-- Rider profile pages — `/riders/[riderId]` with season total, per-race breakdown, scoring categories, ownership history
-- Team profile pages — `/leagues/[leagueId]/teams/[teamId]` with roster accordion + per-rider per-race points
-- Race lineup accordion on league page — per-team lineup cards for upcoming races + recent results with fantasy team badges
-- Season standings history — `/standings/history` with recharts cumulative line chart + scrollable race-by-race table
-
-### Known Limitations / Tech Debt (carried from v1.1)
-
-- `npm run build` fails due to drizzle-kit 0.18.x type error (DEBT-01)
-- Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (DEBT-02–04)
-- Shimanobil counter uses simplified team matching (DEBT-05)
-- Unused `Tooltip` import + unused `leagueId` prop in history-client.tsx (minor, non-blocking)
-
-## Active Requirements (v1.4)
-
-_(To be defined — see .planning/REQUIREMENTS.md)_
-
-## Current State
-
-- **Version:** v1.1 shipped (2026-02-26)
-- **Phases:** 15 phases, 38 plans executed (v1.0 + v1.1)
-- **Codebase:** ~23,760 LOC TypeScript
-- **Current milestone:** v1.2 Player Visibility
-
-### What Shipped (v1.0 + v1.1)
-
-Complete cycling fantasy league platform with 2026 season ruleset:
-- User auth with admin RBAC
-- Admin race management and result entry with scoring preview and audit trails — supports all categories (finish, sprint, mountain, jersey, TTT, end-of-tour)
-- Private leagues with invite links, team registration, lifecycle state machine
-- Real-time snake draft (Pusher presence channels, QStash auto-pick, auto-activation)
-- Scoring engine with league standings, per-race breakdowns, ownership-at-race-time, TdF-specific scoring configs
-- Waiver wire transfers with auto-generated windows, priority resolution, admin approval
-- 13 strategic order types (incl. Uno-X bonus rider draft, Kaptein for women's WC) with updated counter mechanics and full scoring integration
-- Per-league race calendar with downstream scoping across all features
+- 16 quick tasks completed (including post-audit bug fixes for transfer form and return_eligible handling)
 
 ### Known Limitations / Tech Debt
 
 - `npm run build` fails due to drizzle-kit 0.18.x type error (DEBT-01 — project source compiles cleanly)
 - Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (DEBT-02–04, no auto-calculation)
 - Shimanobil counter uses simplified team matching (DEBT-05)
-- Phase 12 VERIFICATION.md never created (code works, integration verified — accepted gap)
+
+## Shipped Milestones
+
+- ✓ v1.0 Core Platform — shipped 2026-02-20
+- ✓ v1.1 Scoring & Rules Update — shipped 2026-02-26
+- ✓ v1.2 Player Visibility — shipped 2026-03-06
+- ✓ v1.3 IR List & Roster Management — shipped 2026-03-07
+- ✓ v1.4 Roster Consolidation — shipped 2026-03-09
 
 ---
-*Last updated: 2026-03-06 after v1.2 milestone shipped*
+*Last updated: 2026-03-09 after v1.4 milestone shipped*

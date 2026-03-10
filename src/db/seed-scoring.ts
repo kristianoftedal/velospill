@@ -583,15 +583,14 @@ async function seedScoring() {
       validFrom,
     },
 
-    // WOMEN'S ONE-DAY (2026: matches updated high priority one-day scoring)
+    // WOMEN'S ONE-DAY (matches low priority one-day scoring)
     {
       raceType: "womens_one_day",
       category: "finish",
       rules: {
-        "1": 50, "2": 40, "3": 35, "4": 30, "5": 25,
-        "6": 20, "7": 18, "8": 16, "9": 14, "10": 12,
-        "11": 10, "12": 9, "13": 8, "14": 7, "15": 6,
-        "16": 5, "17": 4, "18": 3, "19": 2, "20": 1
+        "1": 30, "2": 25, "3": 20, "4": 16, "5": 14,
+        "6": 12, "7": 10, "8": 8, "9": 7, "10": 6,
+        "11": 5, "12": 4, "13": 3, "14": 2, "15": 1
       },
       description: "Women's one-day race finish scoring",
       validFrom,

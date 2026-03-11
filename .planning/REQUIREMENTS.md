@@ -34,17 +34,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ADMRS-01 | TBD | Pending |
-| ADMRS-02 | TBD | Pending |
-| SVIS-01 | TBD | Pending |
-| SVIS-02 | TBD | Pending |
-| SVIS-03 | TBD | Pending |
+| ADMRS-01 | Phase 26 | Pending |
+| ADMRS-02 | Phase 26 | Pending |
+| SVIS-01 | Phase 27 | Pending |
+| SVIS-02 | Phase 27 | Pending |
+| SVIS-03 | Phase 27 | Pending |
 
 **Coverage:**
 - v1.5 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5 ⚠️
+- Mapped to phases: 5
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-11*
-*Last updated: 2026-03-11 after initial definition*
+*Last updated: 2026-03-11 after roadmap creation*

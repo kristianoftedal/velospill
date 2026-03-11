@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Multi-Stage Race Improvements
-status: planning
+status: ready
 stopped_at: null
 last_updated: "2026-03-11T00:00:00.000Z"
-last_activity: 2026-03-11 — Milestone v1.5 started
+last_activity: 2026-03-11 — Roadmap created (2 phases, 5 requirements)
 progress:
-  total_phases: 0
+  total_phases: 2
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
-**Current focus:** v1.5 Multi-Stage Race Improvements — defining requirements
+**Current focus:** v1.5 Multi-Stage Race Improvements — Phase 26 ready to plan
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 26 (Admin Stage Result Scoping) — Not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-11 — Milestone v1.5 started
+Status: Roadmap created, ready for planning
+Last activity: 2026-03-11 — Roadmap created (2 phases, 5 requirements)
 
-Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases complete
+Progress: [░░░░░░░░░░] 0% (v1.5) | v1.0-v1.4: 25/25 phases complete
 
 ## Performance Metrics
 
@@ -39,25 +39,26 @@ Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases c
 - Average duration: ~165s (v1.1 baseline)
 - Total execution time: 11 days (v1.0) + 2029s (v1.1) + multiple sessions (v1.2) + multiple sessions (v1.3)
 
-**v1.3 Summary:**
+**v1.4 Summary:**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
-| 20. IR Foundation & Admin Approval | 3/3 | Complete — 2026-03-06 |
-| 21. Drop Rider | 1/1 | Complete — 2026-03-06 |
-| 22. IR Return Flow | 3/3 | Complete — 2026-03-07 |
+| 23. roster_slots Schema & Migration | 2/2 | Complete — 2026-03-07 |
+| 24. Write Path Wiring | 3/3 | Complete — 2026-03-08 |
+| 25. Read Path Migration & Cleanup | 2/2 | Complete — 2026-03-09 |
 
-**Quick Tasks (v1.3):** 16 completed (including post-audit GAP-01 and GAP-02 fixes)
-| Phase 23 P01 | 60 | 2 tasks | 3 files |
-| Phase 23-roster-slots-schema-migration P02 | 300 | 2 tasks | 1 files |
-| Phase 25 P01 | 75 | 2 tasks | 2 files |
-| Phase 25 P02 | 105 | 2 tasks | 2 files |
+**v1.5 Summary:**
+
+| Phase | Plans | Status |
+|-------|-------|--------|
+| 26. Admin Stage Result Scoping | 0/TBD | Not started |
+| 27. League Stage Visibility | 0/TBD | Not started |
 
 ## Accumulated Context
 
 ### Decisions
 
-Recent decisions relevant to next milestone:
+Recent decisions relevant to v1.5:
 
 - Phase 6: Waiver wire transfers — priority by standings, admin approval, transfer windows
 - Phase 6: Ownership-at-race-time — points stay with original team after transfer
@@ -65,18 +66,17 @@ Recent decisions relevant to next milestone:
 - Phase 16-17: Three-query application-side assembly pattern — avoid SQL JSON_AGG complexity
 - Phase 20: IR max 2 slots per team; approved riders freed from active roster limit
 - Phase 20: IR status enum has 3 values (pending/approved/rejected) — no cancelled unlike transfer bids
-- Phase 20: getActiveRosterCount uses arithmetic: COUNT(draftPicks) - COUNT(approved+return_eligible irRequests)
 - Phase 21: dropRider hard-deletes draftPicks row instantly — no waiver or approval period (ROST-01)
 - Phase 22: return_eligible riders still free a roster slot — slot only closes again when status becomes returned
 - Phase 22: IR-09 transfer block guard placed before window check so return_eligible state takes precedence
 - [Phase 23]: roster_slot_status enum has 3 values: active/on_ir/return_eligible — no dropped/returned states (rows deleted)
 - [Phase 23]: unique index on (leagueId, riderId) enforces single-slot-per-rider-per-league invariant at DB level
 - [Phase 23]: addedAt column for audit trail only — scoring continues to use draftPicks.pickedAt for ownership-at-race-time
-- [Phase 23-roster-slots-schema-migration]: Approved IR riders with no draftPicks row (previously dropped) correctly receive no roster_slot — migration reflects actual roster state not historical IR data
-- [Phase 23-roster-slots-schema-migration]: Standalone backfill scripts use neon-http direct connection (not @/lib/db app client) for CLI portability
 - [Phase 25]: getActiveRosterCount: single SELECT COUNT(*) from roster_slots WHERE status='active' replaces two-query draftPicks-minus-irRequests subtraction
 - [Phase 25]: getTeamRoster: sources from rosterSlots innerJoin riders+draftPicks; isOnIR from status IN (on_ir, return_eligible); pickedAt still from draftPicks for ownership-at-race-time
-- [Phase 25]: Slot-check guards in submitTransferBid and returnRider now count from roster_slots WHERE status='active' joined to riders for gender — eliminates all draftPicks+irRequests join arithmetic for active roster size
+- [Phase 25]: Slot-check guards in submitTransferBid and returnRider now count from roster_slots WHERE status='active' joined to riders for gender
+- Key decision from Phase 11/19: COALESCE(parentRaceId, id) for stage roll-up — groups stage results to parent race without schema changes
+- Key decision from Phase 12: Category column on raceResults — minimal schema change, reuses existing result entry patterns
 
 ### Pending Todos
 
@@ -111,6 +111,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-08T13:51:27.122Z
-Stopped at: Completed 25-02-PLAN.md
+Last session: 2026-03-11T00:00:00.000Z
+Stopped at: Roadmap created for v1.5
 Resume file: None
+Next action: /gsd:plan-phase 26

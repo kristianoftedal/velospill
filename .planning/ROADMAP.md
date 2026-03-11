@@ -7,6 +7,7 @@
 - ✅ **v1.2 Player Visibility** — Phases 16-19 (shipped 2026-03-06)
 - ✅ **v1.3 IR List & Roster Management** — Phases 20-22 (shipped 2026-03-07)
 - ✅ **v1.4 Roster Consolidation** — Phases 23-25 (shipped 2026-03-09)
+- 🔄 **v1.5 Multi-Stage Race Improvements** — Phases 26-27 (in progress)
 
 ## Phases
 
@@ -75,6 +76,34 @@ Full details: milestones/v1.4-ROADMAP.md
 
 </details>
 
+### v1.5 Multi-Stage Race Improvements
+
+- [ ] **Phase 26: Admin Stage Result Scoping** — Fix stage result list to scope by raceId and add stage completion status overview
+- [ ] **Phase 27: League Stage Visibility** — Expandable multi-stage race rows on league standings with per-stage and end-of-tour scoring
+
+## Phase Details
+
+### Phase 26: Admin Stage Result Scoping
+**Goal**: Admin can manage results for individual stages correctly — viewing only the results that belong to a given stage and knowing at a glance which stages still need results entered
+**Depends on**: Nothing (first phase of v1.5)
+**Requirements**: ADMRS-01, ADMRS-02
+**Success Criteria** (what must be TRUE):
+  1. When admin opens a stage result list, only results for that specific stage (raceId) appear — no bleed-through from other stages of the same type
+  2. Admin can see a list of all stages within a multi-stage race where each stage is clearly marked as having results entered or pending
+  3. Admin can navigate directly to a pending stage to begin entering results
+**Plans**: TBD
+
+### Phase 27: League Stage Visibility
+**Goal**: Players on the league standings page can expand a multi-stage race row to see per-stage scoring breakdowns and end-of-tour classification results
+**Depends on**: Phase 26
+**Requirements**: SVIS-01, SVIS-02, SVIS-03
+**Success Criteria** (what must be TRUE):
+  1. Multi-stage race rows on the league standings page have an expand control that reveals individual stage rows
+  2. Each expanded stage row shows the riders who scored points for that stage and how many points they earned
+  3. End-of-tour classifications (GC, points jersey, KOM, etc.) are visible within the expanded grand tour view as a distinct section
+  4. Collapsing the row returns the standings to the normal compact view
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -104,3 +133,5 @@ Full details: milestones/v1.4-ROADMAP.md
 | 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
 | 24. Write Path Wiring | v1.4 | 3/3 | Complete | 2026-03-08 |
 | 25. Read Path Migration & Cleanup | v1.4 | 2/2 | Complete | 2026-03-09 |
+| 26. Admin Stage Result Scoping | v1.5 | 0/TBD | Not started | - |
+| 27. League Stage Visibility | v1.5 | 0/TBD | Not started | - |

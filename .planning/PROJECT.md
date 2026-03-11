@@ -55,12 +55,20 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 24 | All roster mutations wrapped in transactions with roster_slots writes | Atomicity guarantees — no orphaned draftPicks or out-of-sync slots | 24 | Good |
 | 25 | getTeamRoster keeps draftPicks innerJoin for pickedAt/pickNumber | Roster display still shows pick metadata; scoring invariant preserved | 25 | Good |
 
+## Current Milestone: v1.5 Multi-Stage Race Improvements
+
+**Goal:** Fix multi-stage race (grand tour / mini tour) admin result entry scoping and add stage-level scoring visibility on the league page.
+
+**Target features:**
+- Admin result entry scoped to the correct stage (not bleeding across all same-type races)
+- Admin stage status overview (which stages have results entered)
+- Expandable multi-stage race rows on league standings with per-stage scoring breakdown
+
 ## Current State
 
-- **Version:** v1.4 shipped (2026-03-09)
+- **Version:** v1.5 in progress (started 2026-03-11)
 - **Phases:** 25 phases, 58+ plans executed (v1.0–v1.4)
 - **Codebase:** ~26,500 LOC TypeScript
-- **Next milestone:** v1.5 (to be defined)
 
 ### What Shipped (v1.4)
 
@@ -92,4 +100,4 @@ The live competitive experience of managing a fantasy cycling team through a rea
 - ✓ v1.4 Roster Consolidation — shipped 2026-03-09
 
 ---
-*Last updated: 2026-03-09 after v1.4 milestone shipped*
+*Last updated: 2026-03-11 after v1.5 milestone started*

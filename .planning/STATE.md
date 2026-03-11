@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Roster Consolidation
-status: verifying
-stopped_at: Completed 25-02-PLAN.md
-last_updated: "2026-03-09T08:27:31.168Z"
-last_activity: 2026-03-08 — Phase 24 write-path-wiring execution complete
+milestone: v1.5
+milestone_name: Multi-Stage Race Improvements
+status: planning
+stopped_at: null
+last_updated: "2026-03-11T00:00:00.000Z"
+last_activity: 2026-03-11 — Milestone v1.5 started
 progress:
-  total_phases: 7
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 
@@ -18,16 +18,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-07)
+See: .planning/PROJECT.md (updated 2026-03-11)
 
 **Core value:** The live competitive experience of managing a fantasy cycling team through a real season — drafting riders, making tactical decisions per race, and outscoring your friends.
-**Current focus:** v1.4 Roster Consolidation — Phase 23: roster_slots Schema & Migration
+**Current focus:** v1.5 Multi-Stage Race Improvements — defining requirements
 
 ## Current Position
 
-Phase: 24 of 25 (write-path-wiring) — COMPLETE
-Status: All 3 plans executed — ready for verification
-Last activity: 2026-03-08 — Phase 24 write-path-wiring execution complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-11 — Milestone v1.5 started
 
 Progress: [░░░░░░░░░░] 0% (v1.4) | v1.0-v1.3: 22/22 phases complete
 

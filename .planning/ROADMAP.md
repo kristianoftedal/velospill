@@ -91,7 +91,11 @@ Full details: milestones/v1.4-ROADMAP.md
   1. When admin opens a stage result list, only results for that specific stage (raceId) appear — no bleed-through from other stages of the same type
   2. Admin can see a list of all stages within a multi-stage race where each stage is clearly marked as having results entered or pending
   3. Admin can navigate directly to a pending stage to begin entering results
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 26-01-PLAN.md — Extend getRacesForResults with stage completion counts (data layer)
+- [ ] 26-02-PLAN.md — Stage overview modal, sidebar completion counts, prev/next navigation (UI layer)
 
 ### Phase 27: League Stage Visibility
 **Goal**: Players on the league standings page can expand a multi-stage race row to see per-stage scoring breakdowns and end-of-tour classification results
@@ -133,5 +137,5 @@ Full details: milestones/v1.4-ROADMAP.md
 | 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
 | 24. Write Path Wiring | v1.4 | 3/3 | Complete | 2026-03-08 |
 | 25. Read Path Migration & Cleanup | v1.4 | 2/2 | Complete | 2026-03-09 |
-| 26. Admin Stage Result Scoping | v1.5 | 0/TBD | Not started | - |
+| 26. Admin Stage Result Scoping | v1.5 | 0/2 | Not started | - |
 | 27. League Stage Visibility | v1.5 | 0/TBD | Not started | - |

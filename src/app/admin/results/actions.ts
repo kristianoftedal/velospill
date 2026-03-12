@@ -73,11 +73,18 @@ export async function getRacesForResults() {
       parentRaceId: races.parentRaceId,
       stageNumber: races.stageNumber,
       hasResults: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id}) THEN 1 ELSE 0 END`,
+      stagesTotal: sql<number>`(SELECT COUNT(*) FROM races AS s WHERE s."parentRaceId" = ${races.id})::int`,
+      stagesWithResults: sql<number>`(SELECT COUNT(*) FROM races AS s WHERE s."parentRaceId" = ${races.id} AND EXISTS(SELECT 1 FROM race_results rr WHERE rr."raceId" = s.id))::int`,
     })
     .from(races)
     .orderBy(asc(races.startDate));
 
-  return allRaces.map(r => ({ ...r, hasResults: r.hasResults === 1 }));
+  return allRaces.map(r => ({
+    ...r,
+    hasResults: r.hasResults === 1,
+    stagesTotal: Number(r.stagesTotal ?? 0),
+    stagesWithResults: Number(r.stagesWithResults ?? 0),
+  }));
 }
 
 export async function getRiders() {

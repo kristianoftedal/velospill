@@ -16,7 +16,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults, previewResults, submitTttResults, previewTttResults, getScoringScale } from "@/app/admin/results/actions"
+import { submitRaceResults, previewResults, submitTttResults, previewTttResults, getScoringScale, getResultsForRace } from "@/app/admin/results/actions"
 import { TrashIcon, PlusIcon } from "lucide-react"
 import { useState, useEffect } from "react"
 import { ScoringPreview } from "@/components/admin/scoring-preview"
@@ -414,7 +414,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
 
   // Fetch existing results for this race+category and pre-fill the form
   useEffect(() => {
-    getResultsForRace(raceId).then((allResults) => {
+    getResultsForRace(raceId).then((allResults: Awaited<ReturnType<typeof getResultsForRace>>) => {
       const categoryResults = allResults.filter((r) => r.category === category)
       if (categoryResults.length > 0) {
         form.reset({

@@ -10,7 +10,7 @@ import { ResultEntryForm, categoryDisplayNames } from "@/components/admin/result
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
 import { getResultsForRace, getAuditTrail, getTeamNames } from "./actions"
-import { PencilIcon, ChevronLeftIcon } from "lucide-react"
+import { PencilIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -28,6 +28,8 @@ type Race = {
   parentRaceId: number | null
   stageNumber: number | null
   hasResults: boolean
+  stagesTotal: number
+  stagesWithResults: number
 }
 
 type Rider = {
@@ -104,18 +106,54 @@ export function ResultsClient({ races, riders }: Props) {
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false)
   const [selectedResult, setSelectedResult] = useState<any | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [showingStageOverview, setShowingStageOverview] = useState(false)
 
   const selectedRace = races.find((r) => r.id === selectedRaceId)
 
   // Stage dedup: compute the selected parent race ID
   const selectedParentId = selectedRace?.parentRaceId ?? selectedRaceId
 
+  // Group races by type — computed before handleRaceSelect so the handler can reference stagesByParent
+  const parentRaces = races.filter((r) => !r.parentRaceId)
+  const stagesByParent = races
+    .filter((r) => r.parentRaceId)
+    .reduce((acc, stage) => {
+      if (!acc[stage.parentRaceId!]) {
+        acc[stage.parentRaceId!] = []
+      }
+      acc[stage.parentRaceId!].push(stage)
+      return acc
+    }, {} as Record<number, Race[]>)
+
+  // Prev/next stage navigation — only relevant when a stage is selected
+  const currentStageList = selectedRace?.parentRaceId
+    ? (stagesByParent[selectedRace.parentRaceId] || []).sort((a, b) => (a.stageNumber || 0) - (b.stageNumber || 0))
+    : []
+  const currentStageIndex = currentStageList.findIndex(s => s.id === selectedRaceId)
+  const prevStage = currentStageIndex > 0 ? currentStageList[currentStageIndex - 1] : null
+  const nextStage = currentStageIndex < currentStageList.length - 1 ? currentStageList[currentStageIndex + 1] : null
+
   const handleRaceSelect = async (raceId: number) => {
+    const race = races.find((r) => r.id === raceId)
+
+    // If this is a parent race (has stages), show the stage overview instead of the category picker
+    const isParentRace = stagesByParent[raceId] && stagesByParent[raceId].length > 0
+    if (isParentRace) {
+      setSelectedRaceId(raceId)
+      setSelectedCategory(null)
+      setExistingResults(null)
+      setAuditTrail(null)
+      setShowingStageOverview(true)
+      setModalOpen(true)
+      return
+    }
+
+    // Not a parent race (one-day or individual stage) — clear stage overview
+    setShowingStageOverview(false)
     setSelectedRaceId(raceId)
     setSelectedCategory(null)  // Reset category when switching races
     setLoading(true)
 
-    const race = races.find((r) => r.id === raceId)
     if (race?.hasResults) {
       const [results, audit] = await Promise.all([
         getResultsForRace(raceId),
@@ -158,20 +196,50 @@ export function ResultsClient({ races, riders }: Props) {
     setCorrectionDialogOpen(true)
   }
 
-  // Group races by type
-  const parentRaces = races.filter((r) => !r.parentRaceId)
-  const stagesByParent = races
-    .filter((r) => r.parentRaceId)
-    .reduce((acc, stage) => {
-      if (!acc[stage.parentRaceId!]) {
-        acc[stage.parentRaceId!] = []
-      }
-      acc[stage.parentRaceId!].push(stage)
-      return acc
-    }, {} as Record<number, Race[]>)
-
   // Modal content
-  const modalContent = loading ? (
+  const modalContent = showingStageOverview && selectedRace ? (
+    // Stage overview for parent race
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        {stagesByParent[selectedRace.id]?.length || 0} stages total
+      </p>
+      <div className="space-y-2">
+        {(stagesByParent[selectedRace.id] || [])
+          .sort((a, b) => (a.stageNumber || 0) - (b.stageNumber || 0))
+          .map((stage) => (
+            <button
+              key={stage.id}
+              onClick={() => handleRaceSelect(stage.id)}
+              className="w-full text-left px-4 py-3 rounded-md border hover:bg-accent transition-colors"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <span className="font-medium text-sm">{stage.name}</span>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {new Date(stage.startDate).toLocaleDateString()}
+                  </div>
+                </div>
+                {stage.hasResults ? (
+                  <Badge variant="secondary" className="text-xs shrink-0">Done</Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs shrink-0">Pending</Badge>
+                )}
+              </div>
+            </button>
+          ))}
+      </div>
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={() => {
+          setShowingStageOverview(false)
+          setSelectedCategory("__picker__")
+        }}
+      >
+        Enter End-of-Tour Results
+      </Button>
+    </div>
+  ) : loading ? (
     <Card>
       <CardContent className="flex items-center justify-center h-64">
         <p className="text-muted-foreground">Loading...</p>
@@ -364,11 +432,16 @@ export function ResultsClient({ races, riders }: Props) {
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">{race.name}</span>
-                  {race.hasResults && (
-                    <Badge variant="secondary" className="text-xs">
-                      Done
+                  {race.stagesTotal > 0 ? (
+                    <Badge
+                      variant={race.stagesWithResults === race.stagesTotal && race.stagesTotal > 0 ? "secondary" : "outline"}
+                      className="text-xs"
+                    >
+                      {race.stagesWithResults}/{race.stagesTotal} done
                     </Badge>
-                  )}
+                  ) : race.hasResults ? (
+                    <Badge variant="secondary" className="text-xs">Done</Badge>
+                  ) : null}
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {new Date(race.startDate).toLocaleDateString()}
@@ -410,6 +483,30 @@ export function ResultsClient({ races, riders }: Props) {
         <DialogContent className="w-[80vw] sm:max-w-[80vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedRace?.name}</DialogTitle>
+            {selectedRace?.parentRaceId && !showingStageOverview && (
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={!prevStage}
+                  onClick={() => prevStage && handleRaceSelect(prevStage.id)}
+                  className="text-xs"
+                >
+                  <ChevronLeftIcon className="h-3 w-3 mr-1" />
+                  {prevStage ? prevStage.name : "—"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={!nextStage}
+                  onClick={() => nextStage && handleRaceSelect(nextStage.id)}
+                  className="text-xs"
+                >
+                  {nextStage ? nextStage.name : "—"}
+                  <ChevronRightIcon className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
+            )}
           </DialogHeader>
           {modalContent}
         </DialogContent>

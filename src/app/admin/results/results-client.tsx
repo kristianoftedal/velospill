@@ -358,6 +358,7 @@ export function ResultsClient({ races, riders }: Props) {
         raceType={selectedRace?.raceType || ""}
         category={selectedCategory}
         teams={teamNames}
+        initialResults={existingResults?.filter((r) => r.category === selectedCategory) ?? undefined}
         onSuccess={handleSuccess}
       />
     </div>

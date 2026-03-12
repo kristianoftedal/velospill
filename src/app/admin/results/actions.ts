@@ -10,7 +10,7 @@ import { user } from "@/db/schema/users";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculatePoints, previewScoringImpact } from "@/lib/scoring-preview";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -469,6 +469,59 @@ export async function getAuditTrail(raceId: number) {
     .orderBy(desc(resultAudit.changedAt));
 
   return auditEntries;
+}
+
+export async function getScoringScale(
+  raceId: number,
+  category: string,
+): Promise<Record<string, number>> {
+  await checkAdminAuth();
+
+  const race = await db.query.races.findFirst({
+    where: eq(races.id, raceId),
+    with: { parentRace: true },
+  });
+
+  if (!race) return {};
+
+  let raceTypeForScoring: string = race.raceType;
+  if (race.parentRaceId && race.parentRace) {
+    const parent = race.parentRace as typeof race;
+    raceTypeForScoring =
+      parent.raceType === "grand_tour" &&
+      (parent.name.toLowerCase().includes("tour de france") || parent.name.toLowerCase().includes("tdf"))
+        ? "grand_tour_tdf"
+        : parent.raceType;
+  } else {
+    raceTypeForScoring =
+      race.raceType === "grand_tour" &&
+      (race.name.toLowerCase().includes("tour de france") || race.name.toLowerCase().includes("tdf"))
+        ? "grand_tour_tdf"
+        : race.raceType;
+  }
+
+  const now = new Date();
+  let rule = await db.query.scoringConfig.findFirst({
+    where: and(
+      eq(scoringConfig.raceType, raceTypeForScoring),
+      eq(scoringConfig.category, category),
+      lte(scoringConfig.validFrom, now),
+      or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
+    ),
+  });
+
+  if (!rule && raceTypeForScoring === "grand_tour_tdf") {
+    rule = await db.query.scoringConfig.findFirst({
+      where: and(
+        eq(scoringConfig.raceType, "grand_tour"),
+        eq(scoringConfig.category, category),
+        lte(scoringConfig.validFrom, now),
+        or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
+      ),
+    });
+  }
+
+  return rule ? (rule.rules as Record<string, number>) : {};
 }
 
 export async function getTeamNames(gender: "M" | "F"): Promise<string[]> {

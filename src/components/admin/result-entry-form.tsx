@@ -16,9 +16,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults, previewResults, submitTttResults, previewTttResults } from "@/app/admin/results/actions"
+import { submitRaceResults, previewResults, submitTttResults, previewTttResults, getScoringScale } from "@/app/admin/results/actions"
 import { TrashIcon, PlusIcon } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ScoringPreview } from "@/components/admin/scoring-preview"
 import {
   Table,
@@ -91,12 +91,19 @@ type Rider = {
   gender: string
 }
 
+type InitialResult = {
+  position: number
+  riderId: number
+  time?: string | null
+}
+
 type Props = {
   raceId: number
   riders: Rider[]
   raceType: string
-  category: string  // NEW
-  teams?: string[]  // NEW: distinct team names for TTT
+  category: string
+  teams?: string[]
+  initialResults?: InitialResult[]
   onSuccess: () => void
 }
 
@@ -389,27 +396,30 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
+export function ResultEntryForm({ raceId, riders, raceType, category, teams, initialResults, onSuccess }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
   const [isPreviewing, setIsPreviewing] = useState(false)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
+  const [scoringScale, setScoringScale] = useState<Record<string, number>>({})
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
   const prefillCount = categoryPrefillCounts[category] ?? 1
 
+  const defaultRows = initialResults && initialResults.length > 0
+    ? initialResults.map((r) => ({ position: r.position, riderId: r.riderId, time: r.time ?? "" }))
+    : Array.from({ length: prefillCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" }))
+
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
-    defaultValues: {
-      results: Array.from({ length: prefillCount }, (_, i) => ({
-        position: i + 1,
-        riderId: 0,
-        time: "",
-      })),
-    },
+    defaultValues: { results: defaultRows },
   })
+
+  useEffect(() => {
+    getScoringScale(raceId, category).then(setScoringScale).catch(() => {})
+  }, [raceId, category])
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -577,6 +587,14 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
                         {...form.register(`results.${index}.time`)}
                         className="h-9"
                       />
+                    </div>
+
+                    {/* Points preview */}
+                    <div className="w-16">
+                      <Label className="text-xs">Pts</Label>
+                      <div className="h-9 flex items-center text-sm text-muted-foreground font-mono">
+                        {scoringScale[String(form.watch(`results.${index}.position`))] ?? "—"}
+                      </div>
                     </div>
 
                     {/* Remove button */}

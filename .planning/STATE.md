@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Multi-Stage Race Improvements
 status: planning
-stopped_at: Phase 26 context gathered
-last_updated: "2026-03-11T19:52:02.853Z"
+stopped_at: Completed 26-01-PLAN.md
+last_updated: "2026-03-12T07:23:45.767Z"
 last_activity: 2026-03-11 — Roadmap created (2 phases, 5 requirements)
 progress:
   total_phases: 2
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 2
+  completed_plans: 1
   percent: 0
 ---
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0% (v1.5) | v1.0-v1.4: 25/25 phases c
 |-------|-------|--------|
 | 26. Admin Stage Result Scoping | 0/TBD | Not started |
 | 27. League Stage Visibility | 0/TBD | Not started |
+| Phase 26-admin-stage-result-scoping P01 | 1 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions relevant to v1.5:
 - [Phase 25]: Slot-check guards in submitTransferBid and returnRider now count from roster_slots WHERE status='active' joined to riders for gender
 - Key decision from Phase 11/19: COALESCE(parentRaceId, id) for stage roll-up — groups stage results to parent race without schema changes
 - Key decision from Phase 12: Category column on raceResults — minimal schema change, reuses existing result entry patterns
+- [Phase 26-admin-stage-result-scoping]: stagesTotal/stagesWithResults computed as correlated subqueries inline — consistent with hasResults pattern, no extra query needed
+- [Phase 26-admin-stage-result-scoping]: Number() cast in .map() handles Neon returning COUNT(*) as strings from correlated subqueries
 
 ### Pending Todos
 
@@ -111,7 +114,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-11T19:52:02.851Z
-Stopped at: Phase 26 context gathered
-Resume file: .planning/phases/26-admin-stage-result-scoping/26-CONTEXT.md
+Last session: 2026-03-12T07:23:45.765Z
+Stopped at: Completed 26-01-PLAN.md
+Resume file: None
 Next action: /gsd:plan-phase 26

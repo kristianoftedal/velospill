@@ -137,5 +137,5 @@ Plans:
 | 23. roster_slots Schema & Migration | v1.4 | 2/2 | Complete | 2026-03-07 |
 | 24. Write Path Wiring | v1.4 | 3/3 | Complete | 2026-03-08 |
 | 25. Read Path Migration & Cleanup | v1.4 | 2/2 | Complete | 2026-03-09 |
-| 26. Admin Stage Result Scoping | v1.5 | 0/2 | Not started | - |
+| 26. Admin Stage Result Scoping | 1/2 | In Progress|  | - |
 | 27. League Stage Visibility | v1.5 | 0/TBD | Not started | - |

@@ -7,8 +7,8 @@
 
 ### Admin Result Entry (ADMRS)
 
-- [ ] **ADMRS-01**: Admin result list for a stage shows only results belonging to that stage (scoped by raceId, not all stages of the same type)
-- [ ] **ADMRS-02**: Admin can see at a glance which stages within a multi-stage race have results entered vs. pending
+- [x] **ADMRS-01**: Admin result list for a stage shows only results belonging to that stage (scoped by raceId, not all stages of the same type)
+- [x] **ADMRS-02**: Admin can see at a glance which stages within a multi-stage race have results entered vs. pending
 
 ### League Stage Visibility (SVIS)
 
@@ -34,8 +34,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ADMRS-01 | Phase 26 | Pending |
-| ADMRS-02 | Phase 26 | Pending |
+| ADMRS-01 | Phase 26 | Complete |
+| ADMRS-02 | Phase 26 | Complete |
 | SVIS-01 | Phase 27 | Pending |
 | SVIS-02 | Phase 27 | Pending |
 | SVIS-03 | Phase 27 | Pending |

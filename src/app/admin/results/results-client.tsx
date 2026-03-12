@@ -107,6 +107,7 @@ export function ResultsClient({ races, riders }: Props) {
   const [selectedResult, setSelectedResult] = useState<any | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
   const [showingStageOverview, setShowingStageOverview] = useState(false)
+  const [formIsDirty, setFormIsDirty] = useState(false)
 
   const selectedRace = races.find((r) => r.id === selectedRaceId)
 
@@ -125,13 +126,27 @@ export function ResultsClient({ races, riders }: Props) {
       return acc
     }, {} as Record<number, Race[]>)
 
-  // Prev/next stage navigation — only relevant when a stage is selected
-  const currentStageList = selectedRace?.parentRaceId
-    ? (stagesByParent[selectedRace.parentRaceId] || []).sort((a, b) => (a.stageNumber || 0) - (b.stageNumber || 0))
+  // Available categories for current race — used for category navigation
+  const currentIsStage = !!selectedRace?.parentRaceId
+  const currentParentRace = currentIsStage ? races.find(r => r.id === selectedRace?.parentRaceId) : null
+  const currentIsParentRace = selectedRace ? races.some(r => r.parentRaceId === selectedRace.id) : false
+  const currentRaceTypeForCategories = currentIsStage && currentParentRace
+    ? resolveScoringRaceType(currentParentRace.raceType, currentParentRace.name)
+    : selectedRace ? resolveScoringRaceType(selectedRace.raceType, selectedRace.name) : ""
+  const currentAvailableCategories = selectedRace
+    ? getAvailableCategories(currentRaceTypeForCategories, currentIsStage, currentIsParentRace)
     : []
-  const currentStageIndex = currentStageList.findIndex(s => s.id === selectedRaceId)
-  const prevStage = currentStageIndex > 0 ? currentStageList[currentStageIndex - 1] : null
-  const nextStage = currentStageIndex < currentStageList.length - 1 ? currentStageList[currentStageIndex + 1] : null
+
+  // Prev/next category navigation
+  const currentCatIndex = selectedCategory ? currentAvailableCategories.indexOf(selectedCategory) : -1
+  const prevCategory = currentCatIndex > 0 ? currentAvailableCategories[currentCatIndex - 1] : null
+  const nextCategory = currentCatIndex < currentAvailableCategories.length - 1 ? currentAvailableCategories[currentCatIndex + 1] : null
+
+  const handleCategoryNav = (category: string) => {
+    if (formIsDirty && !window.confirm("You have unsaved changes. Navigate away without saving?")) return
+    setFormIsDirty(false)
+    setSelectedCategory(category)
+  }
 
   const handleRaceSelect = async (raceId: number) => {
     const race = races.find((r) => r.id === raceId)
@@ -359,6 +374,7 @@ export function ResultsClient({ races, riders }: Props) {
         category={selectedCategory}
         teams={teamNames}
         onSuccess={handleSuccess}
+        onDirtyChange={setFormIsDirty}
       />
     </div>
   ) : (
@@ -396,7 +412,7 @@ export function ResultsClient({ races, riders }: Props) {
                 <Button
                   key={category}
                   variant="outline"
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => { setFormIsDirty(false); setSelectedCategory(category) }}
                   className="h-auto py-4 px-4 text-left justify-start"
                 >
                   <div>
@@ -483,26 +499,26 @@ export function ResultsClient({ races, riders }: Props) {
         <DialogContent className="w-[80vw] sm:max-w-[80vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{selectedRace?.name}</DialogTitle>
-            {selectedRace?.parentRaceId && !showingStageOverview && (
+            {selectedCategory && selectedCategory !== "__picker__" && (
               <div className="flex items-center justify-between gap-2 pt-1">
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={!prevStage}
-                  onClick={() => prevStage && handleRaceSelect(prevStage.id)}
+                  disabled={!prevCategory}
+                  onClick={() => prevCategory && handleCategoryNav(prevCategory)}
                   className="text-xs"
                 >
                   <ChevronLeftIcon className="h-3 w-3 mr-1" />
-                  {prevStage ? prevStage.name : "—"}
+                  {prevCategory ? (categoryDisplayNames[prevCategory] || prevCategory) : "—"}
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
-                  disabled={!nextStage}
-                  onClick={() => nextStage && handleRaceSelect(nextStage.id)}
+                  disabled={!nextCategory}
+                  onClick={() => nextCategory && handleCategoryNav(nextCategory)}
                   className="text-xs"
                 >
-                  {nextStage ? nextStage.name : "—"}
+                  {nextCategory ? (categoryDisplayNames[nextCategory] || nextCategory) : "—"}
                   <ChevronRightIcon className="h-3 w-3 ml-1" />
                 </Button>
               </div>

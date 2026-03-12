@@ -16,18 +16,9 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-import { submitRaceResults, previewResults, submitTttResults, previewTttResults, getScoringScale, getResultsForRace } from "@/app/admin/results/actions"
+import { submitRaceResults, submitTttResults, getScoringScale, getResultsForRace } from "@/app/admin/results/actions"
 import { TrashIcon, PlusIcon } from "lucide-react"
 import { useState, useEffect } from "react"
-import { ScoringPreview } from "@/components/admin/scoring-preview"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 
 const resultSchema = z.object({
   results: z
@@ -98,6 +89,7 @@ type Props = {
   category: string
   teams?: string[]
   onSuccess: () => void
+  onDirtyChange?: (isDirty: boolean) => void
 }
 
 const categoryDisplayNames: Record<string, string> = {
@@ -157,8 +149,6 @@ export { categoryDisplayNames }
 
 function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: number; teams: string[]; raceType: string; onSuccess: () => void }) {
   const [serverError, setServerError] = useState<string | null>(null)
-  const [previewData, setPreviewData] = useState<any | null>(null)
-  const [isPreviewing, setIsPreviewing] = useState(false)
   const [teamSearchQueries, setTeamSearchQueries] = useState<Record<number, string>>({})
 
   const form = useForm<TttFormData>({
@@ -198,27 +188,6 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   const handleAddPlacement = () => {
     const nextPosition = fields.length + 1
     append({ position: nextPosition, teamName: "" })
-  }
-
-  const handlePreview = async () => {
-    const isValid = await form.trigger()
-    if (!isValid) {
-      toast.error("Please fix form errors before previewing")
-      return
-    }
-
-    const formData = form.getValues()
-
-    setIsPreviewing(true)
-    const result = await previewTttResults(raceId, formData.teamPlacements)
-    setIsPreviewing(false)
-
-    if (result.success && result.data) {
-      setPreviewData(result.data)
-      toast.success("Preview loaded!")
-    } else {
-      toast.error(result.error || "Failed to load preview")
-    }
   }
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
@@ -332,52 +301,10 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
             Add Team Placement
           </Button>
 
-          {/* Preview section */}
-          {previewData && (
-            <div className="pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">TTT Scoring Preview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Position</TableHead>
-                        <TableHead>Team</TableHead>
-                        <TableHead className="text-right">Points per Rider</TableHead>
-                        <TableHead className="text-right">Riders on Team</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {previewData.map((item: any, idx: number) => (
-                        <TableRow key={idx}>
-                          <TableCell className="font-medium">{item.position}</TableCell>
-                          <TableCell>{item.teamName}</TableCell>
-                          <TableCell className="text-right">{item.pointsPerRider}</TableCell>
-                          <TableCell className="text-right">{item.riderCount}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
           {/* Submit */}
           <div className="flex justify-end gap-3 pt-4">
             <Button
-              type="button"
-              variant={previewData ? "outline" : "default"}
-              onClick={handlePreview}
-              disabled={isPreviewing || form.formState.isSubmitting}
-            >
-              {isPreviewing ? "Loading..." : "Preview TTT Scoring"}
-            </Button>
-            <Button
               type="submit"
-              variant={previewData ? "default" : "outline"}
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting ? "Saving..." : "Submit TTT Results"}
@@ -389,11 +316,9 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
+export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess, onDirtyChange }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
-  const [previewData, setPreviewData] = useState<any | null>(null)
-  const [isPreviewing, setIsPreviewing] = useState(false)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
   const [scoringScale, setScoringScale] = useState<Record<string, number>>({})
 
@@ -407,6 +332,11 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
       results: Array.from({ length: prefillCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
     },
   })
+
+  const isDirty = form.formState.isDirty
+  useEffect(() => {
+    onDirtyChange?.(isDirty)
+  }, [isDirty, onDirtyChange])
 
   useEffect(() => {
     getScoringScale(raceId, category).then(setScoringScale).catch(() => {})
@@ -471,26 +401,6 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
   const handleAddResult = () => {
     const nextPosition = fields.length + 1
     append({ position: nextPosition, riderId: 0, time: "" })
-  }
-
-  const handlePreview = async () => {
-    const isValid = await form.trigger()
-    if (!isValid) {
-      toast.error("Please fix form errors before previewing")
-      return
-    }
-
-    const formData = form.getValues()
-    setIsPreviewing(true)
-    const result = await previewResults(raceId, formData.results, category)
-    setIsPreviewing(false)
-
-    if (result.success && result.data) {
-      setPreviewData(result.data)
-      toast.success("Preview loaded!")
-    } else {
-      toast.error(result.error || "Failed to load preview")
-    }
   }
 
   return (
@@ -632,30 +542,10 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
               Add Result
             </Button>
 
-            {/* Preview section */}
-            {previewData && (
-              <div className="pt-4">
-                <ScoringPreview
-                  preview={previewData.preview}
-                  totalPointsAwarded={previewData.totalPointsAwarded}
-                  raceName={previewData.raceName}
-                />
-              </div>
-            )}
-
             {/* Submit */}
             <div className="flex justify-end gap-3 pt-4">
               <Button
-                type="button"
-                variant={previewData ? "outline" : "default"}
-                onClick={handlePreview}
-                disabled={isPreviewing || form.formState.isSubmitting}
-              >
-                {isPreviewing ? "Loading..." : "Preview Scoring"}
-              </Button>
-              <Button
                 type="submit"
-                variant={previewData ? "default" : "outline"}
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? "Saving..." : "Submit Results"}

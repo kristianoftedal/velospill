@@ -106,7 +106,11 @@ Plans:
   2. Each expanded stage row shows the riders who scored points for that stage and how many points they earned
   3. End-of-tour classifications (GC, points jersey, KOM, etc.) are visible within the expanded grand tour view as a distinct section
   4. Collapsing the row returns the standings to the normal compact view
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 27-01-PLAN.md — Extend getLeagueRacesWithScores with structured parent+stages data (data layer)
+- [ ] 27-02-PLAN.md — Expandable multi-stage race rows in Race Results tab (UI layer)
 
 ## Progress
 

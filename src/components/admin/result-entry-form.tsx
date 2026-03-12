@@ -91,19 +91,12 @@ type Rider = {
   gender: string
 }
 
-type InitialResult = {
-  position: number
-  riderId: number
-  time?: string | null
-}
-
 type Props = {
   raceId: number
   riders: Rider[]
   raceType: string
   category: string
   teams?: string[]
-  initialResults?: InitialResult[]
   onSuccess: () => void
 }
 
@@ -396,7 +389,7 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, teams, initialResults, onSuccess }: Props) {
+export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [previewData, setPreviewData] = useState<any | null>(null)
@@ -408,18 +401,30 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, ini
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
   const prefillCount = categoryPrefillCounts[category] ?? 1
 
-  const defaultRows = initialResults && initialResults.length > 0
-    ? initialResults.map((r) => ({ position: r.position, riderId: r.riderId, time: r.time ?? "" }))
-    : Array.from({ length: prefillCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" }))
-
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
-    defaultValues: { results: defaultRows },
+    defaultValues: {
+      results: Array.from({ length: prefillCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
+    },
   })
 
   useEffect(() => {
     getScoringScale(raceId, category).then(setScoringScale).catch(() => {})
   }, [raceId, category])
+
+  // Fetch existing results for this race+category and pre-fill the form
+  useEffect(() => {
+    getResultsForRace(raceId).then((allResults) => {
+      const categoryResults = allResults.filter((r) => r.category === category)
+      if (categoryResults.length > 0) {
+        form.reset({
+          results: categoryResults
+            .sort((a, b) => a.position - b.position)
+            .map((r) => ({ position: r.position, riderId: r.riderId, time: r.time ?? "" })),
+        })
+      }
+    }).catch(() => {})
+  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

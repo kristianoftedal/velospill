@@ -544,7 +544,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, ini
                       >
                         <ComboboxInput
                           id={`rider-${index}`}
-                          placeholder="Search rider..."
+                          placeholder={selectedRider?.name || "Search rider..."}
                           className="h-9"
                         />
                         <ComboboxContent>

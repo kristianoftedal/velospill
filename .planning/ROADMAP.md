@@ -79,7 +79,7 @@ Full details: milestones/v1.4-ROADMAP.md
 ### v1.5 Multi-Stage Race Improvements
 
 - [x] **Phase 26: Admin Stage Result Scoping** — Fix stage result list to scope by raceId and add stage completion status overview (completed 2026-03-12)
-- [ ] **Phase 27: League Stage Visibility** — Expandable multi-stage race rows on league standings with per-stage and end-of-tour scoring
+- [x] **Phase 27: League Stage Visibility** — Expandable multi-stage race rows on league standings with per-stage and end-of-tour scoring (completed 2026-03-13)
 
 ## Phase Details
 
@@ -142,4 +142,4 @@ Plans:
 | 24. Write Path Wiring | v1.4 | 3/3 | Complete | 2026-03-08 |
 | 25. Read Path Migration & Cleanup | v1.4 | 2/2 | Complete | 2026-03-09 |
 | 26. Admin Stage Result Scoping | 2/2 | Complete   | 2026-03-12 | - |
-| 27. League Stage Visibility | 1/2 | In Progress|  | - |
+| 27. League Stage Visibility | 2/2 | Complete   | 2026-03-13 | - |

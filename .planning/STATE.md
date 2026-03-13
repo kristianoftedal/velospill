@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Multi-Stage Race Improvements
 status: planning
-stopped_at: Completed 27-01-PLAN.md
-last_updated: "2026-03-13T07:39:53.212Z"
+stopped_at: "Checkpoint: Task 3 human-verify in 27-02-PLAN.md"
+last_updated: "2026-03-13T07:57:27.773Z"
 last_activity: 2026-03-11 — Roadmap created (2 phases, 5 requirements)
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0% (v1.5) | v1.0-v1.4: 25/25 phases c
 | 27. League Stage Visibility | 0/TBD | Not started |
 | Phase 26-admin-stage-result-scoping P01 | 1 | 1 tasks | 1 files |
 | Phase 27-league-stage-visibility P01 | 7min | 1 tasks | 2 files |
+| Phase 27 P02 | 5min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ Recent decisions relevant to v1.5:
 - [Phase 26-admin-stage-result-scoping]: stagesTotal/stagesWithResults computed as correlated subqueries inline — consistent with hasResults pattern, no extra query needed
 - [Phase 26-admin-stage-result-scoping]: Number() cast in .map() handles Neon returning COUNT(*) as strings from correlated subqueries
 - [Phase 27-01]: MULTI_STAGE_TYPES = Set(['grand_tour','mini_tour','womens_grand_tour']) — determines isMultiStage flag; parent race's own results represent end-of-tour points; StandingsClient prop type updated to LeagueRaceScoreGrouped[] to keep TypeScript valid
+- [Phase 27]: Expand state uses Set<number> of raceIds — independent expand/collapse per grand tour
+- [Phase 27]: Expanded content uses colSpan=4 TableRow with div grid in TableCell — avoids invalid nested table HTML
+- [Phase 27]: page.tsx required zero changes — TypeScript infers LeagueRaceScoreGrouped[] from getLeagueRacesWithScores return type
 
 ### Pending Todos
 
@@ -116,7 +120,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-13T07:39:53.211Z
-Stopped at: Completed 27-01-PLAN.md
+Last session: 2026-03-13T07:57:27.771Z
+Stopped at: Checkpoint: Task 3 human-verify in 27-02-PLAN.md
 Resume file: None
 Next action: /gsd:plan-phase 26

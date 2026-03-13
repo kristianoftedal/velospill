@@ -52,6 +52,7 @@ const tttSchema = z.object({
       z.object({
         position: z.number().min(1),
         teamName: z.string().min(1, "Select a team"),
+        riderIds: z.array(z.number()).min(1, "Select at least one rider"),
       })
     )
     .min(1, "Enter at least one team placement")
@@ -147,14 +148,14 @@ const categoryPrefillCounts: Record<string, number> = {
 
 export { categoryDisplayNames }
 
-function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: number; teams: string[]; raceType: string; onSuccess: () => void }) {
+function TttEntrySection({ raceId, teams, raceType, riders, onSuccess }: { raceId: number; teams: string[]; raceType: string; riders: Rider[]; onSuccess: () => void }) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [teamSearchQueries, setTeamSearchQueries] = useState<Record<number, string>>({})
 
   const form = useForm<TttFormData>({
     resolver: zodResolver(tttSchema),
     defaultValues: {
-      teamPlacements: [{ position: 1, teamName: "" }],
+      teamPlacements: [{ position: 1, teamName: "", riderIds: [] }],
     },
   })
 
@@ -187,7 +188,7 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
 
   const handleAddPlacement = () => {
     const nextPosition = fields.length + 1
-    append({ position: nextPosition, teamName: "" })
+    append({ position: nextPosition, teamName: "", riderIds: [] })
   }
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
@@ -237,6 +238,11 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
                           form.setValue(`teamPlacements.${index}.teamName`, value, {
                             shouldValidate: true,
                           })
+                          // Reset riderIds to all riders for the selected team
+                          const teamRiders = riders
+                            .filter((r) => r.team === value && r.gender === expectedGender)
+                            .map((r) => r.id)
+                          form.setValue(`teamPlacements.${index}.riderIds`, teamRiders, { shouldValidate: true })
                           setTeamSearchQueries((prev) => ({ ...prev, [index]: "" }))
                         }
                       }}
@@ -267,6 +273,37 @@ function TttEntrySection({ raceId, teams, raceType, onSuccess }: { raceId: numbe
                     {form.formState.errors.teamPlacements?.[index]?.teamName && (
                       <p className="text-xs text-destructive mt-1">
                         {form.formState.errors.teamPlacements[index]?.teamName?.message}
+                      </p>
+                    )}
+                    {teamName && (() => {
+                      const teamRiders = riders.filter((r) => r.team === teamName && r.gender === expectedGender)
+                      const riderIds = form.watch(`teamPlacements.${index}.riderIds`) as number[]
+                      return teamRiders.length > 0 ? (
+                        <div className="mt-2 space-y-1 border rounded-md p-2 max-h-40 overflow-y-auto">
+                          {teamRiders.map((rider) => {
+                            const checked = riderIds.includes(rider.id)
+                            return (
+                              <label key={rider.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(e) => {
+                                    const next = e.target.checked
+                                      ? [...riderIds, rider.id]
+                                      : riderIds.filter((id) => id !== rider.id)
+                                    form.setValue(`teamPlacements.${index}.riderIds`, next, { shouldValidate: true })
+                                  }}
+                                />
+                                {rider.name}
+                              </label>
+                            )
+                          })}
+                        </div>
+                      ) : null
+                    })()}
+                    {form.formState.errors.teamPlacements?.[index]?.riderIds && (
+                      <p className="text-xs text-destructive mt-1">
+                        {form.formState.errors.teamPlacements[index]?.riderIds?.message}
                       </p>
                     )}
                   </div>
@@ -372,7 +409,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
         </Card>
       )
     }
-    return <TttEntrySection raceId={raceId} teams={teams} raceType={raceType} onSuccess={onSuccess} />
+    return <TttEntrySection raceId={raceId} teams={teams} raceType={raceType} riders={riders} onSuccess={onSuccess} />
   }
 
   const onSubmit = async (data: ResultFormData) => {

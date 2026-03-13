@@ -1,7 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
+import { ChevronRight, ChevronDown } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Table,
@@ -12,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { LeagueStanding, TeamRiderScore, LeagueRaceScoreGrouped } from "@/lib/scoring-queries"
+import { LeagueStanding, TeamRiderScore, LeagueRaceScoreGrouped, StageScore } from "@/lib/scoring-queries"
 
 interface StandingsClientProps {
   standings: LeagueStanding[]
@@ -44,6 +46,17 @@ export function StandingsClient({
   leagueId,
   races,
 }: StandingsClientProps) {
+  const [expandedRaces, setExpandedRaces] = useState<Set<number>>(new Set())
+
+  function toggleRace(raceId: number) {
+    setExpandedRaces((prev) => {
+      const next = new Set(prev)
+      if (next.has(raceId)) next.delete(raceId)
+      else next.add(raceId)
+      return next
+    })
+  }
+
   return (
     <Tabs defaultValue="leaderboard">
       <TabsList>
@@ -160,29 +173,128 @@ export function StandingsClient({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {races.map((race) => (
-                <TableRow key={race.raceId}>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/leagues/${leagueId}/standings/${race.raceId}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {race.raceName}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {formatRaceType(race.raceType)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {format(race.startDate, "d MMM yyyy")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {race.totalLeaguePoints}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {races.map((race) => {
+                if (race.isMultiStage) {
+                  const isExpanded = expandedRaces.has(race.raceId)
+                  return (
+                    <>
+                      <TableRow
+                        key={race.raceId}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => toggleRace(race.raceId)}
+                      >
+                        <TableCell className="font-medium">
+                          <span className="flex items-center gap-2">
+                            {isExpanded ? (
+                              <ChevronDown className="h-4 w-4 text-gray-500 shrink-0" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-gray-500 shrink-0" />
+                            )}
+                            {race.raceName}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {formatRaceType(race.raceType)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-gray-600">
+                          {format(race.startDate, "d MMM yyyy")}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {race.totalLeaguePoints}
+                        </TableCell>
+                      </TableRow>
+                      {isExpanded && (
+                        <TableRow key={`${race.raceId}-expanded`}>
+                          <TableCell colSpan={4} className="p-0 bg-gray-50">
+                            <div className="py-2">
+                              {race.stages.map((stage: StageScore) => (
+                                <div
+                                  key={stage.raceId}
+                                  className="flex items-center justify-between px-4 py-1.5 hover:bg-gray-100"
+                                >
+                                  <div className="flex items-center gap-3 pl-8">
+                                    {stage.hasResults ? (
+                                      <Link
+                                        href={`/leagues/${leagueId}/standings/${stage.raceId}`}
+                                        className="text-blue-600 hover:underline text-sm"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {stage.raceName}
+                                      </Link>
+                                    ) : (
+                                      <span className="text-gray-400 text-sm">
+                                        {stage.raceName}
+                                      </span>
+                                    )}
+                                    {stage.hasResults ? (
+                                      <Badge variant="secondary" className="text-xs">Done</Badge>
+                                    ) : (
+                                      <Badge variant="outline" className="text-xs">Pending</Badge>
+                                    )}
+                                  </div>
+                                  <div className="text-sm text-gray-700 pr-4">
+                                    {stage.totalLeaguePoints}
+                                  </div>
+                                </div>
+                              ))}
+                              {race.endOfTourPoints > 0 && (
+                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                  <div className="px-4 pl-12 py-1">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 pt-2 pb-1">
+                                      Final Classifications
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center justify-between px-4 py-1.5 hover:bg-gray-100">
+                                    <div className="pl-8">
+                                      <Link
+                                        href={`/leagues/${leagueId}/standings/${race.raceId}`}
+                                        className="text-blue-600 hover:underline text-sm"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {race.raceName}
+                                      </Link>
+                                    </div>
+                                    <div className="text-sm text-gray-700 pr-4">
+                                      {race.endOfTourPoints}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
+                  )
+                }
+
+                // One-day race — flat row unchanged
+                return (
+                  <TableRow key={race.raceId}>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/leagues/${leagueId}/standings/${race.raceId}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {race.raceName}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {formatRaceType(race.raceType)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {format(race.startDate, "d MMM yyyy")}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {race.totalLeaguePoints}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         )}

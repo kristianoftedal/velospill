@@ -538,7 +538,7 @@ export async function getTeamNames(gender: "M" | "F"): Promise<string[]> {
 
 export async function previewTttResults(
   raceId: number,
-  teamPlacements: Array<{ position: number; teamName: string }>,
+  teamPlacements: Array<{ position: number; teamName: string; riderIds: number[] }>,
 ) {
   await checkAdminAuth();
 
@@ -585,27 +585,16 @@ export async function previewTttResults(
       };
     }
 
-    // For each team, calculate preview data
-    const previewData = await Promise.all(
-      teamPlacements.map(async ({ position, teamName }) => {
-        // Count riders on this team
-        const riderCount = await db
-          .select({ count: sql<number>`count(*)` })
-          .from(riders)
-          .where(eq(riders.team, teamName))
-          .then((res) => Number(res[0]?.count || 0));
-
-        // Calculate points for this position
-        const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
-
-        return {
-          teamName,
-          position,
-          pointsPerRider: points,
-          riderCount,
-        };
-      }),
-    );
+    // For each team, calculate preview data using client-provided riderIds
+    const previewData = teamPlacements.map(({ position, teamName, riderIds }) => {
+      const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
+      return {
+        teamName,
+        position,
+        pointsPerRider: points,
+        riderCount: riderIds.length,
+      };
+    });
 
     return {
       success: true,
@@ -621,7 +610,7 @@ export async function previewTttResults(
 
 export async function submitTttResults(formData: {
   raceId: number;
-  teamPlacements: Array<{ position: number; teamName: string }>;
+  teamPlacements: Array<{ position: number; teamName: string; riderIds: number[] }>;
 }) {
   const session = await checkAdminAuth();
 
@@ -700,29 +689,14 @@ export async function submitTttResults(formData: {
       };
     }
 
-    // Pre-fetch all riders for all teams (outside transaction — avoids Neon interactive tx limitation)
-    const allTeamNames = teamPlacements.map((p) => p.teamName);
-    const allTeamRiders = await db
-      .select({ id: riders.id, team: riders.team })
-      .from(riders)
-      .where(inArray(riders.team, allTeamNames));
-
-    // Build lookup map: teamName -> riderId[]
-    const teamRiderMap = new Map<string, number[]>();
-    for (const rider of allTeamRiders) {
-      if (!teamRiderMap.has(rider.team)) teamRiderMap.set(rider.team, []);
-      teamRiderMap.get(rider.team)!.push(rider.id);
-    }
-
     // Replace existing TTT results using raw SQL to avoid Drizzle/Neon query issues
     await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt')`);
     await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt'`);
 
-    // INSERT-only transaction
+    // INSERT-only transaction — use client-provided riderIds directly
     await db.transaction(async (tx) => {
-      for (const { position, teamName } of teamPlacements) {
+      for (const { position, teamName: _teamName, riderIds } of teamPlacements) {
         const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
-        const riderIds = teamRiderMap.get(teamName) ?? [];
 
         for (const riderId of riderIds) {
           await tx.insert(raceResults).values({

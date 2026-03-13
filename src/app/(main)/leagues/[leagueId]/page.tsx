@@ -339,7 +339,76 @@ export default async function LeagueDetailPage({ params }: PageProps) {
           <CardContent>
             <Accordion type="multiple" className="w-full">
               {recentResults.map((race) => {
-                const totalPoints = race.results.reduce((sum: number, r) => sum + r.points, 0)
+                if (race.isMultiStage) {
+                  const completedStages = race.stages.filter((s) => s.hasResults)
+                  return (
+                    <AccordionItem key={race.raceId} value={String(race.raceId)}>
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-3 text-left">
+                          <span className="font-medium">{race.raceName}</span>
+                          <span className="text-sm text-gray-500">
+                            {format(race.startDate, "d MMM yyyy")}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs font-medium ${
+                              raceTypeColors[race.raceType] ?? raceTypeColors.low_priority_one_day
+                            }`}
+                          >
+                            {raceTypeLabels[race.raceType] ?? race.raceType}
+                          </span>
+                          <span className="text-xs font-medium text-primary">
+                            {race.totalPoints} pts
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {completedStages.length}/{race.stages.length} stages
+                          </span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-1 pt-2">
+                          {race.stages.map((stage) => (
+                            <div
+                              key={stage.raceId}
+                              className="flex items-center gap-2 py-1.5 border-b last:border-0 border-gray-100"
+                            >
+                              <div className="flex-1 min-w-0">
+                                {stage.hasResults ? (
+                                  <Link
+                                    href={`/leagues/${league.id}/standings/${stage.raceId}`}
+                                    className="text-sm font-medium text-blue-600 hover:underline"
+                                  >
+                                    {stage.raceName}
+                                  </Link>
+                                ) : (
+                                  <span className="text-sm font-medium text-gray-500">
+                                    {stage.raceName}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-400 ml-1.5">
+                                  {format(stage.startDate, "d MMM")}
+                                </span>
+                              </div>
+                              <Badge
+                                variant="outline"
+                                className={`text-xs shrink-0 ${
+                                  stage.hasResults
+                                    ? "border-green-300 text-green-700"
+                                    : "border-gray-300 text-gray-500"
+                                }`}
+                              >
+                                {stage.hasResults ? "Done" : "Pending"}
+                              </Badge>
+                              <span className="text-xs font-semibold text-primary shrink-0 w-14 text-right">
+                                {stage.hasResults ? `${stage.totalLeaguePoints} pts` : "-"}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                }
+
                 return (
                   <AccordionItem key={race.raceId} value={String(race.raceId)}>
                     <AccordionTrigger className="hover:no-underline">
@@ -349,7 +418,7 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                           {format(race.startDate, "d MMM yyyy")}
                         </span>
                         <span className="text-xs font-medium text-primary">
-                          {totalPoints} pts
+                          {race.totalPoints} pts
                         </span>
                       </div>
                     </AccordionTrigger>

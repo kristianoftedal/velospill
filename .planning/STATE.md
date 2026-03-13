@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Multi-Stage Race Improvements
 status: planning
-stopped_at: Phase 27 context gathered
-last_updated: "2026-03-12T14:07:10.038Z"
+stopped_at: Completed 27-01-PLAN.md
+last_updated: "2026-03-13T07:39:53.212Z"
 last_activity: 2026-03-11 — Roadmap created (2 phases, 5 requirements)
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
   percent: 0
 ---
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0% (v1.5) | v1.0-v1.4: 25/25 phases c
 | 26. Admin Stage Result Scoping | 0/TBD | Not started |
 | 27. League Stage Visibility | 0/TBD | Not started |
 | Phase 26-admin-stage-result-scoping P01 | 1 | 1 tasks | 1 files |
+| Phase 27-league-stage-visibility P01 | 7min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,7 @@ Recent decisions relevant to v1.5:
 - Key decision from Phase 12: Category column on raceResults — minimal schema change, reuses existing result entry patterns
 - [Phase 26-admin-stage-result-scoping]: stagesTotal/stagesWithResults computed as correlated subqueries inline — consistent with hasResults pattern, no extra query needed
 - [Phase 26-admin-stage-result-scoping]: Number() cast in .map() handles Neon returning COUNT(*) as strings from correlated subqueries
+- [Phase 27-01]: MULTI_STAGE_TYPES = Set(['grand_tour','mini_tour','womens_grand_tour']) — determines isMultiStage flag; parent race's own results represent end-of-tour points; StandingsClient prop type updated to LeagueRaceScoreGrouped[] to keep TypeScript valid
 
 ### Pending Todos
 
@@ -114,7 +116,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-12T14:07:10.036Z
-Stopped at: Phase 27 context gathered
-Resume file: .planning/phases/27-league-stage-visibility/27-CONTEXT.md
+Last session: 2026-03-13T07:39:53.211Z
+Stopped at: Completed 27-01-PLAN.md
+Resume file: None
 Next action: /gsd:plan-phase 26

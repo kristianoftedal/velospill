@@ -142,4 +142,4 @@ Plans:
 | 24. Write Path Wiring | v1.4 | 3/3 | Complete | 2026-03-08 |
 | 25. Read Path Migration & Cleanup | v1.4 | 2/2 | Complete | 2026-03-09 |
 | 26. Admin Stage Result Scoping | 2/2 | Complete   | 2026-03-12 | - |
-| 27. League Stage Visibility | v1.5 | 0/TBD | Not started | - |
+| 27. League Stage Visibility | 1/2 | In Progress|  | - |

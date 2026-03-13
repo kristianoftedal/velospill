@@ -12,9 +12,9 @@
 
 ### League Stage Visibility (SVIS)
 
-- [ ] **SVIS-01**: Multi-stage race rows in league standings are expandable to reveal individual stages
-- [ ] **SVIS-02**: Each expanded stage shows the riders who scored and their points for that stage
-- [ ] **SVIS-03**: End-of-tour results (GC, points jersey, KOM, etc.) are visible within the expanded grand tour view
+- [x] **SVIS-01**: Multi-stage race rows in league standings are expandable to reveal individual stages
+- [x] **SVIS-02**: Each expanded stage shows the riders who scored and their points for that stage
+- [x] **SVIS-03**: End-of-tour results (GC, points jersey, KOM, etc.) are visible within the expanded grand tour view
 
 ## Future Requirements
 
@@ -36,9 +36,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | ADMRS-01 | Phase 26 | Complete |
 | ADMRS-02 | Phase 26 | Complete |
-| SVIS-01 | Phase 27 | Pending |
-| SVIS-02 | Phase 27 | Pending |
-| SVIS-03 | Phase 27 | Pending |
+| SVIS-01 | Phase 27 | Complete |
+| SVIS-02 | Phase 27 | Complete |
+| SVIS-03 | Phase 27 | Complete |
 
 **Coverage:**
 - v1.5 requirements: 5 total

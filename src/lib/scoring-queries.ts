@@ -354,15 +354,50 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
   return allEntries satisfies RaceScoreEntry[]
 }
 
+// Multi-stage race type values — used to determine if a race needs stage grouping
+const MULTI_STAGE_TYPES = new Set(["grand_tour", "mini_tour", "womens_grand_tour"])
+
+export type StageScore = {
+  raceId: number
+  raceName: string
+  stageNumber: number | null
+  startDate: Date
+  totalLeaguePoints: number
+  hasResults: boolean
+}
+
+export type LeagueRaceScoreGrouped = {
+  raceId: number
+  raceName: string
+  raceType: string
+  startDate: Date
+  totalLeaguePoints: number  // sum of stages + endOfTour
+  isMultiStage: boolean      // true for grand_tour, mini_tour, womens_grand_tour
+  stages: StageScore[]       // empty for one-day races
+  endOfTourPoints: number    // points from results on the parent race row itself (not a stage)
+}
+
 /**
- * Returns races in a given season where at least one rider from the league has results.
- * Aggregates total fantasy points earned across all drafted riders for that race.
+ * Returns all parent races in a given season where at least one rider from the league has results.
+ * Multi-stage races (grand_tour, mini_tour, womens_grand_tour) are returned as parent rows
+ * with a nested stages array (per-stage points + hasResults) and an endOfTourPoints field.
+ * One-day races are returned as flat items with empty stages array.
+ * Parent row totalLeaguePoints = sum of all stage points + endOfTourPoints.
+ *
+ * Uses three-query application-side assembly pattern:
+ *   Query A — parent races with their own (end-of-tour) points
+ *   Query B — stage rows for multi-stage parent races with per-stage points
+ * Assembled in application code to avoid SQL JSON_AGG complexity.
+ *
  * Ownership-at-race-time: draftPicks join filters by draftPicks.pickedAt <= races.startDate
  * so pre-transfer race results are credited to the correct (original) team.
  * Sorted by startDate DESC (most recent first).
  */
-export async function getLeagueRacesWithScores(leagueId: number, season: number) {
-  const rows = await db
+export async function getLeagueRacesWithScores(leagueId: number, season: number): Promise<LeagueRaceScoreGrouped[]> {
+  // Query A — parent races (parentRaceId IS NULL) with their own direct league points.
+  // For multi-stage races, these points represent end-of-tour classification results
+  // entered against the parent race row itself. For one-day races, these are the full race points.
+  const parentRows = await db
     .select({
       raceId: races.id,
       raceName: races.name,
@@ -382,20 +417,92 @@ export async function getLeagueRacesWithScores(leagueId: number, season: number)
     )
     .where(
       and(
+        isNull(races.parentRaceId),
         eq(races.season, season),
-        sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+        sql`${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId})`
       )
     )
     .groupBy(races.id, races.name, races.raceType, races.startDate)
     .orderBy(desc(races.startDate))
 
-  return rows.map((row) => ({
-    raceId: row.raceId,
-    raceName: row.raceName,
-    raceType: row.raceType,
-    startDate: row.startDate,
-    totalLeaguePoints: Number(row.totalLeaguePoints),
-  })) satisfies LeagueRaceScore[]
+  // Query B — stage rows (parentRaceId IS NOT NULL) with per-stage league points and hasResults flag.
+  // Only fetch stages whose parent is in the league for this season.
+  const stageRows = await db
+    .select({
+      raceId: races.id,
+      raceName: races.name,
+      stageNumber: races.stageNumber,
+      startDate: races.startDate,
+      parentRaceId: races.parentRaceId,
+      totalLeaguePoints: sql<number>`COALESCE(SUM(CASE WHEN ${lineupFilter} THEN ${raceResults.points} ELSE 0 END), 0)`,
+      hasResults: sql<boolean>`EXISTS (SELECT 1 FROM race_results rr WHERE rr."raceId" = ${races.id})`,
+    })
+    .from(races)
+    .leftJoin(raceResults, eq(raceResults.raceId, races.id))
+    .leftJoin(
+      draftPicks,
+      and(
+        eq(draftPicks.riderId, raceResults.riderId),
+        eq(draftPicks.leagueId, leagueId),
+        lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
+      )
+    )
+    .where(
+      and(
+        sql`${races.parentRaceId} IS NOT NULL`,
+        eq(races.season, season),
+        sql`${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId})`
+      )
+    )
+    .groupBy(races.id, races.name, races.stageNumber, races.startDate, races.parentRaceId)
+    .orderBy(asc(races.stageNumber), asc(races.startDate))
+
+  // Application-side assembly — group stage rows by parentRaceId
+  const stagesByParent = new Map<number, StageScore[]>()
+  for (const row of stageRows) {
+    if (row.parentRaceId == null) continue
+    const parentId = Number(row.parentRaceId)
+    if (!stagesByParent.has(parentId)) stagesByParent.set(parentId, [])
+    stagesByParent.get(parentId)!.push({
+      raceId: row.raceId,
+      raceName: row.raceName,
+      stageNumber: row.stageNumber,
+      startDate: row.startDate,
+      totalLeaguePoints: Number(row.totalLeaguePoints),
+      hasResults: Boolean(row.hasResults),
+    })
+  }
+
+  // Build grouped result from parent rows
+  return parentRows.map((row) => {
+    const isMultiStage = MULTI_STAGE_TYPES.has(row.raceType)
+    if (!isMultiStage) {
+      return {
+        raceId: row.raceId,
+        raceName: row.raceName,
+        raceType: row.raceType,
+        startDate: row.startDate,
+        totalLeaguePoints: Number(row.totalLeaguePoints),
+        isMultiStage: false,
+        stages: [],
+        endOfTourPoints: 0,
+      }
+    }
+
+    const stages = stagesByParent.get(row.raceId) ?? []
+    const endOfTourPoints = Number(row.totalLeaguePoints)
+    const stagePointsTotal = stages.reduce((sum, s) => sum + s.totalLeaguePoints, 0)
+    return {
+      raceId: row.raceId,
+      raceName: row.raceName,
+      raceType: row.raceType,
+      startDate: row.startDate,
+      totalLeaguePoints: stagePointsTotal + endOfTourPoints,
+      isMultiStage: true,
+      stages,
+      endOfTourPoints,
+    }
+  })
 }
 
 export type RaceScoreEntry = {

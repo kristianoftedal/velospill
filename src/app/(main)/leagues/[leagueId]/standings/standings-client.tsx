@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { LeagueStanding, TeamRiderScore, LeagueRaceScore } from "@/lib/scoring-queries"
+import { LeagueStanding, TeamRiderScore, LeagueRaceScoreGrouped } from "@/lib/scoring-queries"
 
 interface StandingsClientProps {
   standings: LeagueStanding[]
@@ -20,7 +20,7 @@ interface StandingsClientProps {
   leagueId: number
   userTeamName: string | null
   userTeamId: number | null
-  races: LeagueRaceScore[]
+  races: LeagueRaceScoreGrouped[]
 }
 
 function getRankStyle(rank: number): string {

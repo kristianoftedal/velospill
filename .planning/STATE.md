@@ -4,8 +4,8 @@ milestone: v1.5
 milestone_name: Multi-Stage Race Improvements
 status: completed
 stopped_at: Completed 27-02-PLAN.md — human verification approved
-last_updated: "2026-03-13T10:19:41.739Z"
-last_activity: 2026-03-13 - Completed quick task 17: Fix league overview recent results for mini tours
+last_updated: "2026-03-13T19:01:00.613Z"
+last_activity: 2026-03-13 - Completed quick task 19: Fix TTT scoring — admin selects which riders score per team placement
 progress:
   total_phases: 2
   completed_phases: 2

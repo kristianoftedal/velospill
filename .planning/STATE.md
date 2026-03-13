@@ -4,8 +4,8 @@ milestone: v1.5
 milestone_name: Multi-Stage Race Improvements
 status: completed
 stopped_at: Completed 27-02-PLAN.md — human verification approved
-last_updated: "2026-03-13T08:29:05.725Z"
-last_activity: 2026-03-13 — Phase 27 Plan 02 complete (human verification approved)
+last_updated: "2026-03-13T10:19:41.739Z"
+last_activity: 2026-03-13 - Completed quick task 17: Fix league overview recent results for mini tours
 progress:
   total_phases: 2
   completed_phases: 2

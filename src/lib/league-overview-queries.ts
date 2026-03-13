@@ -181,50 +181,34 @@ export async function getRecentRaceResults(leagueId: number) {
     .orderBy(asc(raceResults.raceId), asc(raceResults.position))
 
   // Query 3: stage rows for multi-stage parent races — per-stage league points and hasResults flag
-  const multiStageRaceIds = completedRaceRows
-    .filter((r) => MULTI_STAGE_TYPES.has(r.raceType))
-    .map((r) => r.raceId)
-
-  let stageRows: {
-    raceId: number
-    raceName: string
-    stageNumber: number | null
-    startDate: Date
-    parentRaceId: number | null
-    totalLeaguePoints: number
-    hasResults: boolean
-  }[] = []
-
-  if (multiStageRaceIds.length > 0) {
-    stageRows = await db
-      .select({
-        raceId: races.id,
-        raceName: races.name,
-        stageNumber: races.stageNumber,
-        startDate: races.startDate,
-        parentRaceId: races.parentRaceId,
-        totalLeaguePoints: sql<number>`COALESCE(SUM(CASE WHEN ${draftPicks.id} IS NOT NULL THEN ${raceResults.points} ELSE 0 END), 0)`,
-        hasResults: sql<boolean>`EXISTS (SELECT 1 FROM race_results rr WHERE rr."raceId" = ${races.id})`,
-      })
-      .from(races)
-      .leftJoin(raceResults, eq(raceResults.raceId, races.id))
-      .leftJoin(
-        draftPicks,
-        and(
-          eq(draftPicks.riderId, raceResults.riderId),
-          eq(draftPicks.leagueId, leagueId),
-          lte(draftPicks.pickedAt, races.startDate) // ownership-at-race-time
-        )
+  const stageRows = await db
+    .select({
+      raceId: races.id,
+      raceName: races.name,
+      stageNumber: races.stageNumber,
+      startDate: races.startDate,
+      parentRaceId: races.parentRaceId,
+      totalLeaguePoints: sql<number>`COALESCE(SUM(CASE WHEN ${draftPicks.id} IS NOT NULL THEN ${raceResults.points} ELSE 0 END), 0)`,
+      hasResults: sql<boolean>`EXISTS (SELECT 1 FROM race_results rr WHERE rr."raceId" = ${races.id})`,
+    })
+    .from(races)
+    .leftJoin(raceResults, eq(raceResults.raceId, races.id))
+    .leftJoin(
+      draftPicks,
+      and(
+        eq(draftPicks.riderId, raceResults.riderId),
+        eq(draftPicks.leagueId, leagueId),
+        lte(draftPicks.pickedAt, races.startDate) // ownership-at-race-time
       )
-      .where(
-        and(
-          sql`${races.parentRaceId} IS NOT NULL`,
-          inArray(races.parentRaceId, multiStageRaceIds)
-        )
+    )
+    .where(
+      and(
+        sql`${races.parentRaceId} IS NOT NULL`,
+        sql`${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId})`
       )
-      .groupBy(races.id, races.name, races.stageNumber, races.startDate, races.parentRaceId)
-      .orderBy(asc(races.stageNumber), asc(races.startDate))
-  }
+    )
+    .groupBy(races.id, races.name, races.stageNumber, races.startDate, races.parentRaceId)
+    .orderBy(asc(races.stageNumber), asc(races.startDate))
 
   // Application-side assembly
 

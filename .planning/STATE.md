@@ -113,6 +113,7 @@ None.
 | 16 | Fix dropRider and submitTransferBid to handle return_eligible IR status | 2026-03-07 | f4d7c10 |
 | 17 | Fix league overview Recent Results for multi-stage races | 2026-03-13 | 3fb7136 |
 | 18 | Fix league overview Recent Results mini tour stages (inArray → SQL subquery) | 2026-03-13 | 0f79820 |
+| 19 | Fix TTT scoring: admin selects which riders score via per-team checkboxes | 2026-03-13 | d5cdff0 |
 
 ### Blockers/Concerns
 

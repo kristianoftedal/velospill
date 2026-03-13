@@ -1,5 +1,14 @@
 # Milestones
 
+## v1.5 Multi-Stage Race Improvements (Shipped: 2026-03-13)
+
+**Phases completed:** 2 phases, 4 plans, 0 tasks
+
+**Key accomplishments:**
+- (none recorded)
+
+---
+
 ## v1.4 Roster Consolidation (Shipped: 2026-03-09)
 
 **Phases completed:** 3 phases, 7 plans, 4 tasks

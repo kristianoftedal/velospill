@@ -54,21 +54,23 @@ The live competitive experience of managing a fantasy cycling team through a rea
 | 23 | draftPicks.pickedAt preserved for scoring; roster_slots.addedAt for audit only | Scoring ownership-at-race-time must use original pick timestamp | 23–25 | Good |
 | 24 | All roster mutations wrapped in transactions with roster_slots writes | Atomicity guarantees — no orphaned draftPicks or out-of-sync slots | 24 | Good |
 | 25 | getTeamRoster keeps draftPicks innerJoin for pickedAt/pickNumber | Roster display still shows pick metadata; scoring invariant preserved | 25 | Good |
-
-## Current Milestone: v1.5 Multi-Stage Race Improvements
-
-**Goal:** Fix multi-stage race (grand tour / mini tour) admin result entry scoping and add stage-level scoring visibility on the league page.
-
-**Target features:**
-- Admin result entry scoped to the correct stage (not bleeding across all same-type races)
-- Admin stage status overview (which stages have results entered)
-- Expandable multi-stage race rows on league standings with per-stage scoring breakdown
+| 26 | Correlated subquery for stagesTotal/stagesWithResults in getRacesForResults | Single SELECT with inline COUNT(*) child queries — consistent with existing hasResults pattern, no extra JOIN | 26 | Good |
+| 27 | Three-query assembly for getLeagueRacesWithScores (parent + stages grouped) | Query A (parent races / end-of-tour points) + Query B (stage rows) assembled in application code — avoids SQL JSON_AGG complexity | 27 | Good |
+| 28 | Accordion table rows via colSpan expansion (not nested table) | colSpan=4 TableRow with div grid inside TableCell — valid HTML, no nested table element | 27 | Good |
 
 ## Current State
 
-- **Version:** v1.5 in progress (started 2026-03-11)
-- **Phases:** 25 phases, 58+ plans executed (v1.0–v1.4)
-- **Codebase:** ~26,500 LOC TypeScript
+- **Version:** v1.5 shipped (2026-03-13)
+- **Phases:** 27 phases, 62 plans executed (v1.0–v1.5)
+- **Codebase:** ~27,000 LOC TypeScript
+
+### What Shipped (v1.5)
+
+- Admin result entry scoped per stage — stage result list filtered by raceId, no bleed-through from sibling stages
+- Admin stage overview modal on parent race click with Done/Pending badges per stage and "X/Y done" sidebar counts
+- Prev/next stage navigation buttons inside stage modals
+- `getLeagueRacesWithScores` refactored to three-query assembly returning `LeagueRaceScoreGrouped[]` with nested `stages[]` and `endOfTourPoints`
+- Accordion-style expandable grand tour rows on league standings Race Results tab — chevron toggle, per-stage Done/Pending badges + breakdown links, "Final Classifications" end-of-tour section
 
 ### What Shipped (v1.4)
 
@@ -78,18 +80,12 @@ The live competitive experience of managing a fantasy cycling team through a rea
 - Dead `draftPicks + irRequests` join-based roster count code removed
 - Correctness fix: `isOnIR` now correctly includes `return_eligible` riders (not just `approved`)
 
-### What Shipped (v1.3)
-
-- IR placement flow — players request IR (max 2 slots), admin approves/rejects, approved riders freed from active roster limit
-- Drop rider — instant roster removal, no approval required
-- IR return flow — admin marks eligible, persistent banner, transfer block enforced, return with roster-full drop gate
-- 16 quick tasks completed (including post-audit bug fixes for transfer form and return_eligible handling)
-
 ### Known Limitations / Tech Debt
 
 - `npm run build` fails due to drizzle-kit 0.18.x type error (DEBT-01 — project source compiles cleanly)
 - Hammer/Innlagt Spurt/Lagtempo orders use admin-entered bonus points (DEBT-02–04, no auto-calculation)
 - Shimanobil counter uses simplified team matching (DEBT-05)
+- React `key` prop warning on fragment in `standings-client.tsx:180` — console only, no rendering issue
 
 ## Shipped Milestones
 
@@ -98,6 +94,7 @@ The live competitive experience of managing a fantasy cycling team through a rea
 - ✓ v1.2 Player Visibility — shipped 2026-03-06
 - ✓ v1.3 IR List & Roster Management — shipped 2026-03-07
 - ✓ v1.4 Roster Consolidation — shipped 2026-03-09
+- ✓ v1.5 Multi-Stage Race Improvements — shipped 2026-03-13
 
 ---
-*Last updated: 2026-03-11 after v1.5 milestone started*
+*Last updated: 2026-03-13 after v1.5 milestone*

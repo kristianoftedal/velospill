@@ -22,6 +22,7 @@ import { getLeagueDetails } from "./actions"
 import { getLeagueStandingsWithOrders, getTeamRiderScores, getLeagueRacesWithScores } from "@/lib/scoring-queries"
 import { getUpcomingRacesWithLineups, getRecentRaceResults, UpcomingRaceWithLineups, RecentRaceResult } from "@/lib/league-overview-queries"
 import { getEligibleToReturnCount } from "@/lib/ir-queries"
+import { getActiveTransferWindow } from "@/lib/transfer-queries"
 import { StandingsClient } from "./standings/standings-client"
 import { LeagueConfig } from "@/db/schema/leagues"
 
@@ -129,6 +130,12 @@ export default async function LeagueDetailPage({ params }: PageProps) {
     eligibleToReturnCount = await getEligibleToReturnCount(userTeamId, leagueId)
   }
 
+  // Fetch active transfer window for banner
+  let activeTransferWindow = null
+  if (league.status === "active") {
+    activeTransferWindow = await getActiveTransferWindow(leagueId)
+  }
+
   // Find user's team for standings highlighting
   const userStanding = standings && userTeamId != null
     ? standings.find((s) => s.teamId === userTeamId) ?? null
@@ -228,6 +235,25 @@ export default async function LeagueDetailPage({ params }: PageProps) {
               </div>
               <Button asChild variant="destructive" size="sm" className="shrink-0">
                 <Link href={`/leagues/${leagueId}/ir`}>Go to IR page</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Transfer Window Banner — shown when a transfer window is currently open */}
+      {league.status === "active" && activeTransferWindow && (
+        <Card className="border-blue-300 bg-blue-50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold text-blue-800">Transfer window open</p>
+                <p className="text-sm text-blue-700 mt-0.5">
+                  Transfers are open until {format(activeTransferWindow.closesAt, "d MMM yyyy")}. Window opened {format(activeTransferWindow.opensAt, "d MMM yyyy")}.
+                </p>
+              </div>
+              <Button asChild variant="outline" size="sm" className="shrink-0 border-blue-300 text-blue-800 hover:bg-blue-100">
+                <Link href={`/leagues/${leagueId}/transfers`}>Go to Transfers</Link>
               </Button>
             </div>
           </CardContent>

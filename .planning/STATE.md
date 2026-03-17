@@ -5,7 +5,7 @@ milestone_name: Multi-Stage Race Improvements
 status: completed
 stopped_at: Completed 27-02-PLAN.md — human verification approved
 last_updated: "2026-03-13T19:01:00.613Z"
-last_activity: 2026-03-13 - Completed quick task 19: Fix TTT scoring — admin selects which riders score per team placement
+last_activity: 2026-03-17 - Completed quick task 21: Add transfer window banner to league page
 progress:
   total_phases: 2
   completed_phases: 2
@@ -115,6 +115,7 @@ None.
 | 18 | Fix league overview Recent Results mini tour stages (inArray → SQL subquery) | 2026-03-13 | 0f79820 |
 | 19 | Fix TTT scoring: admin selects which riders score via per-team checkboxes | 2026-03-13 | d5cdff0 |
 | 20 | Fix TTT submit: parent raceType for scoring config + server-side riderIds guard | 2026-03-17 | fb7a6cc |
+| 21 | Add transfer window banner to league page | 2026-03-17 | 0d584ff |
 
 ### Blockers/Concerns
 

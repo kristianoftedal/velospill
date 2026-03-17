@@ -555,10 +555,21 @@ export async function previewTttResults(
       };
     }
 
-    // Resolve scoring raceType (detect TdF)
-    let raceTypeForScoring: string = race.raceType;
-    if (race.raceType === "grand_tour") {
-      const lower = race.name.toLowerCase();
+    // If this is a stage (has parentRaceId), fetch the parent race and use its raceType + name
+    let raceForScoring = race;
+    if (race.parentRaceId) {
+      const parentRace = await db.query.races.findFirst({
+        where: eq(races.id, race.parentRaceId),
+      });
+      if (parentRace) {
+        raceForScoring = parentRace;
+      }
+    }
+
+    // Resolve scoring raceType (detect TdF) using parent race if applicable
+    let raceTypeForScoring: string = raceForScoring.raceType;
+    if (raceForScoring.raceType === "grand_tour") {
+      const lower = raceForScoring.name.toLowerCase();
       if (lower.includes("tour de france") || lower.includes("tdf")) {
         raceTypeForScoring = "grand_tour_tdf";
       }
@@ -643,6 +654,15 @@ export async function submitTttResults(formData: {
       };
     }
 
+    // Server-side guard: every placement must have at least one rider selected
+    const hasEmptyRiders = teamPlacements.some(p => !p.riderIds || p.riderIds.length === 0);
+    if (hasEmptyRiders) {
+      return {
+        success: false,
+        error: { _form: ["Select at least one rider per team placement"] },
+      };
+    }
+
     // Get the race to determine raceType for scoring
     const race = await db.query.races.findFirst({
       where: eq(races.id, raceId),
@@ -655,10 +675,21 @@ export async function submitTttResults(formData: {
       };
     }
 
-    // Resolve scoring raceType (detect TdF)
-    let raceTypeForScoring: string = race.raceType;
-    if (race.raceType === "grand_tour") {
-      const lower = race.name.toLowerCase();
+    // If this is a stage (has parentRaceId), fetch the parent race and use its raceType + name
+    let raceForScoring = race;
+    if (race.parentRaceId) {
+      const parentRace = await db.query.races.findFirst({
+        where: eq(races.id, race.parentRaceId),
+      });
+      if (parentRace) {
+        raceForScoring = parentRace;
+      }
+    }
+
+    // Resolve scoring raceType (detect TdF) using parent race if applicable
+    let raceTypeForScoring: string = raceForScoring.raceType;
+    if (raceForScoring.raceType === "grand_tour") {
+      const lower = raceForScoring.name.toLowerCase();
       if (lower.includes("tour de france") || lower.includes("tdf")) {
         raceTypeForScoring = "grand_tour_tdf";
       }

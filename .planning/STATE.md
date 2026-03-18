@@ -5,7 +5,7 @@ milestone_name: Multi-Stage Race Improvements
 status: completed
 stopped_at: Completed 27-02-PLAN.md — human verification approved
 last_updated: "2026-03-13T19:01:00.613Z"
-last_activity: 2026-03-17 - Completed quick task 21: Add transfer window banner to league page
+last_activity: 2026-03-18 - Completed quick task 22: Fix roster_slots sync bug in approveBid
 progress:
   total_phases: 2
   completed_phases: 2
@@ -116,6 +116,7 @@ None.
 | 19 | Fix TTT scoring: admin selects which riders score via per-team checkboxes | 2026-03-13 | d5cdff0 |
 | 20 | Fix TTT submit: parent raceType for scoring config + server-side riderIds guard | 2026-03-17 | fb7a6cc |
 | 21 | Add transfer window banner to league page | 2026-03-17 | 0d584ff |
+| 22 | Fix roster_slots sync bug in approveBid | 2026-03-18 | 72474ee |
 
 ### Blockers/Concerns
 

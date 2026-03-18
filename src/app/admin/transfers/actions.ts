@@ -122,6 +122,7 @@ export async function approveBid(bidId: number) {
 
       // Step 3: Re-verify outRider still belongs to team (only if this is a swap)
       let currentPick = null
+      let currentSlot = null
       if (bid.outRiderId != null) {
         currentPick = await tx.query.draftPicks.findFirst({
           where: and(
@@ -130,8 +131,19 @@ export async function approveBid(bidId: number) {
             eq(draftPicks.riderId, bid.outRiderId)
           ),
         })
+        // Fallback: check roster_slots in case the rider has a slot but no draft_pick
+        // (can happen post-migration or if draft_pick was lost due to a previous partial failure)
         if (!currentPick) {
-          throw new Error("Outgoing rider is no longer on this team")
+          currentSlot = await tx.query.rosterSlots.findFirst({
+            where: and(
+              eq(rosterSlots.leagueId, bid.leagueId),
+              eq(rosterSlots.teamId, bid.teamId),
+              eq(rosterSlots.riderId, bid.outRiderId!)
+            ),
+          })
+          if (!currentSlot) {
+            throw new Error("Outgoing rider is no longer on this team")
+          }
         }
       }
 
@@ -143,14 +155,17 @@ export async function approveBid(bidId: number) {
         throw new Error("Incoming rider not found")
       }
 
-      // Step 5: Delete old draftPick (only for swaps, not free-slot pickups)
-      if (currentPick) {
-        await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
-        // Delete outgoing rider's roster_slots row
+      // Step 5: Delete old draftPick and roster_slots row for outgoing rider
+      if (bid.outRiderId != null) {
+        // Delete draft_pick if it exists
+        if (currentPick) {
+          await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
+        }
+        // Always delete outgoing rider's roster_slots row (covers both currentPick and currentSlot cases)
         await tx.delete(rosterSlots).where(
           and(
             eq(rosterSlots.leagueId, bid.leagueId),
-            eq(rosterSlots.riderId, bid.outRiderId!)
+            eq(rosterSlots.riderId, bid.outRiderId)
           )
         )
       }

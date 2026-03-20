@@ -318,10 +318,10 @@ export async function generateTransferWindows(leagueId: number, season: number) 
     opensAt.setUTCDate(opensAt.getUTCDate() - params.daysBeforeOpen)
     opensAt.setUTCHours(0, 0, 0, 0)
 
-    // Closes 1 day before startDate (midnight UTC)
+    // Closes 1 day before startDate at 23:59:59 UTC
     const closesAt = new Date(startDate)
     closesAt.setUTCDate(closesAt.getUTCDate() - 1)
-    closesAt.setUTCHours(0, 0, 0, 0)
+    closesAt.setUTCHours(23, 59, 59, 0)
 
     return {
       leagueId,

@@ -5,7 +5,7 @@ milestone_name: Multi-Stage Race Improvements
 status: completed
 stopped_at: Completed 27-02-PLAN.md — human verification approved
 last_updated: "2026-03-13T19:01:00.613Z"
-last_activity: 2026-03-18 - Completed quick task 22: Fix roster_slots sync bug in approveBid
+last_activity: 2026-03-20 - Completed quick task 23: Remove per-window transfer limits
 progress:
   total_phases: 2
   completed_phases: 2
@@ -117,6 +117,7 @@ None.
 | 20 | Fix TTT submit: parent raceType for scoring config + server-side riderIds guard | 2026-03-17 | fb7a6cc |
 | 21 | Add transfer window banner to league page | 2026-03-17 | 0d584ff |
 | 22 | Fix roster_slots sync bug in approveBid | 2026-03-18 | 72474ee |
+| 23 | Remove per-window transfer limits entirely | 2026-03-20 | 135a086 |
 
 ### Blockers/Concerns
 

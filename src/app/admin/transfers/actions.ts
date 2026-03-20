@@ -314,7 +314,6 @@ export async function getTransferWindows(leagueId: number) {
       leagueId: transferWindows.leagueId,
       raceId: transferWindows.raceId,
       raceName: races.name,
-      maxTransfers: transferWindows.maxTransfers,
       opensAt: transferWindows.opensAt,
       closesAt: transferWindows.closesAt,
       description: transferWindows.description,
@@ -467,7 +466,6 @@ export async function generateWindowsForLeague(leagueId: number) {
 const createTransferWindowSchema = z.object({
   leagueId: z.number().int().positive(),
   raceId: z.number().int().positive().optional(),
-  maxTransfers: z.number().int().positive().optional(),
   opensAt: z.string().datetime(),
   closesAt: z.string().datetime(),
   description: z.string().max(255).optional(),
@@ -479,7 +477,6 @@ const createTransferWindowSchema = z.object({
 export async function createTransferWindow(data: {
   leagueId: number
   raceId?: number
-  maxTransfers?: number
   opensAt: string
   closesAt: string
   description?: string
@@ -491,12 +488,11 @@ export async function createTransferWindow(data: {
     return { success: false, error: "Invalid input" }
   }
 
-  const { leagueId, raceId, maxTransfers, opensAt, closesAt, description } = parsed.data
+  const { leagueId, raceId, opensAt, closesAt, description } = parsed.data
 
   await db.insert(transferWindows).values({
     leagueId,
     raceId: raceId ?? null,
-    maxTransfers: maxTransfers ?? null,
     opensAt: new Date(opensAt),
     closesAt: new Date(closesAt),
     description: description ?? null,

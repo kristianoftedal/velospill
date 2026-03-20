@@ -6,7 +6,7 @@ import { races } from "@/db/schema/races"
 import { teams, leagueRaces } from "@/db/schema/leagues"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { getLeagueStandings } from "@/lib/scoring-queries"
-import { eq, and, notInArray, lte, gt, gte, desc, count, isNull, asc, sql } from "drizzle-orm"
+import { eq, and, notInArray, lte, gt, desc, isNull, asc, sql } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
 
 /**
@@ -131,44 +131,6 @@ export async function getActiveTransferWindow(leagueId: number) {
   return result[0] ?? null
 }
 
-/**
- * Counts approved transfers for a team within a specific transfer window's time range.
- * Used for limit checking when validating new transfer bids.
- */
-export async function getTeamTransferCount(
-  teamId: number,
-  leagueId: number,
-  windowId: number
-) {
-  // Get window dates for range checking
-  const windowResult = await db
-    .select({
-      opensAt: transferWindows.opensAt,
-      closesAt: transferWindows.closesAt,
-    })
-    .from(transferWindows)
-    .where(eq(transferWindows.id, windowId))
-    .limit(1)
-
-  if (!windowResult[0]) return 0
-
-  const { opensAt, closesAt } = windowResult[0]
-
-  const result = await db
-    .select({ total: count() })
-    .from(transferBids)
-    .where(
-      and(
-        eq(transferBids.teamId, teamId),
-        eq(transferBids.leagueId, leagueId),
-        eq(transferBids.status, "approved"),
-        gte(transferBids.submittedAt, opensAt),
-        lte(transferBids.submittedAt, closesAt)
-      )
-    )
-
-  return result[0]?.total ?? 0
-}
 
 /**
  * Resolves conflicting bids for the same free agent using waiver wire priority.
@@ -266,7 +228,7 @@ export async function resolveConflictingBids(leagueId: number, season: number) {
  * Per user decision #4: "Transfer windows auto-generated from league settings, with admin override."
  *
  * Only parent races (parentRaceId IS NULL) are used — stages are skipped.
- * Window timing and max transfers are determined by race type.
+ * Window timing is determined by race type.
  * Returns proposals — the admin action inserts them.
  */
 export async function generateTransferWindows(leagueId: number, season: number) {
@@ -297,19 +259,19 @@ export async function generateTransferWindows(leagueId: number, season: number) 
   // Map race type to window parameters
   const windowParams: Record<
     string,
-    { maxTransfers: number | null; daysBeforeOpen: number }
+    { daysBeforeOpen: number }
   > = {
-    grand_tour:              { maxTransfers: null, daysBeforeOpen: 7 },
-    womens_grand_tour:       { maxTransfers: null, daysBeforeOpen: 7 },
-    world_championship:      { maxTransfers: 4,    daysBeforeOpen: 7 },
-    high_priority_one_day:   { maxTransfers: 4,    daysBeforeOpen: 5 },
-    low_priority_one_day:    { maxTransfers: 2,    daysBeforeOpen: 3 },
-    mini_tour:               { maxTransfers: 2,    daysBeforeOpen: 3 },
-    womens_one_day:          { maxTransfers: 2,    daysBeforeOpen: 3 },
+    grand_tour:              { daysBeforeOpen: 7 },
+    womens_grand_tour:       { daysBeforeOpen: 7 },
+    world_championship:      { daysBeforeOpen: 7 },
+    high_priority_one_day:   { daysBeforeOpen: 5 },
+    low_priority_one_day:    { daysBeforeOpen: 3 },
+    mini_tour:               { daysBeforeOpen: 3 },
+    womens_one_day:          { daysBeforeOpen: 3 },
   }
 
   return parentRaceRows.map((race) => {
-    const params = windowParams[race.raceType] ?? { maxTransfers: 2, daysBeforeOpen: 3 }
+    const params = windowParams[race.raceType] ?? { daysBeforeOpen: 3 }
 
     const startDate = new Date(race.startDate)
 
@@ -326,7 +288,6 @@ export async function generateTransferWindows(leagueId: number, season: number) 
     return {
       leagueId,
       raceId: race.id,
-      maxTransfers: params.maxTransfers,
       opensAt,
       closesAt,
       description: `Transfer window for ${race.name}`,

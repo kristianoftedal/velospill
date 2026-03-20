@@ -14,7 +14,6 @@ import {
 } from "@/lib/league-auth"
 import {
   getActiveTransferWindow,
-  getTeamTransferCount,
   getTeamBudget,
 } from "@/lib/transfer-queries"
 import { irRequests } from "@/db/schema/ir"
@@ -186,16 +185,6 @@ export async function submitTransferBid(formData: {
 
   if (!activeWindow) {
     return { success: false, error: "No active transfer window" }
-  }
-
-  if (activeWindow.maxTransfers != null && outRiderId != null) {
-    const usedTransfers = await getTeamTransferCount(team.id, leagueId, activeWindow.id)
-    if (usedTransfers >= activeWindow.maxTransfers) {
-      return {
-        success: false,
-        error: `Transfer limit reached (${activeWindow.maxTransfers} per window)`,
-      }
-    }
   }
 
   // 8. Budget validation

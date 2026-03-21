@@ -5,7 +5,7 @@ milestone_name: Multi-Stage Race Improvements
 status: completed
 stopped_at: Completed 27-02-PLAN.md — human verification approved
 last_updated: "2026-03-13T19:01:00.613Z"
-last_activity: 2026-03-20 - Completed quick task 23: Remove per-window transfer limits
+last_activity: 2026-03-21 - Completed quick task 24: fix points lost when Tejada and Romeo were removed from team
 progress:
   total_phases: 2
   completed_phases: 2
@@ -118,6 +118,7 @@ None.
 | 21 | Add transfer window banner to league page | 2026-03-17 | 0d584ff |
 | 22 | Fix roster_slots sync bug in approveBid | 2026-03-18 | 72474ee |
 | 23 | Remove per-window transfer limits entirely | 2026-03-20 | 135a086 |
+| 24 | fix points lost when Tejada and Romeo were removed from team | 2026-03-21 | 2e4c37a | [260321-cj1-fix-points-lost-when-tejada-and-romeo-we](.planning/quick/260321-cj1-fix-points-lost-when-tejada-and-romeo-we/) |
 
 ### Blockers/Concerns
 

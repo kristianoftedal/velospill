@@ -70,6 +70,7 @@ export async function getLeagueStandings(leagueId: number, season: number) {
         eq(races.id, raceResults.raceId),
         eq(races.season, season),
         gte(races.startDate, draftPicks.pickedAt),  // ownership-at-race-time
+        or(isNull(draftPicks.droppedAt), gte(draftPicks.droppedAt, races.startDate)),  // include pre-drop race results
         sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
       )
     )
@@ -178,7 +179,8 @@ export async function getTeamRiderScores(teamId: number, leagueId: number, seaso
     .where(
       and(
         eq(draftPicks.teamId, teamId),
-        eq(draftPicks.leagueId, leagueId)
+        eq(draftPicks.leagueId, leagueId),
+        isNull(draftPicks.droppedAt)  // only show active (non-dropped) riders on the roster display
       )
     )
     .groupBy(draftPicks.riderId, riders.name, riders.team, riders.gender)
@@ -287,7 +289,8 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
       and(
         eq(draftPicks.riderId, raceResults.riderId),
         eq(draftPicks.leagueId, leagueId),
-        lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
+        lte(draftPicks.pickedAt, races.startDate),  // ownership-at-race-time
+        or(isNull(draftPicks.droppedAt), gte(draftPicks.droppedAt, races.startDate))  // include pre-drop race results
       )
     )
     .innerJoin(teams, eq(teams.id, draftPicks.teamId))
@@ -412,7 +415,8 @@ export async function getLeagueRacesWithScores(leagueId: number, season: number)
       and(
         eq(draftPicks.riderId, raceResults.riderId),
         eq(draftPicks.leagueId, leagueId),
-        lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
+        lte(draftPicks.pickedAt, races.startDate),  // ownership-at-race-time
+        or(isNull(draftPicks.droppedAt), gte(draftPicks.droppedAt, races.startDate))  // include pre-drop race results
       )
     )
     .where(
@@ -444,7 +448,8 @@ export async function getLeagueRacesWithScores(leagueId: number, season: number)
       and(
         eq(draftPicks.riderId, raceResults.riderId),
         eq(draftPicks.leagueId, leagueId),
-        lte(draftPicks.pickedAt, races.startDate)  // ownership-at-race-time
+        lte(draftPicks.pickedAt, races.startDate),  // ownership-at-race-time
+        or(isNull(draftPicks.droppedAt), gte(draftPicks.droppedAt, races.startDate))  // include pre-drop race results
       )
     )
     .where(
@@ -789,7 +794,8 @@ export async function getStandingsHistory(leagueId: number, season: number): Pro
       draftPicks,
       and(
         eq(draftPicks.riderId, raceResults.riderId),
-        eq(draftPicks.leagueId, leagueId)
+        eq(draftPicks.leagueId, leagueId),
+        or(isNull(draftPicks.droppedAt), gte(draftPicks.droppedAt, races.startDate))  // include pre-drop race results
       )
     )
     .where(
@@ -862,6 +868,7 @@ export async function getStandingsHistory(leagueId: number, season: number): Pro
         eq(races.id, raceResults.raceId),
         eq(races.season, season),
         gte(races.startDate, draftPicks.pickedAt),  // ownership-at-race-time
+        or(isNull(draftPicks.droppedAt), gte(draftPicks.droppedAt, races.startDate)),  // include pre-drop race results
         sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
       )
     )

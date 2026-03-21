@@ -6,7 +6,7 @@ import { draftPicks } from "@/db/schema/draft"
 import { transferBids } from "@/db/schema/transfers"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, inArray } from "drizzle-orm"
+import { eq, and, inArray, isNull } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
 
@@ -20,7 +20,7 @@ import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
  * - Rider must be on the team (in draftPicks)
  *
  * Side effects:
- * - Hard-deletes the draftPicks row
+ * - Soft-deletes the draftPicks row (sets droppedAt = NOW()) to preserve historical scoring
  * - Hard-deletes any active IR requests for the dropped rider
  * - Cancels any pending transfer bids with the dropped rider as outgoing
  */
@@ -53,7 +53,7 @@ export async function dropRider(data: {
     return { success: false, error: "Roster changes are only allowed in active leagues" }
   }
 
-  // 4. Ownership check — rider must be on this team
+  // 4. Ownership check — rider must be on this team (active, not already dropped)
   const [riderOnTeam] = await db
     .select({ id: draftPicks.id })
     .from(draftPicks)
@@ -61,7 +61,8 @@ export async function dropRider(data: {
       and(
         eq(draftPicks.teamId, team.id),
         eq(draftPicks.leagueId, data.leagueId),
-        eq(draftPicks.riderId, data.riderId)
+        eq(draftPicks.riderId, data.riderId),
+        isNull(draftPicks.droppedAt)
       )
     )
     .limit(1)
@@ -71,14 +72,18 @@ export async function dropRider(data: {
   }
 
   await db.transaction(async (tx) => {
-    // 5. Delete the draftPicks row
+    // 5. Soft-delete the draftPicks row (set droppedAt instead of hard-delete)
+    // This preserves historical points: scoring queries filter by droppedAt so
+    // the rider's pre-drop race results still accrue to this team.
     await tx
-      .delete(draftPicks)
+      .update(draftPicks)
+      .set({ droppedAt: new Date() })
       .where(
         and(
           eq(draftPicks.teamId, team.id),
           eq(draftPicks.leagueId, data.leagueId),
-          eq(draftPicks.riderId, data.riderId)
+          eq(draftPicks.riderId, data.riderId),
+          isNull(draftPicks.droppedAt)
         )
       )
 

@@ -500,11 +500,12 @@ export async function getScoringScale(
         : race.raceType;
   }
 
+  const baseCategory = category.replace(/_\d+$/, "");
   const now = new Date();
   let rule = await db.query.scoringConfig.findFirst({
     where: and(
       eq(scoringConfig.raceType, raceTypeForScoring),
-      eq(scoringConfig.category, category),
+      eq(scoringConfig.category, baseCategory),
       lte(scoringConfig.validFrom, now),
       or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
     ),
@@ -514,7 +515,7 @@ export async function getScoringScale(
     rule = await db.query.scoringConfig.findFirst({
       where: and(
         eq(scoringConfig.raceType, "grand_tour"),
-        eq(scoringConfig.category, category),
+        eq(scoringConfig.category, baseCategory),
         lte(scoringConfig.validFrom, now),
         or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
       ),

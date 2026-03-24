@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { categoryDisplayNames } from "@/components/admin/result-entry-form"
+import { getCategoryDisplayName } from "@/components/admin/result-entry-form"
 
 type ScoringPreviewProps = {
   preview: Array<{
@@ -31,7 +31,7 @@ export function ScoringPreview({ preview, totalPointsAwarded, raceName, category
     <Card className="border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/20">
       <CardHeader>
         <CardTitle className="text-base flex items-center justify-between">
-          <span>Scoring Preview{category ? ` - ${categoryDisplayNames[category] || category}` : ''}</span>
+          <span>Scoring Preview{category ? ` - ${getCategoryDisplayName(category)}` : ''}</span>
           <Badge variant="outline" className="bg-white dark:bg-gray-950">
             {totalPointsAwarded} total points
           </Badge>

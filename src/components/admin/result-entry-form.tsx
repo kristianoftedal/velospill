@@ -146,6 +146,19 @@ const categoryPrefillCounts: Record<string, number> = {
   "end_other": 5,
 }
 
+/** Strips trailing _N suffix to get the base category key, e.g. "mountain_hc_2" → "mountain_hc" */
+export function getBaseCategory(category: string): string {
+  return category.replace(/_\d+$/, "")
+}
+
+/** Returns the display name for a category, handling numbered variants like "mountain_hc_2" → "Mountain: HC (2)" */
+export function getCategoryDisplayName(category: string): string {
+  const base = getBaseCategory(category)
+  const match = category.match(/_(\d+)$/)
+  const baseName = categoryDisplayNames[base] || base
+  return match ? `${baseName} (${match[1]})` : baseName
+}
+
 export { categoryDisplayNames }
 
 function TttEntrySection({ raceId, teams, raceType, riders, onSuccess }: { raceId: number; teams: string[]; raceType: string; riders: Rider[]; onSuccess: () => void }) {
@@ -361,7 +374,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
-  const prefillCount = categoryPrefillCounts[category] ?? 1
+  const prefillCount = categoryPrefillCounts[getBaseCategory(category)] ?? 1
 
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
@@ -447,7 +460,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
         <CardHeader>
           <CardTitle>Enter Race Results</CardTitle>
           <CardDescription>
-            {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"})
+            {getCategoryDisplayName(category)} ({expectedGender === "M" ? "Men" : "Women"})
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -17,7 +17,7 @@ export async function getFreeAgents(leagueId: number, gender: "M" | "F") {
   const ownedRiderIds = db
     .select({ riderId: draftPicks.riderId })
     .from(draftPicks)
-    .where(eq(draftPicks.leagueId, leagueId))
+    .where(and(eq(draftPicks.leagueId, leagueId), isNull(draftPicks.droppedAt)))
 
   return db
     .select({

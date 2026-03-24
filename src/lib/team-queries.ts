@@ -7,6 +7,9 @@ import { races } from "@/db/schema/races"
 import { raceLineups } from "@/db/schema/lineups"
 import { bonusRiders } from "@/db/schema/bonus-riders"
 import { eq, asc, desc, sql, and, gte, or } from "drizzle-orm"
+import { alias } from "drizzle-orm/pg-core"
+
+const parentRaces = alias(races, "parentRaces")
 
 /**
  * Lineup filter: if a lineup exists for this team/race, only riders in the lineup score.
@@ -58,6 +61,8 @@ export type TeamRiderRaceEntry = {
   startDate: Date
   racePoints: number
   categories: TeamRiderCategoryScore[]
+  parentRaceId: number | null
+  parentRaceName: string | null
 }
 
 export type TeamRiderEntry = {
@@ -133,6 +138,8 @@ export async function getTeamSeasonProfile(
       raceName: races.name,
       raceType: races.raceType,
       startDate: races.startDate,
+      parentRaceId: races.parentRaceId,
+      parentRaceName: parentRaces.name,
       category: raceResults.category,
       position: raceResults.position,
       points: raceResults.points,
@@ -149,6 +156,7 @@ export async function getTeamSeasonProfile(
         leagueRaceScope
       )
     )
+    .leftJoin(parentRaces, eq(parentRaces.id, races.parentRaceId))
     .where(
       and(
         eq(draftPicks.teamId, teamId),
@@ -169,6 +177,8 @@ export async function getTeamSeasonProfile(
       raceName: races.name,
       raceType: races.raceType,
       startDate: races.startDate,
+      parentRaceId: races.parentRaceId,
+      parentRaceName: parentRaces.name,
       category: raceResults.category,
       position: raceResults.position,
       points: raceResults.points,
@@ -177,6 +187,7 @@ export async function getTeamSeasonProfile(
     .innerJoin(riders, eq(riders.id, bonusRiders.riderId))
     .innerJoin(raceResults, eq(raceResults.riderId, bonusRiders.riderId))
     .innerJoin(races, eq(races.id, raceResults.raceId))
+    .leftJoin(parentRaces, eq(parentRaces.id, races.parentRaceId))
     .where(
       and(
         eq(bonusRiders.teamId, teamId),
@@ -203,6 +214,8 @@ export async function getTeamSeasonProfile(
     startDate: Date
     racePoints: number
     categories: TeamRiderCategoryScore[]
+    parentRaceId: number | null
+    parentRaceName: string | null
   }
 
   type RiderAccumulator = {
@@ -227,6 +240,8 @@ export async function getTeamSeasonProfile(
       raceName: string
       raceType: string
       startDate: Date
+      parentRaceId: number | null
+      parentRaceName: string | null
       category: string
       position: number
       points: number
@@ -264,6 +279,8 @@ export async function getTeamSeasonProfile(
         startDate: row.startDate,
         racePoints: 0,
         categories: [],
+        parentRaceId: row.parentRaceId,
+        parentRaceName: row.parentRaceName,
       }
       riderEntry.raceMap.set(row.raceId, raceEntry)
     }
@@ -285,6 +302,8 @@ export async function getTeamSeasonProfile(
         raceName: row.raceName,
         raceType: row.raceType,
         startDate: row.startDate,
+        parentRaceId: row.parentRaceId ?? null,
+        parentRaceName: row.parentRaceName ?? null,
         category: row.category,
         position: row.position,
         points: row.points,
@@ -305,6 +324,8 @@ export async function getTeamSeasonProfile(
         raceName: row.raceName,
         raceType: row.raceType,
         startDate: row.startDate,
+        parentRaceId: row.parentRaceId ?? null,
+        parentRaceName: row.parentRaceName ?? null,
         category: row.category,
         position: row.position,
         points: row.points,

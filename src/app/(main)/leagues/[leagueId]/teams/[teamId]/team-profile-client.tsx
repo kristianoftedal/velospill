@@ -125,6 +125,9 @@ export default function TeamProfileClient({ profile, leagueId }: Props) {
                           <div key={race.raceId} className="space-y-1.5">
                             <div className="flex items-center justify-between">
                               <div>
+                                {race.parentRaceName && (
+                                  <p className="text-xs text-muted-foreground font-medium">{race.parentRaceName}</p>
+                                )}
                                 <p className="text-sm font-medium text-foreground">{race.raceName}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {format(new Date(race.startDate), "MMM d, yyyy")}

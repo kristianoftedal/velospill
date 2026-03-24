@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ResultEntryForm, categoryDisplayNames } from "@/components/admin/result-entry-form"
+import { ResultEntryForm, getCategoryDisplayName, getBaseCategory } from "@/components/admin/result-entry-form"
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
 import { getResultsForRace, getAuditTrail, getTeamNames } from "./actions"
-import { PencilIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { PencilIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react"
 import {
   Table,
   TableBody,
@@ -96,6 +96,34 @@ function getAvailableCategories(raceType: string, isStage: boolean, isParentRace
   return ["finish"]
 }
 
+/**
+ * Expands base categories to include any existing numbered mountain instances.
+ * e.g. if mountain_hc_2 exists in the DB, it will appear after mountain_hc.
+ * Does NOT add empty next slots — that's the "Add another" button's job.
+ */
+function expandExistingMountainInstances(base: string[], existingCats: Set<string>): string[] {
+  const result: string[] = []
+  for (const cat of base) {
+    result.push(cat)
+    if (getBaseCategory(cat) === cat && cat.startsWith("mountain_")) {
+      let n = 2
+      while (existingCats.has(`${cat}_${n}`)) {
+        result.push(`${cat}_${n}`)
+        n++
+      }
+    }
+  }
+  return result
+}
+
+/** Returns the next numbered mountain category, e.g. "mountain_hc" → "mountain_hc_2", "mountain_hc_2" → "mountain_hc_3" */
+function getNextMountainCategory(category: string): string {
+  const base = getBaseCategory(category)
+  const match = category.match(/_(\d+)$/)
+  const n = match ? parseInt(match[1]) + 1 : 2
+  return `${base}_${n}`
+}
+
 export function ResultsClient({ races, riders }: Props) {
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -133,8 +161,12 @@ export function ResultsClient({ races, riders }: Props) {
   const currentRaceTypeForCategories = currentIsStage && currentParentRace
     ? resolveScoringRaceType(currentParentRace.raceType, currentParentRace.name)
     : selectedRace ? resolveScoringRaceType(selectedRace.raceType, selectedRace.name) : ""
+  const existingCategorySet = new Set(existingResults?.map((r) => r.category) ?? [])
   const currentAvailableCategories = selectedRace
-    ? getAvailableCategories(currentRaceTypeForCategories, currentIsStage, currentIsParentRace)
+    ? expandExistingMountainInstances(
+        getAvailableCategories(currentRaceTypeForCategories, currentIsStage, currentIsParentRace),
+        existingCategorySet
+      )
     : []
 
   // Prev/next category navigation
@@ -169,23 +201,15 @@ export function ResultsClient({ races, riders }: Props) {
     setSelectedCategory(null)  // Reset category when switching races
     setLoading(true)
 
-    if (race?.hasResults) {
-      const [results, audit] = await Promise.all([
-        getResultsForRace(raceId),
-        getAuditTrail(raceId),
-      ])
-      setExistingResults(results)
-      setAuditTrail(audit)
-    } else {
-      setExistingResults(null)
-      setAuditTrail(null)
-    }
-
-    // Load team names for TTT
     const expectedGender = (race?.raceType.startsWith("womens_") ? "F" : "M") as "M" | "F"
-    const teams = await getTeamNames(expectedGender)
+    const [results, audit, teams] = await Promise.all([
+      getResultsForRace(raceId),
+      getAuditTrail(raceId),
+      getTeamNames(expectedGender),
+    ])
+    setExistingResults(results.length > 0 ? results : null)
+    setAuditTrail(audit.length > 0 ? audit : null)
     setTeamNames(teams)
-
     setLoading(false)
     setModalOpen(true)
   }
@@ -282,7 +306,7 @@ export function ResultsClient({ races, riders }: Props) {
               return (Object.entries(groupedResults) as [string, any[]][]).map(([category, categoryResults]) => (
                 <Card key={category}>
                   <CardHeader>
-                    <CardTitle>{categoryDisplayNames[category] || category}</CardTitle>
+                    <CardTitle>{getCategoryDisplayName(category)}</CardTitle>
                     <CardDescription>
                       Click the edit button to correct any result
                     </CardDescription>
@@ -376,6 +400,20 @@ export function ResultsClient({ races, riders }: Props) {
         onSuccess={handleSuccess}
         onDirtyChange={setFormIsDirty}
       />
+      {getBaseCategory(selectedCategory).startsWith("mountain_") && (
+        <Button
+          variant="outline"
+          onClick={() => {
+            if (formIsDirty && !window.confirm("You have unsaved changes. Add another without saving?")) return
+            setFormIsDirty(false)
+            setSelectedCategory(getNextMountainCategory(selectedCategory))
+          }}
+          className="w-full"
+        >
+          <PlusIcon className="h-4 w-4 mr-2" />
+          Add another {getCategoryDisplayName(getBaseCategory(selectedCategory))}
+        </Button>
+      )}
     </div>
   ) : (
     // Show category picker
@@ -392,10 +430,9 @@ export function ResultsClient({ races, riders }: Props) {
       // Determine if this is a parent race (has stages)
       const isParentRace = races.some(r => r.parentRaceId === selectedRace.id)
 
-      const availableCategories = getAvailableCategories(
-        raceTypeForCategories,
-        isStage,
-        isParentRace
+      const availableCategories = expandExistingMountainInstances(
+        getAvailableCategories(raceTypeForCategories, isStage, isParentRace),
+        existingCategorySet
       )
 
       return (
@@ -417,7 +454,7 @@ export function ResultsClient({ races, riders }: Props) {
                 >
                   <div>
                     <div className="font-medium">
-                      {categoryDisplayNames[category] || category}
+                      {getCategoryDisplayName(category)}
                     </div>
                   </div>
                 </Button>
@@ -509,7 +546,7 @@ export function ResultsClient({ races, riders }: Props) {
                   className="text-xs"
                 >
                   <ChevronLeftIcon className="h-3 w-3 mr-1" />
-                  {prevCategory ? (categoryDisplayNames[prevCategory] || prevCategory) : "—"}
+                  {prevCategory ? getCategoryDisplayName(prevCategory) : "—"}
                 </Button>
                 <Button
                   variant="ghost"
@@ -518,7 +555,7 @@ export function ResultsClient({ races, riders }: Props) {
                   onClick={() => nextCategory && handleCategoryNav(nextCategory)}
                   className="text-xs"
                 >
-                  {nextCategory ? (categoryDisplayNames[nextCategory] || nextCategory) : "—"}
+                  {nextCategory ? getCategoryDisplayName(nextCategory) : "—"}
                   <ChevronRightIcon className="h-3 w-3 ml-1" />
                 </Button>
               </div>

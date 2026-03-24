@@ -5,6 +5,14 @@ import { scoringConfig } from "@/db/schema/config"
 import { eq, and, lte, or, isNull, gt } from "drizzle-orm"
 
 /**
+ * Strips numeric suffix from a category name to get the base scoring category.
+ * e.g. "mountain_hc_2" → "mountain_hc", "mountain_hc" → "mountain_hc"
+ */
+function getBaseScoringCategory(category: string): string {
+  return category.replace(/_\d+$/, "")
+}
+
+/**
  * Resolves the correct scoring raceType based on race name.
  * Tour de France races use grand_tour_tdf, other grand tours use grand_tour.
  * @param raceType - The base race type (e.g., "grand_tour")
@@ -122,11 +130,12 @@ export async function previewScoringImpact(
   }
 
   // 3. Fetch the matching scoringConfig entry
+  const baseScoringCategory = getBaseScoringCategory(resolvedCategory)
   const now = new Date()
   let scoringRule = await db.query.scoringConfig.findFirst({
     where: and(
       eq(scoringConfig.raceType, raceTypeForScoring),
-      eq(scoringConfig.category, resolvedCategory),
+      eq(scoringConfig.category, baseScoringCategory),
       lte(scoringConfig.validFrom, now),
       or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
     ),
@@ -137,7 +146,7 @@ export async function previewScoringImpact(
     scoringRule = await db.query.scoringConfig.findFirst({
       where: and(
         eq(scoringConfig.raceType, "grand_tour"),
-        eq(scoringConfig.category, resolvedCategory),
+        eq(scoringConfig.category, baseScoringCategory),
         lte(scoringConfig.validFrom, now),
         or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now))
       ),

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -125,6 +126,7 @@ function getNextMountainCategory(category: string): string {
 }
 
 export function ResultsClient({ races, riders }: Props) {
+  const router = useRouter()
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [existingResults, setExistingResults] = useState<any[] | null>(null)
@@ -216,18 +218,18 @@ export function ResultsClient({ races, riders }: Props) {
 
   const handleSuccess = async () => {
     if (!selectedRaceId) return
-    setModalOpen(false)
-    // Reset category to return to category picker
-    setSelectedCategory(null)
+    // Stay on the same stage — go to category picker so admin can enter the next category
+    setSelectedCategory("__picker__")
+    setFormIsDirty(false)
     // Refresh results and audit trail
     const [results, audit] = await Promise.all([
       getResultsForRace(selectedRaceId),
       getAuditTrail(selectedRaceId),
     ])
-    setExistingResults(results)
-    setAuditTrail(audit)
-    // Update the races list to mark it as having results
-    window.location.reload()
+    setExistingResults(results.length > 0 ? results : null)
+    setAuditTrail(audit.length > 0 ? audit : null)
+    // Refresh server data (Done badges, stagesWithResults counts) without closing modal
+    router.refresh()
   }
 
   const handleEditResult = (result: any) => {

@@ -34,6 +34,8 @@ async function checkAdminAuth() {
 const resultSchema = z.object({
   raceId: z.number(),
   category: z.string().optional().default("finish"),
+  instance: z.number().min(1).optional().default(1),
+  instanceLabel: z.string().optional(),
   results: z
     .array(
       z.object({
@@ -114,6 +116,8 @@ export async function getResultsForRace(raceId: number) {
       time: raceResults.time,
       points: raceResults.points,
       category: raceResults.category,
+      instance: raceResults.instance,
+      instanceLabel: raceResults.instanceLabel,
       riderId: raceResults.riderId,
       riderName: riders.name,
       riderTeam: riders.team,
@@ -121,9 +125,17 @@ export async function getResultsForRace(raceId: number) {
     .from(raceResults)
     .innerJoin(riders, eq(raceResults.riderId, riders.id))
     .where(eq(raceResults.raceId, raceId))
-    .orderBy(raceResults.position);
+    .orderBy(raceResults.category, raceResults.instance, raceResults.position);
 
   return results;
+}
+
+export async function getNextInstance(raceId: number, category: string): Promise<number> {
+  await checkAdminAuth();
+  const result = await db.execute(
+    sql`SELECT COALESCE(MAX(instance), 0) + 1 as next_instance FROM race_results WHERE "raceId" = ${raceId} AND category = ${category}`
+  );
+  return Number((result.rows[0] as any)?.next_instance ?? 1);
 }
 
 export async function previewResults(
@@ -159,7 +171,7 @@ export async function submitRaceResults(formData: ResultInput) {
     };
   }
 
-  const { raceId, category, results: resultData } = result.data;
+  const { raceId, category, instance, instanceLabel, results: resultData } = result.data;
 
   try {
     // Get the race to check raceType and determine category
@@ -238,8 +250,8 @@ export async function submitRaceResults(formData: ResultInput) {
     );
 
     // Replace existing results using raw SQL to avoid Drizzle/Neon query issues
-    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory})`);
-    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory}`);
+    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory} AND instance = ${instance})`);
+    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${resolvedCategory} AND instance = ${instance}`);
 
     // Insert new results and audit entry
     await db.transaction(async (tx) => {
@@ -249,6 +261,8 @@ export async function submitRaceResults(formData: ResultInput) {
           raceId,
           riderId: resultItem.riderId,
           category: resolvedCategory,
+          instance,
+          instanceLabel: instanceLabel || null,
           position: resultItem.position,
           time: resultItem.time || null,
           points,
@@ -259,7 +273,7 @@ export async function submitRaceResults(formData: ResultInput) {
         raceId,
         changeType: "BATCH_INSERT",
         changedBy: session.user.id,
-        newData: { category: resolvedCategory, results: resultData } as any,
+        newData: { category: resolvedCategory, instance, instanceLabel, results: resultData } as any,
       });
     });
 
@@ -500,12 +514,11 @@ export async function getScoringScale(
         : race.raceType;
   }
 
-  const baseCategory = category.replace(/_\d+$/, "");
   const now = new Date();
   let rule = await db.query.scoringConfig.findFirst({
     where: and(
       eq(scoringConfig.raceType, raceTypeForScoring),
-      eq(scoringConfig.category, baseCategory),
+      eq(scoringConfig.category, category),
       lte(scoringConfig.validFrom, now),
       or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
     ),
@@ -515,7 +528,7 @@ export async function getScoringScale(
     rule = await db.query.scoringConfig.findFirst({
       where: and(
         eq(scoringConfig.raceType, "grand_tour"),
-        eq(scoringConfig.category, baseCategory),
+        eq(scoringConfig.category, category),
         lte(scoringConfig.validFrom, now),
         or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
       ),

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Velospill — Fantasy Cycling League</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #18181f;
+      --accent: #f59e0b;
+      --accent2: #fbbf24;
+      --blue: #3b82f6;
+      --green: #22c55e;
+      --purple: #a855f7;
+      --pink: #ec4899;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10,10,15,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      height: 52px;
+      gap: 2rem;
+    }
+    nav .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.15s;
+    }
+    nav a:hover { color: var(--text); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,158,11,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(59,130,246,0.08) 0%, transparent 60%),
+        var(--bg);
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(245,158,11,0.15);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 0.35rem 1rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat .num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.03em;
+      display: block;
+    }
+    .hero-stat .lbl {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ─── SECTIONS ─── */
+    section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    section h2 {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+    }
+    section > .subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 620px;
+      margin-bottom: 3rem;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ─── FEATURE GRID ─── */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .feat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feat-card:hover {
+      border-color: rgba(245,158,11,0.4);
+      transform: translateY(-2px);
+    }
+    .feat-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+    .feat-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .feat-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .feat-tag {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      background: rgba(245,158,11,0.1);
+      color: var(--accent);
+    }
+    .feat-tag.blue { background: rgba(59,130,246,0.12); color: #93c5fd; }
+    .feat-tag.green { background: rgba(34,197,94,0.12); color: #86efac; }
+    .feat-tag.purple { background: rgba(168,85,247,0.12); color: #d8b4fe; }
+    .feat-tag.pink { background: rgba(236,72,153,0.12); color: #f9a8d4; }
+
+    /* ─── TECH STACK ─── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .tech-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+    .tech-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .tech-card h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .tech-card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ─── GSD SECTION ─── */
+    .gsd-hero {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .gsd-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(245,158,11,0.06), transparent 70%);
+      pointer-events: none;
+    }
+    .gsd-hero h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+    }
+    .gsd-hero p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 680px;
+    }
+
+    .milestone-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .milestone {
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.1rem 1.5rem;
+      border-left: 3px solid var(--border);
+      margin-left: 1rem;
+      position: relative;
+    }
+    .milestone::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid var(--bg);
+    }
+    .milestone.done::before { background: var(--green); }
+    .milestone-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .milestone-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+    .milestone-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .milestone-date {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ─── GSD WORKFLOW ─── */
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .ws {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+    }
+    .ws-num {
+      font-size: 2rem;
+      font-weight: 900;
+      color: rgba(245,158,11,0.15);
+      position: absolute;
+      top: 0.75rem; right: 1rem;
+      letter-spacing: -0.04em;
+    }
+    .ws h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: var(--accent);
+    }
+    .ws p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ─── QUICK TASKS TABLE ─── */
+    .qtable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      background: var(--bg2);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .qtable th {
+      background: var(--bg3);
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .qtable td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    .qtable tr:last-child td { border-bottom: none; }
+    .qtable tr:hover td { background: rgba(255,255,255,0.02); }
+    .qtable td:first-child { color: var(--accent); font-weight: 700; }
+    .qtable td:nth-child(2) { color: var(--text); }
+    .commit-hash {
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.75rem;
+      color: var(--blue);
+      background: rgba(59,130,246,0.08);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    /* ─── ORDERS ─── */
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .order-chip {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .order-chip .otype {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.25rem;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      background: var(--bg2);
+    }
+    footer strong { color: var(--accent); }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">🚴 Velospill</span>
+  <a href="#features">Features</a>
+  <a href="#tech">Tech Stack</a>
+  <a href="#gsd">GSD Workflow</a>
+  <a href="#timeline">Timeline</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-badge">🇳🇴 Fantasy Cycling · Norwegian Rules</div>
+    <h1>Velospill<br><span>Fantasy Cycling League</span></h1>
+    <p>Draft real professional cyclists, manage your team through the season, and outscore your friends based on actual race results.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num">27</span>
+        <span class="lbl">Phases shipped</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">62+</span>
+        <span class="lbl">Plans executed</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">27k</span>
+        <span class="lbl">Lines of TypeScript</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">21</span>
+        <span class="lbl">Days v1.0→v1.5</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- FEATURES -->
+<section id="features">
+  <p class="section-label">Product</p>
+  <h2>What Velospill Does</h2>
+  <p class="subtitle">A full-featured fantasy sports platform tailored to competitive cycling — from live drafts to tactical orders.</p>
+
+  <div class="feat-grid">
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(245,158,11,0.15)">🏁</div>
+      <h3>Live Draft System</h3>
+      <p>Real-time snake draft with Pusher presence channels. Participants see who's online, live picks appear instantly, and an auto-pick timer via QStash handles AFK managers.</p>
+      <span class="feat-tag">Real-time</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(34,197,94,0.15)">🏆</div>
+      <h3>Scoring & Standings</h3>
+      <p>Dynamic point scoring from race results with JSONB config tables — rule changes never require code deployment. Standings computed on-demand with race result aggregation.</p>
+      <span class="feat-tag green">Data-driven</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(59,130,246,0.15)">🔄</div>
+      <h3>Transfer Market</h3>
+      <p>Waiver wire system with priority by standings. Managers bid for dropped riders, admin approves, and transfers execute within configurable windows. Ownership-at-race-time scoring preserved.</p>
+      <span class="feat-tag blue">Strategic</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(168,85,247,0.15)">⚔️</div>
+      <h3>Strategic Orders</h3>
+      <p>12 order types including boosts, sabotages, and counters. Orders like Domestique, Breakaway, Hammer, and Shimanobil add a tactical layer with risk/reward mechanics.</p>
+      <span class="feat-tag purple">Tactical</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(236,72,153,0.15)">🏥</div>
+      <h3>IR (Injury Reserve)</h3>
+      <p>Managers can request IR status for injured riders — admin approves, freeing roster slots while preserving team history. Status flows: pending → approved/rejected → return eligible → returned.</p>
+      <span class="feat-tag pink">Roster Mgmt</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(245,158,11,0.15)">🗓️</div>
+      <h3>Race Calendar & Leagues</h3>
+      <p>Admin assigns races to leagues. Each league scopes to its assigned race calendar — no bleed-through between leagues. Supports classic races, stage races, and grand tours.</p>
+      <span class="feat-tag">Multi-league</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(34,197,94,0.15)">🗃️</div>
+      <h3>Multi-Stage Race Support</h3>
+      <p>Grand tours (Tour de France, Giro, Vuelta) are parent races with stage children. Accordion rows expand per stage with Done/Pending badges, breakdown links, and end-of-tour classifications.</p>
+      <span class="feat-tag green">v1.5</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(59,130,246,0.15)">👤</div>
+      <h3>Player & Team Profiles</h3>
+      <p>Rider profiles show career results and team history. Team pages display roster composition, lineup accordions per race, and per-rider points breakdown across the season.</p>
+      <span class="feat-tag blue">Visibility</span>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(168,85,247,0.15)">⚙️</div>
+      <h3>Admin Backoffice</h3>
+      <p>Full admin panel for race management, result entry (with PCS + FirstCycling import), stage overview modal with per-stage completion tracking, league configuration, and rider database management.</p>
+      <span class="feat-tag purple">Admin</span>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- STRATEGIC ORDERS -->
+<section>
+  <p class="section-label">Gameplay</p>
+  <h2>Strategic Orders</h2>
+  <p class="subtitle">12 order types with counter mechanics — the core differentiator that makes Velospill more than a spreadsheet.</p>
+
+  <div class="orders-grid">
+    <div class="order-chip">🚀 Angrep <div class="otype">Boost — attack</div></div>
+    <div class="order-chip">🛡 Domestique <div class="otype">Boost — support</div></div>
+    <div class="order-chip">💨 Rømling <div class="otype">Boost — breakaway</div></div>
+    <div class="order-chip">⚡️ Tempo <div class="otype">Boost — pace</div></div>
+    <div class="order-chip">🔨 Hammer <div class="otype">Boost — sprint</div></div>
+    <div class="order-chip">🎯 Innlagt Spurt <div class="otype">Boost — sprint</div></div>
+    <div class="order-chip">🤝 Lagtempo <div class="otype">Boost — team</div></div>
+    <div class="order-chip">🚫 Sabotasje <div class="otype">Sabotage — block</div></div>
+    <div class="order-chip">🌪 Kast Grus <div class="otype">Sabotage — disrupt</div></div>
+    <div class="order-chip">🔁 Shimanobil <div class="otype">Counter — mechanical</div></div>
+    <div class="order-chip">🎭 Uno-X <div class="otype">Counter — escape</div></div>
+    <div class="order-chip">↩️ Kontrering <div class="otype">Counter — return</div></div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- TECH STACK -->
+<section id="tech">
+  <p class="section-label">Engineering</p>
+  <h2>Tech Stack</h2>
+  <p class="subtitle">A modern serverless stack built for real-time interactivity without persistent infrastructure.</p>
+
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#3b82f6"></div>
+      <div>
+        <h4>Next.js 16 App Router</h4>
+        <p>TypeScript, Server Components, Server Actions, API routes</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#06b6d4"></div>
+      <div>
+        <h4>Tailwind CSS + shadcn/ui</h4>
+        <p>Utility-first styling with a composable component library</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#22c55e"></div>
+      <div>
+        <h4>PostgreSQL (Neon)</h4>
+        <p>Serverless Postgres — no persistent connection pool needed</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#f59e0b"></div>
+      <div>
+        <h4>Drizzle ORM</h4>
+        <p>Type-safe query builder; schema migrations via direct SQL (drizzle-kit version gap)</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#a855f7"></div>
+      <div>
+        <h4>Better Auth</h4>
+        <p>Modern auth layer with Drizzle adapter and TypeScript-first API</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#ec4899"></div>
+      <div>
+        <h4>Pusher Channels</h4>
+        <p>WebSocket presence channels for live draft — serverless compatible</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#f97316"></div>
+      <div>
+        <h4>QStash</h4>
+        <p>Serverless message queue for auto-pick timers (65s delayed execution)</p>
+      </div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-dot" style="background:#64748b"></div>
+      <div>
+        <h4>Vercel</h4>
+        <p>Edge deployment, preview environments, serverless function hosting</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- GSD SECTION -->
+<section id="gsd">
+  <p class="section-label">Development Workflow</p>
+  <h2>Built with GSD</h2>
+  <p class="subtitle">Get Shit Done — an AI-driven development workflow using Claude Code agents for planning, execution, and verification.</p>
+
+  <div class="gsd-hero">
+    <h3>What is GSD?</h3>
+    <p>GSD is a structured workflow for human-AI collaborative software development. The developer provides intent and decisions; Claude Code agents handle planning, writing code, committing atomically, and verifying results. Each unit of work flows through a dedicated agent pipeline — planner → executor → verifier — with the human reviewing and approving at each gate.</p>
+  </div>
+
+  <div class="workflow-steps">
+    <div class="ws">
+      <div class="ws-num">01</div>
+      <h4>Milestone Planning</h4>
+      <p>Human defines the next milestone goal. GSD agents research the codebase, generate a phase roadmap, and surface architectural decisions for human sign-off.</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">02</div>
+      <h4>Phase Research</h4>
+      <p>Before each phase, a research agent explores the codebase and external docs to produce a RESEARCH.md that informs the planner.</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">03</div>
+      <h4>Plan Generation</h4>
+      <p>A planner agent converts the phase goal into an executable PLAN.md with discrete tasks, file targets, verification criteria, and done-conditions.</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">04</div>
+      <h4>Plan Checking</h4>
+      <p>A checker agent reviews the plan for goal coverage, scope sanity, and must-have derivation. Issues loop back to the planner (max 2 iterations).</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">05</div>
+      <h4>Atomic Execution</h4>
+      <p>An executor agent implements each task, committing atomically per task. Human reviews diffs. Deviations are logged and surfaced immediately.</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">06</div>
+      <h4>Verification</h4>
+      <p>A verifier agent does goal-backward analysis: did the codebase actually deliver what the phase promised? VERIFICATION.md classifies as passed / human-needed / gaps.</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">07</div>
+      <h4>Quick Tasks</h4>
+      <p>Ad-hoc fixes that don't need a full phase: <code>/gsd:quick</code> spawns planner + executor for atomic, tracked mini-tasks with STATE.md updates.</p>
+    </div>
+    <div class="ws">
+      <div class="ws-num">08</div>
+      <h4>State Tracking</h4>
+      <p>STATE.md, ROADMAP.md, and per-phase directories persist full context — any session can resume from exactly where it left off with zero context loss.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <p class="section-label">Milestones</p>
+  <h2>From Zero to v1.5</h2>
+  <p class="subtitle">Six milestones, 27 phases, 62+ plans — shipped from initial scaffold to multi-stage grand tour support in 21 days.</p>
+
+  <div class="milestone-list">
+    <div class="milestone done">
+      <div>
+        <div class="milestone-name">v1.0 Core Platform</div>
+        <div class="milestone-sub">Phases 1–9 · 22 plans</div>
+      </div>
+      <div class="milestone-desc">Auth, admin backoffice, league management, live draft system (Pusher + QStash), scoring engine, transfer market, strategic orders, UI polish, league scoping</div>
+      <div class="milestone-date">Feb 20, 2026</div>
+    </div>
+
+    <div class="milestone done">
+      <div>
+        <div class="milestone-name">v1.1 Scoring & Rules</div>
+        <div class="milestone-sub">Phases 10–15 · 12 plans</div>
+      </div>
+      <div class="milestone-desc">Bug fixes, grand tour scoring config, result entry expansion (categories), order config update, counter mechanic overhaul, Uno-X order feature</div>
+      <div class="milestone-date">Feb 26, 2026</div>
+    </div>
+
+    <div class="milestone done">
+      <div>
+        <div class="milestone-name">v1.2 Player Visibility</div>
+        <div class="milestone-sub">Phases 16–19 · 6 plans</div>
+      </div>
+      <div class="milestone-desc">Rider profile pages, team profile pages, race lineup accordions, season standings history with per-stage roll-up using COALESCE pattern</div>
+      <div class="milestone-date">Mar 06, 2026</div>
+    </div>
+
+    <div class="milestone done">
+      <div>
+        <div class="milestone-name">v1.3 IR & Roster Mgmt</div>
+        <div class="milestone-sub">Phases 20–22 · 7 plans</div>
+      </div>
+      <div class="milestone-desc">IR foundation with admin approval workflow, drop rider (hard-delete), IR return flow with return_eligible intermediate state, transfer guard ordering fix</div>
+      <div class="milestone-date">Mar 07, 2026</div>
+    </div>
+
+    <div class="milestone done">
+      <div>
+        <div class="milestone-name">v1.4 Roster Consolidation</div>
+        <div class="milestone-sub">Phases 23–25 · 7 plans</div>
+      </div>
+      <div class="milestone-desc">roster_slots table as single source of truth, all write paths wrapped in transactions, all read paths migrated, dead join-based roster count code removed</div>
+      <div class="milestone-date">Mar 09, 2026</div>
+    </div>
+
+    <div class="milestone done">
+      <div>
+        <div class="milestone-name">v1.5 Multi-Stage Races</div>
+        <div class="milestone-sub">Phases 26–27 · 4 plans</div>
+      </div>
+      <div class="milestone-desc">Admin stage result scoping, stage overview modal, three-query assembly for race scores, accordion grand tour rows with per-stage badges and end-of-tour classifications</div>
+      <div class="milestone-date">Mar 13, 2026</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- QUICK TASKS -->
+<section>
+  <p class="section-label">Quick Tasks</p>
+  <h2>Ad-hoc Fixes & Improvements</h2>
+  <p class="subtitle">16 quick tasks shipped alongside phase work — atomic, tracked, and committed individually via <code>/gsd:quick</code>.</p>
+
+  <table class="qtable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Task</th>
+        <th>Date</th>
+        <th>Commit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Admin add results improvements</td><td>Mar 03</td><td><span class="commit-hash">19461d9</span></td></tr>
+      <tr><td>2</td><td>PCS import: scrape procyclingstats</td><td>Mar 04</td><td><span class="commit-hash">4f3d9e2</span></td></tr>
+      <tr><td>3</td><td>Admin results: modal form + firstcycling import</td><td>Mar 04</td><td><span class="commit-hash">b6d919f</span></td></tr>
+      <tr><td>4</td><td>Fix TTT SQL error</td><td>Mar 05</td><td><span class="commit-hash">d83e1ad</span></td></tr>
+      <tr><td>5</td><td>League page redesign + lineup accordions</td><td>Mar 06</td><td><span class="commit-hash">44de3e6</span></td></tr>
+      <tr><td>6</td><td>Fix Add More Results button</td><td>Mar 06</td><td><span class="commit-hash">a6b688c</span></td></tr>
+      <tr><td>7</td><td>Improve league page Actions</td><td>Mar 06</td><td><span class="commit-hash">32f1b08</span></td></tr>
+      <tr><td>8</td><td>Fix scoring display bug — rider 268</td><td>Mar 06</td><td><span class="commit-hash">58a2933</span></td></tr>
+      <tr><td>9</td><td>Fix race startDate times to 12:00 UTC</td><td>Mar 06</td><td><span class="commit-hash">6e39c54</span></td></tr>
+      <tr><td>10</td><td>Add riders to roster if space available without dropping</td><td>Mar 06</td><td><span class="commit-hash">59aed39</span></td></tr>
+      <tr><td>11</td><td>Reseed scoring DB with correct 2026 values</td><td>Mar 06</td><td><span class="commit-hash">f0875a6</span></td></tr>
+      <tr><td>12</td><td>Add Michael Matthews + Neilson Powless to IR (team 11)</td><td>Mar 06</td><td><span class="commit-hash">4d0077b</span></td></tr>
+      <tr><td>13</td><td>Fix transfer form: IR'd riders free active slots, show badge</td><td>Mar 06</td><td><span class="commit-hash">38fe168</span></td></tr>
+      <tr><td>14</td><td>Retroactively recalculate all points with updated 2026 config</td><td>Mar 06</td><td><span class="commit-hash">6d7408f</span></td></tr>
+      <tr><td>15</td><td>Fix submitTransferBid rejecting free-slot pickups</td><td>Mar 07</td><td><span class="commit-hash">c8b0e97</span></td></tr>
+      <tr><td>16</td><td>Fix dropRider + submitTransferBid for return_eligible IR status</td><td>Mar 07</td><td><span class="commit-hash">f4d7c10</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="divider" />
+
+<!-- KEY DECISIONS -->
+<section>
+  <p class="section-label">Architecture</p>
+  <h2>Key Engineering Decisions</h2>
+  <p class="subtitle">28 recorded decisions — each one captured at the time it was made, with the phase and rationale preserved.</p>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <h3>JSONB Scoring Config</h3>
+      <p>Scoring rules stored as JSONB in the database, not hardcoded. Rule changes (Norwegian cycling federation updates mid-season) deploy without code changes.</p>
+      <span class="feat-tag">Phase 1</span>
+    </div>
+    <div class="feat-card">
+      <h3>Ownership-at-Race-Time</h3>
+      <p>Points are awarded to the team that owned the rider when the race was ridden. Transfers don't retroactively steal points — historical fairness guaranteed.</p>
+      <span class="feat-tag blue">Phase 6</span>
+    </div>
+    <div class="feat-card">
+      <h3>Three-Query Assembly</h3>
+      <p>Avoids SQL JSON_AGG complexity by running three targeted queries and assembling results in application code. Reusable pattern across riders, teams, and standings.</p>
+      <span class="feat-tag green">Phases 16–19</span>
+    </div>
+    <div class="feat-card">
+      <h3>roster_slots as Source of Truth</h3>
+      <p>A dedicated table for current roster composition. All write paths (draft, drop, transfer, IR) atomically update roster_slots in the same transaction — no derived counts.</p>
+      <span class="feat-tag purple">Phase 23</span>
+    </div>
+    <div class="feat-card">
+      <h3>Pusher Presence Channels</h3>
+      <p>Real-time draft without a persistent WebSocket server. Pusher presence channels provide participant tracking compatible with Vercel's serverless runtime.</p>
+      <span class="feat-tag">Phase 4</span>
+    </div>
+    <div class="feat-card">
+      <h3>COALESCE Stage Roll-up</h3>
+      <p>Grand tour stages grouped to parent race using COALESCE(parentRaceId, id) — no schema changes needed, consistent with the existing race data model.</p>
+      <span class="feat-tag blue">Phase 19</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Built with <strong>GSD (Get Shit Done)</strong> · Powered by <strong>Claude Code</strong> · v1.5 shipped 2026-03-13</p>
+  <p style="margin-top:0.5rem;color:#475569">27 phases · 62+ plans · 16 quick tasks · ~27,000 LOC TypeScript</p>
+</footer>
+
+</body>
+</html>

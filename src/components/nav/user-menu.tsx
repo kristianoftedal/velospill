@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { LogOut, User } from "lucide-react"
+import { LogOut, User, Trophy, ChevronRight } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import {
   DropdownMenu,
@@ -9,18 +9,24 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import type { NavLeague } from "./app-nav"
 
 interface UserMenuProps {
   user: {
     name: string
     email: string
   }
+  leagues: NavLeague[]
+  activeLeagueId: number | null
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, leagues, activeLeagueId }: UserMenuProps) {
   const router = useRouter()
 
   const handleLogout = async () => {
@@ -60,6 +66,33 @@ export function UserMenu({ user }: UserMenuProps) {
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
+
+        {/* Switch League submenu */}
+        {leagues.length > 0 && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="cursor-pointer">
+              <Trophy className="mr-2 h-4 w-4" />
+              <span>Switch League</span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="w-48">
+              {leagues.map((league) => (
+                <DropdownMenuItem
+                  key={league.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/leagues/${league.id}`)}
+                >
+                  <span className={league.id === activeLeagueId ? "font-semibold" : ""}>
+                    {league.name}
+                  </span>
+                  {league.id === activeLeagueId && (
+                    <span className="ml-auto text-xs text-muted-foreground">✓</span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        )}
+
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
           <LogOut className="mr-2 h-4 w-4" />

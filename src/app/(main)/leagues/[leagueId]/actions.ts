@@ -19,6 +19,22 @@ async function checkAuth() {
   return session
 }
 
+/** Lightweight list of user's leagues for navigation — just id, name, status */
+export async function getMyLeaguesList() {
+  const session = await checkAuth()
+
+  return db
+    .select({
+      id: leagues.id,
+      name: leagues.name,
+      status: leagues.status,
+    })
+    .from(teams)
+    .innerJoin(leagues, eq(teams.leagueId, leagues.id))
+    .where(eq(teams.userId, session.user.id))
+    .orderBy(desc(leagues.createdAt))
+}
+
 export async function getMyLeagues() {
   const session = await checkAuth()
 

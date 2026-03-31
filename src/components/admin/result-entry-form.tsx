@@ -88,6 +88,8 @@ type Props = {
   riders: Rider[]
   raceType: string
   category: string
+  instance?: number
+  instanceLabel?: string
   teams?: string[]
   onSuccess: () => void
   onDirtyChange?: (isDirty: boolean) => void
@@ -144,19 +146,6 @@ const categoryPrefillCounts: Record<string, number> = {
   "end_combative": 1,
   "end_team": 10,
   "end_other": 5,
-}
-
-/** Strips trailing _N suffix to get the base category key, e.g. "mountain_hc_2" → "mountain_hc" */
-export function getBaseCategory(category: string): string {
-  return category.replace(/_\d+$/, "")
-}
-
-/** Returns the display name for a category, handling numbered variants like "mountain_hc_2" → "Mountain: HC (2)" */
-export function getCategoryDisplayName(category: string): string {
-  const base = getBaseCategory(category)
-  const match = category.match(/_(\d+)$/)
-  const baseName = categoryDisplayNames[base] || base
-  return match ? `${baseName} (${match[1]})` : baseName
 }
 
 export { categoryDisplayNames }
@@ -366,7 +355,7 @@ function TttEntrySection({ raceId, teams, raceType, riders, onSuccess }: { raceI
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, teams, onSuccess, onDirtyChange }: Props) {
+export function ResultEntryForm({ raceId, riders, raceType, category, instance, instanceLabel, teams, onSuccess, onDirtyChange }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
@@ -374,7 +363,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
-  const prefillCount = categoryPrefillCounts[getBaseCategory(category)] ?? 1
+  const prefillCount = categoryPrefillCounts[category] ?? 1
 
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
@@ -395,7 +384,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
   // Fetch existing results for this race+category and pre-fill the form
   useEffect(() => {
     getResultsForRace(raceId).then((allResults: Awaited<ReturnType<typeof getResultsForRace>>) => {
-      const categoryResults = allResults.filter((r) => r.category === category)
+      const categoryResults = allResults.filter((r) => r.category === category && r.instance === (instance ?? 1))
       if (categoryResults.length > 0) {
         form.reset({
           results: categoryResults
@@ -404,7 +393,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
         })
       }
     }).catch(() => {})
-  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [raceId, category, instance]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -431,6 +420,8 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
     const result = await submitRaceResults({
       raceId,
       category,
+      instance: instance ?? 1,
+      instanceLabel,
       results: data.results,
     })
 
@@ -460,7 +451,10 @@ export function ResultEntryForm({ raceId, riders, raceType, category, teams, onS
         <CardHeader>
           <CardTitle>Enter Race Results</CardTitle>
           <CardDescription>
-            {getCategoryDisplayName(category)} ({expectedGender === "M" ? "Men" : "Women"})
+            {categoryDisplayNames[category] || category}
+            {instance && instance > 1 ? ` #${instance}` : ""}
+            {instanceLabel ? ` — ${instanceLabel}` : ""}
+            {" "}({expectedGender === "M" ? "Men" : "Women"})
           </CardDescription>
         </CardHeader>
         <CardContent>

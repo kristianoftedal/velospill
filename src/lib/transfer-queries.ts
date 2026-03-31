@@ -317,3 +317,32 @@ export type FreeAgent = Awaited<ReturnType<typeof getFreeAgents>>[number]
 export type TeamRosterEntry = Awaited<ReturnType<typeof getTeamRoster>>[number]
 export type TeamBid = Awaited<ReturnType<typeof getTeamBids>>[number]
 export type ActiveTransferWindow = Awaited<ReturnType<typeof getActiveTransferWindow>>
+
+/**
+ * Returns all transfer bids in a league (all teams), ordered by most recent first.
+ * Used to show league-wide transfer activity.
+ */
+export async function getLeagueTransfers(leagueId: number) {
+  const outRider = alias(riders, "outRider")
+  const inRider = alias(riders, "inRider")
+
+  return db
+    .select({
+      bidId: transferBids.id,
+      teamName: teams.name,
+      outRiderName: outRider.name,
+      inRiderName: inRider.name,
+      status: transferBids.status,
+      bidAmount: transferBids.bidAmount,
+      submittedAt: transferBids.submittedAt,
+      resolvedAt: transferBids.resolvedAt,
+    })
+    .from(transferBids)
+    .innerJoin(teams, eq(teams.id, transferBids.teamId))
+    .leftJoin(outRider, eq(outRider.id, transferBids.outRiderId))
+    .innerJoin(inRider, eq(inRider.id, transferBids.inRiderId))
+    .where(eq(transferBids.leagueId, leagueId))
+    .orderBy(desc(transferBids.submittedAt))
+}
+
+export type LeagueTransfer = Awaited<ReturnType<typeof getLeagueTransfers>>[number]

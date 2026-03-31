@@ -15,7 +15,7 @@ export default async function RankingsLayout({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
       {session ? (
-        <AppNav user={session.user} />
+        <AppNav user={session.user} leagues={[]} />
       ) : (
         <nav className="h-16 bg-gradient-green-blue shadow-lg">
           <div className="container mx-auto flex items-center justify-between px-4 h-full">

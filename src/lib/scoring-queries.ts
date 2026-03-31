@@ -970,3 +970,29 @@ export async function getStandingsHistory(leagueId: number, season: number): Pro
     teams: resultTeams,
   }
 }
+
+/**
+ * Returns all race results for a given raceId — every rider who has a result,
+ * regardless of whether they're drafted in any league.
+ * Used for the "All Riders" filter on the race breakdown page.
+ */
+export async function getAllRaceResults(raceId: number) {
+  return db
+    .select({
+      riderId: riders.id,
+      riderName: riders.name,
+      riderTeam: riders.team,
+      nationality: riders.nationality,
+      position: raceResults.position,
+      points: raceResults.points,
+      category: raceResults.category,
+      instance: raceResults.instance,
+      instanceLabel: raceResults.instanceLabel,
+    })
+    .from(raceResults)
+    .innerJoin(riders, eq(riders.id, raceResults.riderId))
+    .where(eq(raceResults.raceId, raceId))
+    .orderBy(asc(raceResults.category), asc(raceResults.instance), asc(raceResults.position))
+}
+
+export type AllRaceResult = Awaited<ReturnType<typeof getAllRaceResults>>[number]

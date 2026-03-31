@@ -7,6 +7,7 @@ import {
   getActiveTransferWindow,
   getFreeAgents,
   getTeamBudget,
+  getLeagueTransfers,
 } from "@/lib/transfer-queries"
 import { getEligibleToReturnCount } from "@/lib/ir-queries"
 import { Card, CardContent } from "@/components/ui/card"
@@ -118,7 +119,7 @@ export default async function TransfersPage({ params }: PageProps) {
   }
 
   // Parallel data fetch
-  const [roster, bids, activeWindow, freeAgentsMen, freeAgentsWomen, teamBudget, eligibleCount] =
+  const [roster, bids, activeWindow, freeAgentsMen, freeAgentsWomen, teamBudget, eligibleCount, leagueTransfers] =
     await Promise.all([
       getTeamRoster(userTeamId, leagueId),
       getTeamBids(userTeamId, leagueId),
@@ -127,6 +128,7 @@ export default async function TransfersPage({ params }: PageProps) {
       getFreeAgents(leagueId, "F"),
       getTeamBudget(userTeamId),
       getEligibleToReturnCount(userTeamId, leagueId),
+      getLeagueTransfers(leagueId),
     ])
 
   return (
@@ -176,6 +178,7 @@ export default async function TransfersPage({ params }: PageProps) {
         teamBudget={teamBudget}
         freeAgentsMen={freeAgentsMen}
         freeAgentsWomen={freeAgentsWomen}
+        leagueTransfers={leagueTransfers}
       />
     </div>
   )

@@ -9,6 +9,8 @@ export const raceResults = pgTable("race_results", {
   raceId: integer("raceId").notNull().references(() => races.id),
   riderId: integer("riderId").notNull().references(() => riders.id),
   category: text("category").notNull().default("finish"),
+  instance: integer("instance").notNull().default(1),
+  instanceLabel: text("instanceLabel"),
   position: integer("position").notNull(),
   time: text("time"),
   points: integer("points").notNull().default(0),
@@ -18,8 +20,8 @@ export const raceResults = pgTable("race_results", {
   raceIdIdx: index("race_results_race_id_idx").on(table.raceId),
   riderIdIdx: index("race_results_rider_id_idx").on(table.riderId),
   categoryIdx: index("race_results_category_idx").on(table.category),
-  uniqueRaceRiderCategory: unique("race_results_race_rider_category_unique").on(table.raceId, table.riderId, table.category),
-  uniqueRacePositionCategory: unique("race_results_race_position_category_unique").on(table.raceId, table.position, table.category),
+  uniqueRaceRiderCategory: unique("race_results_race_rider_category_instance_unique").on(table.raceId, table.riderId, table.category, table.instance),
+  uniqueRacePositionCategory: unique("race_results_race_position_category_instance_unique").on(table.raceId, table.position, table.category, table.instance),
 }))
 
 export const resultAudit = pgTable("result_audit", {

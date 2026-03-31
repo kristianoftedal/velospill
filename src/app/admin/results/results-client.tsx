@@ -6,10 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ResultEntryForm, getCategoryDisplayName, getBaseCategory } from "@/components/admin/result-entry-form"
+import { ResultEntryForm, categoryDisplayNames } from "@/components/admin/result-entry-form"
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog"
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail"
-import { getResultsForRace, getAuditTrail, getTeamNames } from "./actions"
+import { getResultsForRace, getAuditTrail, getTeamNames, getNextInstance } from "./actions"
 import { PencilIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react"
 import {
   Table,
@@ -44,6 +44,14 @@ type Props = {
   races: Race[]
   riders: Rider[]
 }
+
+// Categories that support multiple instances per stage (D002: mountains + sprints)
+const MULTI_INSTANCE_CATEGORIES = new Set([
+  "sprint", "sprint_giro",
+  "mountain_cc_hcx2_af", "mountain_hc", "mountain_1cat",
+  "mountain_2cat", "mountain_3_4cat",
+  "mountain_highest", "mountain_2nd_highest", "mountain_1_2cat",
+])
 
 function resolveScoringRaceType(raceType: string, raceName: string): string {
   if (raceType === "grand_tour") {
@@ -96,34 +104,6 @@ function getAvailableCategories(raceType: string, isStage: boolean, isParentRace
   return ["finish"]
 }
 
-/**
- * Expands base categories to include any existing numbered mountain instances.
- * e.g. if mountain_hc_2 exists in the DB, it will appear after mountain_hc.
- * Does NOT add empty next slots — that's the "Add another" button's job.
- */
-function expandExistingMountainInstances(base: string[], existingCats: Set<string>): string[] {
-  const result: string[] = []
-  for (const cat of base) {
-    result.push(cat)
-    if (getBaseCategory(cat) === cat && cat.startsWith("mountain_")) {
-      let n = 2
-      while (existingCats.has(`${cat}_${n}`)) {
-        result.push(`${cat}_${n}`)
-        n++
-      }
-    }
-  }
-  return result
-}
-
-/** Returns the next numbered mountain category, e.g. "mountain_hc" → "mountain_hc_2", "mountain_hc_2" → "mountain_hc_3" */
-function getNextMountainCategory(category: string): string {
-  const base = getBaseCategory(category)
-  const match = category.match(/_(\d+)$/)
-  const n = match ? parseInt(match[1]) + 1 : 2
-  return `${base}_${n}`
-}
-
 export function ResultsClient({ races, riders }: Props) {
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -136,6 +116,8 @@ export function ResultsClient({ races, riders }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
   const [showingStageOverview, setShowingStageOverview] = useState(false)
   const [formIsDirty, setFormIsDirty] = useState(false)
+  const [currentInstance, setCurrentInstance] = useState(1)
+  const [currentInstanceLabel, setCurrentInstanceLabel] = useState("")
 
   const selectedRace = races.find((r) => r.id === selectedRaceId)
 
@@ -161,12 +143,8 @@ export function ResultsClient({ races, riders }: Props) {
   const currentRaceTypeForCategories = currentIsStage && currentParentRace
     ? resolveScoringRaceType(currentParentRace.raceType, currentParentRace.name)
     : selectedRace ? resolveScoringRaceType(selectedRace.raceType, selectedRace.name) : ""
-  const existingCategorySet = new Set(existingResults?.map((r) => r.category) ?? [])
   const currentAvailableCategories = selectedRace
-    ? expandExistingMountainInstances(
-        getAvailableCategories(currentRaceTypeForCategories, currentIsStage, currentIsParentRace),
-        existingCategorySet
-      )
+    ? getAvailableCategories(currentRaceTypeForCategories, currentIsStage, currentIsParentRace)
     : []
 
   // Prev/next category navigation
@@ -177,6 +155,8 @@ export function ResultsClient({ races, riders }: Props) {
   const handleCategoryNav = (category: string) => {
     if (formIsDirty && !window.confirm("You have unsaved changes. Navigate away without saving?")) return
     setFormIsDirty(false)
+    setCurrentInstance(1)
+    setCurrentInstanceLabel("")
     setSelectedCategory(category)
   }
 
@@ -199,35 +179,42 @@ export function ResultsClient({ races, riders }: Props) {
     setShowingStageOverview(false)
     setSelectedRaceId(raceId)
     setSelectedCategory(null)  // Reset category when switching races
+    setCurrentInstance(1)
+    setCurrentInstanceLabel("")
     setLoading(true)
 
-    const expectedGender = (race?.raceType.startsWith("womens_") ? "F" : "M") as "M" | "F"
-    const [results, audit, teams] = await Promise.all([
+    // Always fetch existing results and audit trail (even for stages marked as no results — may be stale)
+    const [results, audit] = await Promise.all([
       getResultsForRace(raceId),
       getAuditTrail(raceId),
-      getTeamNames(expectedGender),
     ])
     setExistingResults(results.length > 0 ? results : null)
     setAuditTrail(audit.length > 0 ? audit : null)
+
+    // Load team names for TTT
+    const expectedGender = (race?.raceType.startsWith("womens_") ? "F" : "M") as "M" | "F"
+    const teams = await getTeamNames(expectedGender)
     setTeamNames(teams)
+
     setLoading(false)
     setModalOpen(true)
   }
 
   const handleSuccess = async () => {
     if (!selectedRaceId) return
-    setModalOpen(false)
-    // Reset category to return to category picker
-    setSelectedCategory(null)
+
     // Refresh results and audit trail
     const [results, audit] = await Promise.all([
       getResultsForRace(selectedRaceId),
       getAuditTrail(selectedRaceId),
     ])
-    setExistingResults(results)
-    setAuditTrail(audit)
-    // Update the races list to mark it as having results
-    window.location.reload()
+    setExistingResults(results.length > 0 ? results : null)
+    setAuditTrail(audit.length > 0 ? audit : null)
+
+    // Always return to results view so admin sees what was saved
+    setSelectedCategory(null)
+    setCurrentInstance(1)
+    setCurrentInstanceLabel("")
   }
 
   const handleEditResult = (result: any) => {
@@ -294,61 +281,127 @@ export function ResultsClient({ races, riders }: Props) {
 
         <TabsContent value="results" className="mt-4">
           <div className="space-y-6">
-            {/* Group results by category */}
+            {/* Group results by category and instance */}
             {(() => {
-              const groupedResults = existingResults.reduce((acc, result) => {
-                const cat = result.category || "finish"
-                if (!acc[cat]) acc[cat] = []
-                acc[cat].push(result)
-                return acc
-              }, {} as Record<string, any[]>)
+              // Build two-level grouping: category → instance → results
+              type InstanceGroup = { instance: number; instanceLabel: string | null; results: any[] }
+              const categoryMap: Record<string, InstanceGroup[]> = {}
 
-              return (Object.entries(groupedResults) as [string, any[]][]).map(([category, categoryResults]) => (
-                <Card key={category}>
-                  <CardHeader>
-                    <CardTitle>{getCategoryDisplayName(category)}</CardTitle>
-                    <CardDescription>
-                      Click the edit button to correct any result
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-20">Position</TableHead>
-                          <TableHead>Rider</TableHead>
-                          <TableHead>Team</TableHead>
-                          <TableHead>Time</TableHead>
-                          <TableHead className="text-right">Points</TableHead>
-                          <TableHead className="w-20"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {categoryResults.map((result: any) => (
-                          <TableRow key={result.id}>
-                            <TableCell className="font-medium">{result.position}</TableCell>
-                            <TableCell>{result.riderName}</TableCell>
-                            <TableCell>{result.riderTeam}</TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {result.time || "—"}
-                            </TableCell>
-                            <TableCell className="text-right">{result.points}</TableCell>
-                            <TableCell>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEditResult(result)}
-                              >
-                                <PencilIcon className="h-4 w-4" />
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              ))
+              for (const result of existingResults) {
+                const cat = result.category || "finish"
+                const inst = result.instance ?? 1
+                if (!categoryMap[cat]) categoryMap[cat] = []
+                let group = categoryMap[cat].find((g) => g.instance === inst)
+                if (!group) {
+                  group = { instance: inst, instanceLabel: result.instanceLabel ?? null, results: [] }
+                  categoryMap[cat].push(group)
+                }
+                group.results.push(result)
+              }
+
+              // Sort instances within each category
+              for (const groups of Object.values(categoryMap)) {
+                groups.sort((a, b) => a.instance - b.instance)
+              }
+
+              return Object.entries(categoryMap).map(([category, instanceGroups]) => {
+                const isMultiInstance = MULTI_INSTANCE_CATEGORIES.has(category)
+                const hasMultipleInstances = instanceGroups.length > 1
+                const categoryName = categoryDisplayNames[category] || category
+
+                return (
+                  <Card key={category}>
+                    <CardHeader>
+                      <CardTitle>{categoryName}</CardTitle>
+                      <CardDescription>
+                        {hasMultipleInstances
+                          ? `${instanceGroups.length} instances entered`
+                          : "Click the edit button to correct any result"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {instanceGroups.map((group) => (
+                        <div key={`${category}-${group.instance}`}>
+                          {/* Show instance header when multi-instance */}
+                          {(hasMultipleInstances || (isMultiInstance && group.instance >= 1)) && instanceGroups.length > 0 && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="outline" className="text-xs">
+                                #{group.instance}
+                              </Badge>
+                              {group.instanceLabel && (
+                                <span className="text-sm font-medium">{group.instanceLabel}</span>
+                              )}
+                              {!group.instanceLabel && hasMultipleInstances && (
+                                <span className="text-sm text-muted-foreground">
+                                  {categoryName} #{group.instance}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-20">Position</TableHead>
+                                <TableHead>Rider</TableHead>
+                                <TableHead>Team</TableHead>
+                                <TableHead>Time</TableHead>
+                                <TableHead className="text-right">Points</TableHead>
+                                <TableHead className="w-20"></TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {group.results
+                                .sort((a: any, b: any) => a.position - b.position)
+                                .map((result: any) => (
+                                <TableRow key={result.id}>
+                                  <TableCell className="font-medium">{result.position}</TableCell>
+                                  <TableCell>{result.riderName}</TableCell>
+                                  <TableCell>{result.riderTeam}</TableCell>
+                                  <TableCell className="text-muted-foreground">
+                                    {result.time || "—"}
+                                  </TableCell>
+                                  <TableCell className="text-right">{result.points}</TableCell>
+                                  <TableCell>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => handleEditResult(result)}
+                                    >
+                                      <PencilIcon className="h-4 w-4" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                          {/* Separator between instances */}
+                          {hasMultipleInstances && group.instance < instanceGroups[instanceGroups.length - 1].instance && (
+                            <div className="border-t my-3" />
+                          )}
+                        </div>
+                      ))}
+
+                      {/* "Add another" button for multi-instance categories */}
+                      {isMultiInstance && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-2"
+                          onClick={async () => {
+                            const nextInstance = await getNextInstance(selectedRaceId!, category)
+                            setCurrentInstance(nextInstance)
+                            setCurrentInstanceLabel("")
+                            setSelectedCategory(category)
+                          }}
+                        >
+                          <PlusIcon className="h-4 w-4 mr-2" />
+                          Add another {categoryName.toLowerCase()}
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                )
+              })
             })()}
 
             {/* Add more results button */}
@@ -391,29 +444,30 @@ export function ResultsClient({ races, riders }: Props) {
         <ChevronLeftIcon className="h-4 w-4 mr-2" />
         Back to category selection
       </Button>
+      {/* Instance label input for multi-instance categories */}
+      {MULTI_INSTANCE_CATEGORIES.has(selectedCategory) && (
+        <div className="flex items-center gap-3 px-1">
+          <Badge variant="outline" className="shrink-0">#{currentInstance}</Badge>
+          <input
+            type="text"
+            placeholder="Optional label (e.g. Col du Galibier)"
+            value={currentInstanceLabel}
+            onChange={(e) => setCurrentInstanceLabel(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </div>
+      )}
       <ResultEntryForm
         raceId={selectedRaceId!}
         riders={riders}
         raceType={selectedRace?.raceType || ""}
         category={selectedCategory}
+        instance={currentInstance}
+        instanceLabel={currentInstanceLabel || undefined}
         teams={teamNames}
         onSuccess={handleSuccess}
         onDirtyChange={setFormIsDirty}
       />
-      {getBaseCategory(selectedCategory).startsWith("mountain_") && (
-        <Button
-          variant="outline"
-          onClick={() => {
-            if (formIsDirty && !window.confirm("You have unsaved changes. Add another without saving?")) return
-            setFormIsDirty(false)
-            setSelectedCategory(getNextMountainCategory(selectedCategory))
-          }}
-          className="w-full"
-        >
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add another {getCategoryDisplayName(getBaseCategory(selectedCategory))}
-        </Button>
-      )}
     </div>
   ) : (
     // Show category picker
@@ -430,9 +484,10 @@ export function ResultsClient({ races, riders }: Props) {
       // Determine if this is a parent race (has stages)
       const isParentRace = races.some(r => r.parentRaceId === selectedRace.id)
 
-      const availableCategories = expandExistingMountainInstances(
-        getAvailableCategories(raceTypeForCategories, isStage, isParentRace),
-        existingCategorySet
+      const availableCategories = getAvailableCategories(
+        raceTypeForCategories,
+        isStage,
+        isParentRace
       )
 
       return (
@@ -449,12 +504,12 @@ export function ResultsClient({ races, riders }: Props) {
                 <Button
                   key={category}
                   variant="outline"
-                  onClick={() => { setFormIsDirty(false); setSelectedCategory(category) }}
+                  onClick={() => { setFormIsDirty(false); setCurrentInstance(1); setCurrentInstanceLabel(""); setSelectedCategory(category) }}
                   className="h-auto py-4 px-4 text-left justify-start"
                 >
                   <div>
                     <div className="font-medium">
-                      {getCategoryDisplayName(category)}
+                      {categoryDisplayNames[category] || category}
                     </div>
                   </div>
                 </Button>
@@ -546,7 +601,7 @@ export function ResultsClient({ races, riders }: Props) {
                   className="text-xs"
                 >
                   <ChevronLeftIcon className="h-3 w-3 mr-1" />
-                  {prevCategory ? getCategoryDisplayName(prevCategory) : "—"}
+                  {prevCategory ? (categoryDisplayNames[prevCategory] || prevCategory) : "—"}
                 </Button>
                 <Button
                   variant="ghost"
@@ -555,7 +610,7 @@ export function ResultsClient({ races, riders }: Props) {
                   onClick={() => nextCategory && handleCategoryNav(nextCategory)}
                   className="text-xs"
                 >
-                  {nextCategory ? getCategoryDisplayName(nextCategory) : "—"}
+                  {nextCategory ? (categoryDisplayNames[nextCategory] || nextCategory) : "—"}
                   <ChevronRightIcon className="h-3 w-3 ml-1" />
                 </Button>
               </div>

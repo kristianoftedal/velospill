@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { submitTransferBid, cancelTransferBid } from "./actions"
-import type { TeamRosterEntry, TeamBid, ActiveTransferWindow, FreeAgent } from "@/lib/transfer-queries"
+import type { TeamRosterEntry, TeamBid, ActiveTransferWindow, FreeAgent, LeagueTransfer } from "@/lib/transfer-queries"
 
 const MAX_MEN_RIDERS = 18
 const MAX_WOMEN_RIDERS = 6
@@ -20,6 +21,7 @@ interface TransferFormProps {
   teamBudget: number
   freeAgentsMen: FreeAgent[]
   freeAgentsWomen: FreeAgent[]
+  leagueTransfers: LeagueTransfer[]
 }
 
 function statusBadgeVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
@@ -60,6 +62,7 @@ export function TransferForm({
   teamBudget,
   freeAgentsMen,
   freeAgentsWomen,
+  leagueTransfers,
 }: TransferFormProps) {
   const [selectedOutRiderId, setSelectedOutRiderId] = useState<number | null>(null)
   const [selectedInRiderId, setSelectedInRiderId] = useState<number | null>(null)
@@ -196,65 +199,134 @@ export function TransferForm({
         </Card>
       )}
 
-      {/* Pending Bids Section */}
+      {/* Bids & League Transfers — collapsible accordion */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Your Bids</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {pendingBids.length === 0 ? (
-            <p className="text-sm text-gray-500">No pending bids.</p>
-          ) : (
-            <div className="divide-y divide-gray-100">
-              {pendingBids.map((bid) => (
-                <div key={bid.bidId} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {bid.outRiderName ? (
-                        <>
-                          <span className="text-sm font-medium text-gray-900">
-                            {bid.outRiderName}
-                          </span>
-                          <span className="text-gray-400">&rarr;</span>
-                        </>
-                      ) : (
-                        <span className="text-xs text-blue-600 font-medium">Pickup</span>
-                      )}
-                      <span className="text-sm font-medium text-gray-900">
-                        {bid.inRiderName}
-                      </span>
-                      <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(bid.status)}`}
-                      >
-                        {bid.status.charAt(0).toUpperCase() + bid.status.slice(1)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Bid: {bid.bidAmount} EUR &bull; Submitted{" "}
-                      {new Date(bid.submittedAt).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                    {bid.adminNote && (
-                      <p className="text-xs text-gray-500 italic">Note: {bid.adminNote}</p>
-                    )}
+        <CardContent className="pt-4">
+          <Accordion type="multiple" defaultValue={pendingBids.length > 0 ? ["your-bids"] : []}>
+            {/* Your Bids */}
+            <AccordionItem value="your-bids">
+              <AccordionTrigger className="text-lg font-semibold">
+                Your Bids
+                {pendingBids.filter(b => b.status === "pending").length > 0 && (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-yellow-100 border border-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                    {pendingBids.filter(b => b.status === "pending").length} pending
+                  </span>
+                )}
+              </AccordionTrigger>
+              <AccordionContent>
+                {pendingBids.length === 0 ? (
+                  <p className="text-sm text-gray-500">No bids submitted.</p>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {pendingBids.map((bid) => (
+                      <div key={bid.bidId} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {bid.outRiderName ? (
+                              <>
+                                <span className="text-sm font-medium text-gray-900">
+                                  {bid.outRiderName}
+                                </span>
+                                <span className="text-gray-400">&rarr;</span>
+                              </>
+                            ) : (
+                              <span className="text-xs text-blue-600 font-medium">Pickup</span>
+                            )}
+                            <span className="text-sm font-medium text-gray-900">
+                              {bid.inRiderName}
+                            </span>
+                            <span
+                              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(bid.status)}`}
+                            >
+                              {bid.status.charAt(0).toUpperCase() + bid.status.slice(1)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            Bid: {bid.bidAmount} EUR &bull; Submitted{" "}
+                            {new Date(bid.submittedAt).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                          {bid.adminNote && (
+                            <p className="text-xs text-gray-500 italic">Note: {bid.adminNote}</p>
+                          )}
+                        </div>
+                        {bid.status === "pending" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isPending}
+                            onClick={() => handleCancel(bid.bidId)}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  {bid.status === "pending" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={isPending}
-                      onClick={() => handleCancel(bid.bidId)}
-                    >
-                      Cancel
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                )}
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* League Transfers */}
+            <AccordionItem value="league-transfers">
+              <AccordionTrigger className="text-lg font-semibold">
+                League Transfers
+                {leagueTransfers.length > 0 && (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 border border-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600">
+                    {leagueTransfers.length}
+                  </span>
+                )}
+              </AccordionTrigger>
+              <AccordionContent>
+                {leagueTransfers.length === 0 ? (
+                  <p className="text-sm text-gray-500">No transfers in this league yet.</p>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {leagueTransfers.map((t) => (
+                      <div key={t.bidId} className="py-3 space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-medium text-gray-500">{t.teamName}</span>
+                          <span className="text-gray-300">|</span>
+                          {t.outRiderName ? (
+                            <>
+                              <span className="text-sm text-gray-900">{t.outRiderName}</span>
+                              <span className="text-gray-400">&rarr;</span>
+                            </>
+                          ) : (
+                            <span className="text-xs text-blue-600 font-medium">Pickup</span>
+                          )}
+                          <span className="text-sm font-medium text-gray-900">{t.inRiderName}</span>
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(t.status)}`}
+                          >
+                            {t.status.charAt(0).toUpperCase() + t.status.slice(1)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {t.bidAmount > 0 ? `${t.bidAmount} EUR • ` : ""}
+                          {new Date(t.submittedAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                          {t.resolvedAt && (
+                            <> &bull; Resolved {new Date(t.resolvedAt).toLocaleDateString("en-GB", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}</>
+                          )}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </CardContent>
       </Card>
 

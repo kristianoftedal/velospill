@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { correctRaceResult, deleteRaceResult } from "@/app/admin/results/actions"
+import { categoryDisplayNames } from "@/components/admin/result-entry-form"
 
 const correctionSchema = z.object({
   position: z.number().min(1),
@@ -59,6 +60,9 @@ type Result = {
   riderName: string
   time: string | null
   points: number
+  category?: string
+  instance?: number
+  instanceLabel?: string | null
 }
 
 type Props = {
@@ -161,6 +165,13 @@ export function ResultCorrectionDialog({
             <DialogTitle>Correct Race Result</DialogTitle>
             <DialogDescription>
               Edit position {result.position} - {result.riderName}
+              {result.category && (
+                <span className="block text-xs mt-1">
+                  {categoryDisplayNames[result.category] || result.category}
+                  {result.instance && result.instance > 1 ? ` #${result.instance}` : ""}
+                  {result.instanceLabel ? ` — ${result.instanceLabel}` : ""}
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
 

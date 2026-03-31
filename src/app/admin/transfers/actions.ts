@@ -110,10 +110,12 @@ export async function approveBid(bidId: number) {
       }
 
       // Step 2: Re-verify inRider is still a free agent (race condition protection)
+      // Must filter droppedAt IS NULL — soft-deleted rows don't count as ownership
       const existingPick = await tx.query.draftPicks.findFirst({
         where: and(
           eq(draftPicks.leagueId, bid.leagueId),
-          eq(draftPicks.riderId, bid.inRiderId)
+          eq(draftPicks.riderId, bid.inRiderId),
+          isNull(draftPicks.droppedAt)
         ),
       })
       if (existingPick) {

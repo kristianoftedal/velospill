@@ -5,7 +5,7 @@ import { transferBids, transferAudit } from "@/db/schema/transfers"
 import { draftPicks } from "@/db/schema/draft"
 import { riders } from "@/db/schema/riders"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, count } from "drizzle-orm"
+import { eq, and, count, isNull } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import {
@@ -89,14 +89,16 @@ export async function submitTransferBid(formData: {
     }
   }
 
-  // 5. Validate inRider is a free agent (no draftPick for this league + rider)
+  // 5. Validate inRider is a free agent (no active draftPick for this league + rider)
+  // Must filter droppedAt IS NULL — soft-deleted rows don't count as ownership
   const inPick = await db
     .select()
     .from(draftPicks)
     .where(
       and(
         eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.riderId, inRiderId)
+        eq(draftPicks.riderId, inRiderId),
+        isNull(draftPicks.droppedAt)
       )
     )
     .limit(1)

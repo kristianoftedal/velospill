@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { desc, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import Link from "next/link";
+import { HomeRedirect } from "./home-redirect";
 
 const statusColors: Record<string, string> = {
   setup: "bg-blue-100 text-blue-800",
@@ -51,6 +52,7 @@ export default async function HomePage() {
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-12 md:py-16">
+      <HomeRedirect leagueIds={myLeagues.map((l) => l.id)} />
       <div className="space-y-12">
         {/* League Section */}
         <section className="space-y-6">

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 import { Home, Calendar, Award, TrendingUp, ArrowLeftRight, ListOrdered, Swords, Cross, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserMenu } from "./user-menu"
@@ -55,6 +56,13 @@ export function AppNav({ user, leagues }: AppNavProps) {
   // If user has exactly one league and is on a global page, auto-context could apply
   // But we only show league nav when actually inside a league route
   const isInLeague = activeLeagueId != null && activeLeague != null && activeLeague.status === "active"
+
+  // Persist last visited league for home page redirect
+  useEffect(() => {
+    if (activeLeagueId != null) {
+      localStorage.setItem("velospill_last_league", String(activeLeagueId))
+    }
+  }, [activeLeagueId])
 
   const navItems = isInLeague
     ? getLeagueNavItems(activeLeagueId!)

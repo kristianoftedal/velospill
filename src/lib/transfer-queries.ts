@@ -131,19 +131,193 @@ export async function getActiveTransferWindow(leagueId: number) {
   return result[0] ?? null
 }
 
+/**
+ * Checks for recently closed waiver windows that still have pending bids,
+ * and auto-resolves them. Called lazily on transfers page load.
+ *
+ * Only resolves windows that closed within the last 7 days (avoid re-processing ancient windows).
+ * Uses the resolveConflicts pure function + approveBid for execution.
+ */
+export async function autoResolveExpiredWaivers(leagueId: number, season: number) {
+  const now = new Date()
+  const sevenDaysAgo = new Date(now)
+  sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7)
+
+  // Find waiver windows that have closed but still have pending bids
+  const closedWaiverWindows = await db
+    .select({ id: transferWindows.id, closesAt: transferWindows.closesAt })
+    .from(transferWindows)
+    .where(
+      and(
+        eq(transferWindows.leagueId, leagueId),
+        eq(transferWindows.windowType, "waiver"),
+        lte(transferWindows.closesAt, now),
+        gt(transferWindows.closesAt, sevenDaysAgo)
+      )
+    )
+
+  if (closedWaiverWindows.length === 0) return { resolved: 0 }
+
+  // Check if there are any pending bids for this league
+  const pendingBids = await db
+    .select({ id: transferBids.id })
+    .from(transferBids)
+    .where(
+      and(
+        eq(transferBids.leagueId, leagueId),
+        eq(transferBids.status, "pending")
+      )
+    )
+    .limit(1)
+
+  if (pendingBids.length === 0) return { resolved: 0 }
+
+  // There are pending bids and a recently-closed waiver window — resolve them
+  const { getLeagueStandings } = await import("@/lib/scoring-queries")
+  const standings = await getLeagueStandings(leagueId, season)
+  const pointsByTeamId = new Map<number, number>(
+    standings.map((s) => [s.teamId, s.totalPoints])
+  )
+
+  // Fetch all pending bids
+  const allPendingBids = await db
+    .select({
+      bidId: transferBids.id,
+      teamId: transferBids.teamId,
+      inRiderId: transferBids.inRiderId,
+      bidAmount: transferBids.bidAmount,
+      submittedAt: transferBids.submittedAt,
+    })
+    .from(transferBids)
+    .where(
+      and(
+        eq(transferBids.leagueId, leagueId),
+        eq(transferBids.status, "pending")
+      )
+    )
+
+  const { winningBids, rejectedBids } = resolveConflicts(allPendingBids, pointsByTeamId)
+
+  // Reject losing bids
+  for (const { bidId, note } of rejectedBids) {
+    await db
+      .update(transferBids)
+      .set({
+        status: "rejected",
+        resolvedAt: new Date(),
+        resolvedBy: "system",
+        adminNote: note,
+      })
+      .where(eq(transferBids.id, bidId))
+  }
+
+  // Approve winning bids using the admin approveBid logic
+  const { approveBidSystem } = await import("@/app/admin/transfers/actions")
+  let approved = 0
+
+  for (const { bidId } of winningBids) {
+    const result = await approveBidSystem(bidId)
+    if (result.success) {
+      approved++
+    } else {
+      // Auto-reject on failure
+      await db
+        .update(transferBids)
+        .set({
+          status: "rejected",
+          resolvedAt: new Date(),
+          resolvedBy: "system",
+          adminNote: "Auto-rejected: " + (result.error ?? "rider claimed by higher-priority team"),
+        })
+        .where(eq(transferBids.id, bidId))
+    }
+  }
+
+  return { resolved: approved + rejectedBids.length }
+}
+
+
+/**
+ * Pure conflict resolution algorithm — no DB access.
+ * Takes pending bids and a map of teamId → totalPoints, returns winning and rejected bids.
+ *
+ * Rules:
+ * 1. Bids are grouped by inRiderId (bids for different riders don't conflict)
+ * 2. Within each group, highest bidAmount wins
+ * 3. Tiebreaker: fewest totalPoints wins (waiver wire priority — worst team gets first pick)
+ * 4. Tiebreaker: earliest submittedAt wins
+ * 5. One winner per inRiderId, rest are rejected
+ */
+export function resolveConflicts(
+  pendingBids: Array<{
+    bidId: number
+    teamId: number
+    inRiderId: number
+    bidAmount: number
+    submittedAt: Date | string | null
+  }>,
+  pointsByTeamId: Map<number, number>
+): {
+  winningBids: Array<{ bidId: number; teamId: number; priority: number }>
+  rejectedBids: Array<{ bidId: number; note: string }>
+} {
+  if (pendingBids.length === 0) {
+    return { winningBids: [], rejectedBids: [] }
+  }
+
+  // Group bids by inRiderId
+  const bidsByRider = new Map<number, typeof pendingBids>()
+  for (const bid of pendingBids) {
+    const existing = bidsByRider.get(bid.inRiderId) ?? []
+    existing.push(bid)
+    bidsByRider.set(bid.inRiderId, existing)
+  }
+
+  const winningBids: Array<{ bidId: number; teamId: number; priority: number }> = []
+  const rejectedBids: Array<{ bidId: number; note: string }> = []
+
+  let priorityCounter = 1
+
+  for (const [, bids] of bidsByRider) {
+    // Sort by bidAmount DESC, totalPoints ASC, submittedAt ASC
+    const sorted = [...bids].sort((a, b) => {
+      // Highest bid wins
+      if (a.bidAmount !== b.bidAmount) return b.bidAmount - a.bidAmount
+      // Tiebreaker: fewer total points wins
+      const pointsA = pointsByTeamId.get(a.teamId) ?? 0
+      const pointsB = pointsByTeamId.get(b.teamId) ?? 0
+      if (pointsA !== pointsB) return pointsA - pointsB
+      // Tiebreaker: earlier submission wins
+      const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0
+      const timeB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0
+      return timeA - timeB
+    })
+
+    // First in sorted order wins
+    winningBids.push({
+      bidId: sorted[0].bidId,
+      teamId: sorted[0].teamId,
+      priority: priorityCounter++,
+    })
+
+    // Remaining are rejected
+    for (let i = 1; i < sorted.length; i++) {
+      rejectedBids.push({
+        bidId: sorted[i].bidId,
+        note: "Outbid (higher bid amount)",
+      })
+    }
+  }
+
+  // Sort winning bids by priority
+  winningBids.sort((a, b) => a.priority - b.priority)
+
+  return { winningBids, rejectedBids }
+}
 
 /**
  * Resolves conflicting bids for the same free agent using waiver wire priority.
- * Per user decision #2: "Priority by standings — team with lowest total points gets priority."
- *
- * Algorithm:
- * 1. Fetch all pending bids for the league
- * 2. Group by inRiderId — bids for different riders don't conflict
- * 3. For groups with >1 bid, sort by team totalPoints ASC (lowest = highest priority)
- * 4. Tiebreaker: submittedAt ASC (earlier bid wins)
- * 5. Return ordered list of winning bids (one per unique inRiderId), losers marked
- *
- * Returns: priority-ordered winning bids (one per free agent) and the rejected bid IDs with notes.
+ * Delegates to resolveConflicts after fetching data from the database.
  */
 export async function resolveConflictingBids(leagueId: number, season: number) {
   // Step 1: Fetch all pending bids for this league
@@ -173,66 +347,26 @@ export async function resolveConflictingBids(leagueId: number, season: number) {
     standings.map((s) => [s.teamId, s.totalPoints])
   )
 
-  // Step 3: Group bids by inRiderId
-  const bidsByRider = new Map<number, typeof pendingBids>()
-  for (const bid of pendingBids) {
-    const existing = bidsByRider.get(bid.inRiderId) ?? []
-    existing.push(bid)
-    bidsByRider.set(bid.inRiderId, existing)
-  }
-
-  const winningBids: Array<{ bidId: number; teamId: number; priority: number }> = []
-  const rejectedBids: Array<{ bidId: number; note: string }> = []
-
-  let priorityCounter = 1
-
-  for (const [, bids] of bidsByRider) {
-    // Sort by bidAmount DESC (highest bid wins), tiebreaker totalPoints ASC (fewer points wins), then submittedAt ASC
-    const sorted = [...bids].sort((a, b) => {
-      // Highest bid wins
-      if (a.bidAmount !== b.bidAmount) return b.bidAmount - a.bidAmount
-      // Tiebreaker: fewer total points wins
-      const pointsA = pointsByTeamId.get(a.teamId) ?? 0
-      const pointsB = pointsByTeamId.get(b.teamId) ?? 0
-      if (pointsA !== pointsB) return pointsA - pointsB
-      // Tiebreaker: earlier submission wins
-      const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0
-      const timeB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0
-      return timeA - timeB
-    })
-
-    // First bid in sorted order wins
-    winningBids.push({
-      bidId: sorted[0].bidId,
-      teamId: sorted[0].teamId,
-      priority: priorityCounter++,
-    })
-
-    // Remaining bids are rejected
-    for (let i = 1; i < sorted.length; i++) {
-      rejectedBids.push({
-        bidId: sorted[i].bidId,
-        note: "Outbid (higher bid amount)",
-      })
-    }
-  }
-
-  // Sort winning bids by priority (lowest priority number = first to process)
-  winningBids.sort((a, b) => a.priority - b.priority)
-
-  return { winningBids, rejectedBids }
+  // Step 3: Delegate to pure algorithm
+  return resolveConflicts(pendingBids, pointsByTeamId)
 }
 
 /**
- * Generates transfer window proposals from the race calendar for a given season.
- * Per user decision #4: "Transfer windows auto-generated from league settings, with admin override."
+ * Generates transfer windows from the race calendar for a given season.
  *
- * Only parent races (parentRaceId IS NULL) are used — stages are skipped.
- * Window timing is determined by race type.
+ * New system (per user decision):
+ * For each consecutive pair of races:
+ *   - Waiver window: opens at 13:00 UTC on current race day, closes 23:59 UTC the day before next race
+ *   - Free agency: opens at 00:00 UTC on next race day, closes 13:00 UTC on next race day
+ *
+ * For the first race of the season:
+ *   - Waiver window: opens 7 days before, closes 23:59 the day before
+ *   - Free agency: opens 00:00 race day, closes 13:00 race day
+ *
+ * Only parent races (parentRaceId IS NULL) are used.
  * Returns proposals — the admin action inserts them.
  */
 export async function generateTransferWindows(leagueId: number, season: number) {
-  // Fetch only league-assigned parent races for the season, ordered by startDate
   const parentRaceRows = await db
     .select({
       id: races.id,
@@ -256,44 +390,90 @@ export async function generateTransferWindows(leagueId: number, season: number) 
     )
     .orderBy(asc(races.startDate))
 
-  // Map race type to window parameters
-  const windowParams: Record<
-    string,
-    { daysBeforeOpen: number }
-  > = {
-    grand_tour:              { daysBeforeOpen: 7 },
-    womens_grand_tour:       { daysBeforeOpen: 7 },
-    world_championship:      { daysBeforeOpen: 7 },
-    high_priority_one_day:   { daysBeforeOpen: 5 },
-    low_priority_one_day:    { daysBeforeOpen: 3 },
-    mini_tour:               { daysBeforeOpen: 3 },
-    womens_one_day:          { daysBeforeOpen: 3 },
-  }
+  const windows: Array<{
+    leagueId: number
+    raceId: number | null
+    opensAt: Date
+    closesAt: Date
+    windowType: string
+    description: string
+    isAutoGenerated: true
+  }> = []
 
-  return parentRaceRows.map((race) => {
-    const params = windowParams[race.raceType] ?? { daysBeforeOpen: 3 }
+  for (let i = 0; i < parentRaceRows.length; i++) {
+    const race = parentRaceRows[i]
+    const raceDate = new Date(race.startDate)
 
-    const startDate = new Date(race.startDate)
+    // Free agency: 00:00 to 13:00 UTC on race day
+    const faOpen = new Date(raceDate)
+    faOpen.setUTCHours(0, 0, 0, 0)
+    const faClose = new Date(raceDate)
+    faClose.setUTCHours(13, 0, 0, 0)
 
-    // Opens N days before startDate (midnight UTC)
-    const opensAt = new Date(startDate)
-    opensAt.setUTCDate(opensAt.getUTCDate() - params.daysBeforeOpen)
-    opensAt.setUTCHours(0, 0, 0, 0)
-
-    // Closes 1 day before startDate at 23:59:59 UTC
-    const closesAt = new Date(startDate)
-    closesAt.setUTCDate(closesAt.getUTCDate() - 1)
-    closesAt.setUTCHours(23, 59, 59, 0)
-
-    return {
+    windows.push({
       leagueId,
       raceId: race.id,
-      opensAt,
-      closesAt,
-      description: `Transfer window for ${race.name}`,
-      isAutoGenerated: true as const,
+      opensAt: faOpen,
+      closesAt: faClose,
+      windowType: "free_agency",
+      description: `Free agency for ${race.name}`,
+      isAutoGenerated: true,
+    })
+
+    // Waiver window: 13:00 UTC on race day → 23:59 the day before the NEXT race
+    if (i < parentRaceRows.length - 1) {
+      const nextRace = parentRaceRows[i + 1]
+      const nextRaceDate = new Date(nextRace.startDate)
+
+      const waiverOpen = new Date(raceDate)
+      waiverOpen.setUTCHours(13, 0, 0, 0)
+
+      const waiverClose = new Date(nextRaceDate)
+      waiverClose.setUTCDate(waiverClose.getUTCDate() - 1)
+      waiverClose.setUTCHours(23, 59, 59, 0)
+
+      // Only create waiver window if it would have positive duration
+      if (waiverClose > waiverOpen) {
+        windows.push({
+          leagueId,
+          raceId: race.id,
+          opensAt: waiverOpen,
+          closesAt: waiverClose,
+          windowType: "waiver",
+          description: `Waiver window after ${race.name}`,
+          isAutoGenerated: true,
+        })
+      }
     }
-  })
+  }
+
+  // First race special case: waiver window opens 7 days before first race
+  if (parentRaceRows.length > 0) {
+    const firstRace = parentRaceRows[0]
+    const firstRaceDate = new Date(firstRace.startDate)
+
+    const earlyWaiverOpen = new Date(firstRaceDate)
+    earlyWaiverOpen.setUTCDate(earlyWaiverOpen.getUTCDate() - 7)
+    earlyWaiverOpen.setUTCHours(0, 0, 0, 0)
+
+    const earlyWaiverClose = new Date(firstRaceDate)
+    earlyWaiverClose.setUTCDate(earlyWaiverClose.getUTCDate() - 1)
+    earlyWaiverClose.setUTCHours(23, 59, 59, 0)
+
+    if (earlyWaiverClose > earlyWaiverOpen) {
+      windows.unshift({
+        leagueId,
+        raceId: firstRace.id,
+        opensAt: earlyWaiverOpen,
+        closesAt: earlyWaiverClose,
+        windowType: "waiver",
+        description: `Pre-season waiver window before ${firstRace.name}`,
+        isAutoGenerated: true,
+      })
+    }
+  }
+
+  return windows
 }
 
 /**

@@ -98,7 +98,17 @@ export async function getBidHistory(limit = 50) {
 
 export async function approveBid(bidId: number) {
   const session = await checkAdminAuth()
+  return _approveBidInternal(bidId, session.user.id)
+}
 
+/**
+ * System-level bid approval — no auth check. Used by auto-resolve.
+ */
+export async function approveBidSystem(bidId: number) {
+  return _approveBidInternal(bidId, "system")
+}
+
+async function _approveBidInternal(bidId: number, actorId: string) {
   try {
     await db.transaction(async (tx) => {
       // Step 1: Fetch bid and verify it's pending
@@ -110,7 +120,6 @@ export async function approveBid(bidId: number) {
       }
 
       // Step 2: Re-verify inRider is still a free agent (race condition protection)
-      // Must filter droppedAt IS NULL — soft-deleted rows don't count as ownership
       const existingPick = await tx.query.draftPicks.findFirst({
         where: and(
           eq(draftPicks.leagueId, bid.leagueId),
@@ -133,8 +142,6 @@ export async function approveBid(bidId: number) {
             eq(draftPicks.riderId, bid.outRiderId)
           ),
         })
-        // Fallback: check roster_slots in case the rider has a slot but no draft_pick
-        // (can happen post-migration or if draft_pick was lost due to a previous partial failure)
         if (!currentPick) {
           currentSlot = await tx.query.rosterSlots.findFirst({
             where: and(
@@ -149,7 +156,7 @@ export async function approveBid(bidId: number) {
         }
       }
 
-      // Step 4: Get inRider gender (needed for new draftPick.gender)
+      // Step 4: Get inRider gender
       const inRiderRecord = await tx.query.riders.findFirst({
         where: eq(riders.id, bid.inRiderId),
       })
@@ -157,13 +164,11 @@ export async function approveBid(bidId: number) {
         throw new Error("Incoming rider not found")
       }
 
-      // Step 5: Delete old draftPick and roster_slots row for outgoing rider
+      // Step 5: Drop outgoing rider
       if (bid.outRiderId != null) {
-        // Delete draft_pick if it exists
         if (currentPick) {
           await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
         }
-        // Always delete outgoing rider's roster_slots row (covers both currentPick and currentSlot cases)
         await tx.delete(rosterSlots).where(
           and(
             eq(rosterSlots.leagueId, bid.leagueId),
@@ -173,8 +178,6 @@ export async function approveBid(bidId: number) {
       }
 
       // Step 6: Insert new draftPick
-      // pickNumber = -(bidId) is a sentinel: negative = transfer-generated, unique per bid
-      // pickedAt = NOW() is critical for ownership-at-race-time scoring
       await tx.insert(draftPicks).values({
         leagueId: bid.leagueId,
         teamId: bid.teamId,
@@ -186,7 +189,7 @@ export async function approveBid(bidId: number) {
         pickedAt: new Date(),
       })
 
-      // Insert (or update if stale row exists) roster_slots for incoming rider
+      // Insert/update roster slot
       await tx
         .insert(rosterSlots)
         .values({
@@ -209,7 +212,7 @@ export async function approveBid(bidId: number) {
         .set({
           status: "approved",
           resolvedAt: new Date(),
-          resolvedBy: session.user.id,
+          resolvedBy: actorId,
         })
         .where(eq(transferBids.id, bidId))
 
@@ -228,13 +231,11 @@ export async function approveBid(bidId: number) {
         transferBidId: bidId,
         leagueId: bid.leagueId,
         action: "APPROVED",
-        performedBy: session.user.id,
+        performedBy: actorId,
       })
     })
 
     revalidatePath("/admin/transfers")
-    // Revalidate the specific league's transfer and standings pages
-    // We need to get the leagueId from the bid — we re-fetch outside transaction for revalidation
     const bid = await db.query.transferBids.findFirst({
       where: eq(transferBids.id, bidId),
     })
@@ -245,7 +246,6 @@ export async function approveBid(bidId: number) {
 
     return { success: true }
   } catch (error: any) {
-    // Handle unique constraint violation on riderLeagueUnique
     if (error.code === "23505") {
       return { success: false, error: "Rider is already on a team in this league" }
     }

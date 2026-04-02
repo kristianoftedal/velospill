@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { formatDate, formatDateTime } from "@/lib/format-date"
 import {
   Table,
   TableBody,
@@ -67,13 +68,7 @@ export default async function AdminIrPage() {
                       {request.reason ?? "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {new Date(request.submittedAt).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {formatDateTime(request.submittedAt)}
                     </TableCell>
                     <TableCell className="text-right">
                       <IrActions
@@ -126,11 +121,7 @@ export default async function AdminIrPage() {
                     <TableCell>{request.riderName}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {request.resolvedAt
-                        ? new Date(request.resolvedAt).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
+                        ? formatDate(request.resolvedAt)
                         : "-"}
                     </TableCell>
                     <TableCell className="text-right">

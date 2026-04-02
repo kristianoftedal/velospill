@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
+import { formatDate } from "@/lib/format-date"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -241,11 +242,7 @@ export function OrdersClient({
                     >
                       <p className="text-sm font-medium text-gray-900">{race.displayName}</p>
                       <p className="text-xs text-gray-500">
-                        {new Date(race.startDate).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        {formatDate(race.startDate)}
                         {" \u00b7 "}
                         {race.raceType.replace(/_/g, " ")}
                       </p>
@@ -522,11 +519,7 @@ export function OrdersClient({
                     <p className="text-xs text-gray-600">Race: {selectedRace.displayName}</p>
                     <p className="text-xs text-gray-600">
                       Date:{" "}
-                      {new Date(selectedRace.startDate).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                      {formatDate(selectedRace.startDate)}
                     </p>
                     {targetRiderId && (
                       <p className="text-xs text-gray-600">
@@ -619,11 +612,7 @@ export function OrdersClient({
                           </span>
                         </TableCell>
                       <TableCell className="text-xs text-gray-500">
-                        {new Date(order.submittedAt).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        {formatDate(order.submittedAt)}
                       </TableCell>
                       <TableCell>
                         {order.status === "pending" && (

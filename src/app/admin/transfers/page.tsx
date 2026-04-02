@@ -1,4 +1,5 @@
 import { getPendingBids, getBidHistory, approveBid, rejectBid, getActiveLeagues, getTransferWindows } from "./actions"
+import { formatDate, formatDateTime } from "@/lib/format-date"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -83,13 +84,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {bid.submittedAt
-                        ? new Date(bid.submittedAt).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
+                        ? formatDateTime(bid.submittedAt)
                         : "-"}
                     </TableCell>
                     <TableCell className="text-right">
@@ -150,11 +145,7 @@ export default async function TransfersPage({ searchParams }: PageProps) {
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {bid.resolvedAt
-                        ? new Date(bid.resolvedAt).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
+                        ? formatDate(bid.resolvedAt)
                         : "-"}
                     </TableCell>
                   </TableRow>

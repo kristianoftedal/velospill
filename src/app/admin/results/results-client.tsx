@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { formatDate } from "@/lib/format-date";
 
 import { ResultAuditTrail } from "@/components/admin/result-audit-trail";
 import { ResultCorrectionDialog } from "@/components/admin/result-correction-dialog";
@@ -339,7 +340,7 @@ export function ResultsClient({ races, riders }: Props) {
                   <div>
                     <span className="font-medium text-sm">{stage.name}</span>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(stage.startDate).toLocaleDateString()}
+                      {formatDate(stage.startDate)}
                     </div>
                   </div>
                   {stage.hasResults ? (
@@ -718,7 +719,7 @@ export function ResultsClient({ races, riders }: Props) {
                   ) : null}
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  {new Date(race.startDate).toLocaleDateString()}
+                  {formatDate(race.startDate)}
                 </div>
               </button>
 

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { submitTransferBid, cancelTransferBid } from "./actions"
+import { formatDate, formatDateTime } from "@/lib/format-date"
 import type { TeamRosterEntry, TeamBid, ActiveTransferWindow, FreeAgent, LeagueTransfer } from "@/lib/transfer-queries"
 
 const MAX_MEN_RIDERS = 18
@@ -165,27 +166,27 @@ export function TransferForm({
     <div className="space-y-6">
       {/* Active Window Banner */}
       {activeWindow ? (
-        <Card className="border-green-200 bg-green-50">
+        <Card className={activeWindow.windowType === "free_agency" ? "border-blue-200 bg-blue-50" : "border-green-200 bg-green-50"}>
           <CardContent className="pt-4 pb-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
-                <p className="font-medium text-green-800">Transfer window is open</p>
+                <p className={`font-medium ${activeWindow.windowType === "free_agency" ? "text-blue-800" : "text-green-800"}`}>
+                  {activeWindow.windowType === "free_agency"
+                    ? "Free agency — transfers are instant"
+                    : "Waiver window — bids resolved when window closes"}
+                </p>
                 {activeWindow.description && (
-                  <p className="text-sm text-green-700">{activeWindow.description}</p>
+                  <p className={`text-sm ${activeWindow.windowType === "free_agency" ? "text-blue-700" : "text-green-700"}`}>{activeWindow.description}</p>
                 )}
               </div>
               <div className="text-right space-y-1">
-                <p className="text-sm font-medium text-green-800">
-                  Budget remaining: {teamBudget} EUR
-                </p>
-                <p className="text-sm text-green-700">
-                  Closes: {new Date(activeWindow.closesAt).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                {activeWindow.windowType !== "free_agency" && (
+                  <p className="text-sm font-medium text-green-800">
+                    Budget remaining: {teamBudget} EUR
+                  </p>
+                )}
+                <p className={`text-sm ${activeWindow.windowType === "free_agency" ? "text-blue-700" : "text-green-700"}`}>
+                  Closes: {formatDateTime(activeWindow.closesAt)}
                 </p>
               </div>
             </div>
@@ -243,11 +244,7 @@ export function TransferForm({
                           </div>
                           <p className="text-xs text-gray-500">
                             Bid: {bid.bidAmount} EUR &bull; Submitted{" "}
-                            {new Date(bid.submittedAt).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}
+                            {formatDate(bid.submittedAt)}
                           </p>
                           {bid.adminNote && (
                             <p className="text-xs text-gray-500 italic">Note: {bid.adminNote}</p>
@@ -307,17 +304,9 @@ export function TransferForm({
                         </div>
                         <p className="text-xs text-gray-500">
                           {t.bidAmount > 0 ? `${t.bidAmount} EUR • ` : ""}
-                          {new Date(t.submittedAt).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {formatDate(t.submittedAt)}
                           {t.resolvedAt && (
-                            <> &bull; Resolved {new Date(t.resolvedAt).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "short",
-                              year: "numeric",
-                            })}</>
+                            <> &bull; Resolved {formatDate(t.resolvedAt)}</>
                           )}
                         </p>
                       </div>
@@ -470,8 +459,8 @@ export function TransferForm({
               </div>
             )}
 
-            {/* Bid amount */}
-            {canSubmit && selectedInRiderId && (
+            {/* Bid amount — waiver window only */}
+            {canSubmit && selectedInRiderId && activeWindow.windowType !== "free_agency" && (
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700">
                   Bid Amount (EUR)
@@ -490,8 +479,8 @@ export function TransferForm({
               </div>
             )}
 
-            {/* Optional reason */}
-            {canSubmit && selectedInRiderId && (
+            {/* Optional reason — waiver window only */}
+            {canSubmit && selectedInRiderId && activeWindow.windowType !== "free_agency" && (
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-gray-700">
                   Reason (optional)
@@ -512,7 +501,7 @@ export function TransferForm({
               disabled={isPending || !canSubmit}
               className="w-full bg-gray-900 text-white hover:bg-gray-700"
             >
-              {isPending ? "Submitting..." : "Submit Transfer Bid"}
+              {isPending ? "Submitting..." : activeWindow.windowType === "free_agency" ? "Pick Up Rider" : "Submit Transfer Bid"}
             </Button>
 
             {canSubmit && selectedInRider && (

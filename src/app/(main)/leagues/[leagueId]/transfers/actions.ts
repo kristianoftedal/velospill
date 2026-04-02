@@ -189,8 +189,10 @@ export async function submitTransferBid(formData: {
     return { success: false, error: "No active transfer window" }
   }
 
-  // 8. Budget validation
-  if (bidAmount > 0) {
+  const isFreeAgency = activeWindow.windowType === "free_agency"
+
+  // 8. Budget validation (only for waiver bids — free agency has no bidding)
+  if (!isFreeAgency && bidAmount > 0) {
     const budget = await getTeamBudget(team.id)
     if (bidAmount > budget) {
       return {
@@ -200,7 +202,19 @@ export async function submitTransferBid(formData: {
     }
   }
 
-  // Insert transfer bid
+  if (isFreeAgency) {
+    // Free agency: immediate transfer — execute directly
+    const { approveFreeAgencyTransfer } = await import("./free-agency")
+    return approveFreeAgencyTransfer({
+      leagueId,
+      teamId: team.id,
+      outRiderId: outRiderId ?? null,
+      inRiderId,
+      userId: session.user.id,
+    })
+  }
+
+  // Waiver window: insert as pending bid
   const [bid] = await db
     .insert(transferBids)
     .values({

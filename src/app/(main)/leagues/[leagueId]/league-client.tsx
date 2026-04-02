@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { formatDate } from "@/lib/format-date"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -66,11 +67,7 @@ export function InviteSection({ inviteCode, expiresAt }: InviteSectionProps) {
       </div>
       {expiresAt && (
         <p className="text-sm text-gray-500">
-          Invite expires: {new Date(expiresAt).toLocaleDateString("en-GB", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          })}
+          Invite expires: {formatDate(expiresAt)}
         </p>
       )}
     </div>
@@ -218,11 +215,7 @@ function formatRaceType(raceType: string): string {
 }
 
 function formatRaceDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
+  return formatDate(isoDate)
 }
 
 interface SeasonRace {

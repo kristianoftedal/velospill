@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { formatDate } from "@/lib/format-date"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getLeagueDetails } from "../actions"
@@ -150,11 +151,7 @@ export default async function LineupPage({ params }: PageProps) {
                           )}
                         </div>
                         <p className="text-xs text-gray-500">
-                          Starts: {new Date(race.startDate).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          Starts: {formatDate(race.startDate)}
                           {race.rosterSize && (
                             <span> &bull; Lineup size: {race.rosterSize} riders</span>
                           )}

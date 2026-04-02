@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
+import { formatDateTime } from "@/lib/format-date"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -122,13 +123,7 @@ export function LineupForm({
                 {selected.size} / {rosterSize} selected
               </p>
               <p className="text-xs text-gray-500">
-                Deadline: {deadline.toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                Deadline: {formatDateTime(deadline)}
               </p>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect } from "react"
-import { Home, Calendar, Award, TrendingUp, ArrowLeftRight, ListOrdered, Swords, Cross, Users } from "lucide-react"
+import { Home, Calendar, Award, TrendingUp, ArrowLeftRight, ListOrdered, Swords, Cross } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserMenu } from "./user-menu"
 
@@ -39,7 +39,6 @@ function getLeagueNavItems(leagueId: number) {
     { href: `${base}/lineup`, label: "Lineup", icon: ListOrdered },
     { href: `${base}/orders`, label: "Orders", icon: Swords },
     { href: `${base}/ir`, label: "IR", icon: Cross },
-    { href: `${base}/roster`, label: "Roster", icon: Users },
   ]
 }
 

@@ -1,15 +1,17 @@
-import { db } from "@/lib/db"
-import { draftPicks } from "@/db/schema/draft"
-import { teams, leagues, leagueRaces } from "@/db/schema/leagues"
-import { riders } from "@/db/schema/riders"
-import { raceResults } from "@/db/schema/results"
-import { races } from "@/db/schema/races"
-import { raceLineups } from "@/db/schema/lineups"
-import { bonusRiders } from "@/db/schema/bonus-riders"
-import { eq, asc, desc, sql, and, gte, or } from "drizzle-orm"
-import { alias } from "drizzle-orm/pg-core"
+import { bonusRiders } from "@/db/schema/bonus-riders";
+import { leagues, teams } from "@/db/schema/leagues";
+import { raceLineups } from "@/db/schema/lineups";
+import { races } from "@/db/schema/races";
+import { raceResults } from "@/db/schema/results";
+import { riders } from "@/db/schema/riders";
+import { rosterEvents } from "@/db/schema/roster-events";
+import { db } from "@/lib/db";
+import { and, asc, eq, inArray, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+import { ownershipAtRaceTime } from "./roster-ownership";
+const START_EVENT_TYPES = ["drafted", "transferred_in"] as const;
 
-const parentRaces = alias(races, "parentRaces")
+const parentRaces = alias(races, "parentRaces");
 
 /**
  * Lineup filter: if a lineup exists for this team/race, only riders in the lineup score.
@@ -21,18 +23,18 @@ const parentRaces = alias(races, "parentRaces")
 const lineupFilter = sql`(
   NOT EXISTS (
     SELECT 1 FROM ${raceLineups}
-    WHERE ${raceLineups.leagueId} = ${draftPicks.leagueId}
-      AND ${raceLineups.teamId} = ${draftPicks.teamId}
+    WHERE ${raceLineups.leagueId} = ${rosterEvents.leagueId}
+      AND ${raceLineups.teamId} = ${rosterEvents.teamId}
       AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
   )
   OR EXISTS (
     SELECT 1 FROM ${raceLineups}
-    WHERE ${raceLineups.leagueId} = ${draftPicks.leagueId}
-      AND ${raceLineups.teamId} = ${draftPicks.teamId}
+    WHERE ${raceLineups.leagueId} = ${rosterEvents.leagueId}
+      AND ${raceLineups.teamId} = ${rosterEvents.teamId}
       AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
-      AND ${raceLineups.riderId} = ${draftPicks.riderId}
+      AND ${raceLineups.riderId} = ${rosterEvents.riderId}
   )
-)`
+)`;
 
 const categoryLabels: Record<string, string> = {
   finish: "Finish",
@@ -45,46 +47,46 @@ const categoryLabels: Record<string, string> = {
   end_sprint: "Points Jersey",
   end_mountain: "Mountain Jersey",
   end_youth: "Youth Jersey",
-}
+};
 
 export type TeamRiderCategoryScore = {
-  category: string
-  categoryLabel: string
-  position: number
-  points: number
-}
+  category: string;
+  categoryLabel: string;
+  position: number;
+  points: number;
+};
 
 export type TeamRiderRaceEntry = {
-  raceId: number
-  raceName: string
-  raceType: string
-  startDate: Date
-  racePoints: number
-  categories: TeamRiderCategoryScore[]
-  parentRaceId: number | null
-  parentRaceName: string | null
-}
+  raceId: number;
+  raceName: string;
+  raceType: string;
+  startDate: Date;
+  racePoints: number;
+  categories: TeamRiderCategoryScore[];
+  parentRaceId: number | null;
+  parentRaceName: string | null;
+};
 
 export type TeamRiderEntry = {
-  riderId: number
-  riderName: string
-  riderTeam: string
-  gender: "M" | "F"
-  totalPoints: number
-  isBonus: boolean
-  races: TeamRiderRaceEntry[]
-}
+  riderId: number;
+  riderName: string;
+  riderTeam: string;
+  gender: "M" | "F";
+  totalPoints: number;
+  isBonus: boolean;
+  races: TeamRiderRaceEntry[];
+};
 
 export type TeamSeasonProfile = {
   team: {
-    id: number
-    name: string
-    leagueId: number
-    leagueName: string
-  }
-  riders: TeamRiderEntry[]
-  totalPoints: number
-}
+    id: number;
+    name: string;
+    leagueId: number;
+    leagueName: string;
+  };
+  riders: TeamRiderEntry[];
+  totalPoints: number;
+};
 
 /**
  * Returns a full season profile for a single fantasy team:
@@ -99,7 +101,7 @@ export type TeamSeasonProfile = {
 export async function getTeamSeasonProfile(
   teamId: number,
   leagueId: number,
-  season: number
+  season: number,
 ): Promise<TeamSeasonProfile | null> {
   // ── Query 1: Team metadata + league name ──────────────────────────────────
   const teamRows = await db
@@ -112,25 +114,25 @@ export async function getTeamSeasonProfile(
     .from(teams)
     .innerJoin(leagues, eq(leagues.id, teams.leagueId))
     .where(and(eq(teams.id, teamId), eq(teams.leagueId, leagueId)))
-    .limit(1)
+    .limit(1);
 
   if (teamRows.length === 0) {
-    return null
+    return null;
   }
 
-  const teamRow = teamRows[0]
+  const teamRow = teamRows[0];
 
   // League race scoping SQL fragment — reused across queries
-  const leagueRaceScope = sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`
+  const leagueRaceScope = sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`;
 
   // ── Query 2: Per-rider, per-race scoring breakdown (main roster) ──────────
   // Fetches all race result rows for all drafted riders on this team.
   // lineupFilter ensures lineup-aware scoring (if a lineup was submitted, only
   // lineup riders score; if none submitted, all riders score).
-  // Ownership-at-race-time: races.startDate >= draftPicks.pickedAt
+  // Ownership-at-race-time: uses roster_events via ownershipAtRaceTime helper
   const resultsRows = await db
     .select({
-      riderId: draftPicks.riderId,
+      riderId: rosterEvents.riderId,
       riderName: riders.name,
       riderTeam: riders.team,
       gender: riders.gender,
@@ -144,27 +146,33 @@ export async function getTeamSeasonProfile(
       position: raceResults.position,
       points: raceResults.points,
     })
-    .from(draftPicks)
-    .innerJoin(riders, eq(riders.id, draftPicks.riderId))
-    .innerJoin(raceResults, eq(raceResults.riderId, draftPicks.riderId))
+    .from(rosterEvents)
+    .innerJoin(riders, eq(riders.id, rosterEvents.riderId))
+    .innerJoin(raceResults, eq(raceResults.riderId, rosterEvents.riderId))
     .innerJoin(
       races,
       and(
         eq(races.id, raceResults.raceId),
         eq(races.season, season),
-        gte(races.startDate, draftPicks.pickedAt), // ownership-at-race-time
-        leagueRaceScope
-      )
+        ownershipAtRaceTime(
+          leagueId,
+          sql`${rosterEvents.teamId}`,
+          sql`${rosterEvents.riderId}`,
+          sql`${races.startDate}`,
+        ),
+        leagueRaceScope,
+      ),
     )
     .leftJoin(parentRaces, eq(parentRaces.id, races.parentRaceId))
     .where(
       and(
-        eq(draftPicks.teamId, teamId),
-        eq(draftPicks.leagueId, leagueId),
-        lineupFilter
-      )
+        eq(rosterEvents.teamId, teamId),
+        eq(rosterEvents.leagueId, leagueId),
+        inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        lineupFilter,
+      ),
     )
-    .orderBy(asc(riders.name), asc(races.startDate))
+    .orderBy(asc(riders.name), asc(races.startDate));
 
   // ── Query 3: Bonus riders for this team ───────────────────────────────────
   const bonusResultsRows = await db
@@ -196,59 +204,59 @@ export async function getTeamSeasonProfile(
         // Bonus rider scores include both the parent race itself and all its stages
         or(
           eq(races.id, bonusRiders.raceId),
-          eq(races.parentRaceId, bonusRiders.raceId)
+          eq(races.parentRaceId, bonusRiders.raceId),
         ),
-        leagueRaceScope
-      )
+        leagueRaceScope,
+      ),
     )
-    .orderBy(asc(riders.name), asc(races.startDate))
+    .orderBy(asc(riders.name), asc(races.startDate));
 
   // ── Application-side assembly ─────────────────────────────────────────────
   // Build a merged map: riderId → { riderInfo, isBonus, raceMap }
   // raceMap: raceId → { raceInfo, categories[] }
 
   type RaceAccumulator = {
-    raceId: number
-    raceName: string
-    raceType: string
-    startDate: Date
-    racePoints: number
-    categories: TeamRiderCategoryScore[]
-    parentRaceId: number | null
-    parentRaceName: string | null
-  }
+    raceId: number;
+    raceName: string;
+    raceType: string;
+    startDate: Date;
+    racePoints: number;
+    categories: TeamRiderCategoryScore[];
+    parentRaceId: number | null;
+    parentRaceName: string | null;
+  };
 
   type RiderAccumulator = {
-    riderId: number
-    riderName: string
-    riderTeam: string
-    gender: "M" | "F"
-    totalPoints: number
-    isBonus: boolean
-    raceMap: Map<number, RaceAccumulator>
-  }
+    riderId: number;
+    riderName: string;
+    riderTeam: string;
+    gender: "M" | "F";
+    totalPoints: number;
+    isBonus: boolean;
+    raceMap: Map<number, RaceAccumulator>;
+  };
 
-  const riderMap = new Map<number, RiderAccumulator>()
+  const riderMap = new Map<number, RiderAccumulator>();
 
   function addResultRow(
     row: {
-      riderId: number
-      riderName: string
-      riderTeam: string
-      gender: "M" | "F"
-      raceId: number
-      raceName: string
-      raceType: string
-      startDate: Date
-      parentRaceId: number | null
-      parentRaceName: string | null
-      category: string
-      position: number
-      points: number
+      riderId: number;
+      riderName: string;
+      riderTeam: string;
+      gender: "M" | "F";
+      raceId: number;
+      raceName: string;
+      raceType: string;
+      startDate: Date;
+      parentRaceId: number | null;
+      parentRaceName: string | null;
+      category: string;
+      position: number;
+      points: number;
     },
-    isBonus: boolean
+    isBonus: boolean,
   ) {
-    let riderEntry = riderMap.get(row.riderId)
+    let riderEntry = riderMap.get(row.riderId);
 
     if (!riderEntry) {
       riderEntry = {
@@ -259,8 +267,8 @@ export async function getTeamSeasonProfile(
         totalPoints: 0,
         isBonus,
         raceMap: new Map(),
-      }
-      riderMap.set(row.riderId, riderEntry)
+      };
+      riderMap.set(row.riderId, riderEntry);
     }
 
     const categoryEntry: TeamRiderCategoryScore = {
@@ -268,9 +276,9 @@ export async function getTeamSeasonProfile(
       categoryLabel: categoryLabels[row.category] ?? row.category,
       position: row.position,
       points: row.points,
-    }
+    };
 
-    let raceEntry = riderEntry.raceMap.get(row.raceId)
+    let raceEntry = riderEntry.raceMap.get(row.raceId);
     if (!raceEntry) {
       raceEntry = {
         raceId: row.raceId,
@@ -281,13 +289,13 @@ export async function getTeamSeasonProfile(
         categories: [],
         parentRaceId: row.parentRaceId,
         parentRaceName: row.parentRaceName,
-      }
-      riderEntry.raceMap.set(row.raceId, raceEntry)
+      };
+      riderEntry.raceMap.set(row.raceId, raceEntry);
     }
 
-    raceEntry.categories.push(categoryEntry)
-    raceEntry.racePoints += row.points
-    riderEntry.totalPoints += row.points
+    raceEntry.categories.push(categoryEntry);
+    raceEntry.racePoints += row.points;
+    riderEntry.totalPoints += row.points;
   }
 
   // Process main roster results
@@ -308,8 +316,8 @@ export async function getTeamSeasonProfile(
         position: row.position,
         points: row.points,
       },
-      false
-    )
+      false,
+    );
   }
 
   // Process bonus rider results (merge into same map, isBonus: true)
@@ -330,8 +338,8 @@ export async function getTeamSeasonProfile(
         position: row.position,
         points: row.points,
       },
-      true
-    )
+      true,
+    );
   }
 
   // Build final TeamRiderEntry[] sorted by totalPoints DESC
@@ -339,8 +347,8 @@ export async function getTeamSeasonProfile(
     .map((riderAcc) => {
       // Sort races within each rider by startDate ASC
       const sortedRaces: TeamRiderRaceEntry[] = Array.from(
-        riderAcc.raceMap.values()
-      ).sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+        riderAcc.raceMap.values(),
+      ).sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
 
       return {
         riderId: riderAcc.riderId,
@@ -350,15 +358,15 @@ export async function getTeamSeasonProfile(
         totalPoints: riderAcc.totalPoints,
         isBonus: riderAcc.isBonus,
         races: sortedRaces,
-      }
+      };
     })
-    .sort((a, b) => b.totalPoints - a.totalPoints) // highest contributor first
+    .sort((a, b) => b.totalPoints - a.totalPoints); // highest contributor first
 
   // Total team points = sum of all rider totalPoints
   const totalPoints = riderEntries.reduce(
     (sum, rider) => sum + rider.totalPoints,
-    0
-  )
+    0,
+  );
 
   return {
     team: {
@@ -369,5 +377,5 @@ export async function getTeamSeasonProfile(
     },
     riders: riderEntries,
     totalPoints,
-  }
+  };
 }

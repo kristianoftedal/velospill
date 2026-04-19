@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { raceLineups, raceResults, races, riders } from "@/db/schema";
 import { teams } from "@/db/schema/leagues";
-import { draftPicks } from "@/db/schema/draft";
+import { rosterSlots } from "@/db/schema/roster-slots";
 import { db } from "@/lib/db";
 import { format } from "date-fns";
 import { eq, inArray, sql } from "drizzle-orm";
@@ -62,8 +62,8 @@ export default async function RidersPage() {
 
   // Get all drafted rider IDs across all leagues
   const draftedRiderRows = await db
-    .selectDistinct({ riderId: draftPicks.riderId })
-    .from(draftPicks);
+    .selectDistinct({ riderId: rosterSlots.riderId })
+    .from(rosterSlots);
   const draftedRiderIds = draftedRiderRows.map(r => r.riderId);
 
   // For each rider, get their race-by-race breakdown

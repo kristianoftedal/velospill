@@ -9,6 +9,7 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { eq, and } from "drizzle-orm"
 import { getPendingIrRequests, getApprovedIrRequests } from "@/lib/ir-queries"
+import { emitRosterEvent } from "@/lib/roster-events"
 
 async function checkAdminAuth() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -78,6 +79,16 @@ export async function approveIrRequest(
           eq(rosterSlots.riderId, request.riderId)
         )
       )
+
+    // Roster event
+    await emitRosterEvent(tx, {
+      leagueId: request.leagueId,
+      teamId: request.teamId,
+      riderId: request.riderId,
+      eventType: "ir_placed",
+      occurredAt: new Date(),
+      metadata: { irRequestId: requestId },
+    })
   })
 
   revalidatePath("/admin/ir")

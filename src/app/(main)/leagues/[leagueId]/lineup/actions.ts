@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 import { raceLineups } from "@/db/schema/lineups"
 import { races } from "@/db/schema/races"
 import { rosterLimits } from "@/db/schema/config"
-import { draftPicks } from "@/db/schema/draft"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
 import { eq, and, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
@@ -78,12 +78,12 @@ export async function setLineup(
 
   // 5. Validate all riders belong to this team
   const teamPicks = await db
-    .select({ riderId: draftPicks.riderId })
-    .from(draftPicks)
+    .select({ riderId: rosterSlots.riderId })
+    .from(rosterSlots)
     .where(
       and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, leagueId)
+        eq(rosterSlots.teamId, team.id),
+        eq(rosterSlots.leagueId, leagueId)
       )
     )
 

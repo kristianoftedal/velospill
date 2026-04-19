@@ -14,6 +14,7 @@ import {
 import { buildDraftOrder } from "@/lib/draft-snake-order";
 import { checkLeagueMembership, checkLeagueOwnership } from "@/lib/league-auth";
 import { pusherServer } from "@/lib/pusher-server";
+import { emitRosterEvent } from "@/lib/roster-events";
 import { Client } from "@upstash/qstash";
 import { and, asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -273,6 +274,16 @@ export async function makePick(leagueId: number, riderId: number) {
       })
       .returning();
     insertedPick = p;
+
+    // Roster event
+    await emitRosterEvent(tx, {
+      leagueId,
+      teamId: team.id,
+      riderId,
+      eventType: "drafted",
+      occurredAt: insertedPick.pickedAt,
+      metadata: { pickNumber: currentPickIndex, round: currentRound, gender: draftSession.currentGender },
+    });
 
     await tx.insert(rosterSlots).values({
       leagueId,

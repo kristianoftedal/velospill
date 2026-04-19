@@ -4,8 +4,10 @@ import { leagueRaces, teams } from "@/db/schema/leagues"
 import { races } from "@/db/schema/races"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
-import { draftPicks } from "@/db/schema/draft"
+import { rosterEvents } from "@/db/schema/roster-events"
 import { eq, and, isNull, gt, lt, lte, inArray, asc, desc, sql } from "drizzle-orm"
+const START_EVENT_TYPES = ["drafted", "transferred_in"] as const
+import { ownershipAtRaceTime } from "./roster-ownership"
 
 // Multi-stage race type values — defined locally so this file stays independent of scoring-queries
 const MULTI_STAGE_TYPES = new Set(["grand_tour", "mini_tour", "womens_grand_tour"])
@@ -112,7 +114,7 @@ export async function getUpcomingRacesWithLineups(leagueId: number) {
  * (direct results for one-day races, or at least one stage result for multi-stage races).
  * Multi-stage races include a stages[] breakdown with per-stage points and a Done/Pending flag.
  * One-day races include a results[] array of per-rider results.
- * Ownership-at-race-time: uses draftPicks.pickedAt <= races.startDate.
+ * Ownership-at-race-time: uses roster_events via ownershipAtRaceTime helper.
  */
 export async function getRecentRaceResults(leagueId: number) {
   // Query 1: parent races assigned to this league that have started AND have at least one result
@@ -169,14 +171,15 @@ export async function getRecentRaceResults(leagueId: number) {
     .innerJoin(riders, eq(riders.id, raceResults.riderId))
     .innerJoin(races, eq(races.id, raceResults.raceId))
     .innerJoin(
-      draftPicks,
+      rosterEvents,
       and(
-        eq(draftPicks.riderId, raceResults.riderId),
-        eq(draftPicks.leagueId, leagueId),
-        lte(draftPicks.pickedAt, races.startDate) // ownership-at-race-time
+        eq(rosterEvents.riderId, raceResults.riderId),
+        eq(rosterEvents.leagueId, leagueId),
+        inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        ownershipAtRaceTime(leagueId, sql`${rosterEvents.teamId}`, sql`${raceResults.riderId}`, sql`${races.startDate}`)
       )
     )
-    .innerJoin(teams, eq(teams.id, draftPicks.teamId))
+    .innerJoin(teams, eq(teams.id, rosterEvents.teamId))
     .where(inArray(raceResults.raceId, raceIds))
     .orderBy(asc(raceResults.raceId), asc(raceResults.position))
 
@@ -188,17 +191,18 @@ export async function getRecentRaceResults(leagueId: number) {
       stageNumber: races.stageNumber,
       startDate: races.startDate,
       parentRaceId: races.parentRaceId,
-      totalLeaguePoints: sql<number>`COALESCE(SUM(CASE WHEN ${draftPicks.id} IS NOT NULL THEN ${raceResults.points} ELSE 0 END), 0)`,
+      totalLeaguePoints: sql<number>`COALESCE(SUM(CASE WHEN ${rosterEvents.id} IS NOT NULL THEN ${raceResults.points} ELSE 0 END), 0)`,
       hasResults: sql<boolean>`EXISTS (SELECT 1 FROM race_results rr WHERE rr."raceId" = ${races.id})`,
     })
     .from(races)
     .leftJoin(raceResults, eq(raceResults.raceId, races.id))
     .leftJoin(
-      draftPicks,
+      rosterEvents,
       and(
-        eq(draftPicks.riderId, raceResults.riderId),
-        eq(draftPicks.leagueId, leagueId),
-        lte(draftPicks.pickedAt, races.startDate) // ownership-at-race-time
+        eq(rosterEvents.riderId, raceResults.riderId),
+        eq(rosterEvents.leagueId, leagueId),
+        inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        ownershipAtRaceTime(leagueId, sql`${rosterEvents.teamId}`, sql`${raceResults.riderId}`, sql`${races.startDate}`)
       )
     )
     .where(

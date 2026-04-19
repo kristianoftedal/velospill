@@ -2,12 +2,12 @@
 
 import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
-import { draftPicks } from "@/db/schema/draft"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
 import { eq, and, inArray, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
+import { emitRosterEvent } from "@/lib/roster-events"
 
 /**
  * Submits an IR request for a rider on the player's team.
@@ -15,7 +15,7 @@ import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
  * Guards:
  * - Must be authenticated
  * - Must be a member of the league
- * - Rider must be on the team (in draftPicks)
+ * - Rider must be on the team (in roster_slots)
  * - Team must have fewer than 2 active IR slots (pending or approved)
  * - Rider must not already have an active IR request in this league
  */
@@ -40,13 +40,13 @@ export async function submitIrRequest(data: {
 
   // 3. Verify rider is on this team
   const [riderOnTeam] = await db
-    .select({ id: draftPicks.id })
-    .from(draftPicks)
+    .select({ id: rosterSlots.id })
+    .from(rosterSlots)
     .where(
       and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, data.leagueId),
-        eq(draftPicks.riderId, data.riderId)
+        eq(rosterSlots.teamId, team.id),
+        eq(rosterSlots.leagueId, data.leagueId),
+        eq(rosterSlots.riderId, data.riderId)
       )
     )
     .limit(1)
@@ -108,7 +108,7 @@ export async function submitIrRequest(data: {
 /**
  * Returns an IR-eligible rider to the active roster when there is roster space.
  * Transitions IR request status from 'return_eligible' → 'returned'.
- * The rider stays in draftPicks (they were never removed — IR only adjusts the count).
+ * The rider stays in roster_slots (IR only adjusts the status, not the roster).
  */
 export async function returnRider(
   requestId: number,
@@ -198,6 +198,16 @@ export async function returnRider(
           eq(rosterSlots.riderId, request.riderId)
         )
       )
+
+    // Roster event
+    await emitRosterEvent(tx, {
+      leagueId,
+      teamId: team.id,
+      riderId: request.riderId,
+      eventType: "ir_returned",
+      occurredAt: new Date(),
+      metadata: { irRequestId: requestId },
+    })
   })
 
   revalidatePath(`/leagues/${leagueId}/ir`)
@@ -210,7 +220,7 @@ export async function returnRider(
 /**
  * Atomically drops a roster rider and returns the IR-eligible rider.
  * Used when the roster is full — player selects who to drop in the dialog.
- * Deletes the dropped rider's draftPicks row, then marks IR request as returned.
+ * Removes the dropped rider's roster slot, emits a dropped event, then marks IR request as returned.
  */
 export async function dropAndReturnRider(input: {
   requestId: number
@@ -250,19 +260,19 @@ export async function dropAndReturnRider(input: {
   }
 
   // Verify the rider to drop is on this team
-  const [dropPick] = await db
+  const [dropSlot] = await db
     .select()
-    .from(draftPicks)
+    .from(rosterSlots)
     .where(
       and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.riderId, dropRiderId)
+        eq(rosterSlots.teamId, team.id),
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.riderId, dropRiderId)
       )
     )
     .limit(1)
 
-  if (!dropPick) {
+  if (!dropSlot) {
     return { success: false, error: "Rider to drop is not on your team" }
   }
 
@@ -283,17 +293,8 @@ export async function dropAndReturnRider(input: {
     return { success: false, error: "Cannot drop a rider who is currently on IR" }
   }
 
-  // Atomically: delete draftPick and roster_slots for dropped rider, update IR to returned, activate returning rider's slot
+  // Atomically: delete roster_slots for dropped rider, update IR to returned, activate returning rider's slot
   await db.transaction(async (tx) => {
-    // Delete draftPicks row for dropped rider
-    await tx.delete(draftPicks).where(
-      and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.riderId, dropRiderId)
-      )
-    )
-
     // Delete roster_slots row for dropped rider
     await tx.delete(rosterSlots).where(
       and(
@@ -318,6 +319,25 @@ export async function dropAndReturnRider(input: {
           eq(rosterSlots.riderId, request.riderId)
         )
       )
+
+    // Roster events
+    const now = new Date()
+    await emitRosterEvent(tx, {
+      leagueId,
+      teamId: team.id,
+      riderId: dropRiderId,
+      eventType: "dropped",
+      occurredAt: now,
+      metadata: { reason: "ir_return_swap", irRequestId: requestId },
+    })
+    await emitRosterEvent(tx, {
+      leagueId,
+      teamId: team.id,
+      riderId: request.riderId,
+      eventType: "ir_returned",
+      occurredAt: now,
+      metadata: { irRequestId: requestId },
+    })
   })
 
   revalidatePath(`/leagues/${leagueId}/ir`)

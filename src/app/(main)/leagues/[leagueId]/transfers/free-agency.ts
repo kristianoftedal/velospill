@@ -2,17 +2,18 @@
 
 import { db } from "@/lib/db"
 import { transferBids, transferAudit } from "@/db/schema/transfers"
-import { draftPicks } from "@/db/schema/draft"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
 import { teams } from "@/db/schema/leagues"
-import { eq, and, isNull, sql } from "drizzle-orm"
+import { irRequests } from "@/db/schema/ir"
+import { eq, and, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
+import { emitRosterEvent } from "@/lib/roster-events"
 
 /**
  * Executes an immediate free agency transfer — no bid queuing.
  * Creates a transfer_bid record with status='approved' for audit trail,
- * then swaps the riders in draftPicks and rosterSlots.
+ * then updates roster_slots and emits roster events.
  */
 export async function approveFreeAgencyTransfer(data: {
   leagueId: number
@@ -26,14 +27,13 @@ export async function approveFreeAgencyTransfer(data: {
   try {
     await db.transaction(async (tx) => {
       // Re-verify inRider is still a free agent
-      const existingPick = await tx.query.draftPicks.findFirst({
+      const existingSlot = await tx.query.rosterSlots.findFirst({
         where: and(
-          eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.riderId, inRiderId),
-          isNull(draftPicks.droppedAt)
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.riderId, inRiderId)
         ),
       })
-      if (existingPick) {
+      if (existingSlot) {
         throw new Error("Rider is no longer a free agent")
       }
 
@@ -47,18 +47,6 @@ export async function approveFreeAgencyTransfer(data: {
 
       // Drop outgoing rider if provided
       if (outRiderId != null) {
-        // Soft-delete draft pick
-        await tx
-          .update(draftPicks)
-          .set({ droppedAt: new Date() })
-          .where(
-            and(
-              eq(draftPicks.teamId, teamId),
-              eq(draftPicks.leagueId, leagueId),
-              eq(draftPicks.riderId, outRiderId),
-              isNull(draftPicks.droppedAt)
-            )
-          )
         // Delete roster slot
         await tx
           .delete(rosterSlots)
@@ -66,6 +54,23 @@ export async function approveFreeAgencyTransfer(data: {
             and(
               eq(rosterSlots.leagueId, leagueId),
               eq(rosterSlots.riderId, outRiderId)
+            )
+          )
+
+        // Resolve any active IR requests for the dropped rider
+        await tx
+          .update(irRequests)
+          .set({
+            status: "returned",
+            resolvedAt: new Date(),
+            adminNote: "Auto-resolved: rider dropped via free agency transfer",
+          })
+          .where(
+            and(
+              eq(irRequests.leagueId, leagueId),
+              eq(irRequests.teamId, teamId),
+              eq(irRequests.riderId, outRiderId),
+              inArray(irRequests.status, ["approved", "return_eligible"])
             )
           )
       }
@@ -86,18 +91,6 @@ export async function approveFreeAgencyTransfer(data: {
         })
         .returning()
 
-      // Insert new draft pick
-      await tx.insert(draftPicks).values({
-        leagueId,
-        teamId,
-        riderId: inRiderId,
-        pickNumber: -bid.id,
-        round: -1,
-        gender: inRiderRecord.gender,
-        wasAutomatic: false,
-        pickedAt: new Date(),
-      })
-
       // Insert or update roster slot
       await tx
         .insert(rosterSlots)
@@ -115,6 +108,27 @@ export async function approveFreeAgencyTransfer(data: {
           },
         })
 
+      // Roster events
+      const now = new Date()
+      if (outRiderId != null) {
+        await emitRosterEvent(tx, {
+          leagueId,
+          teamId,
+          riderId: outRiderId,
+          eventType: "transferred_out",
+          occurredAt: now,
+          metadata: { bidId: bid.id, action: "free_agency" },
+        })
+      }
+      await emitRosterEvent(tx, {
+        leagueId,
+        teamId,
+        riderId: inRiderId,
+        eventType: "transferred_in",
+        occurredAt: now,
+        metadata: { bidId: bid.id, action: "free_agency" },
+      })
+
       // Audit entry
       await tx.insert(transferAudit).values({
         transferBidId: bid.id,
@@ -126,6 +140,9 @@ export async function approveFreeAgencyTransfer(data: {
 
     revalidatePath(`/leagues/${leagueId}/transfers`)
     revalidatePath(`/leagues/${leagueId}`)
+    revalidatePath(`/leagues/${leagueId}/roster`)
+    revalidatePath(`/leagues/${leagueId}/lineup`)
+    revalidatePath(`/leagues/${leagueId}/ir`)
     revalidatePath(`/admin/transfers`)
 
     return { success: true }

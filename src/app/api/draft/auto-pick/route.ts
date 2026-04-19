@@ -2,6 +2,7 @@ import { draftPicks, draftSessions } from "@/db/schema/draft";
 import { teams, leagues } from "@/db/schema/leagues";
 import { rosterSlots } from "@/db/schema/roster-slots";
 import { db } from "@/lib/db";
+import { emitRosterEvent } from "@/lib/roster-events";
 import {
   computeNextDraftState,
   getBestAvailableRider,
@@ -160,6 +161,16 @@ async function handler(request: NextRequest) {
       })
       .returning();
     insertedPick = p;
+
+    // Roster event
+    await emitRosterEvent(tx, {
+      leagueId,
+      teamId: currentTeamId,
+      riderId: rider.id,
+      eventType: "drafted",
+      occurredAt: insertedPick.pickedAt,
+      metadata: { pickNumber: currentPickIndex, round: currentRound, gender: draftSession.currentGender, wasAutomatic: true },
+    });
 
     await tx.insert(rosterSlots).values({
       leagueId,

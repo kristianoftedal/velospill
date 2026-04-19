@@ -1,10 +1,10 @@
 import { db } from "@/lib/db"
-import { draftPicks } from "@/db/schema/draft"
+import { rosterEvents } from "@/db/schema/roster-events"
 import { teams } from "@/db/schema/leagues"
 import { riders } from "@/db/schema/riders"
 import { raceResults } from "@/db/schema/results"
 import { races } from "@/db/schema/races"
-import { eq, asc, sql } from "drizzle-orm"
+import { eq, and, asc, sql, inArray } from "drizzle-orm"
 
 const categoryLabels: Record<string, string> = {
   finish: "Finish",
@@ -161,15 +161,20 @@ export async function getRiderSeasonProfile(
   // ── Query 3: Ownership history ────────────────────────────────────────────
   const ownershipRows = await db
     .select({
-      leagueId: draftPicks.leagueId,
+      leagueId: rosterEvents.leagueId,
       teamId: teams.id,
       teamName: teams.name,
-      pickedAt: draftPicks.pickedAt,
+      pickedAt: rosterEvents.occurredAt,
     })
-    .from(draftPicks)
-    .innerJoin(teams, eq(teams.id, draftPicks.teamId))
-    .where(eq(draftPicks.riderId, riderId))
-    .orderBy(asc(draftPicks.pickedAt))
+    .from(rosterEvents)
+    .innerJoin(teams, eq(teams.id, rosterEvents.teamId))
+    .where(
+      and(
+        eq(rosterEvents.riderId, riderId),
+        inArray(rosterEvents.eventType, ["drafted", "transferred_in"])
+      )
+    )
+    .orderBy(asc(rosterEvents.occurredAt))
 
   // For each race, find the active owner per league
   // Active owner = most recent draftPick where pickedAt <= race.startDate

@@ -2,13 +2,13 @@
 
 import { db } from "@/lib/db"
 import { irRequests } from "@/db/schema/ir"
-import { draftPicks } from "@/db/schema/draft"
 import { transferBids } from "@/db/schema/transfers"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, inArray, isNull } from "drizzle-orm"
+import { eq, and, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
+import { emitRosterEvent } from "@/lib/roster-events"
 
 /**
  * Drops a rider from the player's active roster.
@@ -17,10 +17,11 @@ import { getAuthenticatedUser, checkLeagueMembership } from "@/lib/league-auth"
  * - Must be authenticated
  * - Must be a member of the league
  * - League must be active
- * - Rider must be on the team (in draftPicks)
+ * - Rider must be on the team (in roster_slots)
  *
  * Side effects:
- * - Soft-deletes the draftPicks row (sets droppedAt = NOW()) to preserve historical scoring
+ * - Deletes the roster_slots row
+ * - Emits a 'dropped' roster event (preserves historical scoring via event log)
  * - Hard-deletes any active IR requests for the dropped rider
  * - Cancels any pending transfer bids with the dropped rider as outgoing
  */
@@ -53,16 +54,15 @@ export async function dropRider(data: {
     return { success: false, error: "Roster changes are only allowed in active leagues" }
   }
 
-  // 4. Ownership check — rider must be on this team (active, not already dropped)
+  // 4. Ownership check — rider must be on this team (via roster_slots)
   const [riderOnTeam] = await db
-    .select({ id: draftPicks.id })
-    .from(draftPicks)
+    .select({ id: rosterSlots.id })
+    .from(rosterSlots)
     .where(
       and(
-        eq(draftPicks.teamId, team.id),
-        eq(draftPicks.leagueId, data.leagueId),
-        eq(draftPicks.riderId, data.riderId),
-        isNull(draftPicks.droppedAt)
+        eq(rosterSlots.teamId, team.id),
+        eq(rosterSlots.leagueId, data.leagueId),
+        eq(rosterSlots.riderId, data.riderId)
       )
     )
     .limit(1)
@@ -72,22 +72,7 @@ export async function dropRider(data: {
   }
 
   await db.transaction(async (tx) => {
-    // 5. Soft-delete the draftPicks row (set droppedAt instead of hard-delete)
-    // This preserves historical points: scoring queries filter by droppedAt so
-    // the rider's pre-drop race results still accrue to this team.
-    await tx
-      .update(draftPicks)
-      .set({ droppedAt: new Date() })
-      .where(
-        and(
-          eq(draftPicks.teamId, team.id),
-          eq(draftPicks.leagueId, data.leagueId),
-          eq(draftPicks.riderId, data.riderId),
-          isNull(draftPicks.droppedAt)
-        )
-      )
-
-    // 5b. Delete the roster_slots row
+    // 5. Delete the roster_slots row
     await tx
       .delete(rosterSlots)
       .where(
@@ -96,6 +81,15 @@ export async function dropRider(data: {
           eq(rosterSlots.riderId, data.riderId)
         )
       )
+
+    // Roster event — preserves historical ownership via event log
+    await emitRosterEvent(tx, {
+      leagueId: data.leagueId,
+      teamId: team.id,
+      riderId: data.riderId,
+      eventType: "dropped",
+      occurredAt: new Date(),
+    })
 
     // 6. Cleanup IR — hard-delete pending or approved IR requests for this rider
     await tx

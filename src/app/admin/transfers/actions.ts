@@ -2,8 +2,8 @@
 
 import { db } from "@/lib/db"
 import { transferBids, transferWindows, transferAudit } from "@/db/schema/transfers"
-import { draftPicks } from "@/db/schema/draft"
 import { rosterSlots } from "@/db/schema/roster-slots"
+import { emitRosterEvent } from "@/lib/roster-events"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
 import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
@@ -11,9 +11,10 @@ import { user } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { eq, and, ne, desc, isNull, sql } from "drizzle-orm"
+import { eq, and, ne, desc, isNull, sql, inArray } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
 import { resolveConflictingBids, generateTransferWindows } from "@/lib/transfer-queries"
+import { irRequests } from "@/db/schema/ir"
 import { z } from "zod"
 
 async function checkAdminAuth() {
@@ -120,39 +121,27 @@ async function _approveBidInternal(bidId: number, actorId: string) {
       }
 
       // Step 2: Re-verify inRider is still a free agent (race condition protection)
-      const existingPick = await tx.query.draftPicks.findFirst({
+      const existingSlot = await tx.query.rosterSlots.findFirst({
         where: and(
-          eq(draftPicks.leagueId, bid.leagueId),
-          eq(draftPicks.riderId, bid.inRiderId),
-          isNull(draftPicks.droppedAt)
+          eq(rosterSlots.leagueId, bid.leagueId),
+          eq(rosterSlots.riderId, bid.inRiderId)
         ),
       })
-      if (existingPick) {
+      if (existingSlot) {
         throw new Error("Incoming rider is no longer a free agent")
       }
 
       // Step 3: Re-verify outRider still belongs to team (only if this is a swap)
-      let currentPick = null
-      let currentSlot = null
       if (bid.outRiderId != null) {
-        currentPick = await tx.query.draftPicks.findFirst({
+        const outSlot = await tx.query.rosterSlots.findFirst({
           where: and(
-            eq(draftPicks.leagueId, bid.leagueId),
-            eq(draftPicks.teamId, bid.teamId),
-            eq(draftPicks.riderId, bid.outRiderId)
+            eq(rosterSlots.leagueId, bid.leagueId),
+            eq(rosterSlots.teamId, bid.teamId),
+            eq(rosterSlots.riderId, bid.outRiderId!)
           ),
         })
-        if (!currentPick) {
-          currentSlot = await tx.query.rosterSlots.findFirst({
-            where: and(
-              eq(rosterSlots.leagueId, bid.leagueId),
-              eq(rosterSlots.teamId, bid.teamId),
-              eq(rosterSlots.riderId, bid.outRiderId!)
-            ),
-          })
-          if (!currentSlot) {
-            throw new Error("Outgoing rider is no longer on this team")
-          }
+        if (!outSlot) {
+          throw new Error("Outgoing rider is no longer on this team")
         }
       }
 
@@ -166,30 +155,33 @@ async function _approveBidInternal(bidId: number, actorId: string) {
 
       // Step 5: Drop outgoing rider
       if (bid.outRiderId != null) {
-        if (currentPick) {
-          await tx.delete(draftPicks).where(eq(draftPicks.id, currentPick.id))
-        }
         await tx.delete(rosterSlots).where(
           and(
             eq(rosterSlots.leagueId, bid.leagueId),
             eq(rosterSlots.riderId, bid.outRiderId)
           )
         )
+
+        // Resolve any active IR requests for the dropped rider — the rider is leaving
+        // the team, so their IR request should not remain in approved/return_eligible.
+        await tx
+          .update(irRequests)
+          .set({
+            status: "returned",
+            resolvedAt: new Date(),
+            adminNote: "Auto-resolved: rider dropped via transfer",
+          })
+          .where(
+            and(
+              eq(irRequests.leagueId, bid.leagueId),
+              eq(irRequests.teamId, bid.teamId),
+              eq(irRequests.riderId, bid.outRiderId!),
+              inArray(irRequests.status, ["approved", "return_eligible"])
+            )
+          )
       }
 
-      // Step 6: Insert new draftPick
-      await tx.insert(draftPicks).values({
-        leagueId: bid.leagueId,
-        teamId: bid.teamId,
-        riderId: bid.inRiderId,
-        pickNumber: -bidId,
-        round: -1,
-        gender: inRiderRecord.gender,
-        wasAutomatic: false,
-        pickedAt: new Date(),
-      })
-
-      // Insert/update roster slot
+      // Step 6: Insert/update roster slot
       await tx
         .insert(rosterSlots)
         .values({
@@ -205,6 +197,27 @@ async function _approveBidInternal(bidId: number, actorId: string) {
             status: "active",
           },
         })
+
+      // Roster events for the transfer
+      const now = new Date()
+      if (bid.outRiderId != null) {
+        await emitRosterEvent(tx, {
+          leagueId: bid.leagueId,
+          teamId: bid.teamId,
+          riderId: bid.outRiderId,
+          eventType: "transferred_out",
+          occurredAt: now,
+          metadata: { bidId },
+        })
+      }
+      await emitRosterEvent(tx, {
+        leagueId: bid.leagueId,
+        teamId: bid.teamId,
+        riderId: bid.inRiderId,
+        eventType: "transferred_in",
+        occurredAt: now,
+        metadata: { bidId },
+      })
 
       // Step 7: Update bid status
       await tx
@@ -242,6 +255,9 @@ async function _approveBidInternal(bidId: number, actorId: string) {
     if (bid) {
       revalidatePath(`/leagues/${bid.leagueId}/transfers`)
       revalidatePath(`/leagues/${bid.leagueId}/standings`)
+      revalidatePath(`/leagues/${bid.leagueId}/roster`)
+      revalidatePath(`/leagues/${bid.leagueId}/lineup`)
+      revalidatePath(`/leagues/${bid.leagueId}/ir`)
     }
 
     return { success: true }

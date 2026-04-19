@@ -5,7 +5,7 @@ import { orders } from "@/db/schema/orders"
 import { orderTypes } from "@/db/schema/config"
 import { races } from "@/db/schema/races"
 import { leagues, teams } from "@/db/schema/leagues"
-import { draftPicks } from "@/db/schema/draft"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { eq, and, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
@@ -166,12 +166,12 @@ export async function submitOrder(formData: {
     }
     const ownPick = await db
       .select()
-      .from(draftPicks)
+      .from(rosterSlots)
       .where(
         and(
-          eq(draftPicks.teamId, team.id),
-          eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.riderId, targetRiderId)
+          eq(rosterSlots.teamId, team.id),
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.riderId, targetRiderId)
         )
       )
       .limit(1)
@@ -184,12 +184,12 @@ export async function submitOrder(formData: {
     }
     const opponentPick = await db
       .select()
-      .from(draftPicks)
+      .from(rosterSlots)
       .where(
         and(
-          eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.riderId, targetRiderId),
-          ne(draftPicks.teamId, team.id)
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.riderId, targetRiderId),
+          ne(rosterSlots.teamId, team.id)
         )
       )
       .limit(1)
@@ -228,12 +228,12 @@ export async function submitOrder(formData: {
       }
       const ownPick = await db
         .select()
-        .from(draftPicks)
+        .from(rosterSlots)
         .where(
           and(
-            eq(draftPicks.teamId, team.id),
-            eq(draftPicks.leagueId, leagueId),
-            eq(draftPicks.riderId, targetRiderId)
+            eq(rosterSlots.teamId, team.id),
+            eq(rosterSlots.leagueId, leagueId),
+            eq(rosterSlots.riderId, targetRiderId)
           )
         )
         .limit(1)
@@ -256,11 +256,11 @@ export async function submitOrder(formData: {
       // If a rider ID is provided, verify they are not drafted in this league
       const anyPick = await db
         .select()
-        .from(draftPicks)
+        .from(rosterSlots)
         .where(
           and(
-            eq(draftPicks.leagueId, leagueId),
-            eq(draftPicks.riderId, targetRiderId)
+            eq(rosterSlots.leagueId, leagueId),
+            eq(rosterSlots.riderId, targetRiderId)
           )
         )
         .limit(1)
@@ -403,11 +403,11 @@ export async function pickBonusRider(
   // 5. Verify the rider is unowned (not drafted in this league)
   const [draftedRider] = await db
     .select()
-    .from(draftPicks)
+    .from(rosterSlots)
     .where(
       and(
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.riderId, riderId)
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.riderId, riderId)
       )
     )
     .limit(1)

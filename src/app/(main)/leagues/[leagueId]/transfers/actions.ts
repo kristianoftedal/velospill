@@ -2,10 +2,10 @@
 
 import { db } from "@/lib/db"
 import { transferBids, transferAudit } from "@/db/schema/transfers"
-import { draftPicks } from "@/db/schema/draft"
+import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
 import { leagues } from "@/db/schema/leagues"
-import { eq, and, count, isNull } from "drizzle-orm"
+import { eq, and, count } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import {
@@ -17,7 +17,6 @@ import {
   getTeamBudget,
 } from "@/lib/transfer-queries"
 import { irRequests } from "@/db/schema/ir"
-import { rosterSlots } from "@/db/schema/roster-slots"
 
 const submitBidSchema = z.object({
   leagueId: z.number(),
@@ -72,38 +71,36 @@ export async function submitTransferBid(formData: {
 
   // 4. Validate outRider belongs to this team (if provided)
   if (outRiderId != null) {
-    const outPick = await db
+    const outSlot = await db
       .select()
-      .from(draftPicks)
+      .from(rosterSlots)
       .where(
         and(
-          eq(draftPicks.teamId, team.id),
-          eq(draftPicks.leagueId, leagueId),
-          eq(draftPicks.riderId, outRiderId)
+          eq(rosterSlots.teamId, team.id),
+          eq(rosterSlots.leagueId, leagueId),
+          eq(rosterSlots.riderId, outRiderId)
         )
       )
       .limit(1)
 
-    if (!outPick[0]) {
+    if (!outSlot[0]) {
       return { success: false, error: "Rider to drop is not on your team" }
     }
   }
 
-  // 5. Validate inRider is a free agent (no active draftPick for this league + rider)
-  // Must filter droppedAt IS NULL — soft-deleted rows don't count as ownership
-  const inPick = await db
+  // 5. Validate inRider is a free agent (no roster_slots row for this league + rider)
+  const inSlot = await db
     .select()
-    .from(draftPicks)
+    .from(rosterSlots)
     .where(
       and(
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.riderId, inRiderId),
-        isNull(draftPicks.droppedAt)
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.riderId, inRiderId)
       )
     )
     .limit(1)
 
-  if (inPick[0]) {
+  if (inSlot[0]) {
     return { success: false, error: "Selected rider is not a free agent" }
   }
 

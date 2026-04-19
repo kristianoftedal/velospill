@@ -1,23 +1,32 @@
-import { db } from "@/lib/db"
-import { transferBids, transferWindows } from "@/db/schema/transfers"
-import { draftPicks } from "@/db/schema/draft"
-import { riders } from "@/db/schema/riders"
-import { races } from "@/db/schema/races"
-import { teams, leagueRaces } from "@/db/schema/leagues"
-import { rosterSlots } from "@/db/schema/roster-slots"
-import { getLeagueStandings } from "@/lib/scoring-queries"
-import { eq, and, notInArray, lte, gt, desc, isNull, asc, sql } from "drizzle-orm"
-import { alias } from "drizzle-orm/pg-core"
+import { leagueRaces, teams } from "@/db/schema/leagues";
+import { races } from "@/db/schema/races";
+import { riders } from "@/db/schema/riders";
+import { rosterSlots } from "@/db/schema/roster-slots";
+import { transferBids, transferWindows } from "@/db/schema/transfers";
+import { db } from "@/lib/db";
+import { getLeagueStandings } from "@/lib/scoring-queries";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  isNull,
+  lte,
+  notInArray,
+  sql,
+} from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 /**
  * Returns all riders NOT currently on any team in this league, filtered by gender.
- * Uses notInArray subquery against draftPicks for the given leagueId.
+ * Uses notInArray subquery against roster_slots for the given leagueId.
  */
 export async function getFreeAgents(leagueId: number, gender: "M" | "F") {
   const ownedRiderIds = db
-    .select({ riderId: draftPicks.riderId })
-    .from(draftPicks)
-    .where(and(eq(draftPicks.leagueId, leagueId), isNull(draftPicks.droppedAt)))
+    .select({ riderId: rosterSlots.riderId })
+    .from(rosterSlots)
+    .where(eq(rosterSlots.leagueId, leagueId));
 
   return db
     .select({
@@ -28,18 +37,12 @@ export async function getFreeAgents(leagueId: number, gender: "M" | "F") {
       gender: riders.gender,
     })
     .from(riders)
-    .where(
-      and(
-        notInArray(riders.id, ownedRiderIds),
-        eq(riders.gender, gender)
-      )
-    )
-    .orderBy(riders.name)
+    .where(and(notInArray(riders.id, ownedRiderIds), eq(riders.gender, gender)))
+    .orderBy(riders.name);
 }
 
 /**
- * Returns all riders on a team roster via roster_slots, joined with riders for metadata
- * and draftPicks for pickedAt + pickNumber (needed for ownership-at-race-time context).
+ * Returns all riders on a team roster via roster_slots, joined with riders for metadata.
  * isOnIR derived from roster_slots.status IN ('on_ir', 'return_eligible').
  * Ordered by gender (M first), then rider name.
  */
@@ -51,27 +54,17 @@ export async function getTeamRoster(teamId: number, leagueId: number) {
       riderTeam: riders.team,
       gender: riders.gender,
       nationality: riders.nationality,
-      pickNumber: draftPicks.pickNumber,
-      pickedAt: draftPicks.pickedAt,
-      isOnIR: sql<boolean>`${rosterSlots.status} IN ('on_ir', 'return_eligible')`.as("isOnIR"),
+      isOnIR:
+        sql<boolean>`${rosterSlots.status} IN ('on_ir', 'return_eligible')`.as(
+          "isOnIR",
+        ),
     })
     .from(rosterSlots)
     .innerJoin(riders, eq(riders.id, rosterSlots.riderId))
-    .innerJoin(
-      draftPicks,
-      and(
-        eq(draftPicks.riderId, rosterSlots.riderId),
-        eq(draftPicks.teamId, rosterSlots.teamId),
-        eq(draftPicks.leagueId, rosterSlots.leagueId)
-      )
-    )
     .where(
-      and(
-        eq(rosterSlots.teamId, teamId),
-        eq(rosterSlots.leagueId, leagueId)
-      )
+      and(eq(rosterSlots.teamId, teamId), eq(rosterSlots.leagueId, leagueId)),
     )
-    .orderBy(riders.gender, riders.name)
+    .orderBy(riders.gender, riders.name);
 }
 
 /**
@@ -80,8 +73,8 @@ export async function getTeamRoster(teamId: number, leagueId: number) {
  * Ordered by submittedAt DESC (most recent first).
  */
 export async function getTeamBids(teamId: number, leagueId: number) {
-  const outRider = alias(riders, "outRider")
-  const inRider = alias(riders, "inRider")
+  const outRider = alias(riders, "outRider");
+  const inRider = alias(riders, "inRider");
 
   return db
     .select({
@@ -101,12 +94,9 @@ export async function getTeamBids(teamId: number, leagueId: number) {
     .leftJoin(outRider, eq(outRider.id, transferBids.outRiderId))
     .innerJoin(inRider, eq(inRider.id, transferBids.inRiderId))
     .where(
-      and(
-        eq(transferBids.teamId, teamId),
-        eq(transferBids.leagueId, leagueId)
-      )
+      and(eq(transferBids.teamId, teamId), eq(transferBids.leagueId, leagueId)),
     )
-    .orderBy(desc(transferBids.submittedAt))
+    .orderBy(desc(transferBids.submittedAt));
 }
 
 /**
@@ -114,7 +104,7 @@ export async function getTeamBids(teamId: number, leagueId: number) {
  * Returns null if no active window.
  */
 export async function getActiveTransferWindow(leagueId: number) {
-  const now = new Date()
+  const now = new Date();
 
   const result = await db
     .select()
@@ -123,12 +113,12 @@ export async function getActiveTransferWindow(leagueId: number) {
       and(
         eq(transferWindows.leagueId, leagueId),
         lte(transferWindows.opensAt, now),
-        gt(transferWindows.closesAt, now)
-      )
+        gt(transferWindows.closesAt, now),
+      ),
     )
-    .limit(1)
+    .limit(1);
 
-  return result[0] ?? null
+  return result[0] ?? null;
 }
 
 /**
@@ -138,10 +128,13 @@ export async function getActiveTransferWindow(leagueId: number) {
  * Only resolves windows that closed within the last 7 days (avoid re-processing ancient windows).
  * Uses the resolveConflicts pure function + approveBid for execution.
  */
-export async function autoResolveExpiredWaivers(leagueId: number, season: number) {
-  const now = new Date()
-  const sevenDaysAgo = new Date(now)
-  sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7)
+export async function autoResolveExpiredWaivers(
+  leagueId: number,
+  season: number,
+) {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now);
+  sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
 
   // Find waiver windows that have closed but still have pending bids
   const closedWaiverWindows = await db
@@ -152,11 +145,11 @@ export async function autoResolveExpiredWaivers(leagueId: number, season: number
         eq(transferWindows.leagueId, leagueId),
         eq(transferWindows.windowType, "waiver"),
         lte(transferWindows.closesAt, now),
-        gt(transferWindows.closesAt, sevenDaysAgo)
-      )
-    )
+        gt(transferWindows.closesAt, sevenDaysAgo),
+      ),
+    );
 
-  if (closedWaiverWindows.length === 0) return { resolved: 0 }
+  if (closedWaiverWindows.length === 0) return { resolved: 0 };
 
   // Check if there are any pending bids for this league
   const pendingBids = await db
@@ -165,25 +158,26 @@ export async function autoResolveExpiredWaivers(leagueId: number, season: number
     .where(
       and(
         eq(transferBids.leagueId, leagueId),
-        eq(transferBids.status, "pending")
-      )
+        eq(transferBids.status, "pending"),
+      ),
     )
-    .limit(1)
+    .limit(1);
 
-  if (pendingBids.length === 0) return { resolved: 0 }
+  if (pendingBids.length === 0) return { resolved: 0 };
 
   // There are pending bids and a recently-closed waiver window — resolve them
-  const { getLeagueStandings } = await import("@/lib/scoring-queries")
-  const standings = await getLeagueStandings(leagueId, season)
+  const { getLeagueStandings } = await import("@/lib/scoring-queries");
+  const standings = await getLeagueStandings(leagueId, season);
   const pointsByTeamId = new Map<number, number>(
-    standings.map((s) => [s.teamId, s.totalPoints])
-  )
+    standings.map((s) => [s.teamId, s.totalPoints]),
+  );
 
   // Fetch all pending bids
   const allPendingBids = await db
     .select({
       bidId: transferBids.id,
       teamId: transferBids.teamId,
+      outRiderId: transferBids.outRiderId,
       inRiderId: transferBids.inRiderId,
       bidAmount: transferBids.bidAmount,
       submittedAt: transferBids.submittedAt,
@@ -192,11 +186,14 @@ export async function autoResolveExpiredWaivers(leagueId: number, season: number
     .where(
       and(
         eq(transferBids.leagueId, leagueId),
-        eq(transferBids.status, "pending")
-      )
-    )
+        eq(transferBids.status, "pending"),
+      ),
+    );
 
-  const { winningBids, rejectedBids } = resolveConflicts(allPendingBids, pointsByTeamId)
+  const { winningBids, rejectedBids } = resolveConflicts(
+    allPendingBids,
+    pointsByTeamId,
+  );
 
   // Reject losing bids
   for (const { bidId, note } of rejectedBids) {
@@ -208,17 +205,17 @@ export async function autoResolveExpiredWaivers(leagueId: number, season: number
         resolvedBy: "system",
         adminNote: note,
       })
-      .where(eq(transferBids.id, bidId))
+      .where(eq(transferBids.id, bidId));
   }
 
   // Approve winning bids using the admin approveBid logic
-  const { approveBidSystem } = await import("@/app/admin/transfers/actions")
-  let approved = 0
+  const { approveBidSystem } = await import("@/app/admin/transfers/actions");
+  let approved = 0;
 
   for (const { bidId } of winningBids) {
-    const result = await approveBidSystem(bidId)
+    const result = await approveBidSystem(bidId);
     if (result.success) {
-      approved++
+      approved++;
     } else {
       // Auto-reject on failure
       await db
@@ -227,15 +224,43 @@ export async function autoResolveExpiredWaivers(leagueId: number, season: number
           status: "rejected",
           resolvedAt: new Date(),
           resolvedBy: "system",
-          adminNote: "Auto-rejected: " + (result.error ?? "rider claimed by higher-priority team"),
+          adminNote:
+            "Auto-rejected: " +
+            (result.error ?? "rider claimed by higher-priority team"),
         })
-        .where(eq(transferBids.id, bidId))
+        .where(eq(transferBids.id, bidId));
     }
   }
 
-  return { resolved: approved + rejectedBids.length }
+  return { resolved: approved + rejectedBids.length };
 }
 
+/**
+ * Comparator for sorting bids by priority.
+ * bidAmount DESC → totalPoints ASC → submittedAt ASC
+ */
+function bidComparator(
+  a: { bidAmount: number; teamId: number; submittedAt: Date | string | null },
+  b: { bidAmount: number; teamId: number; submittedAt: Date | string | null },
+  pointsByTeamId: Map<number, number>,
+): number {
+  if (a.bidAmount !== b.bidAmount) return b.bidAmount - a.bidAmount;
+  const pointsA = pointsByTeamId.get(a.teamId) ?? 0;
+  const pointsB = pointsByTeamId.get(b.teamId) ?? 0;
+  if (pointsA !== pointsB) return pointsA - pointsB;
+  const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+  const timeB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+  return timeA - timeB;
+}
+
+type BidInput = {
+  bidId: number;
+  teamId: number;
+  inRiderId: number;
+  outRiderId: number | null;
+  bidAmount: number;
+  submittedAt: Date | string | null;
+};
 
 /**
  * Pure conflict resolution algorithm — no DB access.
@@ -247,72 +272,137 @@ export async function autoResolveExpiredWaivers(leagueId: number, season: number
  * 3. Tiebreaker: fewest totalPoints wins (waiver wire priority — worst team gets first pick)
  * 4. Tiebreaker: earliest submittedAt wins
  * 5. One winner per inRiderId, rest are rejected
+ * 6. OutRider constraint: a team can only drop a given outRider once across all winning bids.
+ *    When the top candidate for an inRider would conflict (same team already dropping that
+ *    outRider in another winning bid), that candidate is skipped and the next candidate in
+ *    priority order gets a chance. This cascades until someone can claim the rider or no
+ *    eligible candidate remains.
+ *
+ * Processing order: inRiders are processed in order of their best available bid's strength
+ * (highest bid amount first, then tiebreakers). This ensures higher-value contested riders
+ * are resolved before lower-value ones, and outRider conflicts are resolved fairly.
  */
 export function resolveConflicts(
-  pendingBids: Array<{
-    bidId: number
-    teamId: number
-    inRiderId: number
-    bidAmount: number
-    submittedAt: Date | string | null
-  }>,
-  pointsByTeamId: Map<number, number>
+  pendingBids: Array<BidInput>,
+  pointsByTeamId: Map<number, number>,
 ): {
-  winningBids: Array<{ bidId: number; teamId: number; priority: number }>
-  rejectedBids: Array<{ bidId: number; note: string }>
+  winningBids: Array<{ bidId: number; teamId: number; priority: number }>;
+  rejectedBids: Array<{ bidId: number; note: string }>;
 } {
   if (pendingBids.length === 0) {
-    return { winningBids: [], rejectedBids: [] }
+    return { winningBids: [], rejectedBids: [] };
   }
 
-  // Group bids by inRiderId
-  const bidsByRider = new Map<number, typeof pendingBids>()
+  // Group bids by inRiderId and pre-sort each group by priority
+  const candidatesByRider = new Map<number, BidInput[]>();
   for (const bid of pendingBids) {
-    const existing = bidsByRider.get(bid.inRiderId) ?? []
-    existing.push(bid)
-    bidsByRider.set(bid.inRiderId, existing)
+    const existing = candidatesByRider.get(bid.inRiderId) ?? [];
+    existing.push(bid);
+    candidatesByRider.set(bid.inRiderId, existing);
+  }
+  for (const [riderId, bids] of candidatesByRider) {
+    candidatesByRider.set(
+      riderId,
+      [...bids].sort((a, b) => bidComparator(a, b, pointsByTeamId)),
+    );
   }
 
-  const winningBids: Array<{ bidId: number; teamId: number; priority: number }> = []
-  const rejectedBids: Array<{ bidId: number; note: string }> = []
+  // Track consumed outRiders per team: "teamId:outRiderId"
+  const consumedOutRiders = new Set<string>();
+  // Track which bids are finalized
+  const resolvedBids = new Set<number>();
 
-  let priorityCounter = 1
+  const winningBids: Array<{
+    bidId: number;
+    teamId: number;
+    priority: number;
+  }> = [];
+  const rejectedBids: Array<{ bidId: number; note: string }> = [];
+  let priorityCounter = 1;
 
-  for (const [, bids] of bidsByRider) {
-    // Sort by bidAmount DESC, totalPoints ASC, submittedAt ASC
-    const sorted = [...bids].sort((a, b) => {
-      // Highest bid wins
-      if (a.bidAmount !== b.bidAmount) return b.bidAmount - a.bidAmount
-      // Tiebreaker: fewer total points wins
-      const pointsA = pointsByTeamId.get(a.teamId) ?? 0
-      const pointsB = pointsByTeamId.get(b.teamId) ?? 0
-      if (pointsA !== pointsB) return pointsA - pointsB
-      // Tiebreaker: earlier submission wins
-      const timeA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0
-      const timeB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0
-      return timeA - timeB
-    })
+  /**
+   * Find the top eligible candidate for a rider, respecting consumed outRiders.
+   * Skips (and rejects) candidates whose outRider is already consumed by the same team.
+   */
+  function pickWinner(inRiderId: number): BidInput | null {
+    const candidates = candidatesByRider.get(inRiderId);
+    if (!candidates) return null;
 
-    // First in sorted order wins
-    winningBids.push({
-      bidId: sorted[0].bidId,
-      teamId: sorted[0].teamId,
-      priority: priorityCounter++,
-    })
+    for (const candidate of candidates) {
+      if (resolvedBids.has(candidate.bidId)) continue;
 
-    // Remaining are rejected
-    for (let i = 1; i < sorted.length; i++) {
+      if (candidate.outRiderId != null) {
+        const key = `${candidate.teamId}:${candidate.outRiderId}`;
+        if (consumedOutRiders.has(key)) {
+          resolvedBids.add(candidate.bidId);
+          rejectedBids.push({
+            bidId: candidate.bidId,
+            note: "Drop rider already used by another winning bid from same team",
+          });
+          continue;
+        }
+      }
+
+      return candidate;
+    }
+
+    return null;
+  }
+
+  // Build processing queue: inRiders ordered by their top bid's strength.
+  // This ensures contested high-value riders are settled first.
+  const riderPriority = [...candidatesByRider.entries()]
+    .map(([riderId, bids]) => ({ riderId, topBid: bids[0] }))
+    .sort((a, b) => bidComparator(a.topBid, b.topBid, pointsByTeamId));
+
+  // Iterative resolution — we may need multiple passes when an outRider conflict
+  // causes a winner to be skipped and the fallback candidate frees up a different
+  // outRider that could help another rider's resolution.
+  // In practice this converges in 1-2 passes for reasonable bid sets.
+  const unresolved = new Set(riderPriority.map((r) => r.riderId));
+  let changed = true;
+
+  while (changed) {
+    changed = false;
+
+    for (const riderId of [...unresolved]) {
+      const winner = pickWinner(riderId);
+      if (winner) {
+        winningBids.push({
+          bidId: winner.bidId,
+          teamId: winner.teamId,
+          priority: priorityCounter++,
+        });
+        resolvedBids.add(winner.bidId);
+        if (winner.outRiderId != null) {
+          consumedOutRiders.add(`${winner.teamId}:${winner.outRiderId}`);
+        }
+        unresolved.delete(riderId);
+        changed = true;
+      } else {
+        // No eligible candidate left — this rider goes unawarded in this pass.
+        // Keep it in unresolved in case a later outRider conflict resolution
+        // frees up a candidate. If nothing changes in a full pass, it stays
+        // unresolved and we exit.
+      }
+    }
+  }
+
+  // Reject all remaining unresolved bids
+  for (const bid of pendingBids) {
+    if (!resolvedBids.has(bid.bidId)) {
+      resolvedBids.add(bid.bidId);
       rejectedBids.push({
-        bidId: sorted[i].bidId,
+        bidId: bid.bidId,
         note: "Outbid (higher bid amount)",
-      })
+      });
     }
   }
 
   // Sort winning bids by priority
-  winningBids.sort((a, b) => a.priority - b.priority)
+  winningBids.sort((a, b) => a.priority - b.priority);
 
-  return { winningBids, rejectedBids }
+  return { winningBids, rejectedBids };
 }
 
 /**
@@ -325,6 +415,7 @@ export async function resolveConflictingBids(leagueId: number, season: number) {
     .select({
       bidId: transferBids.id,
       teamId: transferBids.teamId,
+      outRiderId: transferBids.outRiderId,
       inRiderId: transferBids.inRiderId,
       bidAmount: transferBids.bidAmount,
       submittedAt: transferBids.submittedAt,
@@ -333,22 +424,22 @@ export async function resolveConflictingBids(leagueId: number, season: number) {
     .where(
       and(
         eq(transferBids.leagueId, leagueId),
-        eq(transferBids.status, "pending")
-      )
-    )
+        eq(transferBids.status, "pending"),
+      ),
+    );
 
   if (pendingBids.length === 0) {
-    return { winningBids: [], rejectedBids: [] }
+    return { winningBids: [], rejectedBids: [] };
   }
 
   // Step 2: Get standings for priority ordering
-  const standings = await getLeagueStandings(leagueId, season)
+  const standings = await getLeagueStandings(leagueId, season);
   const pointsByTeamId = new Map<number, number>(
-    standings.map((s) => [s.teamId, s.totalPoints])
-  )
+    standings.map((s) => [s.teamId, s.totalPoints]),
+  );
 
   // Step 3: Delegate to pure algorithm
-  return resolveConflicts(pendingBids, pointsByTeamId)
+  return resolveConflicts(pendingBids, pointsByTeamId);
 }
 
 /**
@@ -366,7 +457,10 @@ export async function resolveConflictingBids(leagueId: number, season: number) {
  * Only parent races (parentRaceId IS NULL) are used.
  * Returns proposals — the admin action inserts them.
  */
-export async function generateTransferWindows(leagueId: number, season: number) {
+export async function generateTransferWindows(
+  leagueId: number,
+  season: number,
+) {
   const parentRaceRows = await db
     .select({
       id: races.id,
@@ -377,38 +471,30 @@ export async function generateTransferWindows(leagueId: number, season: number) 
     .from(races)
     .innerJoin(
       leagueRaces,
-      and(
-        eq(leagueRaces.raceId, races.id),
-        eq(leagueRaces.leagueId, leagueId)
-      )
+      and(eq(leagueRaces.raceId, races.id), eq(leagueRaces.leagueId, leagueId)),
     )
-    .where(
-      and(
-        eq(races.season, season),
-        isNull(races.parentRaceId)
-      )
-    )
-    .orderBy(asc(races.startDate))
+    .where(and(eq(races.season, season), isNull(races.parentRaceId)))
+    .orderBy(asc(races.startDate));
 
   const windows: Array<{
-    leagueId: number
-    raceId: number | null
-    opensAt: Date
-    closesAt: Date
-    windowType: string
-    description: string
-    isAutoGenerated: true
-  }> = []
+    leagueId: number;
+    raceId: number | null;
+    opensAt: Date;
+    closesAt: Date;
+    windowType: string;
+    description: string;
+    isAutoGenerated: true;
+  }> = [];
 
   for (let i = 0; i < parentRaceRows.length; i++) {
-    const race = parentRaceRows[i]
-    const raceDate = new Date(race.startDate)
+    const race = parentRaceRows[i];
+    const raceDate = new Date(race.startDate);
 
     // Free agency: 00:00 to 13:00 UTC on race day
-    const faOpen = new Date(raceDate)
-    faOpen.setUTCHours(0, 0, 0, 0)
-    const faClose = new Date(raceDate)
-    faClose.setUTCHours(13, 0, 0, 0)
+    const faOpen = new Date(raceDate);
+    faOpen.setUTCHours(0, 0, 0, 0);
+    const faClose = new Date(raceDate);
+    faClose.setUTCHours(13, 0, 0, 0);
 
     windows.push({
       leagueId,
@@ -418,19 +504,19 @@ export async function generateTransferWindows(leagueId: number, season: number) 
       windowType: "free_agency",
       description: `Free agency for ${race.name}`,
       isAutoGenerated: true,
-    })
+    });
 
     // Waiver window: 13:00 UTC on race day → 23:59 the day before the NEXT race
     if (i < parentRaceRows.length - 1) {
-      const nextRace = parentRaceRows[i + 1]
-      const nextRaceDate = new Date(nextRace.startDate)
+      const nextRace = parentRaceRows[i + 1];
+      const nextRaceDate = new Date(nextRace.startDate);
 
-      const waiverOpen = new Date(raceDate)
-      waiverOpen.setUTCHours(13, 0, 0, 0)
+      const waiverOpen = new Date(raceDate);
+      waiverOpen.setUTCHours(13, 0, 0, 0);
 
-      const waiverClose = new Date(nextRaceDate)
-      waiverClose.setUTCDate(waiverClose.getUTCDate() - 1)
-      waiverClose.setUTCHours(23, 59, 59, 0)
+      const waiverClose = new Date(nextRaceDate);
+      waiverClose.setUTCDate(waiverClose.getUTCDate() - 1);
+      waiverClose.setUTCHours(23, 59, 59, 0);
 
       // Only create waiver window if it would have positive duration
       if (waiverClose > waiverOpen) {
@@ -442,23 +528,23 @@ export async function generateTransferWindows(leagueId: number, season: number) 
           windowType: "waiver",
           description: `Waiver window after ${race.name}`,
           isAutoGenerated: true,
-        })
+        });
       }
     }
   }
 
   // First race special case: waiver window opens 7 days before first race
   if (parentRaceRows.length > 0) {
-    const firstRace = parentRaceRows[0]
-    const firstRaceDate = new Date(firstRace.startDate)
+    const firstRace = parentRaceRows[0];
+    const firstRaceDate = new Date(firstRace.startDate);
 
-    const earlyWaiverOpen = new Date(firstRaceDate)
-    earlyWaiverOpen.setUTCDate(earlyWaiverOpen.getUTCDate() - 7)
-    earlyWaiverOpen.setUTCHours(0, 0, 0, 0)
+    const earlyWaiverOpen = new Date(firstRaceDate);
+    earlyWaiverOpen.setUTCDate(earlyWaiverOpen.getUTCDate() - 7);
+    earlyWaiverOpen.setUTCHours(0, 0, 0, 0);
 
-    const earlyWaiverClose = new Date(firstRaceDate)
-    earlyWaiverClose.setUTCDate(earlyWaiverClose.getUTCDate() - 1)
-    earlyWaiverClose.setUTCHours(23, 59, 59, 0)
+    const earlyWaiverClose = new Date(firstRaceDate);
+    earlyWaiverClose.setUTCDate(earlyWaiverClose.getUTCDate() - 1);
+    earlyWaiverClose.setUTCHours(23, 59, 59, 0);
 
     if (earlyWaiverClose > earlyWaiverOpen) {
       windows.unshift({
@@ -469,11 +555,11 @@ export async function generateTransferWindows(leagueId: number, season: number) 
         windowType: "waiver",
         description: `Pre-season waiver window before ${firstRace.name}`,
         isAutoGenerated: true,
-      })
+      });
     }
   }
 
-  return windows
+  return windows;
 }
 
 /**
@@ -484,27 +570,31 @@ export async function getTeamBudget(teamId: number) {
     .select({ transferBudget: teams.transferBudget })
     .from(teams)
     .where(eq(teams.id, teamId))
-    .limit(1)
+    .limit(1);
 
-  return result[0]?.transferBudget ?? 0
+  return result[0]?.transferBudget ?? 0;
 }
 
-export type ResolvedBid = { bidId: number; teamId: number; priority: number }
-export type GeneratedWindow = Awaited<ReturnType<typeof generateTransferWindows>>[number]
+export type ResolvedBid = { bidId: number; teamId: number; priority: number };
+export type GeneratedWindow = Awaited<
+  ReturnType<typeof generateTransferWindows>
+>[number];
 
 // Export inferred types for consumers
-export type FreeAgent = Awaited<ReturnType<typeof getFreeAgents>>[number]
-export type TeamRosterEntry = Awaited<ReturnType<typeof getTeamRoster>>[number]
-export type TeamBid = Awaited<ReturnType<typeof getTeamBids>>[number]
-export type ActiveTransferWindow = Awaited<ReturnType<typeof getActiveTransferWindow>>
+export type FreeAgent = Awaited<ReturnType<typeof getFreeAgents>>[number];
+export type TeamRosterEntry = Awaited<ReturnType<typeof getTeamRoster>>[number];
+export type TeamBid = Awaited<ReturnType<typeof getTeamBids>>[number];
+export type ActiveTransferWindow = Awaited<
+  ReturnType<typeof getActiveTransferWindow>
+>;
 
 /**
  * Returns all transfer bids in a league (all teams), ordered by most recent first.
  * Used to show league-wide transfer activity.
  */
 export async function getLeagueTransfers(leagueId: number) {
-  const outRider = alias(riders, "outRider")
-  const inRider = alias(riders, "inRider")
+  const outRider = alias(riders, "outRider");
+  const inRider = alias(riders, "inRider");
 
   return db
     .select({
@@ -522,7 +612,9 @@ export async function getLeagueTransfers(leagueId: number) {
     .leftJoin(outRider, eq(outRider.id, transferBids.outRiderId))
     .innerJoin(inRider, eq(inRider.id, transferBids.inRiderId))
     .where(eq(transferBids.leagueId, leagueId))
-    .orderBy(desc(transferBids.submittedAt))
+    .orderBy(desc(transferBids.submittedAt));
 }
 
-export type LeagueTransfer = Awaited<ReturnType<typeof getLeagueTransfers>>[number]
+export type LeagueTransfer = Awaited<
+  ReturnType<typeof getLeagueTransfers>
+>[number];

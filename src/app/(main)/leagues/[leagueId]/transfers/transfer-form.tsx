@@ -203,7 +203,7 @@ export function TransferForm({
       {/* Bids & League Transfers — collapsible accordion */}
       <Card>
         <CardContent className="pt-4">
-          <Accordion type="multiple" defaultValue={pendingBids.length > 0 ? ["your-bids"] : []}>
+          <Accordion type="multiple" defaultValue={[]}>
             {/* Your Bids */}
             <AccordionItem value="your-bids">
               <AccordionTrigger className="text-lg font-semibold">

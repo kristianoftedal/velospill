@@ -7,7 +7,7 @@ import { raceResults } from "@/db/schema/results";
 import { riders } from "@/db/schema/riders";
 import { rosterSlots } from "@/db/schema/roster-slots";
 import { db } from "@/lib/db";
-import { and, desc, eq, gt, inArray, ne, notInArray, sql } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, lte, ne, notInArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 // Alias for self-join on races (parent race)
@@ -996,4 +996,36 @@ export async function saveBonusRiderPick(
     console.error("[saveBonusRiderPick] Error:", error);
     return { success: false, error: "Failed to save bonus rider pick" };
   }
+}
+
+/**
+ * Auto-activates all pending orders whose race has already started.
+ * Called by the daily cron job. No conflict resolution needed — the
+ * unique (teamId, raceId) constraint ensures at most one order per team per race.
+ */
+export async function autoResolvePendingOrders(leagueId: number) {
+  const now = new Date();
+
+  const pendingOrders = await db
+    .select({ id: orders.id, raceId: orders.raceId, teamId: orders.teamId })
+    .from(orders)
+    .innerJoin(races, eq(races.id, orders.raceId))
+    .where(
+      and(
+        eq(orders.leagueId, leagueId),
+        eq(orders.status, "pending"),
+        lte(races.startDate, now),
+      ),
+    );
+
+  if (pendingOrders.length === 0) return { resolved: 0 };
+
+  const ids = pendingOrders.map((o) => o.id);
+
+  await db
+    .update(orders)
+    .set({ status: "active", resolvedAt: now, resolvedBy: "system" })
+    .where(inArray(orders.id, ids));
+
+  return { resolved: ids.length };
 }

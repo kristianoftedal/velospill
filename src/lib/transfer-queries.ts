@@ -599,6 +599,7 @@ export async function getLeagueTransfers(leagueId: number) {
   return db
     .select({
       bidId: transferBids.id,
+      teamId: transferBids.teamId,
       teamName: teams.name,
       outRiderName: outRider.name,
       inRiderName: inRider.name,

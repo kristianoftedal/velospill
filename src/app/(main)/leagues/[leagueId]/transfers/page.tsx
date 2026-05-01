@@ -178,7 +178,9 @@ export default async function TransfersPage({ params }: PageProps) {
         teamBudget={teamBudget}
         freeAgentsMen={freeAgentsMen}
         freeAgentsWomen={freeAgentsWomen}
-        leagueTransfers={leagueTransfers}
+        leagueTransfers={leagueTransfers.filter(
+          (t) => t.status !== "pending" || t.teamId === userTeamId
+        )}
       />
     </div>
   )

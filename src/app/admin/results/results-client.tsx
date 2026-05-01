@@ -169,6 +169,11 @@ function getAvailableCategories(
   return ["finish"];
 }
 
+function isRaceComplete(race: Race): boolean {
+  if (race.stagesTotal > 0) return race.stagesWithResults === race.stagesTotal;
+  return race.hasResults;
+}
+
 export function ResultsClient({ races, riders }: Props) {
   const router = useRouter();
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null);
@@ -179,6 +184,8 @@ export function ResultsClient({ races, riders }: Props) {
   const [loading, setLoading] = useState(false);
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
   const [selectedResult, setSelectedResult] = useState<any | null>(null);
+  const [nameFilter, setNameFilter] = useState("");
+  const [hideCompleted, setHideCompleted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [showingStageOverview, setShowingStageOverview] = useState(false);
   const [formIsDirty, setFormIsDirty] = useState(false);
@@ -191,7 +198,12 @@ export function ResultsClient({ races, riders }: Props) {
   const selectedParentId = selectedRace?.parentRaceId ?? selectedRaceId;
 
   // Group races by type — computed before handleRaceSelect so the handler can reference stagesByParent
-  const parentRaces = races.filter((r) => !r.parentRaceId);
+  const allParentRaces = races.filter((r) => !r.parentRaceId);
+  const parentRaces = allParentRaces.filter((race) => {
+    if (nameFilter && !race.name.toLowerCase().includes(nameFilter.toLowerCase())) return false;
+    if (hideCompleted && isRaceComplete(race)) return false;
+    return true;
+  });
   const stagesByParent = races
     .filter((r) => r.parentRaceId)
     .reduce(
@@ -688,9 +700,32 @@ export function ResultsClient({ races, riders }: Props) {
           <CardDescription>
             Choose a race to enter or view results
           </CardDescription>
+          <div className="flex items-center gap-3 pt-1">
+            <input
+              type="text"
+              placeholder="Filter by name..."
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              className="flex-1 h-8 rounded-md border border-input bg-transparent px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer select-none whitespace-nowrap">
+              <input
+                type="checkbox"
+                checked={hideCompleted}
+                onChange={(e) => setHideCompleted(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              Hide completed
+            </label>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          {parentRaces.map((race) => (
+          {parentRaces.length === 0 && (
+            <p className="text-sm text-muted-foreground py-2">No races match the current filters.</p>
+          )}
+          {parentRaces.map((race) => {
+            const complete = isRaceComplete(race);
+            return (
             <div key={race.id} className="space-y-1">
               <button
                 onClick={() => handleRaceSelect(race.id)}
@@ -701,20 +736,18 @@ export function ResultsClient({ races, riders }: Props) {
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">{race.name}</span>
                   {race.stagesTotal > 0 ? (
-                    <Badge
-                      variant={
-                        race.stagesWithResults === race.stagesTotal &&
-                        race.stagesTotal > 0
-                          ? "secondary"
-                          : "outline"
-                      }
-                      className="text-xs"
-                    >
-                      {race.stagesWithResults}/{race.stagesTotal} done
-                    </Badge>
-                  ) : race.hasResults ? (
-                    <Badge variant="secondary" className="text-xs">
-                      Done
+                    complete ? (
+                      <Badge className="text-xs bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
+                        {race.stagesWithResults}/{race.stagesTotal} complete
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs">
+                        {race.stagesWithResults}/{race.stagesTotal} done
+                      </Badge>
+                    )
+                  ) : complete ? (
+                    <Badge className="text-xs bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
+                      Complete
                     </Badge>
                   ) : null}
                 </div>
@@ -749,7 +782,7 @@ export function ResultsClient({ races, riders }: Props) {
                 </div>
               )}
             </div>
-          ))}
+          )})}
         </CardContent>
       </Card>
 

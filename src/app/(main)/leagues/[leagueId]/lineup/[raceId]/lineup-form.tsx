@@ -81,8 +81,6 @@ export function LineupForm({
   }
 
   function handleSubmit() {
-    if (selected.size !== rosterSize) return
-
     startTransition(async () => {
       const result = await setLineup(leagueId, raceId, Array.from(selected))
       if (result.success) {
@@ -180,14 +178,10 @@ export function LineupForm({
 
           <Button
             onClick={handleSubmit}
-            disabled={isPending || selected.size !== rosterSize}
+            disabled={isPending}
             className="w-full bg-gray-900 text-white hover:bg-gray-700"
           >
-            {isPending
-              ? "Saving..."
-              : selected.size === rosterSize
-              ? "Save Lineup"
-              : `Select ${rosterSize - selected.size} more rider${rosterSize - selected.size !== 1 ? "s" : ""}`}
+            {isPending ? "Saving..." : "Save Lineup"}
           </Button>
         </>
       )}

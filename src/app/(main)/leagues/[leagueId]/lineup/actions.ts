@@ -69,10 +69,10 @@ export async function setLineup(
     return { success: false, error: "No roster limit configured for this race type" }
   }
 
-  if (riderIds.length !== limit.rosterSize) {
+  if (riderIds.length > limit.rosterSize) {
     return {
       success: false,
-      error: `Lineup must have exactly ${limit.rosterSize} riders (got ${riderIds.length})`,
+      error: `Lineup cannot exceed ${limit.rosterSize} riders (got ${riderIds.length})`,
     }
   }
 
@@ -129,14 +129,16 @@ export async function setLineup(
         )
       )
 
-    await tx.insert(raceLineups).values(
-      riderIds.map((riderId) => ({
-        leagueId,
-        teamId: team.id,
-        raceId,
-        riderId,
-      }))
-    )
+    if (riderIds.length > 0) {
+      await tx.insert(raceLineups).values(
+        riderIds.map((riderId) => ({
+          leagueId,
+          teamId: team.id,
+          raceId,
+          riderId,
+        }))
+      )
+    }
   })
 
   // 8. Revalidate

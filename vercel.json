@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/resolve-waivers",
-      "schedule": "0 23 * * *"
+      "schedule": "0 2 * * *"
     },
     {
       "path": "/api/cron/resolve-orders",
-      "schedule": "0 23 * * *"
+      "schedule": "0 2 * * *"
     }
   ]
 }

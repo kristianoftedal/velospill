@@ -141,6 +141,37 @@ export async function getLineupPeriodDeadline(
 }
 
 /**
+ * Compute the 13:00 Paris time deadline from a raw date.
+ */
+function computeParisDeadline(date: Date): Date {
+  const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(date)
+  const noonUtc = new Date(`${parisDate}T12:00:00Z`)
+  const noonInParis = parseInt(
+    new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc)
+  )
+  return new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+}
+
+/**
+ * Get all period deadlines as ISO strings (for passing to client components).
+ * Returns a map of period number → deadline ISO string.
+ * Returns null if no rest days (legacy single-period behavior).
+ */
+export async function getAllPeriodDeadlines(parentRaceId: number): Promise<Record<number, string> | null> {
+  const periods = await getLineupPeriods(parentRaceId)
+  if (!periods) return null
+
+  const deadlines: Record<number, string> = {}
+  for (let p = 1; p <= periods.periodCount; p++) {
+    const rawDate = await getLineupPeriodDeadline(parentRaceId, p)
+    if (rawDate) {
+      deadlines[p] = computeParisDeadline(rawDate).toISOString()
+    }
+  }
+  return deadlines
+}
+
+/**
  * Determine which lineup periods are currently open for editing.
  * A period is open if we haven't passed its deadline yet.
  */

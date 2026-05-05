@@ -29,7 +29,7 @@ interface LineupFormProps {
   rosterSize: number
   roster: RosterRider[]
   currentLineup: LineupEntry[]
-  periods: { count: number; editable: number[] } | null
+  periods: { count: number; editable: number[]; deadlines: Record<number, string> } | null
 }
 
 const MENS_RACE_TYPES = ["grand_tour", "high_priority_one_day", "low_priority_one_day", "mini_tour", "world_championship"]
@@ -84,12 +84,34 @@ export function LineupForm({
     )
   }
 
+  // Track which periods were pre-filled from a previous period
+  const [copiedFromPeriod, setCopiedFromPeriod] = useState<Set<number>>(() => {
+    const copied = new Set<number>()
+    if (hasPeriods) {
+      for (let p = 2; p <= periods.count; p++) {
+        const saved = getInitialSelected(p)
+        if (saved.size === 0) {
+          copied.add(p)
+        }
+      }
+    }
+    return copied
+  })
+
   // Store selections per period (keyed by period number or "null")
+  // For period N>1 with no saved lineup, copy from the previous period
   const [selectionsByPeriod, setSelectionsByPeriod] = useState<Map<string, Set<number>>>(() => {
     const map = new Map<string, Set<number>>()
     if (hasPeriods) {
       for (let p = 1; p <= periods.count; p++) {
-        map.set(String(p), getInitialSelected(p))
+        const saved = getInitialSelected(p)
+        if (saved.size > 0 || p === 1) {
+          map.set(String(p), saved)
+        } else {
+          // No lineup for this period yet — copy from previous period
+          const prev = map.get(String(p - 1))
+          map.set(String(p), prev ? new Set(prev) : new Set())
+        }
       }
     } else {
       map.set("null", getInitialSelected(null))
@@ -133,6 +155,14 @@ export function LineupForm({
     startTransition(async () => {
       const result = await setLineup(leagueId, raceId, Array.from(selected), activePeriod)
       if (result.success) {
+        // Clear "copied" indicator after successful save
+        if (activePeriod != null && copiedFromPeriod.has(activePeriod)) {
+          setCopiedFromPeriod((prev) => {
+            const next = new Set(prev)
+            next.delete(activePeriod)
+            return next
+          })
+        }
         toast.success(
           hasPeriods
             ? `Week ${activePeriod} lineup saved`
@@ -144,17 +174,25 @@ export function LineupForm({
     })
   }
 
-  // Deadline calculation (for display purposes — period 1 uses race start date)
-  const startDateObj = new Date(startDate)
-  const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(startDateObj)
-  const noonUtc = new Date(`${parisDate}T12:00:00Z`)
-  const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
-  const deadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+  // Deadline calculation
+  const getDeadlineForDisplay = (): Date | null => {
+    if (hasPeriods && activePeriod != null) {
+      const iso = periods.deadlines[activePeriod]
+      return iso ? new Date(iso) : null
+    }
+    // Legacy: compute from race start date
+    const startDateObj = new Date(startDate)
+    const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(startDateObj)
+    const noonUtc = new Date(`${parisDate}T12:00:00Z`)
+    const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
+    return new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+  }
 
-  // For period > 1, deadline display is approximate (computed server-side for real check)
+  const deadline = getDeadlineForDisplay()
+
   const isCurrentPeriodEditable = hasPeriods
     ? periods.editable.includes(activePeriod!)
-    : new Date() < deadline
+    : deadline != null && new Date() < deadline
 
   return (
     <div className="space-y-6">
@@ -178,9 +216,9 @@ export function LineupForm({
               <p className="text-sm font-medium text-gray-700">
                 {selected.size} / {rosterSize} selected
               </p>
-              {!hasPeriods && (
+              {deadline && (
                 <p className="text-xs text-gray-500">
-                  Deadline: {formatDateTime(deadline)}
+                  {hasPeriods ? `Week ${activePeriod} deadline` : "Deadline"}: {formatDateTime(deadline)}
                 </p>
               )}
             </div>
@@ -217,6 +255,12 @@ export function LineupForm({
             )
           })}
         </div>
+      )}
+
+      {hasPeriods && activePeriod != null && copiedFromPeriod.has(activePeriod) && isCurrentPeriodEditable && (
+        <p className="text-sm text-blue-600 bg-blue-50 rounded-md px-3 py-2">
+          Pre-filled from Week {activePeriod - 1}. Adjust and save when ready.
+        </p>
       )}
 
       {!isCurrentPeriodEditable ? (

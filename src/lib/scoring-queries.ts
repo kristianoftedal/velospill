@@ -29,6 +29,10 @@ import { ownershipAtRaceTime } from "./roster-ownership";
  * A stage's period = 1 + count(rest days with stageNumber < this stage's stageNumber).
  * If lineupPeriod is NULL on a lineup row, it applies to all stages (legacy behavior).
  *
+ * Carry-forward: if no lineup exists for the current period, the most recent previous
+ * period's lineup is used. This means a player who submits a Week 1 lineup but misses
+ * Week 2 keeps their Week 1 lineup active rather than having all riders score.
+ *
  * Accepts SQL expressions for leagueId, teamId, riderId to work with different source tables.
  */
 function makeLineupFilter(
@@ -47,11 +51,35 @@ function makeLineupFilter(
     ELSE NULL END
   )`;
 
+  // Effective period: the period whose lineup should apply to the current stage.
+  // If a lineup exists for the exact period, use it. Otherwise fall back to the
+  // most recent previous period that has a lineup (carry-forward rule).
+  // For non-period races (stagePeriodExpr IS NULL), this is NULL — legacy rows match.
+  const effectivePeriodExpr = sql`(
+    CASE WHEN ${stagePeriodExpr} IS NULL THEN NULL
+    ELSE COALESCE(
+      -- Exact period lineup exists? Use it.
+      (SELECT rl2."lineupPeriod" FROM ${raceLineups} rl2
+       WHERE rl2."leagueId" = ${leagueIdExpr}
+         AND rl2."teamId" = ${teamIdExpr}
+         AND rl2."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
+         AND rl2."lineupPeriod" = ${stagePeriodExpr}
+       LIMIT 1),
+      -- No exact match — find the highest previous period that has a lineup.
+      (SELECT MAX(rl3."lineupPeriod") FROM ${raceLineups} rl3
+       WHERE rl3."leagueId" = ${leagueIdExpr}
+         AND rl3."teamId" = ${teamIdExpr}
+         AND rl3."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
+         AND rl3."lineupPeriod" IS NOT NULL
+         AND rl3."lineupPeriod" < ${stagePeriodExpr})
+    ) END
+  )`;
+
   // Period match condition: lineup row matches if its lineupPeriod is NULL (legacy)
-  // OR if it matches the computed period for this stage.
+  // OR if it matches the effective period for this stage (which may be a carry-forward).
   const periodMatch = sql`(
     ${raceLineups.lineupPeriod} IS NULL
-    OR ${raceLineups.lineupPeriod} = ${stagePeriodExpr}
+    OR ${raceLineups.lineupPeriod} = ${effectivePeriodExpr}
   )`;
 
   return sql`(

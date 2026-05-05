@@ -258,28 +258,72 @@ export function LineupForm({
       )}
 
       {hasPeriods && activePeriod != null && copiedFromPeriod.has(activePeriod) && isCurrentPeriodEditable && (
-        <p className="text-sm text-blue-600 bg-blue-50 rounded-md px-3 py-2">
-          Pre-filled from Week {activePeriod - 1}. Adjust and save when ready.
-        </p>
+        <div className="flex items-start gap-3 rounded-md border border-blue-200 bg-blue-50 px-4 py-3">
+          <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+          </svg>
+          <div>
+            <p className="text-sm font-medium text-blue-800">
+              Carried forward from Week {activePeriod - 1}
+            </p>
+            <p className="mt-0.5 text-sm text-blue-600">
+              This lineup hasn&apos;t been saved yet. You can adjust your riders and save, or keep the same lineup — it will be used automatically for scoring if not saved.
+            </p>
+          </div>
+        </div>
       )}
 
       {!isCurrentPeriodEditable ? (
         <Card>
-          <CardContent className="py-8">
-            <p className="text-center text-red-600 font-medium">
-              {hasPeriods
-                ? `Week ${activePeriod} lineup deadline has passed.`
-                : "Lineup deadline has passed. You can no longer modify your lineup for this race."}
-            </p>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              {hasPeriods ? `Week ${activePeriod} Lineup` : "Lineup"}
+              <Badge variant="secondary" className="text-xs font-normal">Locked</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {selected.size === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-4">
+                No lineup was submitted for this {hasPeriods ? "week" : "race"}.
+              </p>
+            ) : (
+              <>
+                {hasPeriods && copiedFromPeriod.has(activePeriod!) && (
+                  <p className="text-sm text-gray-500 mb-3">
+                    Carried forward from Week {activePeriod! - 1}
+                  </p>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {eligibleRiders
+                    .filter((r) => selected.has(r.riderId))
+                    .map((rider) => (
+                      <div
+                        key={rider.riderId}
+                        className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                      >
+                        <p className="text-sm font-medium text-gray-900">{rider.riderName}</p>
+                        <p className="text-xs text-gray-500">{rider.riderTeam}</p>
+                      </div>
+                    ))}
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                {hasPeriods ? `Select Riders for Week ${activePeriod}` : "Select Your Riders"}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">
+                  {hasPeriods ? `Select Riders for Week ${activePeriod}` : "Select Your Riders"}
+                </CardTitle>
+                {hasPeriods && activePeriod != null && !copiedFromPeriod.has(activePeriod) && selected.size > 0 && (
+                  <Badge variant="outline" className="text-xs text-green-700 border-green-300 bg-green-50">
+                    Saved
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {eligibleRiders.length === 0 ? (
@@ -317,13 +361,15 @@ export function LineupForm({
 
           <Button
             onClick={handleSubmit}
-            disabled={isPending}
+            disabled={isPending || selected.size === 0}
             className="w-full bg-gray-900 text-white hover:bg-gray-700"
           >
             {isPending
               ? "Saving..."
               : hasPeriods
-              ? `Save Week ${activePeriod} Lineup`
+              ? copiedFromPeriod.has(activePeriod!)
+                ? `Confirm Week ${activePeriod} Lineup`
+                : `Update Week ${activePeriod} Lineup`
               : "Save Lineup"}
           </Button>
         </>

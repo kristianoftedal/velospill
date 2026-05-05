@@ -15,6 +15,11 @@ interface RosterRider {
   gender: string
 }
 
+interface LineupEntry {
+  riderId: number
+  lineupPeriod: number | null
+}
+
 interface LineupFormProps {
   leagueId: number
   raceId: number
@@ -23,7 +28,8 @@ interface LineupFormProps {
   startDate: Date
   rosterSize: number
   roster: RosterRider[]
-  currentLineup: number[]
+  currentLineup: LineupEntry[]
+  periods: { count: number; editable: number[] } | null
 }
 
 const MENS_RACE_TYPES = ["grand_tour", "high_priority_one_day", "low_priority_one_day", "mini_tour", "world_championship"]
@@ -48,12 +54,53 @@ export function LineupForm({
   rosterSize,
   roster,
   currentLineup,
+  periods,
 }: LineupFormProps) {
-  const rosterIds = new Set(roster.map((r) => r.riderId))
-  const [selected, setSelected] = useState<Set<number>>(
-    new Set(currentLineup.filter((id) => rosterIds.has(id)))
+  const hasPeriods = periods != null && periods.count > 1
+
+  // For period-based lineups, track selections per period
+  // For legacy (no periods), use period = null
+  const [activePeriod, setActivePeriod] = useState<number | null>(
+    hasPeriods ? (periods.editable[0] ?? 1) : null
   )
+
+  // Build initial selection state per period
+  const getInitialSelected = (period: number | null): Set<number> => {
+    const rosterIds = new Set(roster.map((r) => r.riderId))
+    if (period == null) {
+      // Legacy: all lineup entries with null period
+      return new Set(
+        currentLineup
+          .filter((e) => e.lineupPeriod == null)
+          .map((e) => e.riderId)
+          .filter((id) => rosterIds.has(id))
+      )
+    }
+    return new Set(
+      currentLineup
+        .filter((e) => e.lineupPeriod === period)
+        .map((e) => e.riderId)
+        .filter((id) => rosterIds.has(id))
+    )
+  }
+
+  // Store selections per period (keyed by period number or "null")
+  const [selectionsByPeriod, setSelectionsByPeriod] = useState<Map<string, Set<number>>>(() => {
+    const map = new Map<string, Set<number>>()
+    if (hasPeriods) {
+      for (let p = 1; p <= periods.count; p++) {
+        map.set(String(p), getInitialSelected(p))
+      }
+    } else {
+      map.set("null", getInitialSelected(null))
+    }
+    return map
+  })
+
   const [isPending, startTransition] = useTransition()
+
+  const periodKey = activePeriod != null ? String(activePeriod) : "null"
+  const selected = selectionsByPeriod.get(periodKey) ?? new Set<number>()
 
   // Filter by gender matching the race type
   const requiredGender = MENS_RACE_TYPES.includes(raceType)
@@ -67,36 +114,47 @@ export function LineupForm({
     : roster
 
   function toggleRider(riderId: number) {
-    setSelected((prev) => {
-      const next = new Set(prev)
-      if (next.has(riderId)) {
-        next.delete(riderId)
+    setSelectionsByPeriod((prev) => {
+      const next = new Map(prev)
+      const current = new Set(next.get(periodKey) ?? new Set<number>())
+      if (current.has(riderId)) {
+        current.delete(riderId)
       } else {
-        if (next.size < rosterSize) {
-          next.add(riderId)
+        if (current.size < rosterSize) {
+          current.add(riderId)
         }
       }
+      next.set(periodKey, current)
       return next
     })
   }
 
   function handleSubmit() {
     startTransition(async () => {
-      const result = await setLineup(leagueId, raceId, Array.from(selected))
+      const result = await setLineup(leagueId, raceId, Array.from(selected), activePeriod)
       if (result.success) {
-        toast.success("Lineup saved successfully")
+        toast.success(
+          hasPeriods
+            ? `Week ${activePeriod} lineup saved`
+            : "Lineup saved successfully"
+        )
       } else {
         toast.error(result.error)
       }
     })
   }
 
+  // Deadline calculation (for display purposes — period 1 uses race start date)
   const startDateObj = new Date(startDate)
   const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(startDateObj)
   const noonUtc = new Date(`${parisDate}T12:00:00Z`)
   const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
   const deadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
-  const isExpired = new Date() >= deadline
+
+  // For period > 1, deadline display is approximate (computed server-side for real check)
+  const isCurrentPeriodEditable = hasPeriods
+    ? periods.editable.includes(activePeriod!)
+    : new Date() < deadline
 
   return (
     <div className="space-y-6">
@@ -120,19 +178,54 @@ export function LineupForm({
               <p className="text-sm font-medium text-gray-700">
                 {selected.size} / {rosterSize} selected
               </p>
-              <p className="text-xs text-gray-500">
-                Deadline: {formatDateTime(deadline)}
-              </p>
+              {!hasPeriods && (
+                <p className="text-xs text-gray-500">
+                  Deadline: {formatDateTime(deadline)}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {isExpired ? (
+      {/* Period tabs for Grand Tours with rest days */}
+      {hasPeriods && (
+        <div className="flex gap-1 border-b border-gray-200">
+          {Array.from({ length: periods.count }, (_, i) => i + 1).map((p) => {
+            const isEditable = periods.editable.includes(p)
+            const periodSelection = selectionsByPeriod.get(String(p))
+            const hasLineup = periodSelection != null && periodSelection.size > 0
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setActivePeriod(p)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activePeriod === p
+                    ? "border-gray-900 text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Week {p}
+                {hasLineup && (
+                  <span className="ml-1.5 inline-block w-2 h-2 rounded-full bg-green-500" />
+                )}
+                {!isEditable && (
+                  <span className="ml-1 text-xs text-gray-400">(locked)</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {!isCurrentPeriodEditable ? (
         <Card>
           <CardContent className="py-8">
             <p className="text-center text-red-600 font-medium">
-              Lineup deadline has passed. You can no longer modify your lineup for this race.
+              {hasPeriods
+                ? `Week ${activePeriod} lineup deadline has passed.`
+                : "Lineup deadline has passed. You can no longer modify your lineup for this race."}
             </p>
           </CardContent>
         </Card>
@@ -140,7 +233,9 @@ export function LineupForm({
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Select Your Riders</CardTitle>
+              <CardTitle className="text-lg">
+                {hasPeriods ? `Select Riders for Week ${activePeriod}` : "Select Your Riders"}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {eligibleRiders.length === 0 ? (
@@ -181,7 +276,11 @@ export function LineupForm({
             disabled={isPending}
             className="w-full bg-gray-900 text-white hover:bg-gray-700"
           >
-            {isPending ? "Saving..." : "Save Lineup"}
+            {isPending
+              ? "Saving..."
+              : hasPeriods
+              ? `Save Week ${activePeriod} Lineup`
+              : "Save Lineup"}
           </Button>
         </>
       )}

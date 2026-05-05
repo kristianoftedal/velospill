@@ -10,9 +10,10 @@ export const raceLineups = pgTable("race_lineups", {
   teamId: integer("teamId").notNull().references(() => teams.id),
   raceId: integer("raceId").notNull().references(() => races.id),
   riderId: integer("riderId").notNull().references(() => riders.id),
+  lineupPeriod: integer("lineupPeriod"),
   createdAt: timestamp("createdAt", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => ({
-  lineupUnique: uniqueIndex("race_lineups_unique").on(table.leagueId, table.teamId, table.raceId, table.riderId),
+  lineupUnique: uniqueIndex("race_lineups_unique").on(table.leagueId, table.teamId, table.raceId, table.riderId, table.lineupPeriod),
   leagueIdx: index("race_lineups_league_idx").on(table.leagueId),
   teamRaceIdx: index("race_lineups_team_race_idx").on(table.teamId, table.raceId),
 }))

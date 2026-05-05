@@ -25,6 +25,10 @@ import { ownershipAtRaceTime } from "./roster-ownership";
  * If no lineup exists, all riders score (backward compatible).
  * For stages, the lineup is looked up using the parent race ID.
  *
+ * Period-aware: if lineup rows have lineupPeriod set, they only apply to stages in that period.
+ * A stage's period = 1 + count(rest days with stageNumber < this stage's stageNumber).
+ * If lineupPeriod is NULL on a lineup row, it applies to all stages (legacy behavior).
+ *
  * Accepts SQL expressions for leagueId, teamId, riderId to work with different source tables.
  */
 function makeLineupFilter(
@@ -32,12 +36,31 @@ function makeLineupFilter(
   teamIdExpr: SQL,
   riderIdExpr: SQL,
 ) {
+  // Compute the lineup period for the current stage based on rest days in its parent race.
+  // For non-stage races (parentRaceId IS NULL), this returns NULL (no period matching needed).
+  const stagePeriodExpr = sql`(
+    CASE WHEN ${races.parentRaceId} IS NOT NULL AND ${races.stageNumber} IS NOT NULL THEN
+      1 + (SELECT COUNT(*) FROM races rd
+           WHERE rd."parentRaceId" = ${races.parentRaceId}
+             AND rd."isRestDay" = true
+             AND rd."stageNumber" < ${races.stageNumber})
+    ELSE NULL END
+  )`;
+
+  // Period match condition: lineup row matches if its lineupPeriod is NULL (legacy)
+  // OR if it matches the computed period for this stage.
+  const periodMatch = sql`(
+    ${raceLineups.lineupPeriod} IS NULL
+    OR ${raceLineups.lineupPeriod} = ${stagePeriodExpr}
+  )`;
+
   return sql`(
     NOT EXISTS (
       SELECT 1 FROM ${raceLineups}
       WHERE ${raceLineups.leagueId} = ${leagueIdExpr}
         AND ${raceLineups.teamId} = ${teamIdExpr}
         AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
+        AND ${periodMatch}
     )
     OR EXISTS (
       SELECT 1 FROM ${raceLineups}
@@ -45,6 +68,7 @@ function makeLineupFilter(
         AND ${raceLineups.teamId} = ${teamIdExpr}
         AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
         AND ${raceLineups.riderId} = ${riderIdExpr}
+        AND ${periodMatch}
     )
   )`;
 }

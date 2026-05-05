@@ -19,7 +19,8 @@ const WOMENS_RACE_TYPES = ["womens_grand_tour", "womens_one_day"]
 export async function setLineup(
   leagueId: number,
   raceId: number,
-  riderIds: number[]
+  riderIds: number[],
+  lineupPeriod?: number | null
 ): Promise<{ success: true } | { success: false; error: string }> {
   // 1. Auth
   let session: Awaited<ReturnType<typeof getAuthenticatedUser>>
@@ -50,12 +51,27 @@ export async function setLineup(
     return { success: false, error: "Lineups are set on parent races only, not individual stages" }
   }
 
-  const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(race.startDate)
-  const noonUtc = new Date(`${parisDate}T12:00:00Z`)
-  const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
-  const raceDeadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+  // Deadline check: for period 1 (or no period), use race start date.
+  // For period > 1, use the rest day deadline from lineup-periods.
+  let raceDeadline: Date
+  if (lineupPeriod && lineupPeriod > 1) {
+    const { getLineupPeriodDeadline } = await import("@/lib/lineup-periods")
+    const deadline = await getLineupPeriodDeadline(raceId, lineupPeriod)
+    if (!deadline) {
+      return { success: false, error: "Could not determine deadline for this lineup period" }
+    }
+    const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(deadline)
+    const noonUtc = new Date(`${parisDate}T12:00:00Z`)
+    const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
+    raceDeadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+  } else {
+    const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(race.startDate)
+    const noonUtc = new Date(`${parisDate}T12:00:00Z`)
+    const noonInParis = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc))
+    raceDeadline = new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+  }
   if (new Date() >= raceDeadline) {
-    return { success: false, error: "Lineup deadline has passed (race has started)" }
+    return { success: false, error: "Lineup deadline has passed" }
   }
 
   // 4. Fetch roster limit for this race type
@@ -117,17 +133,19 @@ export async function setLineup(
     }
   }
 
-  // 7. Transaction: delete existing + insert new
+  // 7. Transaction: delete existing + insert new (scoped by lineupPeriod)
   await db.transaction(async (tx) => {
+    const deleteConditions = [
+      eq(raceLineups.leagueId, leagueId),
+      eq(raceLineups.teamId, team.id),
+      eq(raceLineups.raceId, raceId),
+    ]
+    if (lineupPeriod != null) {
+      deleteConditions.push(eq(raceLineups.lineupPeriod, lineupPeriod))
+    }
     await tx
       .delete(raceLineups)
-      .where(
-        and(
-          eq(raceLineups.leagueId, leagueId),
-          eq(raceLineups.teamId, team.id),
-          eq(raceLineups.raceId, raceId)
-        )
-      )
+      .where(and(...deleteConditions))
 
     if (riderIds.length > 0) {
       await tx.insert(raceLineups).values(
@@ -136,6 +154,7 @@ export async function setLineup(
           teamId: team.id,
           raceId,
           riderId,
+          lineupPeriod: lineupPeriod ?? null,
         }))
       )
     }

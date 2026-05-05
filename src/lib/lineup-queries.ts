@@ -8,24 +8,30 @@ import { eq, and, gt, isNull, sql, count } from "drizzle-orm"
 
 /**
  * Returns riders in a lineup for a specific team/league/race, joined with rider details.
+ * If lineupPeriod is provided, only returns riders for that period.
+ * If lineupPeriod is undefined, returns all riders (all periods combined).
  */
-export async function getLineup(teamId: number, leagueId: number, raceId: number) {
+export async function getLineup(teamId: number, leagueId: number, raceId: number, lineupPeriod?: number | null) {
+  const conditions = [
+    eq(raceLineups.teamId, teamId),
+    eq(raceLineups.leagueId, leagueId),
+    eq(raceLineups.raceId, raceId),
+  ]
+  if (lineupPeriod != null) {
+    conditions.push(eq(raceLineups.lineupPeriod, lineupPeriod))
+  }
+
   return db
     .select({
       riderId: raceLineups.riderId,
       riderName: riders.name,
       riderTeam: riders.team,
       gender: riders.gender,
+      lineupPeriod: raceLineups.lineupPeriod,
     })
     .from(raceLineups)
     .innerJoin(riders, eq(riders.id, raceLineups.riderId))
-    .where(
-      and(
-        eq(raceLineups.teamId, teamId),
-        eq(raceLineups.leagueId, leagueId),
-        eq(raceLineups.raceId, raceId)
-      )
-    )
+    .where(and(...conditions))
     .orderBy(riders.name)
 }
 

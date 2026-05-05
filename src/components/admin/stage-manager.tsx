@@ -27,15 +27,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { createStage, deleteStage } from "@/app/admin/races/actions"
+import { createStage, deleteStage, toggleRestDay, addRestDay } from "@/app/admin/races/actions"
 import { format } from "date-fns"
-import { Trash2 } from "lucide-react"
+import { Trash2, BedDouble } from "lucide-react"
 
 type Stage = {
   id: number
   name: string
   stageNumber: number
   startDate: Date
+  isRestDay: boolean
 }
 
 interface StageManagerProps {
@@ -66,6 +67,10 @@ export function StageManager({
   const [stageName, setStageName] = useState("")
   const [stageNumber, setStageNumber] = useState("")
   const [stageDate, setStageDate] = useState("")
+
+  // Add rest day form state
+  const [showAddRestDay, setShowAddRestDay] = useState(false)
+  const [restDayDate, setRestDayDate] = useState("")
 
   // Auto-generate state
   const [numStages, setNumStages] = useState("")
@@ -121,6 +126,25 @@ export function StageManager({
     onUpdate()
   }
 
+  async function handleToggleRestDay(stageId: number) {
+    setIsSubmitting(true)
+    await toggleRestDay(stageId)
+    setIsSubmitting(false)
+    onUpdate()
+  }
+
+  async function handleAddRestDay() {
+    if (!restDayDate) return
+    setIsSubmitting(true)
+    const result = await addRestDay(parentRaceId, { date: restDayDate })
+    setIsSubmitting(false)
+    if (result.success) {
+      setRestDayDate("")
+      setShowAddRestDay(false)
+      onUpdate()
+    }
+  }
+
   async function handleDeleteStage(stageId: number) {
     setIsSubmitting(true)
     await deleteStage(stageId)
@@ -146,16 +170,28 @@ export function StageManager({
                   <TableHead>Stage #</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Rest Day</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {stages.map((stage) => (
-                  <TableRow key={stage.id}>
+                  <TableRow key={stage.id} className={stage.isRestDay ? "bg-blue-50" : ""}>
                     <TableCell>{stage.stageNumber}</TableCell>
                     <TableCell>{stage.name}</TableCell>
                     <TableCell>
                       {format(new Date(stage.startDate), "MMM d, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant={stage.isRestDay ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => handleToggleRestDay(stage.id)}
+                        disabled={isSubmitting}
+                        title={stage.isRestDay ? "Remove rest day" : "Mark as rest day"}
+                      >
+                        <BedDouble className={`h-4 w-4 ${stage.isRestDay ? "text-white" : "text-muted-foreground"}`} />
+                      </Button>
                     </TableCell>
                     <TableCell>
                       <Button
@@ -182,6 +218,12 @@ export function StageManager({
               variant="outline"
             >
               {showAddForm ? "Cancel" : "Add Stage"}
+            </Button>
+            <Button
+              onClick={() => setShowAddRestDay(!showAddRestDay)}
+              variant="outline"
+            >
+              {showAddRestDay ? "Cancel" : "Add Rest Day"}
             </Button>
             <Button
               onClick={() => setShowAutoGenerate(!showAutoGenerate)}
@@ -226,6 +268,30 @@ export function StageManager({
                 disabled={isSubmitting || !stageName || !stageNumber || !stageDate}
               >
                 {isSubmitting ? "Adding..." : "Add Stage"}
+              </Button>
+            </div>
+          )}
+
+          {showAddRestDay && (
+            <div className="space-y-3 border rounded-lg p-4 bg-blue-50">
+              <h4 className="font-semibold text-sm">Add Rest Day</h4>
+              <p className="text-xs text-muted-foreground">
+                Rest days allow users to change lineups and make transfers during a Grand Tour.
+              </p>
+              <div>
+                <label className="text-sm font-medium">Date</label>
+                <Input
+                  type="date"
+                  value={restDayDate}
+                  onChange={(e) => setRestDayDate(e.target.value)}
+                  className="max-w-xs"
+                />
+              </div>
+              <Button
+                onClick={handleAddRestDay}
+                disabled={isSubmitting || !restDayDate}
+              >
+                {isSubmitting ? "Adding..." : "Add Rest Day"}
               </Button>
             </div>
           )}

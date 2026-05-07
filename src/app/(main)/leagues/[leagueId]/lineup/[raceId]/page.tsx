@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm"
 import { getLeagueDetails } from "../../actions"
 import { getTeamRoster } from "@/lib/transfer-queries"
 import { getLineup, getRosterLimitForRace } from "@/lib/lineup-queries"
+import { getLineupPeriods, getEditableLineupPeriods, getAllPeriodDeadlines } from "@/lib/lineup-periods"
 import { LineupForm } from "./lineup-form"
 
 interface PageProps {
@@ -64,10 +65,13 @@ export default async function LineupRacePage({ params }: PageProps) {
   }
 
   // Parallel fetch
-  const [roster, currentLineup, rosterSize] = await Promise.all([
+  const [roster, currentLineup, rosterSize, lineupPeriodInfo, editablePeriods, periodDeadlines] = await Promise.all([
     getTeamRoster(userTeamId, leagueId),
     getLineup(userTeamId, leagueId, raceId),
     getRosterLimitForRace(raceId),
+    getLineupPeriods(raceId),
+    getEditableLineupPeriods(raceId),
+    getAllPeriodDeadlines(raceId),
   ])
 
   if (rosterSize == null) {
@@ -117,7 +121,12 @@ export default async function LineupRacePage({ params }: PageProps) {
           riderTeam: r.riderTeam,
           gender: r.gender,
         }))}
-        currentLineup={currentLineup.map((r) => r.riderId)}
+        currentLineup={currentLineup.map((r) => ({ riderId: r.riderId, lineupPeriod: r.lineupPeriod }))}
+        periods={lineupPeriodInfo ? {
+          count: lineupPeriodInfo.periodCount,
+          editable: editablePeriods,
+          deadlines: periodDeadlines ?? {},
+        } : null}
       />
     </div>
   )

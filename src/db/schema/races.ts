@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, integer, pgEnum, index, AnyPgColumn } from "drizzle-orm/pg-core"
+import { pgTable, serial, text, timestamp, integer, pgEnum, index, boolean, AnyPgColumn } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 
 export const raceTypeEnum = pgEnum("race_type", [
@@ -19,6 +19,7 @@ export const races = pgTable("races", {
   endDate: timestamp("endDate", { withTimezone: true }),
   parentRaceId: integer("parentRaceId").references((): AnyPgColumn => races.id),
   stageNumber: integer("stageNumber"),
+  isRestDay: boolean("isRestDay").notNull().default(false),
   season: integer("season").notNull(),
   createdAt: timestamp("createdAt", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).notNull().defaultNow()

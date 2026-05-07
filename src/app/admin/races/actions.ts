@@ -214,6 +214,70 @@ export async function deleteStage(stageId: number) {
   }
 }
 
+export async function toggleRestDay(stageId: number) {
+  await checkAdminAuth()
+
+  try {
+    const stage = await db.query.races.findFirst({
+      where: eq(races.id, stageId),
+    })
+
+    if (!stage || !stage.parentRaceId) {
+      return { success: false, error: "Stage not found or not a child stage" }
+    }
+
+    await db
+      .update(races)
+      .set({ isRestDay: !stage.isRestDay })
+      .where(eq(races.id, stageId))
+
+    revalidatePath("/admin/races")
+    return { success: true, isRestDay: !stage.isRestDay }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+export async function addRestDay(parentRaceId: number, formData: { date: string }) {
+  await checkAdminAuth()
+
+  try {
+    const parentRace = await db.query.races.findFirst({
+      where: eq(races.id, parentRaceId),
+    })
+
+    if (!parentRace) {
+      return { success: false, error: "Parent race not found" }
+    }
+
+    // Find the next available stage number for rest days
+    const existingStages = await db
+      .select({ stageNumber: races.stageNumber })
+      .from(races)
+      .where(eq(races.parentRaceId, parentRaceId))
+
+    const maxStageNumber = existingStages.reduce(
+      (max, s) => Math.max(max, s.stageNumber || 0),
+      0
+    )
+
+    await db.insert(races).values({
+      name: "Rest Day",
+      stageNumber: maxStageNumber + 1,
+      startDate: new Date(formData.date),
+      parentRaceId,
+      raceType: parentRace.raceType,
+      season: parentRace.season,
+      isRestDay: true,
+    })
+
+    revalidatePath("/admin/races")
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: (error as Error).message }
+  }
+}
+
 export async function importRaces(
   data: Array<{
     name: string

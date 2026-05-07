@@ -25,6 +25,14 @@ import { ownershipAtRaceTime } from "./roster-ownership";
  * If no lineup exists, all riders score (backward compatible).
  * For stages, the lineup is looked up using the parent race ID.
  *
+ * Period-aware: if lineup rows have lineupPeriod set, they only apply to stages in that period.
+ * A stage's period = 1 + count(rest days with stageNumber < this stage's stageNumber).
+ * If lineupPeriod is NULL on a lineup row, it applies to all stages (legacy behavior).
+ *
+ * Carry-forward: if no lineup exists for the current period, the most recent previous
+ * period's lineup is used. This means a player who submits a Week 1 lineup but misses
+ * Week 2 keeps their Week 1 lineup active rather than having all riders score.
+ *
  * Accepts SQL expressions for leagueId, teamId, riderId to work with different source tables.
  */
 function makeLineupFilter(
@@ -32,12 +40,55 @@ function makeLineupFilter(
   teamIdExpr: SQL,
   riderIdExpr: SQL,
 ) {
+  // Compute the lineup period for the current stage based on rest days in its parent race.
+  // For non-stage races (parentRaceId IS NULL), this returns NULL (no period matching needed).
+  const stagePeriodExpr = sql`(
+    CASE WHEN ${races.parentRaceId} IS NOT NULL AND ${races.stageNumber} IS NOT NULL THEN
+      1 + (SELECT COUNT(*) FROM races rd
+           WHERE rd."parentRaceId" = ${races.parentRaceId}
+             AND rd."isRestDay" = true
+             AND rd."stageNumber" < ${races.stageNumber})
+    ELSE NULL END
+  )`;
+
+  // Effective period: the period whose lineup should apply to the current stage.
+  // If a lineup exists for the exact period, use it. Otherwise fall back to the
+  // most recent previous period that has a lineup (carry-forward rule).
+  // For non-period races (stagePeriodExpr IS NULL), this is NULL — legacy rows match.
+  const effectivePeriodExpr = sql`(
+    CASE WHEN ${stagePeriodExpr} IS NULL THEN NULL
+    ELSE COALESCE(
+      -- Exact period lineup exists? Use it.
+      (SELECT rl2."lineupPeriod" FROM ${raceLineups} rl2
+       WHERE rl2."leagueId" = ${leagueIdExpr}
+         AND rl2."teamId" = ${teamIdExpr}
+         AND rl2."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
+         AND rl2."lineupPeriod" = ${stagePeriodExpr}
+       LIMIT 1),
+      -- No exact match — find the highest previous period that has a lineup.
+      (SELECT MAX(rl3."lineupPeriod") FROM ${raceLineups} rl3
+       WHERE rl3."leagueId" = ${leagueIdExpr}
+         AND rl3."teamId" = ${teamIdExpr}
+         AND rl3."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
+         AND rl3."lineupPeriod" IS NOT NULL
+         AND rl3."lineupPeriod" < ${stagePeriodExpr})
+    ) END
+  )`;
+
+  // Period match condition: lineup row matches if its lineupPeriod is NULL (legacy)
+  // OR if it matches the effective period for this stage (which may be a carry-forward).
+  const periodMatch = sql`(
+    ${raceLineups.lineupPeriod} IS NULL
+    OR ${raceLineups.lineupPeriod} = ${effectivePeriodExpr}
+  )`;
+
   return sql`(
     NOT EXISTS (
       SELECT 1 FROM ${raceLineups}
       WHERE ${raceLineups.leagueId} = ${leagueIdExpr}
         AND ${raceLineups.teamId} = ${teamIdExpr}
         AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
+        AND ${periodMatch}
     )
     OR EXISTS (
       SELECT 1 FROM ${raceLineups}
@@ -45,6 +96,7 @@ function makeLineupFilter(
         AND ${raceLineups.teamId} = ${teamIdExpr}
         AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
         AND ${raceLineups.riderId} = ${riderIdExpr}
+        AND ${periodMatch}
     )
   )`;
 }

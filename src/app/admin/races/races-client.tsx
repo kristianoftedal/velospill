@@ -54,6 +54,7 @@ export function RacesClient({ races }: RacesClientProps) {
       name: string
       stageNumber: number
       startDate: Date
+      isRestDay: boolean
     }>
   } | null>(null)
 

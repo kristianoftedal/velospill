@@ -1,6 +1,5 @@
 import { db } from "@/lib/db"
 import { races } from "@/db/schema/races"
-import { riders } from "@/db/schema/riders"
 import { scoringConfig } from "@/db/schema/config"
 import { eq, and, lte, or, isNull, gt } from "drizzle-orm"
 

@@ -34,7 +34,7 @@ import { Trash2, BedDouble } from "lucide-react"
 type Stage = {
   id: number
   name: string
-  stageNumber: number
+  stageNumber: number | null
   startDate: Date
   isRestDay: boolean
 }
@@ -82,7 +82,7 @@ export function StageManager({
       name: stageName,
       stageNumber,
       startDate: stageDate,
-    } as any)
+    })
 
     setIsSubmitting(false)
 

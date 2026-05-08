@@ -731,7 +731,8 @@ export async function getRaceScoreBreakdownWithOrders(
     .where(eqFn(racesTable.id, raceId))
     .limit(1);
 
-  const raceType = raceRows[0]?.raceType ?? "unknown";
+  const rawRaceType = raceRows[0]?.raceType ?? "unknown";
+  const raceType = rawRaceType;
 
   // Get active orders for this race
   const activeOrders = await getActiveOrdersForRace(raceId, leagueId);

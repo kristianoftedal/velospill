@@ -35,7 +35,7 @@ const stageSchema = z.object({
 })
 
 type RaceInput = z.infer<typeof raceSchema>
-type StageInput = z.infer<typeof stageSchema>
+type StageInput = z.input<typeof stageSchema>
 
 async function checkAdminAuth() {
   const session = await auth.api.getSession({ headers: await headers() })

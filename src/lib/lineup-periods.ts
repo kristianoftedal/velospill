@@ -112,9 +112,8 @@ export async function getLineupPeriods(parentRaceId: number): Promise<LineupPeri
 
 /**
  * Get the deadline date for a lineup period.
- * For period 1: the parent race start date (same as current behavior).
- * For period N>1: the start date of the rest day that precedes period N.
- * The actual deadline is 13:00 Paris time on that date.
+ * For period 1: the parent race start date (noon UTC on race day).
+ * For period N>1: the startDate of the first stage after the preceding rest day (noon UTC).
  */
 export async function getLineupPeriodDeadline(
   parentRaceId: number,
@@ -130,26 +129,20 @@ export async function getLineupPeriodDeadline(
     return race?.startDate ?? null
   }
 
-  // Period N>1: deadline is the rest day that separates period N-1 from period N
+  // Period N>1: deadline is the start of the first race stage after the rest day
+  // (noon UTC on the day racing resumes, which is when lineup changes are no longer allowed)
   const stages = await getStagesForParentRace(parentRaceId)
   const restDays = stages
     .filter((s) => s.isRestDay)
     .sort((a, b) => (a.stageNumber ?? 0) - (b.stageNumber ?? 0))
 
   const restDayForPeriod = restDays[period - 2] // period 2 uses restDays[0], etc.
-  return restDayForPeriod?.startDate ?? null
-}
+  if (!restDayForPeriod?.stageNumber) return null
 
-/**
- * Compute the 13:00 Paris time deadline from a raw date.
- */
-function computeParisDeadline(date: Date): Date {
-  const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(date)
-  const noonUtc = new Date(`${parisDate}T12:00:00Z`)
-  const noonInParis = parseInt(
-    new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Paris', hour: 'numeric', hour12: false }).format(noonUtc)
+  const firstStageAfterRest = stages.find(
+    (s) => !s.isRestDay && (s.stageNumber ?? 0) > restDayForPeriod.stageNumber!
   )
-  return new Date(`${parisDate}T${String(13 - (noonInParis - 12)).padStart(2, '0')}:00:00Z`)
+  return firstStageAfterRest?.startDate ?? null
 }
 
 /**
@@ -165,7 +158,7 @@ export async function getAllPeriodDeadlines(parentRaceId: number): Promise<Recor
   for (let p = 1; p <= periods.periodCount; p++) {
     const rawDate = await getLineupPeriodDeadline(parentRaceId, p)
     if (rawDate) {
-      deadlines[p] = computeParisDeadline(rawDate).toISOString()
+      deadlines[p] = rawDate.toISOString()
     }
   }
   return deadlines
@@ -186,11 +179,8 @@ export async function getEditableLineupPeriods(parentRaceId: number): Promise<nu
     const deadline = await getLineupPeriodDeadline(parentRaceId, p)
     if (!deadline) continue
 
-    // Deadline is 13:00 Paris time on the deadline date
-    const parisDate = new Intl.DateTimeFormat('sv', { timeZone: 'Europe/Paris' }).format(deadline)
-    const deadlineTime = new Date(`${parisDate}T11:00:00Z`) // 13:00 Paris ≈ 11:00 UTC in summer
-
-    if (now < deadlineTime) {
+    // Deadline is noon UTC on the deadline date (the stage startDate stored in the DB)
+    if (now < deadline) {
       editable.push(p)
     }
   }

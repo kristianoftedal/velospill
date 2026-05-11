@@ -95,6 +95,7 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
         isNull(races.parentRaceId),
         sql`(
           (date_trunc('day', ${races.startDate} AT TIME ZONE 'Europe/Paris') + interval '13 hours') AT TIME ZONE 'Europe/Paris' > now()
+          OR (${races.endDate} IS NOT NULL AND ${races.endDate} > now())
           OR EXISTS (
             SELECT 1 FROM races rest_day
             WHERE rest_day."parentRaceId" = ${races.id}

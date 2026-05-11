@@ -390,6 +390,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
       nationality: riders.nationality,
       position: raceResults.position,
       points: raceResults.points,
+      category: raceResults.category,
     })
     .from(raceResults)
     .innerJoin(riders, eq(riders.id, raceResults.riderId))
@@ -421,6 +422,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
     riderNationality: row.nationality,
     position: row.position,
     points: row.points,
+    category: row.category,
   }));
 
   // Add bonus riders for this race (or parent race if this is a stage)
@@ -435,6 +437,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
       nationality: riders.nationality,
       position: raceResults.position,
       points: raceResults.points,
+      category: raceResults.category,
     })
     .from(bonusRiders)
     .innerJoin(teams, eq(teams.id, bonusRiders.teamId))
@@ -463,6 +466,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
     riderNationality: row.nationality,
     position: row.position,
     points: row.points,
+    category: row.category,
   }));
 
   // Combine and sort by position
@@ -660,6 +664,7 @@ export type RaceScoreEntry = {
   riderNationality: string;
   position: number;
   points: number;
+  category: string;
 };
 
 export type LeagueRaceScore = {
@@ -886,6 +891,7 @@ export async function getRaceScoreBreakdownWithOrders(
       riderNationality: "",
       position: 9999,
       points: 0,
+      category: "",
       adjustedPoints: bonus.adjustedPoints,
       orderEffect: bonus.description,
       isCountered: false,

@@ -1093,7 +1093,11 @@ export async function getStandingsHistory(
     )
     .groupBy(bonusRiders.teamId, bonusRiders.raceId);
 
-  // Step D: Application-side assembly.
+  // Step D: Order adjustment deltas per parent race.
+  const { getOrderAdjustmentsByRace } = await import("./order-queries");
+  const orderDeltaMap = await getOrderAdjustmentsByRace(leagueId, season);
+
+  // Step E: Application-side assembly.
 
   // Build bonus lookup: teamId -> parentRaceId -> bonusPoints
   const bonusMap = new Map<number, Map<number, number>>();
@@ -1148,7 +1152,8 @@ export async function getStandingsHistory(
       for (const col of raceColumns) {
         const draft = draftRaceMap.get(col.raceId) ?? 0;
         const bonus = teamBonusMap.get(col.raceId) ?? 0;
-        pointsByRace[col.raceId] = draft + bonus;
+        const orderDelta = orderDeltaMap.get(col.raceId)?.get(team.teamId) ?? 0;
+        pointsByRace[col.raceId] = draft + bonus + orderDelta;
       }
 
       // Compute cumulative points in race-date order

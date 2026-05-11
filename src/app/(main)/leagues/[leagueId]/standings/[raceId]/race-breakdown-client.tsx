@@ -115,6 +115,7 @@ export function RaceBreakdownClient({
                   <TableRow>
                     <TableHead className="w-20">Position</TableHead>
                     <TableHead>Rider</TableHead>
+                    <TableHead>Category</TableHead>
                     <TableHead>Pro Team</TableHead>
                     <TableHead>Fantasy Team</TableHead>
                     <TableHead className="text-right">Base Pts</TableHead>
@@ -129,11 +130,12 @@ export function RaceBreakdownClient({
                 <TableBody>
                   {filteredRegularEntries.map((entry) => (
                     <TableRow
-                      key={`${entry.riderId}-${entry.position}`}
+                      key={`${entry.riderId}-${entry.teamId}-${entry.category}`}
                       className={entry.isCountered ? "bg-yellow-50" : undefined}
                     >
                       <TableCell className="font-medium">{entry.position}</TableCell>
                       <TableCell className="font-medium">{entry.riderName}</TableCell>
+                      <TableCell className="text-gray-500 text-sm">{categoryDisplayNames[entry.category] ?? entry.category}</TableCell>
                       <TableCell className="text-gray-600">{entry.riderTeam}</TableCell>
                       <TableCell>{entry.teamName}</TableCell>
                       <TableCell className="text-right">{entry.points}</TableCell>
@@ -160,7 +162,7 @@ export function RaceBreakdownClient({
                   {filteredRegularEntries.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={hasOrders ? 7 : 5}
+                        colSpan={hasOrders ? 8 : 6}
                         className="text-center text-gray-500 py-8"
                       >
                         {filter === "my-team"

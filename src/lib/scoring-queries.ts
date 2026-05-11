@@ -127,6 +127,23 @@ const lineupFilterSlots = makeLineupFilter(
 const START_EVENT_TYPES = ["drafted", "transferred_in"] as const;
 
 /**
+ * Dedup guard for rosterEvents JOINs: exclude stale start events when a rider
+ * was re-acquired by the same team. Without this, a rider who was drafted,
+ * released, and re-transferred back produces two qualifying start event rows,
+ * causing JOIN fan-out that duplicates race results and double-counts points.
+ *
+ * Only the most recent start event per (leagueId, teamId, riderId) is kept.
+ */
+const latestStartEventOnly = sql`NOT EXISTS (
+  SELECT 1 FROM roster_events re_newer
+  WHERE re_newer."leagueId" = ${rosterEvents.leagueId}
+    AND re_newer."teamId" = ${rosterEvents.teamId}
+    AND re_newer."riderId" = ${rosterEvents.riderId}
+    AND re_newer."eventType" IN ('drafted', 'transferred_in')
+    AND re_newer."occurredAt" > ${rosterEvents.occurredAt}
+)`;
+
+/**
  * Returns all teams in a league ranked by total fantasy points for the given season.
  * Uses LEFT JOIN so teams with zero points still appear in the standings.
  * Multi-tenant: roster_events join is scoped by both teamId and leagueId.
@@ -150,6 +167,7 @@ export async function getLeagueStandings(leagueId: number, season: number) {
         eq(rosterEvents.teamId, teams.id),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
       ),
     )
     .leftJoin(raceResults, eq(raceResults.riderId, rosterEvents.riderId))
@@ -401,6 +419,7 @@ export async function getRaceScoreBreakdown(raceId: number, leagueId: number) {
         eq(rosterEvents.riderId, raceResults.riderId),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
         ownershipAtRaceTime(
           leagueId,
           sql`${rosterEvents.teamId}`,
@@ -542,6 +561,7 @@ export async function getLeagueRacesWithScores(
         eq(rosterEvents.riderId, raceResults.riderId),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
         ownershipAtRaceTime(
           leagueId,
           sql`${rosterEvents.teamId}`,
@@ -580,6 +600,7 @@ export async function getLeagueRacesWithScores(
         eq(rosterEvents.riderId, raceResults.riderId),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
         ownershipAtRaceTime(
           leagueId,
           sql`${rosterEvents.teamId}`,
@@ -913,6 +934,7 @@ export async function getRaceScoreBreakdownWithOrders(
       riderNationality: "",
       position: 9999,
       points: 0,
+      category: "",
       adjustedPoints: bonus.points,
       orderEffect: `gammel_venn bonus: +${bonus.points} pts`,
       isCountered: false,
@@ -981,6 +1003,7 @@ export async function getStandingsHistory(
         eq(rosterEvents.riderId, raceResults.riderId),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
         ownershipAtRaceTime(
           leagueId,
           sql`${rosterEvents.teamId}`,
@@ -1051,6 +1074,7 @@ export async function getStandingsHistory(
         eq(rosterEvents.teamId, teams.id),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
       ),
     )
     .leftJoin(raceResults, eq(raceResults.riderId, rosterEvents.riderId))

@@ -680,6 +680,124 @@ export async function getOrderAdjustedStandings(
   return { standings: adjustedStandings, orderAdjustments: allAdjustments };
 }
 
+/**
+ * Returns per-race order adjustment deltas for use in standings history.
+ * Returns Map<parentRaceId, Map<teamId, totalDelta>>.
+ */
+export async function getOrderAdjustmentsByRace(
+  leagueId: number,
+  season: number,
+): Promise<Map<number, Map<number, number>>> {
+  const allOrderRows = await db
+    .select({
+      orderId: orders.id,
+      teamId: orders.teamId,
+      raceId: orders.raceId,
+      orderTypeId: orders.orderTypeId,
+      orderTypeName: orderTypes.name,
+      effect: orderTypes.effect,
+      targetRiderId: orders.targetRiderId,
+      targetTeamId: orders.targetTeamId,
+      targetProTeam: orders.targetProTeam,
+      targetCountry: orders.targetCountry,
+      orderConfig: orders.orderConfig,
+      bonusPoints: orders.bonusPoints,
+      raceType: races.raceType,
+    })
+    .from(orders)
+    .innerJoin(orderTypes, eq(orderTypes.id, orders.orderTypeId))
+    .innerJoin(races, eq(races.id, orders.raceId))
+    .where(
+      and(
+        eq(orders.leagueId, leagueId),
+        eq(orders.status, "active"),
+        eq(races.season, season),
+      ),
+    );
+
+  if (allOrderRows.length === 0) return new Map();
+
+  const ordersByRace = new Map<
+    number,
+    { raceType: string; orders: ActiveOrder[] }
+  >();
+  for (const row of allOrderRows) {
+    const effect = row.effect as Record<string, unknown>;
+    const activeOrder: ActiveOrder = {
+      orderId: row.orderId,
+      teamId: row.teamId,
+      raceId: row.raceId,
+      orderTypeId: row.orderTypeId,
+      orderTypeName: row.orderTypeName,
+      effectType: (effect.type as string) ?? "unknown",
+      effectTarget: (effect.target as string) ?? "unknown",
+      effectValues: (effect.values as Record<string, number>) ?? undefined,
+      effectValue: (effect.value as number) ?? undefined,
+      restriction: (effect.restriction as string) ?? undefined,
+      targetRiderId: row.targetRiderId,
+      targetTeamId: row.targetTeamId,
+      targetProTeam: row.targetProTeam,
+      targetCountry: row.targetCountry,
+      orderConfig: row.orderConfig as Record<string, string> | null,
+      bonusPoints: row.bonusPoints,
+    };
+    const existing = ordersByRace.get(row.raceId);
+    if (existing) {
+      existing.orders.push(activeOrder);
+    } else {
+      ordersByRace.set(row.raceId, {
+        raceType: row.raceType,
+        orders: [activeOrder],
+      });
+    }
+  }
+
+  const result = new Map<number, Map<number, number>>();
+
+  for (const [raceId, { raceType, orders: raceOrders }] of ordersByRace) {
+    const { effectiveOrders, counterResults } = resolveCounters(raceOrders);
+
+    const breakdown = await getRaceScoreBreakdown(raceId, leagueId);
+    const baseScores: BaseScore[] = breakdown.map((entry) => ({
+      teamId: entry.teamId,
+      riderId: entry.riderId,
+      points: entry.points,
+      riderNationality: entry.riderNationality,
+      position: entry.position,
+    }));
+
+    const gammelVennBonuses = await computeGammelVennBonuses(
+      raceOrders,
+      raceId,
+      raceType,
+    );
+
+    const adjustments = applyOrderEffects(
+      baseScores,
+      effectiveOrders,
+      raceType,
+      counterResults,
+      gammelVennBonuses,
+    );
+
+    for (const adj of adjustments) {
+      if (adj.raceId === 0) adj.raceId = raceId;
+    }
+
+    const teamDeltas = new Map<number, number>();
+    for (const adj of adjustments) {
+      const delta = adj.adjustedPoints - adj.basePoints;
+      teamDeltas.set(adj.teamId, (teamDeltas.get(adj.teamId) ?? 0) + delta);
+    }
+
+    if (teamDeltas.size > 0) {
+      result.set(raceId, teamDeltas);
+    }
+  }
+
+  return result;
+}
+
 const parentRaces = alias(races, "parentRaces");
 
 /**

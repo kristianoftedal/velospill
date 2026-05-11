@@ -4,7 +4,7 @@ import { races } from "@/db/schema/races"
 import { riders } from "@/db/schema/riders"
 import { rosterLimits } from "@/db/schema/config"
 import { leagueRaces } from "@/db/schema/leagues"
-import { eq, and, gt, isNull, sql, count } from "drizzle-orm"
+import { eq, and, isNull, sql, count } from "drizzle-orm"
 
 /**
  * Returns riders in a lineup for a specific team/league/race, joined with rider details.
@@ -93,10 +93,16 @@ export async function getUpcomingRacesForLineup(leagueId: number, teamId: number
     .where(
       and(
         isNull(races.parentRaceId),
-        gt(
-          sql`(date_trunc('day', ${races.startDate} AT TIME ZONE 'Europe/Paris') + interval '13 hours') AT TIME ZONE 'Europe/Paris'`,
-          sql`now()`
-        )
+        sql`(
+          (date_trunc('day', ${races.startDate} AT TIME ZONE 'Europe/Paris') + interval '13 hours') AT TIME ZONE 'Europe/Paris' > now()
+          OR (${races.endDate} IS NOT NULL AND ${races.endDate} > now())
+          OR EXISTS (
+            SELECT 1 FROM races rest_day
+            WHERE rest_day."parentRaceId" = ${races.id}
+              AND rest_day."isRestDay" = true
+              AND (date_trunc('day', rest_day."startDate" AT TIME ZONE 'Europe/Paris') + interval '13 hours') AT TIME ZONE 'Europe/Paris' > now()
+          )
+        )`
       )
     )
     .orderBy(races.startDate)

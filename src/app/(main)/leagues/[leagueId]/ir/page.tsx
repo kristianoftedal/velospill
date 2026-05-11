@@ -116,13 +116,18 @@ export default async function IrPage({ params }: PageProps) {
     getTeamRoster(userTeamId, leagueId),
   ])
 
+  // Only show active IR entries in the slot display — exclude resolved entries (returned, rejected)
+  const activeIrSlots = irSlots.filter(
+    (s) => s.status === "pending" || s.status === "approved" || s.status === "return_eligible"
+  )
+
   // Count occupied slots (pending or approved — return_eligible slots are still "open" for the active roster)
-  const slotsUsed = irSlots.filter((s) => s.status === "pending" || s.status === "approved").length
+  const slotsUsed = activeIrSlots.filter((s) => s.status === "pending" || s.status === "approved").length
 
   // Compute active roster riders (excluding those with approved/return_eligible IR)
   // These are shown in the drop dialog when roster is full
   const activeRosterRiders = roster.filter((r) => {
-    const irSlot = irSlots.find((s) => s.riderId === r.riderId)
+    const irSlot = activeIrSlots.find((s) => s.riderId === r.riderId)
     return !irSlot || (irSlot.status !== "approved" && irSlot.status !== "return_eligible")
   })
 
@@ -156,7 +161,7 @@ export default async function IrPage({ params }: PageProps) {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[0, 1].map((slotIndex) => {
-              const slot = irSlots[slotIndex]
+              const slot = activeIrSlots[slotIndex]
               return (
                 <div
                   key={slotIndex}

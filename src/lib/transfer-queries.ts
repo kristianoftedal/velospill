@@ -10,6 +10,7 @@ import {
   asc,
   desc,
   eq,
+  gte,
   gt,
   isNull,
   lte,
@@ -133,10 +134,10 @@ export async function autoResolveExpiredWaivers(
   season: number,
 ) {
   const now = new Date();
-  const sevenDaysAgo = new Date(now);
-  sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
+  const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+  const threeHoursFromNow = new Date(now.getTime() + 3 * 60 * 60 * 1000);
 
-  // Find waiver windows that have closed but still have pending bids
+  // Find waiver windows closing within ±3 hours of now to tolerate cron scheduling jitter
   const closedWaiverWindows = await db
     .select({ id: transferWindows.id, closesAt: transferWindows.closesAt })
     .from(transferWindows)
@@ -144,8 +145,8 @@ export async function autoResolveExpiredWaivers(
       and(
         eq(transferWindows.leagueId, leagueId),
         eq(transferWindows.windowType, "waiver"),
-        lte(transferWindows.closesAt, now),
-        gt(transferWindows.closesAt, sevenDaysAgo),
+        gte(transferWindows.closesAt, threeHoursAgo),
+        lte(transferWindows.closesAt, threeHoursFromNow),
       ),
     );
 

@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function TeamProfileClient({ profile, leagueId }: Props) {
-  const { team, riders, totalPoints } = profile
+  const { team, riders, totalPoints, teamBonusAdjustments } = profile
 
   const riderCount = riders.length
   const racesScored = new Set(
@@ -133,9 +133,16 @@ export default function TeamProfileClient({ profile, leagueId }: Props) {
                                   {format(new Date(race.startDate), "MMM d, yyyy")}
                                 </p>
                               </div>
-                              <span className="font-bold text-primary text-sm flex-shrink-0">
-                                {race.racePoints} pts
-                              </span>
+                              <div className="text-right flex-shrink-0">
+                                <span className="font-bold text-primary text-sm">
+                                  {race.racePoints} pts
+                                </span>
+                                {race.orderDelta !== 0 && (
+                                  <p className="text-xs text-muted-foreground">
+                                    base {race.baseRacePoints} pts
+                                  </p>
+                                )}
+                              </div>
                             </div>
                             <div className="flex flex-wrap gap-1.5 pl-2">
                               {race.categories.map((cat, idx) => (
@@ -150,6 +157,13 @@ export default function TeamProfileClient({ profile, leagueId }: Props) {
                                   <span className="text-xs font-bold text-primary">{cat.points}p</span>
                                 </div>
                               ))}
+                              {race.orderEffect && (
+                                <div className="flex items-center gap-1 bg-orange-50 dark:bg-orange-950 rounded-md border border-orange-200 dark:border-orange-800 px-2 py-1">
+                                  <span className="text-xs font-medium text-orange-700 dark:text-orange-300">
+                                    {race.orderEffect}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -162,6 +176,27 @@ export default function TeamProfileClient({ profile, leagueId }: Props) {
           )}
         </CardContent>
       </Card>
+
+      {/* Section 4 — Team-level order bonuses (Hammer, Innlagt Spurt, Lagtempo) */}
+      {teamBonusAdjustments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-bold uppercase tracking-wide text-primary">
+              Order Bonuses
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {teamBonusAdjustments.map((adj, idx) => (
+                <div key={idx} className="flex items-center justify-between py-1.5 border-b last:border-0">
+                  <span className="text-sm text-foreground">{adj.description}</span>
+                  <span className="font-bold text-primary text-sm">+{adj.points} pts</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

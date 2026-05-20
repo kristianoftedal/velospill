@@ -135,7 +135,7 @@ export async function getNextInstance(raceId: number, category: string): Promise
   const result = await db.execute(
     sql`SELECT COALESCE(MAX(instance), 0) + 1 as next_instance FROM race_results WHERE "raceId" = ${raceId} AND category = ${category}`
   );
-  return Number((result.rows[0] as any)?.next_instance ?? 1);
+  return Number((result.rows[0] as Record<string, unknown>)?.next_instance ?? 1);
 }
 
 export async function previewResults(
@@ -151,10 +151,10 @@ export async function previewResults(
       success: true,
       data: preview,
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: (error as Error).message,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -273,15 +273,15 @@ export async function submitRaceResults(formData: ResultInput) {
         raceId,
         changeType: "BATCH_INSERT",
         changedBy: session.user.id,
-        newData: { category: resolvedCategory, instance, instanceLabel, results: resultData } as any,
+        newData: { category: resolvedCategory, instance, instanceLabel, results: resultData },
       });
     });
 
     revalidatePath("/admin/results");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     // Handle unique constraint violations
-    if (error.code === "23505") {
+    if ((error as { code?: string }).code === "23505") {
       return {
         success: false,
         error: {
@@ -294,7 +294,7 @@ export async function submitRaceResults(formData: ResultInput) {
 
     return {
       success: false,
-      error: { _form: [(error as Error).message] },
+      error: { _form: [error instanceof Error ? error.message : String(error)] },
     };
   }
 }
@@ -376,13 +376,13 @@ export async function correctRaceResult(
           riderId: currentResult.riderId,
           time: currentResult.time,
           points: currentResult.points,
-        } as any,
+        },
         newData: {
           position: updatedData.position,
           riderId: updatedData.riderId,
           time: updatedData.time,
           points: newPoints,
-        } as any,
+        },
         reason,
       });
 
@@ -407,10 +407,10 @@ export async function correctRaceResult(
 
     revalidatePath("/admin/results");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: (error as Error).message,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -447,7 +447,7 @@ export async function deleteRaceResult(resultId: number, reason: string) {
           riderId: currentResult.riderId,
           time: currentResult.time,
           points: currentResult.points,
-        } as any,
+        },
         reason,
       });
 
@@ -457,10 +457,10 @@ export async function deleteRaceResult(resultId: number, reason: string) {
 
     revalidatePath("/admin/results");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: (error as Error).message,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -625,10 +625,10 @@ export async function previewTttResults(
       success: true,
       data: previewData,
     };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: (error as Error).message,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -759,16 +759,16 @@ export async function submitTttResults(formData: {
         raceId,
         changeType: "BATCH_INSERT",
         changedBy: session.user.id,
-        newData: { category: "ttt", teamPlacements } as any,
+        newData: { category: "ttt", teamPlacements },
       });
     });
 
     revalidatePath("/admin/results");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     return {
       success: false,
-      error: { _form: [(error as Error).message] },
+      error: { _form: [error instanceof Error ? error.message : String(error)] },
     };
   }
 }
@@ -880,10 +880,10 @@ export async function scrapeAndMatchPcsResults(url: string, raceId: number) {
       };
     }
     html = await response.text();
-  } catch (e: any) {
+  } catch (e) {
     return {
       success: false as const,
-      error: `Failed to fetch page: ${(e as Error).message}`,
+      error: `Failed to fetch page: ${e instanceof Error ? e.message : String(e)}`,
     };
   }
 

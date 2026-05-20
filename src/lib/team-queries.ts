@@ -1,6 +1,5 @@
 import { bonusRiders } from "@/db/schema/bonus-riders";
 import { leagues, teams } from "@/db/schema/leagues";
-import { raceLineups } from "@/db/schema/lineups";
 import { races } from "@/db/schema/races";
 import { raceResults } from "@/db/schema/results";
 import { riders } from "@/db/schema/riders";
@@ -9,32 +8,14 @@ import { db } from "@/lib/db";
 import { and, asc, eq, inArray, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { ownershipAtRaceTime } from "./roster-ownership";
+import {
+  makeLineupFilter,
+  latestStartEventOnly,
+} from "./scoring-queries";
+
 const START_EVENT_TYPES = ["drafted", "transferred_in"] as const;
 
 const parentRaces = alias(races, "parentRaces");
-
-/**
- * Lineup filter: if a lineup exists for this team/race, only riders in the lineup score.
- * If no lineup exists, all riders score (backward compatible).
- * For stages, the lineup is looked up using the parent race ID.
- *
- * Copied verbatim from scoring-queries.ts for consistency.
- */
-const lineupFilter = sql`(
-  NOT EXISTS (
-    SELECT 1 FROM ${raceLineups}
-    WHERE ${raceLineups.leagueId} = ${rosterEvents.leagueId}
-      AND ${raceLineups.teamId} = ${rosterEvents.teamId}
-      AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
-  )
-  OR EXISTS (
-    SELECT 1 FROM ${raceLineups}
-    WHERE ${raceLineups.leagueId} = ${rosterEvents.leagueId}
-      AND ${raceLineups.teamId} = ${rosterEvents.teamId}
-      AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
-      AND ${raceLineups.riderId} = ${rosterEvents.riderId}
-  )
-)`;
 
 const categoryLabels: Record<string, string> = {
   finish: "Finish",
@@ -61,7 +42,10 @@ export type TeamRiderRaceEntry = {
   raceName: string;
   raceType: string;
   startDate: Date;
-  racePoints: number;
+  racePoints: number;       // adjusted points (= base + order delta)
+  baseRacePoints: number;   // raw raceResults.points sum
+  orderDelta: number;       // racePoints - baseRacePoints (0 when no order applies)
+  orderEffect: string | null; // human-readable label, e.g. "etappeseier x2.25 (finish pts)"
   categories: TeamRiderCategoryScore[];
   parentRaceId: number | null;
   parentRaceName: string | null;
@@ -77,6 +61,12 @@ export type TeamRiderEntry = {
   races: TeamRiderRaceEntry[];
 };
 
+export type TeamBonusAdjustment = {
+  raceId: number;
+  points: number;
+  description: string;
+};
+
 export type TeamSeasonProfile = {
   team: {
     id: number;
@@ -86,6 +76,7 @@ export type TeamSeasonProfile = {
   };
   riders: TeamRiderEntry[];
   totalPoints: number;
+  teamBonusAdjustments: TeamBonusAdjustment[]; // Hammer, Innlagt Spurt, Lagtempo etc.
 };
 
 /**
@@ -93,10 +84,9 @@ export type TeamSeasonProfile = {
  * - Team metadata and league name
  * - Full roster of drafted riders with per-race scoring breakdown
  * - Bonus riders (Uno-X order picks) merged into the same roster
+ * - Order adjustments (etappeseier, blodpose, etc.) applied to match standings
  *
  * Returns null if the team is not found or leagueId does not match.
- *
- * Uses three separate queries + application-side grouping (same pattern as getRiderSeasonProfile).
  */
 export async function getTeamSeasonProfile(
   teamId: number,
@@ -122,14 +112,16 @@ export async function getTeamSeasonProfile(
 
   const teamRow = teamRows[0];
 
-  // League race scoping SQL fragment — reused across queries
   const leagueRaceScope = sql`(${races.id} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}) OR ${races.parentRaceId} IN (SELECT "raceId" FROM league_races WHERE "leagueId" = ${leagueId}))`;
 
+  // Period-aware lineup filter (matches the filter used by the standings page)
+  const lineupFilter = makeLineupFilter(
+    sql`${rosterEvents.leagueId}`,
+    sql`${rosterEvents.teamId}`,
+    sql`${rosterEvents.riderId}`,
+  );
+
   // ── Query 2: Per-rider, per-race scoring breakdown (main roster) ──────────
-  // Fetches all race result rows for all drafted riders on this team.
-  // lineupFilter ensures lineup-aware scoring (if a lineup was submitted, only
-  // lineup riders score; if none submitted, all riders score).
-  // Ownership-at-race-time: uses roster_events via ownershipAtRaceTime helper
   const resultsRows = await db
     .select({
       riderId: rosterEvents.riderId,
@@ -169,6 +161,7 @@ export async function getTeamSeasonProfile(
         eq(rosterEvents.teamId, teamId),
         eq(rosterEvents.leagueId, leagueId),
         inArray(rosterEvents.eventType, [...START_EVENT_TYPES]),
+        latestStartEventOnly,
         lineupFilter,
       ),
     )
@@ -201,7 +194,6 @@ export async function getTeamSeasonProfile(
         eq(bonusRiders.teamId, teamId),
         eq(bonusRiders.leagueId, leagueId),
         eq(races.season, season),
-        // Bonus rider scores include both the parent race itself and all its stages
         or(
           eq(races.id, bonusRiders.raceId),
           eq(races.parentRaceId, bonusRiders.raceId),
@@ -212,8 +204,6 @@ export async function getTeamSeasonProfile(
     .orderBy(asc(riders.name), asc(races.startDate));
 
   // ── Application-side assembly ─────────────────────────────────────────────
-  // Build a merged map: riderId → { riderInfo, isBonus, raceMap }
-  // raceMap: raceId → { raceInfo, categories[] }
 
   type RaceAccumulator = {
     raceId: number;
@@ -221,6 +211,9 @@ export async function getTeamSeasonProfile(
     raceType: string;
     startDate: Date;
     racePoints: number;
+    baseRacePoints: number;
+    orderDelta: number;
+    orderEffect: string | null;
     categories: TeamRiderCategoryScore[];
     parentRaceId: number | null;
     parentRaceName: string | null;
@@ -286,6 +279,9 @@ export async function getTeamSeasonProfile(
         raceType: row.raceType,
         startDate: row.startDate,
         racePoints: 0,
+        baseRacePoints: 0,
+        orderDelta: 0,
+        orderEffect: null,
         categories: [],
         parentRaceId: row.parentRaceId,
         parentRaceName: row.parentRaceName,
@@ -294,11 +290,11 @@ export async function getTeamSeasonProfile(
     }
 
     raceEntry.categories.push(categoryEntry);
+    raceEntry.baseRacePoints += row.points;
     raceEntry.racePoints += row.points;
     riderEntry.totalPoints += row.points;
   }
 
-  // Process main roster results
   for (const row of resultsRows) {
     addResultRow(
       {
@@ -320,7 +316,6 @@ export async function getTeamSeasonProfile(
     );
   }
 
-  // Process bonus rider results (merge into same map, isBonus: true)
   for (const row of bonusResultsRows) {
     addResultRow(
       {
@@ -342,10 +337,43 @@ export async function getTeamSeasonProfile(
     );
   }
 
-  // Build final TeamRiderEntry[] sorted by totalPoints DESC
+  // ── Apply order adjustments ───────────────────────────────────────────────
+  // Import lazily to avoid circular dependency (order-queries → scoring-queries → team-queries)
+  const { getSeasonOrderAdjustments } = await import("./order-queries");
+  const allAdjustments = await getSeasonOrderAdjustments(leagueId, season);
+
+  const teamBonusAdjustments: TeamBonusAdjustment[] = [];
+
+  for (const adj of allAdjustments) {
+    if (adj.teamId !== teamId) continue;
+    const delta = adj.adjustedPoints - adj.basePoints;
+
+    if (adj.riderId == null) {
+      // Team-level bonus (Hammer, Innlagt Spurt, Lagtempo)
+      teamBonusAdjustments.push({
+        raceId: adj.raceId,
+        points: adj.adjustedPoints,
+        description: adj.description,
+      });
+      continue;
+    }
+
+    const riderEntry = riderMap.get(adj.riderId);
+    if (!riderEntry) continue;
+    const raceEntry = riderEntry.raceMap.get(adj.raceId);
+    if (!raceEntry) continue;
+
+    raceEntry.orderDelta += delta;
+    raceEntry.racePoints += delta;
+    raceEntry.orderEffect = raceEntry.orderEffect
+      ? `${raceEntry.orderEffect}, ${adj.description}`
+      : adj.description;
+    riderEntry.totalPoints += delta;
+  }
+
+  // ── Build final output ────────────────────────────────────────────────────
   const riderEntries: TeamRiderEntry[] = Array.from(riderMap.values())
     .map((riderAcc) => {
-      // Sort races within each rider by startDate ASC
       const sortedRaces: TeamRiderRaceEntry[] = Array.from(
         riderAcc.raceMap.values(),
       ).sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
@@ -360,11 +388,14 @@ export async function getTeamSeasonProfile(
         races: sortedRaces,
       };
     })
-    .sort((a, b) => b.totalPoints - a.totalPoints); // highest contributor first
+    .sort((a, b) => b.totalPoints - a.totalPoints);
 
-  // Total team points = sum of all rider totalPoints
-  const totalPoints = riderEntries.reduce(
+  const riderTotal = riderEntries.reduce(
     (sum, rider) => sum + rider.totalPoints,
+    0,
+  );
+  const bonusTotal = teamBonusAdjustments.reduce(
+    (sum, adj) => sum + adj.points,
     0,
   );
 
@@ -376,6 +407,7 @@ export async function getTeamSeasonProfile(
       leagueName: teamRow.leagueName,
     },
     riders: riderEntries,
-    totalPoints,
+    totalPoints: riderTotal + bonusTotal,
+    teamBonusAdjustments,
   };
 }

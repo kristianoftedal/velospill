@@ -86,6 +86,11 @@ Full details: milestones/v1.5-ROADMAP.md
 
 </details>
 
+## Active — v1.6 Frontend Data Layer
+
+- [ ] Phase 28: TanStack Query Integration
+- [ ] Phase 29: TanStack Form Migration
+
 ## Progress
 
 | Phase | Milestone | Plans | Status | Completed |
@@ -117,3 +122,5 @@ Full details: milestones/v1.5-ROADMAP.md
 | 25. Read Path Migration & Cleanup | v1.4 | 2/2 | Complete | 2026-03-09 |
 | 26. Admin Stage Result Scoping | v1.5 | 2/2 | Complete | 2026-03-12 |
 | 27. League Stage Visibility | v1.5 | 2/2 | Complete | 2026-03-13 |
+| 28. TanStack Query Integration | v1.6 | — | Planned | — |
+| 29. TanStack Form Migration | v1.6 | — | Planned | — |

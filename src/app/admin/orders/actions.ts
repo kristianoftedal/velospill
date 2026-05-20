@@ -141,8 +141,8 @@ export async function approveOrder(orderId: number) {
     revalidatePath(`/leagues/${order.leagueId}/orders`)
 
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: (error as Error).message }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 
@@ -174,8 +174,8 @@ export async function rejectOrder(orderId: number, adminNote: string) {
     revalidatePath(`/leagues/${order.leagueId}/orders`)
 
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: (error as Error).message }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 
@@ -206,8 +206,8 @@ export async function setBonusPoints(orderId: number, bonusPoints: number) {
     revalidatePath(`/leagues/${order.leagueId}/orders`)
 
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: (error as Error).message }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 

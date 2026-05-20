@@ -523,23 +523,20 @@ import { getLeagueStandings, getRaceScoreBreakdown } from "./scoring-queries";
  * Fetches all active orders for the league/season, resolves counters,
  * applies effects, and re-ranks teams.
  */
-export async function getOrderAdjustedStandings(
+/**
+ * Returns all OrderAdjustment entries for every active order in a league season.
+ * This is the single source of truth consumed by getOrderAdjustedStandings,
+ * getOrderAdjustmentsByRace, and getTeamSeasonProfile.
+ */
+export async function getSeasonOrderAdjustments(
   leagueId: number,
   season: number,
-): Promise<{
-  standings: LeagueStanding[];
-  orderAdjustments: OrderAdjustment[];
-}> {
-  // Get base standings (raw raceResults points)
-  const baseStandings = await getLeagueStandings(leagueId, season);
-
-  // Fetch all active orders across all races in this league/season
+): Promise<OrderAdjustment[]> {
   const allOrderRows = await db
     .select({
       orderId: orders.id,
       teamId: orders.teamId,
       raceId: orders.raceId,
-      leagueId: orders.leagueId,
       orderTypeId: orders.orderTypeId,
       orderTypeName: orderTypes.name,
       effect: orderTypes.effect,
@@ -562,17 +559,13 @@ export async function getOrderAdjustedStandings(
       ),
     );
 
-  if (allOrderRows.length === 0) {
-    return { standings: baseStandings, orderAdjustments: [] };
-  }
+  if (allOrderRows.length === 0) return [];
 
-  // Group orders by raceId
   const ordersByRace = new Map<
     number,
     { raceType: string; orders: ActiveOrder[] }
   >();
   for (const row of allOrderRows) {
-    const existing = ordersByRace.get(row.raceId);
     const effect = row.effect as Record<string, unknown>;
     const activeOrder: ActiveOrder = {
       orderId: row.orderId,
@@ -592,23 +585,19 @@ export async function getOrderAdjustedStandings(
       orderConfig: row.orderConfig as Record<string, string> | null,
       bonusPoints: row.bonusPoints,
     };
+    const existing = ordersByRace.get(row.raceId);
     if (existing) {
       existing.orders.push(activeOrder);
     } else {
-      ordersByRace.set(row.raceId, {
-        raceType: row.raceType,
-        orders: [activeOrder],
-      });
+      ordersByRace.set(row.raceId, { raceType: row.raceType, orders: [activeOrder] });
     }
   }
 
-  // Process each race with orders
   const allAdjustments: OrderAdjustment[] = [];
 
   for (const [raceId, { raceType, orders: raceOrders }] of ordersByRace) {
     const { effectiveOrders, counterResults } = resolveCounters(raceOrders);
 
-    // Get per-rider base scores for this race
     const breakdown = await getRaceScoreBreakdown(raceId, leagueId);
     const baseScores: BaseScore[] = breakdown.map((entry) => ({
       teamId: entry.teamId,
@@ -618,7 +607,6 @@ export async function getOrderAdjustedStandings(
       position: entry.position,
     }));
 
-    // Compute Gammel Venn bonuses
     const gammelVennBonuses = await computeGammelVennBonuses(
       raceOrders,
       raceId,
@@ -633,7 +621,6 @@ export async function getOrderAdjustedStandings(
       gammelVennBonuses,
     );
 
-    // Fix raceId in adjustments that were set to 0 for simplicity
     for (const adj of adjustments) {
       if (adj.raceId === 0) adj.raceId = raceId;
     }
@@ -641,7 +628,25 @@ export async function getOrderAdjustedStandings(
     allAdjustments.push(...adjustments);
   }
 
-  // Aggregate adjustments per team
+  return allAdjustments;
+}
+
+export async function getOrderAdjustedStandings(
+  leagueId: number,
+  season: number,
+): Promise<{
+  standings: LeagueStanding[];
+  orderAdjustments: OrderAdjustment[];
+}> {
+  const [baseStandings, allAdjustments] = await Promise.all([
+    getLeagueStandings(leagueId, season),
+    getSeasonOrderAdjustments(leagueId, season),
+  ]);
+
+  if (allAdjustments.length === 0) {
+    return { standings: baseStandings, orderAdjustments: [] };
+  }
+
   const teamAdjustmentDelta = new Map<number, number>();
   for (const adj of allAdjustments) {
     const delta = adj.adjustedPoints - adj.basePoints;
@@ -651,17 +656,14 @@ export async function getOrderAdjustedStandings(
     );
   }
 
-  // Apply adjustments to base standings
   const adjustedStandings: LeagueStanding[] = baseStandings.map((standing) => ({
     ...standing,
     totalPoints:
       standing.totalPoints + (teamAdjustmentDelta.get(standing.teamId) ?? 0),
   }));
 
-  // Re-sort by totalPoints DESC
   adjustedStandings.sort((a, b) => b.totalPoints - a.totalPoints);
 
-  // Re-rank with tie handling
   for (let i = 0; i < adjustedStandings.length; i++) {
     if (i === 0) {
       adjustedStandings[i] = { ...adjustedStandings[i], rank: 1 };
@@ -688,111 +690,16 @@ export async function getOrderAdjustmentsByRace(
   leagueId: number,
   season: number,
 ): Promise<Map<number, Map<number, number>>> {
-  const allOrderRows = await db
-    .select({
-      orderId: orders.id,
-      teamId: orders.teamId,
-      raceId: orders.raceId,
-      orderTypeId: orders.orderTypeId,
-      orderTypeName: orderTypes.name,
-      effect: orderTypes.effect,
-      targetRiderId: orders.targetRiderId,
-      targetTeamId: orders.targetTeamId,
-      targetProTeam: orders.targetProTeam,
-      targetCountry: orders.targetCountry,
-      orderConfig: orders.orderConfig,
-      bonusPoints: orders.bonusPoints,
-      raceType: races.raceType,
-    })
-    .from(orders)
-    .innerJoin(orderTypes, eq(orderTypes.id, orders.orderTypeId))
-    .innerJoin(races, eq(races.id, orders.raceId))
-    .where(
-      and(
-        eq(orders.leagueId, leagueId),
-        eq(orders.status, "active"),
-        eq(races.season, season),
-      ),
-    );
+  const allAdjustments = await getSeasonOrderAdjustments(leagueId, season);
 
-  if (allOrderRows.length === 0) return new Map();
-
-  const ordersByRace = new Map<
-    number,
-    { raceType: string; orders: ActiveOrder[] }
-  >();
-  for (const row of allOrderRows) {
-    const effect = row.effect as Record<string, unknown>;
-    const activeOrder: ActiveOrder = {
-      orderId: row.orderId,
-      teamId: row.teamId,
-      raceId: row.raceId,
-      orderTypeId: row.orderTypeId,
-      orderTypeName: row.orderTypeName,
-      effectType: (effect.type as string) ?? "unknown",
-      effectTarget: (effect.target as string) ?? "unknown",
-      effectValues: (effect.values as Record<string, number>) ?? undefined,
-      effectValue: (effect.value as number) ?? undefined,
-      restriction: (effect.restriction as string) ?? undefined,
-      targetRiderId: row.targetRiderId,
-      targetTeamId: row.targetTeamId,
-      targetProTeam: row.targetProTeam,
-      targetCountry: row.targetCountry,
-      orderConfig: row.orderConfig as Record<string, string> | null,
-      bonusPoints: row.bonusPoints,
-    };
-    const existing = ordersByRace.get(row.raceId);
-    if (existing) {
-      existing.orders.push(activeOrder);
-    } else {
-      ordersByRace.set(row.raceId, {
-        raceType: row.raceType,
-        orders: [activeOrder],
-      });
-    }
-  }
+  if (allAdjustments.length === 0) return new Map();
 
   const result = new Map<number, Map<number, number>>();
-
-  for (const [raceId, { raceType, orders: raceOrders }] of ordersByRace) {
-    const { effectiveOrders, counterResults } = resolveCounters(raceOrders);
-
-    const breakdown = await getRaceScoreBreakdown(raceId, leagueId);
-    const baseScores: BaseScore[] = breakdown.map((entry) => ({
-      teamId: entry.teamId,
-      riderId: entry.riderId,
-      points: entry.points,
-      riderNationality: entry.riderNationality,
-      position: entry.position,
-    }));
-
-    const gammelVennBonuses = await computeGammelVennBonuses(
-      raceOrders,
-      raceId,
-      raceType,
-    );
-
-    const adjustments = applyOrderEffects(
-      baseScores,
-      effectiveOrders,
-      raceType,
-      counterResults,
-      gammelVennBonuses,
-    );
-
-    for (const adj of adjustments) {
-      if (adj.raceId === 0) adj.raceId = raceId;
-    }
-
-    const teamDeltas = new Map<number, number>();
-    for (const adj of adjustments) {
-      const delta = adj.adjustedPoints - adj.basePoints;
-      teamDeltas.set(adj.teamId, (teamDeltas.get(adj.teamId) ?? 0) + delta);
-    }
-
-    if (teamDeltas.size > 0) {
-      result.set(raceId, teamDeltas);
-    }
+  for (const adj of allAdjustments) {
+    const delta = adj.adjustedPoints - adj.basePoints;
+    if (!result.has(adj.raceId)) result.set(adj.raceId, new Map());
+    const teamDeltas = result.get(adj.raceId)!;
+    teamDeltas.set(adj.teamId, (teamDeltas.get(adj.teamId) ?? 0) + delta);
   }
 
   return result;

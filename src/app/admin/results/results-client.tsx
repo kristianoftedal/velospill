@@ -46,6 +46,9 @@ import {
   getTeamNames,
 } from "./actions";
 
+type RaceResult = Awaited<ReturnType<typeof getResultsForRace>>[number];
+type AuditTrailEntry = Awaited<ReturnType<typeof getAuditTrail>>[number];
+
 type Race = {
   id: number;
   name: string;
@@ -178,12 +181,12 @@ export function ResultsClient({ races, riders }: Props) {
   const router = useRouter();
   const [selectedRaceId, setSelectedRaceId] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [existingResults, setExistingResults] = useState<any[] | null>(null);
-  const [auditTrail, setAuditTrail] = useState<any[] | null>(null);
+  const [existingResults, setExistingResults] = useState<RaceResult[] | null>(null);
+  const [auditTrail, setAuditTrail] = useState<AuditTrailEntry[] | null>(null);
   const [teamNames, setTeamNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
-  const [selectedResult, setSelectedResult] = useState<any | null>(null);
+  const [selectedResult, setSelectedResult] = useState<RaceResult | null>(null);
   const [nameFilter, setNameFilter] = useState("");
   const [hideCompleted, setHideCompleted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -326,7 +329,7 @@ export function ResultsClient({ races, riders }: Props) {
     router.refresh();
   };
 
-  const handleEditResult = (result: any) => {
+  const handleEditResult = (result: RaceResult) => {
     setSelectedResult(result);
     setCorrectionDialogOpen(true);
   };
@@ -401,7 +404,7 @@ export function ResultsClient({ races, riders }: Props) {
                 type InstanceGroup = {
                   instance: number;
                   instanceLabel: string | null;
-                  results: any[];
+                  results: RaceResult[];
                 };
                 const categoryMap: Record<string, InstanceGroup[]> = {};
 
@@ -488,11 +491,8 @@ export function ResultsClient({ races, riders }: Props) {
                                 </TableHeader>
                                 <TableBody>
                                   {group.results
-                                    .sort(
-                                      (a: any, b: any) =>
-                                        a.position - b.position,
-                                    )
-                                    .map((result: any) => (
+                                    .sort((a, b) => a.position - b.position)
+                                    .map((result) => (
                                       <TableRow key={result.id}>
                                         <TableCell className="font-medium">
                                           {result.position}

@@ -35,7 +35,7 @@ import { ownershipAtRaceTime } from "./roster-ownership";
  *
  * Accepts SQL expressions for leagueId, teamId, riderId to work with different source tables.
  */
-function makeLineupFilter(
+export function makeLineupFilter(
   leagueIdExpr: SQL,
   teamIdExpr: SQL,
   riderIdExpr: SQL,
@@ -134,7 +134,7 @@ const START_EVENT_TYPES = ["drafted", "transferred_in"] as const;
  *
  * Only the most recent start event per (leagueId, teamId, riderId) is kept.
  */
-const latestStartEventOnly = sql`NOT EXISTS (
+export const latestStartEventOnly = sql`NOT EXISTS (
   SELECT 1 FROM roster_events re_newer
   WHERE re_newer."leagueId" = ${rosterEvents.leagueId}
     AND re_newer."teamId" = ${rosterEvents.teamId}

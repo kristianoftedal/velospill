@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.5
-milestone_name: Multi-Stage Race Improvements
-status: completed
-stopped_at: Completed 27-02-PLAN.md — human verification approved
-last_updated: "2026-03-13T19:01:00.613Z"
-last_activity: 2026-03-21 - Completed quick task 24: fix points lost when Tejada and Romeo were removed from team
+milestone: v1.6
+milestone_name: Frontend Data Layer
+status: planned
+stopped_at: Phases 28-29 added to roadmap — ready to plan
+last_updated: "2026-05-20T00:00:00.000Z"
+last_activity: 2026-05-20 - Added Phase 28 (TanStack Query) and Phase 29 (TanStack Form) to roadmap
 progress:
   total_phases: 2
   completed_phases: 2
@@ -25,12 +25,11 @@ See: .planning/PROJECT.md (updated 2026-03-11)
 
 ## Current Position
 
-Phase: 27 (League Stage Visibility) — Complete
-Plan: 02 (final)
-Status: All 4 plans complete — v1.5 milestone delivered
-Last activity: 2026-03-13 — Phase 27 Plan 02 complete (human verification approved)
+Phase: 28 (TanStack Query Integration) — Planned, not yet started
+Status: v1.6 roadmap defined — ready to plan Phase 28
+Last activity: 2026-05-20 — Phases 28-29 added to roadmap
 
-Progress: [██████████] 100% (v1.5) | v1.0-v1.4: 25/25 phases complete
+Progress: [░░░░░░░░░░] 0% (v1.6) | v1.0-v1.5: 27/27 phases complete
 
 ## Performance Metrics
 

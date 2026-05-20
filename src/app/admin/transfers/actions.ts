@@ -261,11 +261,11 @@ async function _approveBidInternal(bidId: number, actorId: string) {
     }
 
     return { success: true }
-  } catch (error: any) {
-    if (error.code === "23505") {
+  } catch (error) {
+    if ((error as { code?: string }).code === "23505") {
       return { success: false, error: "Rider is already on a team in this league" }
     }
-    return { success: false, error: (error as Error).message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 
@@ -302,8 +302,8 @@ export async function rejectBid(bidId: number, adminNote: string) {
     revalidatePath(`/leagues/${bid.leagueId}/transfers`)
 
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: (error as Error).message }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }
 

@@ -146,10 +146,10 @@ export async function approveFreeAgencyTransfer(data: {
     revalidatePath(`/admin/transfers`)
 
     return { success: true }
-  } catch (error: any) {
-    if (error.code === "23505") {
+  } catch (error) {
+    if ((error as { code?: string }).code === "23505") {
       return { success: false, error: "Rider is already on a team in this league" }
     }
-    return { success: false, error: (error as Error).message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 }

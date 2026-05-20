@@ -4,13 +4,20 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatDistanceToNow } from "date-fns"
 
+type ResultSnapshot = {
+  position: number
+  riderId: number
+  points: number
+  time?: string | null
+}
+
 type AuditEntry = {
   id: number
   changeType: string
   changedBy: string
   changedAt: Date
-  oldData: any
-  newData: any
+  oldData: unknown
+  newData: unknown
   reason: string | null
 }
 
@@ -53,7 +60,7 @@ export function ResultAuditTrail({ auditEntries }: Props) {
     }
 
     if (entry.changeType === "DELETE") {
-      const old = entry.oldData
+      const old = entry.oldData as ResultSnapshot
       return (
         <p className="text-sm">
           Deleted: Position <span className="font-mono">{old.position}</span> - Rider ID{" "}
@@ -63,8 +70,8 @@ export function ResultAuditTrail({ auditEntries }: Props) {
     }
 
     if (entry.changeType === "UPDATE") {
-      const old = entry.oldData
-      const updated = entry.newData
+      const old = entry.oldData as ResultSnapshot
+      const updated = entry.newData as ResultSnapshot
       const changes = []
 
       if (old.position !== updated.position) {

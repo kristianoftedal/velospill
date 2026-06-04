@@ -301,56 +301,6 @@ export default async function LeagueDetailPage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Upcoming Races section — show when active/drafting and there are upcoming races */}
-      {(league.status === "active" || league.status === "drafting") && upcomingRaces.length > 0 && (
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold">Upcoming Races</h2>
-          </CardHeader>
-          <CardContent>
-            <Accordion type="multiple" className="w-full">
-              {upcomingRaces.map((race) => (
-                <AccordionItem key={race.raceId} value={String(race.raceId)}>
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-3 text-left">
-                      <span className="font-medium">{race.raceName}</span>
-                      <span className="text-sm text-gray-500">
-                        {format(race.startDate, "d MMM yyyy")}
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          raceTypeColors[race.raceType] ?? raceTypeColors.low_priority_one_day
-                        }`}
-                      >
-                        {raceTypeLabels[race.raceType] ?? race.raceType}
-                      </span>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                      {race.teams.map((team) => (
-                        <div key={team.teamId} className="bg-gray-50 rounded-md p-3">
-                          <p className="text-sm font-semibold text-gray-900 mb-1">
-                            {team.teamName}
-                          </p>
-                          {team.riders.length === 0 ? (
-                            <p className="text-xs text-muted-foreground">(no lineup set)</p>
-                          ) : (
-                            <p className="text-xs text-gray-600">
-                              {team.riders.map((r) => r.riderName).join(", ")}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Recent Results section — show when active/complete and there are results */}
       {(league.status === "active" || league.status === "complete") && recentResults.length > 0 && (
         <Card>
@@ -444,29 +394,52 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="space-y-1 pt-2">
-                        {race.results.map((result, idx) => (
+                      <div className="flex flex-wrap gap-3 pt-2">
+                        {race.teams.map((team) => (
                           <div
-                            key={idx}
-                            className="flex items-center gap-2 py-1.5 border-b last:border-0 border-gray-100"
+                            key={team.fantasyTeamId}
+                            className="bg-gray-50 rounded-md p-3 min-w-[180px] flex-1"
                           >
-                            <span className="text-sm font-medium text-gray-500 w-6 shrink-0">
-                              {result.position}.
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <span className="text-sm font-medium text-gray-900">
-                                {result.riderName}
-                              </span>
-                              <span className="text-xs text-gray-500 ml-1.5">
-                                {result.riderTeam}
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {team.fantasyTeamName}
+                              </p>
+                              <span className="text-xs font-semibold text-primary shrink-0">
+                                {team.teamPoints} pts
                               </span>
                             </div>
-                            <Badge variant="outline" className="text-xs shrink-0">
-                              {result.fantasyTeamName}
-                            </Badge>
-                            <span className="text-xs font-semibold text-primary shrink-0 w-14 text-right">
-                              {result.points} pts
-                            </span>
+                            <div className="space-y-1">
+                              {team.riders.length === 0 ? (
+                                <p className="text-xs text-muted-foreground">(no lineup set)</p>
+                              ) : (
+                                team.riders.map((r) => (
+                                  <div
+                                    key={r.riderId}
+                                    className="flex items-center justify-between gap-2"
+                                  >
+                                    <span className="text-xs text-gray-700 truncate">
+                                      {r.riderName}
+                                    </span>
+                                    <span className="text-xs font-medium text-gray-500 shrink-0">
+                                      {r.points} pts
+                                    </span>
+                                  </div>
+                                ))
+                              )}
+                              {team.bonuses.map((b, idx) => (
+                                <div
+                                  key={`bonus-${idx}`}
+                                  className="flex items-center justify-between gap-2"
+                                >
+                                  <span className="text-xs italic text-gray-500 truncate">
+                                    {b.label}
+                                  </span>
+                                  <span className="text-xs font-medium text-emerald-600 shrink-0">
+                                    {b.points >= 0 ? "+" : ""}{b.points} pts
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -474,6 +447,56 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                   </AccordionItem>
                 )
               })}
+            </Accordion>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Upcoming Races section — show when active/drafting and there are upcoming races */}
+      {(league.status === "active" || league.status === "drafting") && upcomingRaces.length > 0 && (
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Upcoming Races</h2>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="multiple" className="w-full">
+              {upcomingRaces.map((race) => (
+                <AccordionItem key={race.raceId} value={String(race.raceId)}>
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3 text-left">
+                      <span className="font-medium">{race.raceName}</span>
+                      <span className="text-sm text-gray-500">
+                        {format(race.startDate, "d MMM yyyy")}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded text-xs font-medium ${
+                          raceTypeColors[race.raceType] ?? raceTypeColors.low_priority_one_day
+                        }`}
+                      >
+                        {raceTypeLabels[race.raceType] ?? race.raceType}
+                      </span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                      {race.teams.map((team) => (
+                        <div key={team.teamId} className="bg-gray-50 rounded-md p-3">
+                          <p className="text-sm font-semibold text-gray-900 mb-1">
+                            {team.teamName}
+                          </p>
+                          {team.riders.length === 0 ? (
+                            <p className="text-xs text-muted-foreground">(no lineup set)</p>
+                          ) : (
+                            <p className="text-xs text-gray-600">
+                              {team.riders.map((r) => r.riderName).join(", ")}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
             </Accordion>
           </CardContent>
         </Card>

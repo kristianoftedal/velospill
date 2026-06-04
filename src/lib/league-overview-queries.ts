@@ -229,7 +229,9 @@ export async function getRecentRaceResults(leagueId: number) {
 
   // Application-side assembly
 
-  // Build lineup map keyed by raceId -> teamId -> team + riders (points filled in below)
+  // Build lineup map keyed by raceId -> teamId -> team + riders (points filled in below).
+  // For multi-stage races lineups are stored under the parent raceId across multiple
+  // periods, so the same rider can appear more than once — dedup by riderId per team.
   const lineupByRace = new Map<number, Map<number, { teamName: string; riders: RecentRider[] }>>()
   const riderNameById = new Map<number, string>()
   for (const row of lineupRows) {
@@ -239,77 +241,15 @@ export async function getRecentRaceResults(leagueId: number) {
     if (!teamMap.has(row.fantasyTeamId)) {
       teamMap.set(row.fantasyTeamId, { teamName: row.fantasyTeamName, riders: [] })
     }
-    teamMap.get(row.fantasyTeamId)!.riders.push({
-      riderId: row.riderId,
-      riderName: row.riderName,
-      riderTeam: row.riderTeam,
-      points: 0,
-    })
-  }
-
-  // Fetch order-adjusted breakdowns for one-day races — the same path standings uses,
-  // so per-team totals (base points + order effects + bonuses) match standings exactly.
-  const { getRaceScoreBreakdownWithOrders } = await import("./scoring-queries")
-  const oneDayRaceIds = completedRaceRows
-    .filter((r) => !MULTI_STAGE_TYPES.has(r.raceType))
-    .map((r) => r.raceId)
-  const breakdownByRace = new Map<
-    number,
-    Awaited<ReturnType<typeof getRaceScoreBreakdownWithOrders>>["entries"]
-  >()
-  await Promise.all(
-    oneDayRaceIds.map(async (rid) => {
-      const { entries } = await getRaceScoreBreakdownWithOrders(rid, leagueId)
-      breakdownByRace.set(rid, entries)
-    })
-  )
-
-  // Assemble per-team results for a one-day race: lineup riders carry their
-  // order-adjusted points; bonus rows (admin bonuses, Gammel Venn) are listed separately;
-  // teamPoints is the authoritative sum of all breakdown entries for that team.
-  function buildOneDayTeams(raceId: number): RecentTeamResult[] {
-    const teamMap =
-      lineupByRace.get(raceId) ?? new Map<number, { teamName: string; riders: RecentRider[] }>()
-    const entries = breakdownByRace.get(raceId) ?? []
-
-    const riderPoints = new Map<string, number>() // `${teamId}:${riderId}` -> adjusted (non-bonus)
-    const bonusByTeam = new Map<number, RecentBonus[]>()
-    const teamTotals = new Map<number, number>()
-    const teamNameById = new Map<number, string>()
-
-    for (const e of entries) {
-      teamNameById.set(e.teamId, e.teamName)
-      teamTotals.set(e.teamId, (teamTotals.get(e.teamId) ?? 0) + e.adjustedPoints)
-      if (e.isBonus) {
-        const label =
-          e.riderId > 0
-            ? `Gammel Venn — ${riderNameById.get(e.riderId) ?? e.riderName}`
-            : e.riderName || e.orderEffect || "Bonus"
-        const arr = bonusByTeam.get(e.teamId) ?? []
-        arr.push({ label, points: e.adjustedPoints })
-        bonusByTeam.set(e.teamId, arr)
-      } else {
-        const k = `${e.teamId}:${e.riderId}`
-        riderPoints.set(k, (riderPoints.get(k) ?? 0) + e.adjustedPoints)
-      }
-    }
-
-    const teamIds = new Set<number>([...teamMap.keys(), ...teamNameById.keys()])
-    const result: RecentTeamResult[] = []
-    for (const teamId of teamIds) {
-      const lineup = teamMap.get(teamId)
-      const riders: RecentRider[] = (lineup?.riders ?? [])
-        .map((r) => ({ ...r, points: riderPoints.get(`${teamId}:${r.riderId}`) ?? 0 }))
-        .sort((a, b) => b.points - a.points)
-      result.push({
-        fantasyTeamId: teamId,
-        fantasyTeamName: lineup?.teamName ?? teamNameById.get(teamId) ?? `Team ${teamId}`,
-        teamPoints: teamTotals.get(teamId) ?? 0,
-        riders,
-        bonuses: bonusByTeam.get(teamId) ?? [],
+    const team = teamMap.get(row.fantasyTeamId)!
+    if (!team.riders.some((r) => r.riderId === row.riderId)) {
+      team.riders.push({
+        riderId: row.riderId,
+        riderName: row.riderName,
+        riderTeam: row.riderTeam,
+        points: 0,
       })
     }
-    return result.sort((a, b) => b.teamPoints - a.teamPoints)
   }
 
   // Build stage map keyed by parentRaceId
@@ -328,23 +268,107 @@ export async function getRecentRaceResults(leagueId: number) {
     })
   }
 
+  // Fetch order-adjusted breakdowns — the same path standings uses, so per-team totals
+  // (base points + order effects + bonuses) match standings exactly. For one-day races
+  // we break down the race itself; for multi-stage races we break down each completed
+  // stage plus the parent (end-of-tour classifications) and aggregate per team.
+  const { getRaceScoreBreakdownWithOrders } = await import("./scoring-queries")
+  const breakdownRaceIds = new Set<number>()
+  for (const race of completedRaceRows) {
+    if (MULTI_STAGE_TYPES.has(race.raceType)) {
+      breakdownRaceIds.add(race.raceId) // parent — end-of-tour classification results
+      for (const s of stagesByParent.get(race.raceId) ?? []) {
+        if (s.hasResults) breakdownRaceIds.add(s.raceId)
+      }
+    } else {
+      breakdownRaceIds.add(race.raceId)
+    }
+  }
+  const breakdownByRace = new Map<
+    number,
+    Awaited<ReturnType<typeof getRaceScoreBreakdownWithOrders>>["entries"]
+  >()
+  await Promise.all(
+    [...breakdownRaceIds].map(async (rid) => {
+      const { entries } = await getRaceScoreBreakdownWithOrders(rid, leagueId)
+      breakdownByRace.set(rid, entries)
+    })
+  )
+
+  // Assemble per-team results by aggregating the order-adjusted breakdowns across the
+  // given race ids: lineup riders carry their summed points; bonus rows (admin bonuses,
+  // Gammel Venn) are listed separately (combined by label); teamPoints is the
+  // authoritative sum of all breakdown entries for that team.
+  function buildTeams(breakdownIds: number[], lineupRaceId: number): RecentTeamResult[] {
+    const teamMap =
+      lineupByRace.get(lineupRaceId) ?? new Map<number, { teamName: string; riders: RecentRider[] }>()
+
+    const riderPoints = new Map<string, number>() // `${teamId}:${riderId}` -> adjusted (non-bonus)
+    const bonusByTeam = new Map<number, Map<string, number>>() // teamId -> label -> points
+    const teamTotals = new Map<number, number>()
+    const teamNameById = new Map<number, string>()
+
+    for (const rid of breakdownIds) {
+      for (const e of breakdownByRace.get(rid) ?? []) {
+        teamNameById.set(e.teamId, e.teamName)
+        teamTotals.set(e.teamId, (teamTotals.get(e.teamId) ?? 0) + e.adjustedPoints)
+        if (e.isBonus) {
+          const label =
+            e.riderId > 0
+              ? `Gammel Venn — ${riderNameById.get(e.riderId) ?? e.riderName}`
+              : e.riderName || e.orderEffect || "Bonus"
+          const labels = bonusByTeam.get(e.teamId) ?? new Map<string, number>()
+          labels.set(label, (labels.get(label) ?? 0) + e.adjustedPoints)
+          bonusByTeam.set(e.teamId, labels)
+        } else {
+          const k = `${e.teamId}:${e.riderId}`
+          riderPoints.set(k, (riderPoints.get(k) ?? 0) + e.adjustedPoints)
+        }
+      }
+    }
+
+    const teamIds = new Set<number>([...teamMap.keys(), ...teamNameById.keys()])
+    const result: RecentTeamResult[] = []
+    for (const teamId of teamIds) {
+      const lineup = teamMap.get(teamId)
+      const riders: RecentRider[] = (lineup?.riders ?? [])
+        .map((r) => ({ ...r, points: riderPoints.get(`${teamId}:${r.riderId}`) ?? 0 }))
+        .sort((a, b) => b.points - a.points)
+      const bonuses: RecentBonus[] = [...(bonusByTeam.get(teamId)?.entries() ?? [])].map(
+        ([label, points]) => ({ label, points })
+      )
+      result.push({
+        fantasyTeamId: teamId,
+        fantasyTeamName: lineup?.teamName ?? teamNameById.get(teamId) ?? `Team ${teamId}`,
+        teamPoints: teamTotals.get(teamId) ?? 0,
+        riders,
+        bonuses,
+      })
+    }
+    return result.sort((a, b) => b.teamPoints - a.teamPoints)
+  }
+
   return completedRaceRows.map((race) => {
     const isMultiStage = MULTI_STAGE_TYPES.has(race.raceType)
     if (isMultiStage) {
       const stages = stagesByParent.get(race.raceId) ?? []
-      const stagePointsTotal = stages.reduce((sum, s) => sum + s.totalLeaguePoints, 0)
+      const stageBreakdownIds = [
+        race.raceId,
+        ...stages.filter((s) => s.hasResults).map((s) => s.raceId),
+      ]
+      const teamResults = buildTeams(stageBreakdownIds, race.raceId)
       return {
         raceId: race.raceId,
         raceName: race.raceName,
         raceType: race.raceType,
         startDate: race.startDate,
         isMultiStage: true as const,
-        totalPoints: stagePointsTotal,
-        teams: [] as RecentTeamResult[],
+        totalPoints: teamResults.reduce((sum, t) => sum + t.teamPoints, 0),
+        teams: teamResults,
         stages,
       }
     }
-    const teamResults = buildOneDayTeams(race.raceId)
+    const teamResults = buildTeams([race.raceId], race.raceId)
     return {
       raceId: race.raceId,
       raceName: race.raceName,

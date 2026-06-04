@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table"
 import { getLeagueDetails } from "./actions"
 import { getLeagueStandingsWithOrders, getTeamRiderScores, getLeagueRacesWithScores } from "@/lib/scoring-queries"
-import { getUpcomingRacesWithLineups, getRecentRaceResults, UpcomingRaceWithLineups, RecentRaceResult } from "@/lib/league-overview-queries"
+import { getUpcomingRacesWithLineups, getRecentRaceResults, UpcomingRaceWithLineups, RecentRaceResult, RecentTeamResult } from "@/lib/league-overview-queries"
 import { getEligibleToReturnCount } from "@/lib/ir-queries"
 import { getActiveTransferWindow } from "@/lib/transfer-queries"
 import { StandingsClient } from "./standings/standings-client"
@@ -51,6 +51,53 @@ const raceTypeColors: Record<string, string> = {
   womens_grand_tour: "bg-pink-100 text-pink-800",
   womens_one_day: "bg-rose-100 text-rose-800",
   world_championship: "bg-amber-100 text-amber-800",
+}
+
+// Per-player breakdown for a recent race: one card per team, listing each lined-up
+// rider with their points plus any bonus rows. Totals match standings exactly.
+function TeamResultsGrid({ teams }: { teams: RecentTeamResult[] }) {
+  return (
+    <div className="flex flex-wrap gap-3 pt-2">
+      {teams.map((team) => (
+        <div
+          key={team.fantasyTeamId}
+          className="bg-gray-50 rounded-md p-3 min-w-[180px] flex-1"
+        >
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <p className="text-sm font-semibold text-gray-900 truncate">
+              {team.fantasyTeamName}
+            </p>
+            <span className="text-xs font-semibold text-primary shrink-0">
+              {team.teamPoints} pts
+            </span>
+          </div>
+          <div className="space-y-1">
+            {team.riders.length === 0 ? (
+              <p className="text-xs text-muted-foreground">(no lineup set)</p>
+            ) : (
+              team.riders.map((r) => (
+                <div key={r.riderId} className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-gray-700 truncate">{r.riderName}</span>
+                  <span className="text-xs font-medium text-gray-500 shrink-0">
+                    {r.points} pts
+                  </span>
+                </div>
+              ))
+            )}
+            {team.bonuses.map((b, idx) => (
+              <div key={`bonus-${idx}`} className="flex items-center justify-between gap-2">
+                <span className="text-xs italic text-gray-500 truncate">{b.label}</span>
+                <span className="text-xs font-medium text-emerald-600 shrink-0">
+                  {b.points >= 0 ? "+" : ""}
+                  {b.points} pts
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 interface PageProps {
@@ -336,7 +383,10 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="space-y-1 pt-2">
+                        {/* Per-player aggregate across all stages — totals match standings */}
+                        <TeamResultsGrid teams={race.teams} />
+                        <p className="text-xs font-medium text-gray-500 mt-4 mb-1">Stages</p>
+                        <div className="space-y-1">
                           {race.stages.map((stage) => (
                             <div
                               key={stage.raceId}
@@ -394,55 +444,7 @@ export default async function LeagueDetailPage({ params }: PageProps) {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                      <div className="flex flex-wrap gap-3 pt-2">
-                        {race.teams.map((team) => (
-                          <div
-                            key={team.fantasyTeamId}
-                            className="bg-gray-50 rounded-md p-3 min-w-[180px] flex-1"
-                          >
-                            <div className="flex items-center justify-between gap-2 mb-2">
-                              <p className="text-sm font-semibold text-gray-900 truncate">
-                                {team.fantasyTeamName}
-                              </p>
-                              <span className="text-xs font-semibold text-primary shrink-0">
-                                {team.teamPoints} pts
-                              </span>
-                            </div>
-                            <div className="space-y-1">
-                              {team.riders.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">(no lineup set)</p>
-                              ) : (
-                                team.riders.map((r) => (
-                                  <div
-                                    key={r.riderId}
-                                    className="flex items-center justify-between gap-2"
-                                  >
-                                    <span className="text-xs text-gray-700 truncate">
-                                      {r.riderName}
-                                    </span>
-                                    <span className="text-xs font-medium text-gray-500 shrink-0">
-                                      {r.points} pts
-                                    </span>
-                                  </div>
-                                ))
-                              )}
-                              {team.bonuses.map((b, idx) => (
-                                <div
-                                  key={`bonus-${idx}`}
-                                  className="flex items-center justify-between gap-2"
-                                >
-                                  <span className="text-xs italic text-gray-500 truncate">
-                                    {b.label}
-                                  </span>
-                                  <span className="text-xs font-medium text-emerald-600 shrink-0">
-                                    {b.points >= 0 ? "+" : ""}{b.points} pts
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                      <TeamResultsGrid teams={race.teams} />
                     </AccordionContent>
                   </AccordionItem>
                 )

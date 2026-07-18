@@ -8,6 +8,34 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { eq, isNull, sql } from "drizzle-orm"
+import {
+  syncTransferWindowsForParentRace,
+  syncAllLeaguesTransferWindows,
+} from "@/lib/transfer-queries"
+
+/**
+ * Regenerate auto-generated transfer windows after a calendar change so they stay
+ * in sync without a manual "Generate windows" click. Failures are logged but never
+ * bubble up: the race mutation has already committed and must still report success.
+ */
+async function resyncWindowsForParent(parentRaceId: number) {
+  try {
+    await syncTransferWindowsForParentRace(parentRaceId)
+  } catch (error) {
+    console.error(
+      `Transfer-window resync failed for parent race ${parentRaceId}:`,
+      error,
+    )
+  }
+}
+
+async function resyncWindowsAllLeagues() {
+  try {
+    await syncAllLeaguesTransferWindows()
+  } catch (error) {
+    console.error("Transfer-window resync (all leagues) failed:", error)
+  }
+}
 
 const raceSchema = z.object({
   name: z.string().min(2, "Race name required"),
@@ -148,6 +176,7 @@ export async function createStage(
       season: parentRace.season,
     })
 
+    await resyncWindowsForParent(parentRaceId)
     revalidatePath("/admin/races")
     return { success: true }
   } catch (error) {
@@ -172,6 +201,7 @@ export async function updateRace(id: number, formData: RaceInput) {
 
   try {
     await db.update(races).set(result.data).where(eq(races.id, id))
+    await resyncWindowsForParent(id)
     revalidatePath("/admin/races")
     return { success: true }
   } catch (error) {
@@ -189,6 +219,7 @@ export async function deleteRace(id: number) {
     // Delete child stages first (if any), then parent
     await db.delete(races).where(eq(races.parentRaceId, id))
     await db.delete(races).where(eq(races.id, id))
+    await resyncWindowsAllLeagues()
     revalidatePath("/admin/races")
     return { success: true }
   } catch (error) {
@@ -203,7 +234,14 @@ export async function deleteStage(stageId: number) {
   await checkAdminAuth()
 
   try {
+    // Capture the parent before deleting so we can resync its league windows.
+    const stage = await db.query.races.findFirst({
+      where: eq(races.id, stageId),
+    })
     await db.delete(races).where(eq(races.id, stageId))
+    if (stage?.parentRaceId) {
+      await resyncWindowsForParent(stage.parentRaceId)
+    }
     revalidatePath("/admin/races")
     return { success: true }
   } catch (error) {
@@ -231,6 +269,7 @@ export async function toggleRestDay(stageId: number) {
       .set({ isRestDay: !stage.isRestDay })
       .where(eq(races.id, stageId))
 
+    await resyncWindowsForParent(stage.parentRaceId)
     revalidatePath("/admin/races")
     return { success: true, isRestDay: !stage.isRestDay }
   } catch (error) {
@@ -250,27 +289,37 @@ export async function addRestDay(parentRaceId: number, formData: { date: string 
       return { success: false, error: "Parent race not found" }
     }
 
-    // Find the next available stage number for rest days
+    // Position the rest day chronologically: its stageNumber matches the last
+    // racing stage that starts before it. Period logic (lineup-periods.ts and
+    // scoring-queries.ts) keys off stageNumber ordering, treating a stage as
+    // belonging to a later period once its stageNumber exceeds a rest day's.
+    // Appending rest days after all stages (maxStageNumber + 1) collapsed every
+    // stage into period 1 and left later-period lineup windows permanently closed.
+    const restDate = new Date(formData.date)
     const existingStages = await db
-      .select({ stageNumber: races.stageNumber })
+      .select({
+        stageNumber: races.stageNumber,
+        startDate: races.startDate,
+        isRestDay: races.isRestDay,
+      })
       .from(races)
       .where(eq(races.parentRaceId, parentRaceId))
 
-    const maxStageNumber = existingStages.reduce(
-      (max, s) => Math.max(max, s.stageNumber || 0),
-      0
-    )
+    const precedingStageNumber = existingStages
+      .filter((s) => !s.isRestDay && s.stageNumber != null && s.startDate < restDate)
+      .reduce((max, s) => Math.max(max, s.stageNumber || 0), 0)
 
     await db.insert(races).values({
       name: "Rest Day",
-      stageNumber: maxStageNumber + 1,
-      startDate: new Date(formData.date),
+      stageNumber: precedingStageNumber,
+      startDate: restDate,
       parentRaceId,
       raceType: parentRace.raceType,
       season: parentRace.season,
       isRestDay: true,
     })
 
+    await resyncWindowsForParent(parentRaceId)
     revalidatePath("/admin/races")
     return { success: true }
   } catch (error) {
@@ -382,6 +431,10 @@ export async function importRaces(
       }
     }
 
+    // Bulk calendar change: resync every league's auto windows once.
+    if (imported.length > 0) {
+      await resyncWindowsAllLeagues()
+    }
     revalidatePath("/admin/races")
 
     return {

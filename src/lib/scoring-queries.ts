@@ -834,6 +834,7 @@ export async function getRaceScoreBreakdownWithOrders(
     points: number;
     riderNationality?: string;
     position?: number;
+    category?: string;
   };
   const baseScores: BaseScore[] = baseEntries.map((entry) => ({
     teamId: entry.teamId,
@@ -841,6 +842,7 @@ export async function getRaceScoreBreakdownWithOrders(
     points: entry.points,
     riderNationality: entry.riderNationality,
     position: entry.position,
+    category: entry.category,
   }));
 
   // Apply order effects
@@ -852,39 +854,45 @@ export async function getRaceScoreBreakdownWithOrders(
     gammelVennBonuses,
   );
 
-  // Build a lookup of adjustments by (teamId, riderId)
-  const adjMap = new Map<
-    string,
-    { adjustedPoints: number; description: string }
-  >();
+  // Rider-level adjustments are emitted per result-row — each carries the basePoints
+  // of the specific category row it applies to (e.g. bondestreik → the stage_finish
+  // row; covid → every row halved). Match each adjustment back to a distinct base row
+  // for the same (team, rider) so every row keeps its own adjusted value. Previously
+  // all of a rider's adjustments were collapsed into one per-rider value and then
+  // stamped onto every category row; downstream consumers sum per row, so a rider with
+  // N scoring categories had the penalty applied N times and could go far negative.
+  const pendingByRider = new Map<string, typeof adjustments>();
   for (const adj of adjustments) {
     if (adj.riderId == null) continue;
     const key = `${adj.teamId}:${adj.riderId}`;
-    const existing = adjMap.get(key);
-    if (existing) {
-      // Multiple effects can stack (e.g. multiple order types) — aggregate
-      existing.adjustedPoints =
-        existing.adjustedPoints - adj.basePoints + adj.adjustedPoints;
-      existing.description = `${existing.description}, ${adj.description}`;
-    } else {
-      adjMap.set(key, {
-        adjustedPoints: adj.adjustedPoints,
-        description: adj.description,
-      });
-    }
+    const arr = pendingByRider.get(key);
+    if (arr) arr.push(adj);
+    else pendingByRider.set(key, [adj]);
   }
 
   // No blowback in 2026 rules — countered orders simply have no effect
   const counteredRiderIds = new Set<string>();
 
-  // Build enriched entries
+  // Build enriched entries (one per base result-row).
   const entries: RaceScoreEntryWithOrders[] = baseEntries.map((entry) => {
     const key = `${entry.teamId}:${entry.riderId}`;
-    const adj = adjMap.get(key);
+    const pending = pendingByRider.get(key);
+    let adjustedPoints = entry.points;
+    let orderEffect: string | null = null;
+    if (pending && pending.length > 0) {
+      // Each adjustment applies to exactly one row — consume the one whose basePoints
+      // matches this row. Unmatched rows keep their base points untouched.
+      const idx = pending.findIndex((a) => a.basePoints === entry.points);
+      if (idx !== -1) {
+        const [picked] = pending.splice(idx, 1);
+        adjustedPoints = picked.adjustedPoints;
+        orderEffect = picked.description;
+      }
+    }
     return {
       ...entry,
-      adjustedPoints: adj != null ? adj.adjustedPoints : entry.points,
-      orderEffect: adj != null ? adj.description : null,
+      adjustedPoints,
+      orderEffect,
       isCountered: counteredRiderIds.has(key),
       isBonus: false,
     };

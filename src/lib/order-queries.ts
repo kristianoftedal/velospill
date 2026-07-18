@@ -193,6 +193,7 @@ export type BaseScore = {
   points: number;
   riderNationality?: string;
   position?: number;
+  category?: string;
 };
 
 /**
@@ -342,9 +343,11 @@ export function applyOrderEffects(
       }
 
       case "zero_finish_points": {
-        // bondestreik — all riders on the targeted team get 0 points
+        // bondestreik — riders on the targeted team score no STAGE FINISH points
+        // (only the stage_finish category is zeroed, on this one stage; jersey/
+        // mountain/other category points are unaffected).
         const targetedTeamEntries = baseScores.filter(
-          (s) => s.teamId === order.targetTeamId,
+          (s) => s.teamId === order.targetTeamId && s.category === "stage_finish",
         );
         for (const entry of targetedTeamEntries) {
           if (entry.points > 0) {
@@ -605,6 +608,7 @@ export async function getSeasonOrderAdjustments(
       points: entry.points,
       riderNationality: entry.riderNationality,
       position: entry.position,
+      category: entry.category,
     }));
 
     const gammelVennBonuses = await computeGammelVennBonuses(

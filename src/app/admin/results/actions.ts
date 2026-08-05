@@ -552,24 +552,19 @@ export async function getTeamNames(gender: "M" | "F"): Promise<string[]> {
 
 export async function previewTttResults(
   raceId: number,
-  teamPlacements: Array<{ position: number; teamName: string; riderIds: number[] }>,
+  placements: Array<{ position: number; riderIds: (number | null)[] }>,
 ) {
   await checkAdminAuth();
 
   try {
-    // Get the race to determine raceType for scoring
     const race = await db.query.races.findFirst({
       where: eq(races.id, raceId),
     });
 
     if (!race) {
-      return {
-        success: false,
-        error: "Race not found",
-      };
+      return { success: false, error: "Race not found" };
     }
 
-    // If this is a stage (has parentRaceId), fetch the parent race and use its raceType + name
     let raceForScoring = race;
     if (race.parentRaceId) {
       const parentRace = await db.query.races.findFirst({
@@ -580,7 +575,6 @@ export async function previewTttResults(
       }
     }
 
-    // Resolve scoring raceType (detect TdF) using parent race if applicable
     let raceTypeForScoring: string = raceForScoring.raceType;
     if (raceForScoring.raceType === "grand_tour") {
       const lower = raceForScoring.name.toLowerCase();
@@ -589,11 +583,8 @@ export async function previewTttResults(
       }
     }
 
-    // Fetch scoring config for "ttt" category
     const [scoringRules] = await db
-      .select({
-        rules: scoringConfig.rules,
-      })
+      .select({ rules: scoringConfig.rules })
       .from(scoringConfig)
       .where(
         and(
@@ -610,21 +601,13 @@ export async function previewTttResults(
       };
     }
 
-    // For each team, calculate preview data using client-provided riderIds
-    const previewData = teamPlacements.map(({ position, teamName, riderIds }) => {
+    const previewData = placements.map(({ position, riderIds }) => {
       const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
-      return {
-        teamName,
-        position,
-        pointsPerRider: points,
-        riderCount: riderIds.length,
-      };
+      const riderCount = riderIds.filter((id) => id !== null).length;
+      return { position, pointsPerRider: points, riderCount };
     });
 
-    return {
-      success: true,
-      data: previewData,
-    };
+    return { success: true, data: previewData };
   } catch (error) {
     return {
       success: false,
@@ -635,23 +618,23 @@ export async function previewTttResults(
 
 export async function submitTttResults(formData: {
   raceId: number;
-  teamPlacements: Array<{ position: number; teamName: string; riderIds: number[] }>;
+  placements: Array<{ position: number; riderIds: (number | null)[] }>;
 }) {
   const session = await checkAdminAuth();
 
   try {
-    const { raceId, teamPlacements } = formData;
+    const { raceId, placements } = formData;
 
-    // Validate at least one team placement
-    if (!teamPlacements || teamPlacements.length === 0) {
+    // Validate at least one placement
+    if (!placements || placements.length === 0) {
       return {
         success: false,
-        error: { _form: ["At least one team placement is required"] },
+        error: { _form: ["At least one placement is required"] },
       };
     }
 
     // Validate unique positions
-    const positions = teamPlacements.map((p) => p.position);
+    const positions = placements.map((p) => p.position);
     if (positions.length !== new Set(positions).size) {
       return {
         success: false,
@@ -659,21 +642,33 @@ export async function submitTttResults(formData: {
       };
     }
 
-    // Validate unique team names
-    const teamNames = teamPlacements.map((p) => p.teamName);
-    if (teamNames.length !== new Set(teamNames).size) {
-      return {
-        success: false,
-        error: { _form: ["Team names must be unique"] },
-      };
+    // Validate max 8 riders per position
+    for (const p of placements) {
+      if (p.riderIds.length > 8) {
+        return {
+          success: false,
+          error: { _form: [`Position ${p.position} has more than 8 riders`] },
+        };
+      }
     }
 
-    // Server-side guard: every placement must have at least one rider selected
-    const hasEmptyRiders = teamPlacements.some(p => !p.riderIds || p.riderIds.length === 0);
-    if (hasEmptyRiders) {
+    // Validate each placement has at least one non-null rider
+    for (const p of placements) {
+      const nonNull = p.riderIds.filter((id): id is number => id !== null);
+      if (nonNull.length === 0) {
+        return {
+          success: false,
+          error: { _form: [`Position ${p.position} must have at least one rider`] },
+        };
+      }
+    }
+
+    // Validate unique riders across all positions
+    const allRiderIds = placements.flatMap((p) => p.riderIds.filter((id): id is number => id !== null));
+    if (allRiderIds.length !== new Set(allRiderIds).size) {
       return {
         success: false,
-        error: { _form: ["Select at least one rider per team placement"] },
+        error: { _form: ["Each rider can only appear once across all positions"] },
       };
     }
 
@@ -734,24 +729,26 @@ export async function submitTttResults(formData: {
       };
     }
 
-    // Replace existing TTT results using raw SQL to avoid Drizzle/Neon query issues
     await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt')`);
     await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt'`);
 
-    // INSERT-only transaction — use client-provided riderIds directly
     await db.transaction(async (tx) => {
-      for (const { position, teamName: _teamName, riderIds } of teamPlacements) {
+      for (const { position, riderIds } of placements) {
         const points = calculatePoints(position, scoringRules.rules as Record<string, number>);
 
+        let slot = 1;
         for (const riderId of riderIds) {
+          if (riderId === null) continue;
           await tx.insert(raceResults).values({
             raceId,
             riderId,
             category: "ttt",
             position,
+            slot,
             time: null,
             points,
           });
+          slot++;
         }
       }
 
@@ -759,7 +756,7 @@ export async function submitTttResults(formData: {
         raceId,
         changeType: "BATCH_INSERT",
         changedBy: session.user.id,
-        newData: { category: "ttt", teamPlacements },
+        newData: { category: "ttt", placements },
       });
     });
 

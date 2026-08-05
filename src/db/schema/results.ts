@@ -12,6 +12,7 @@ export const raceResults = pgTable("race_results", {
   instance: integer("instance").notNull().default(1),
   instanceLabel: text("instanceLabel"),
   position: integer("position").notNull(),
+  slot: integer("slot").notNull().default(1),
   time: text("time"),
   points: integer("points").notNull().default(0),
   createdAt: timestamp("createdAt", { withTimezone: true }).notNull().defaultNow(),
@@ -21,7 +22,7 @@ export const raceResults = pgTable("race_results", {
   riderIdIdx: index("race_results_rider_id_idx").on(table.riderId),
   categoryIdx: index("race_results_category_idx").on(table.category),
   uniqueRaceRiderCategory: unique("race_results_race_rider_category_instance_unique").on(table.raceId, table.riderId, table.category, table.instance),
-  uniqueRacePositionCategory: unique("race_results_race_position_category_instance_unique").on(table.raceId, table.position, table.category, table.instance),
+  uniqueRacePositionCategorySlot: unique("race_results_race_position_category_instance_slot_unique").on(table.raceId, table.position, table.category, table.instance, table.slot),
 }))
 
 export const resultAudit = pgTable("result_audit", {

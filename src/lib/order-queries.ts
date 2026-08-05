@@ -36,12 +36,13 @@ export type ActiveOrder = {
 
 export type OrderAdjustment = {
   teamId: number;
-  riderId: number | null; // null for team-level adjustments
+  riderId: number | null;
   raceId: number;
   basePoints: number;
   adjustedPoints: number;
   orderTypeName: string;
-  description: string; // human-readable explanation
+  description: string;
+  submitterTeamId: number;
 };
 
 // ─── Active orders query ──────────────────────────────────────────────────────
@@ -236,199 +237,208 @@ export function applyOrderEffects(
     switch (order.effectType) {
       case "multiplier": {
         if (order.effectTarget === "unowned_rider") {
-          // gammel_venn — handled via gammelVennBonuses below
           break;
         }
-        // blodpose_one_day, blodpose_gt — multiply own targeted rider
-        // For blodpose_gt: after migration, uses values: {grand_tour: 3.5, grand_tour_tdf: 3}
-        // The raceType passed here is from races.raceType which correctly reflects GT type for stages
         const multiplier = order.effectValues
           ? (order.effectValues[raceType] ?? 1)
           : (order.effectValue ?? 3);
-        const targetEntry = baseScores.find(
+        const targetEntries = baseScores.filter(
           (s) => s.riderId === order.targetRiderId && s.teamId === order.teamId,
         );
-        if (targetEntry && multiplier !== 1) {
-          adjustments.push({
-            teamId: order.teamId,
-            riderId: order.targetRiderId,
-            raceId: order.raceId,
-            basePoints: targetEntry.points,
-            adjustedPoints: Math.floor(targetEntry.points * multiplier),
-            orderTypeName: order.orderTypeName,
-            description: `${order.orderTypeName} x${multiplier}`,
-          });
+        if (multiplier !== 1) {
+          for (const targetEntry of targetEntries) {
+            adjustments.push({
+              teamId: order.teamId,
+              riderId: order.targetRiderId,
+              raceId: order.raceId,
+              basePoints: targetEntry.points,
+              adjustedPoints: Math.floor(targetEntry.points * multiplier),
+              orderTypeName: order.orderTypeName,
+              description: `${order.orderTypeName} x${multiplier}`,
+              submitterTeamId: order.teamId,
+            });
+          }
         }
         break;
       }
 
       case "zero_points": {
-        // shimanobil — target opponent rider gets 0 points
-        const targetEntry = baseScores.find(
+        const targetEntries = baseScores.filter(
           (s) => s.riderId === order.targetRiderId && s.teamId !== order.teamId,
         );
-        if (targetEntry && targetEntry.points > 0) {
-          adjustments.push({
-            teamId: targetEntry.teamId,
-            riderId: order.targetRiderId,
-            raceId: order.raceId,
-            basePoints: targetEntry.points,
-            adjustedPoints: 0,
-            orderTypeName: order.orderTypeName,
-            description: `${order.orderTypeName} (0 pts)`,
-          });
-        }
-        break;
-      }
+         for (const targetEntry of targetEntries) {
+           if (targetEntry.points > 0) {
+             adjustments.push({
+               teamId: targetEntry.teamId,
+               riderId: order.targetRiderId,
+               raceId: order.raceId,
+               basePoints: targetEntry.points,
+               adjustedPoints: 0,
+               orderTypeName: order.orderTypeName,
+               description: `${order.orderTypeName} (0 pts)`,
+               submitterTeamId: order.teamId,
+             });
+           }
+         }
+         break;
+       }
 
-      case "half_points": {
+       case "half_points": {
         // covid — all riders on the targeted team get half points
         const targetedTeamEntries = baseScores.filter(
           (s) => s.teamId === order.targetTeamId,
         );
-        for (const entry of targetedTeamEntries) {
-          const halved = Math.floor(entry.points / 2);
-          if (halved !== entry.points) {
-            adjustments.push({
-              teamId: entry.teamId,
-              riderId: entry.riderId,
-              raceId: order.raceId,
-              basePoints: entry.points,
-              adjustedPoints: halved,
-              orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} (half pts)`,
-            });
-          }
-        }
-        break;
-      }
+         for (const entry of targetedTeamEntries) {
+           const halved = Math.floor(entry.points / 2);
+           if (halved !== entry.points) {
+             adjustments.push({
+               teamId: entry.teamId,
+               riderId: entry.riderId,
+               raceId: order.raceId,
+               basePoints: entry.points,
+               adjustedPoints: halved,
+               orderTypeName: order.orderTypeName,
+               description: `${order.orderTypeName} (half pts)`,
+               submitterTeamId: order.teamId,
+             });
+           }
+         }
+         break;
+       }
 
-      case "multiply_finish_points": {
+       case "multiply_finish_points": {
         // etappeseier — multiply ALL own riders' finish points by race-specific multiplier
         // After migration: values: {grand_tour: 2.25, grand_tour_tdf: 2}
         const multiplier = order.effectValues?.[raceType] ?? 2;
         const ownRiders = baseScores.filter((s) => s.teamId === order.teamId);
-        for (const entry of ownRiders) {
-          if (entry.points > 0) {
-            adjustments.push({
-              teamId: order.teamId,
-              riderId: entry.riderId,
-              raceId: order.raceId,
-              basePoints: entry.points,
-              adjustedPoints: Math.floor(entry.points * multiplier),
-              orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} x${multiplier} (finish pts)`,
-            });
-          }
-        }
-        break;
-      }
+         for (const entry of ownRiders) {
+           if (entry.points > 0) {
+             adjustments.push({
+               teamId: order.teamId,
+               riderId: entry.riderId,
+               raceId: order.raceId,
+               basePoints: entry.points,
+               adjustedPoints: Math.floor(entry.points * multiplier),
+               orderTypeName: order.orderTypeName,
+               description: `${order.orderTypeName} x${multiplier} (finish pts)`,
+               submitterTeamId: order.teamId,
+             });
+           }
+         }
+         break;
+       }
 
-      case "gc_position_loss":
+       case "gc_position_loss":
       case "team_sprint_points":
-      case "team_placement_points": {
-        // Admin-entered bonus points (Hammer, Innlagt Spurt, Lagtempo)
-        if (order.bonusPoints != null && order.bonusPoints > 0) {
-          adjustments.push({
-            teamId: order.teamId,
-            riderId: null,
-            raceId: order.raceId,
-            basePoints: 0,
-            adjustedPoints: order.bonusPoints,
-            orderTypeName: order.orderTypeName,
-            description: `${order.orderTypeName} bonus: +${order.bonusPoints} pts`,
-          });
-        }
-        break;
-      }
+       case "team_placement_points": {
+         // Admin-entered bonus points (Hammer, Innlagt Spurt, Lagtempo)
+         if (order.bonusPoints != null && order.bonusPoints > 0) {
+           adjustments.push({
+             teamId: order.teamId,
+             riderId: null,
+             raceId: order.raceId,
+             basePoints: 0,
+             adjustedPoints: order.bonusPoints,
+             orderTypeName: order.orderTypeName,
+             description: `${order.orderTypeName} bonus: +${order.bonusPoints} pts`,
+             submitterTeamId: order.teamId,
+           });
+         }
+         break;
+       }
 
-      case "zero_finish_points": {
+       case "zero_finish_points": {
         // bondestreik — riders on the targeted team score no STAGE FINISH points
         // (only the stage_finish category is zeroed, on this one stage; jersey/
         // mountain/other category points are unaffected).
         const targetedTeamEntries = baseScores.filter(
           (s) => s.teamId === order.targetTeamId && s.category === "stage_finish",
         );
-        for (const entry of targetedTeamEntries) {
-          if (entry.points > 0) {
-            adjustments.push({
-              teamId: entry.teamId,
-              riderId: entry.riderId,
-              raceId: order.raceId,
-              basePoints: entry.points,
-              adjustedPoints: 0,
-              orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} (0 pts)`,
-            });
-          }
-        }
-        break;
-      }
+         for (const entry of targetedTeamEntries) {
+           if (entry.points > 0) {
+             adjustments.push({
+               teamId: entry.teamId,
+               riderId: entry.riderId,
+               raceId: order.raceId,
+               basePoints: entry.points,
+               adjustedPoints: 0,
+               orderTypeName: order.orderTypeName,
+               description: `${order.orderTypeName} (0 pts)`,
+               submitterTeamId: order.teamId,
+             });
+           }
+         }
+         break;
+       }
 
-      case "choice": {
-        // kaptein — applies in World Championship and women's one-day races
+       case "choice": {
         const kapteinChoice = order.orderConfig?.kapteinChoice;
         if (kapteinChoice === "single_rider") {
-          const targetEntry = baseScores.find(
+          const targetEntries = baseScores.filter(
             (s) =>
               s.riderId === order.targetRiderId && s.teamId === order.teamId,
           );
-          if (targetEntry && targetEntry.points > 0) {
-            adjustments.push({
-              teamId: order.teamId,
-              riderId: order.targetRiderId,
-              raceId: order.raceId,
-              basePoints: targetEntry.points,
-              adjustedPoints: targetEntry.points * 2,
-              orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} x2 (single rider)`,
-            });
-          }
-        } else if (kapteinChoice === "country_all") {
+           for (const targetEntry of targetEntries) {
+             if (targetEntry.points > 0) {
+               adjustments.push({
+                 teamId: order.teamId,
+                 riderId: order.targetRiderId,
+                 raceId: order.raceId,
+                 basePoints: targetEntry.points,
+                 adjustedPoints: targetEntry.points * 2,
+                 orderTypeName: order.orderTypeName,
+                 description: `${order.orderTypeName} x2 (single rider)`,
+                 submitterTeamId: order.teamId,
+               });
+             }
+           }
+         } else if (kapteinChoice === "country_all") {
           const countryRiders = baseScores.filter(
             (s) =>
               s.teamId === order.teamId &&
               s.riderNationality === order.targetCountry,
           );
-          for (const entry of countryRiders) {
-            if (entry.points > 0) {
-              adjustments.push({
-                teamId: order.teamId,
-                riderId: entry.riderId,
-                raceId: order.raceId,
-                basePoints: entry.points,
-                adjustedPoints: Math.floor(entry.points * 1.5),
-                orderTypeName: order.orderTypeName,
-                description: `${order.orderTypeName} x1.5 (${order.targetCountry})`,
-              });
-            }
-          }
-        }
-        break;
-      }
+           for (const entry of countryRiders) {
+             if (entry.points > 0) {
+               adjustments.push({
+                 teamId: order.teamId,
+                 riderId: entry.riderId,
+                 raceId: order.raceId,
+                 basePoints: entry.points,
+                 adjustedPoints: Math.floor(entry.points * 1.5),
+                 orderTypeName: order.orderTypeName,
+                 description: `${order.orderTypeName} x1.5 (${order.targetCountry})`,
+                 submitterTeamId: order.teamId,
+               });
+             }
+           }
+         }
+         break;
+       }
 
-      case "multiply_end_tour": {
+       case "multiply_end_tour": {
         // sponsorens_ritt — multiply all own riders' end-of-tour points by configurable multiplier
         // After migration: value: 3 (changed from x2 to x3)
         const multiplier = order.effectValue ?? 3;
         const ownRiders = baseScores.filter((s) => s.teamId === order.teamId);
-        for (const entry of ownRiders) {
-          if (entry.points > 0) {
-            adjustments.push({
-              teamId: order.teamId,
-              riderId: entry.riderId,
-              raceId: order.raceId,
-              basePoints: entry.points,
-              adjustedPoints: Math.floor(entry.points * multiplier),
-              orderTypeName: order.orderTypeName,
-              description: `${order.orderTypeName} x${multiplier}`,
-            });
-          }
-        }
-        break;
-      }
+         for (const entry of ownRiders) {
+           if (entry.points > 0) {
+             adjustments.push({
+               teamId: order.teamId,
+               riderId: entry.riderId,
+               raceId: order.raceId,
+               basePoints: entry.points,
+               adjustedPoints: Math.floor(entry.points * multiplier),
+               orderTypeName: order.orderTypeName,
+               description: `${order.orderTypeName} x${multiplier}`,
+               submitterTeamId: order.teamId,
+             });
+           }
+         }
+         break;
+       }
 
-      case "bonus_rider_draft": {
+       case "bonus_rider_draft": {
         // uno_x — bonus rider draft order
         // This effect type does NOT modify base scores directly.
         // Bonus rider points are added at the scoring query level via LEFT JOIN on bonusRiders.
@@ -451,6 +461,7 @@ export function applyOrderEffects(
       adjustedPoints: bonus.points,
       orderTypeName: bonus.orderTypeName,
       description: `${bonus.orderTypeName} bonus: +${bonus.points} pts (unowned rider)`,
+      submitterTeamId: bonus.teamId,
     });
   }
 
@@ -1057,4 +1068,74 @@ export async function autoResolvePendingOrders(leagueId: number) {
     .where(inArray(orders.id, ids));
 
   return { resolved: ids.length };
+}
+
+export async function getLeagueOrdersSummary(
+  leagueId: number,
+  season: number,
+): Promise<
+  Array<{
+    raceId: number;
+    raceName: string;
+    orderTypeName: string;
+    orderTypeDisplayName: string;
+    teamName: string;
+    riderId: number | null;
+    riderName: string | null;
+    basePoints: number;
+    adjustedPoints: number;
+    delta: number;
+    description: string;
+    submitterTeamId: number;
+  }>
+> {
+  const allAdjustments = await getSeasonOrderAdjustments(leagueId, season);
+  if (allAdjustments.length === 0) return [];
+
+  const raceIds = [...new Set(allAdjustments.map((a) => a.raceId))];
+  const teamIds = [...new Set([
+    ...allAdjustments.map((a) => a.teamId),
+    ...allAdjustments.map((a) => a.submitterTeamId),
+  ])];
+  const riderIds = [
+    ...new Set(
+      allAdjustments.map((a) => a.riderId).filter((id): id is number => id !== null),
+    ),
+  ];
+
+  const [raceRows, teamRows, riderRows] = await Promise.all([
+    db
+      .select({ id: races.id, name: races.name })
+      .from(races)
+      .where(inArray(races.id, raceIds)),
+    db
+      .select({ id: teams.id, name: teams.name })
+      .from(teams)
+      .where(inArray(teams.id, teamIds)),
+    riderIds.length > 0
+      ? db
+          .select({ id: riders.id, name: riders.name })
+          .from(riders)
+          .where(inArray(riders.id, riderIds))
+      : Promise.resolve([]),
+  ]);
+
+  const raceMap = new Map(raceRows.map((r) => [r.id, r.name]));
+  const teamMap = new Map(teamRows.map((t) => [t.id, t.name]));
+  const riderMap = new Map(riderRows.map((r) => [r.id, r.name]));
+
+  return allAdjustments.map((adj) => ({
+    raceId: adj.raceId,
+    raceName: raceMap.get(adj.raceId) ?? `Race #${adj.raceId}`,
+    orderTypeName: adj.orderTypeName,
+    orderTypeDisplayName: adj.orderTypeName.replace(/_/g, " "),
+    teamName: teamMap.get(adj.teamId) ?? `Team #${adj.teamId}`,
+    riderId: adj.riderId,
+    riderName: adj.riderId ? (riderMap.get(adj.riderId) ?? null) : null,
+    basePoints: adj.basePoints,
+    adjustedPoints: adj.adjustedPoints,
+    delta: adj.adjustedPoints - adj.basePoints,
+    description: adj.description,
+    submitterTeamId: adj.submitterTeamId,
+  }));
 }

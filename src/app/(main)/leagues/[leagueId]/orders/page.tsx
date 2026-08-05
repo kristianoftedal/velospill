@@ -14,8 +14,10 @@ import {
   computeReverseDraftOrder,
   getBonusRidersForRace,
   getUnownedRidersForGT,
+  getLeagueOrdersSummary,
 } from "@/lib/order-queries"
 import { OrdersClient } from "./orders-client"
+import { OrdersSummary } from "./orders-summary"
 import { BonusRiderPick } from "./bonus-rider-pick"
 import { submitOrder, cancelOrder, pickBonusRider } from "./actions"
 
@@ -110,7 +112,7 @@ export default async function OrdersPage({ params }: PageProps) {
   const seasonYear = config.seasonYear
 
   // Parallel fetch all needed data
-  const [upcomingRaces, teamOrders, allOrderTypes, teamRiders, opponentRiders, opponentTeams] =
+  const [upcomingRaces, teamOrders, allOrderTypes, teamRiders, opponentRiders, opponentTeams, ordersSummary] =
     await Promise.all([
       getUpcomingRacesForLeague(leagueId, seasonYear),
       getTeamOrders(userTeamId, leagueId),
@@ -118,6 +120,7 @@ export default async function OrdersPage({ params }: PageProps) {
       getTeamRidersForOrders(userTeamId, leagueId),
       getOpponentRiders(leagueId, userTeamId),
       getOpponentTeams(leagueId, userTeamId),
+      getLeagueOrdersSummary(leagueId, seasonYear),
     ])
 
   // Check for active Uno-X orders for bonus rider draft
@@ -184,6 +187,8 @@ export default async function OrdersPage({ params }: PageProps) {
           Deploy strategic orders to boost your riders or counter your opponents
         </p>
       </div>
+
+      <OrdersSummary adjustments={ordersSummary} />
 
       <OrdersClient
         leagueId={leagueId}

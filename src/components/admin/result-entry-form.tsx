@@ -149,7 +149,7 @@ const categoryPrefillCounts: Record<string, number> = {
 
 export { categoryDisplayNames }
 
-function TttEntrySection({ raceId, raceType, riders, onSuccess }: { raceId: number; raceType: string; riders: Rider[]; onSuccess: () => void }) {
+function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess }: { raceId: number; raceType: string; riders: Rider[]; category: string; onSuccess: () => void }) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<string, string>>({})
   const [scoringScale, setScoringScale] = useState<Record<string, number>>({})
@@ -170,16 +170,31 @@ function TttEntrySection({ raceId, raceType, riders, onSuccess }: { raceId: numb
   })
 
   useEffect(() => {
-    getScoringScale(raceId, "ttt").then(setScoringScale).catch(() => {})
-  }, [raceId])
+    getScoringScale(raceId, category).then((scale) => {
+      setScoringScale(scale)
+      const scoringPositions = Object.keys(scale).length
+      if (scoringPositions > 0) {
+        const currentPlacements = form.getValues("placements")
+        const hasExistingData = currentPlacements.some((p) => p.riderIds.some((id) => id !== null))
+        if (!hasExistingData) {
+          form.reset({
+            placements: Array.from({ length: scoringPositions }, (_, i) => ({
+              position: i + 1,
+              riderIds: [null, null, null, null, null, null, null, null] as (number | null)[],
+            })),
+          })
+        }
+      }
+    }).catch(() => {})
+  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     getResultsForRace(raceId).then((allResults) => {
-      const tttResults = allResults.filter((r) => r.category === "ttt")
-      if (tttResults.length === 0) return
+      const categoryResults = allResults.filter((r) => r.category === category)
+      if (categoryResults.length === 0) return
 
       const positionMap = new Map<number, (number | null)[]>()
-      for (const r of tttResults) {
+      for (const r of categoryResults) {
         if (!positionMap.has(r.position)) {
           positionMap.set(r.position, [])
         }
@@ -204,10 +219,11 @@ function TttEntrySection({ raceId, raceType, riders, onSuccess }: { raceId: numb
     const result = await submitTttResults({
       raceId,
       placements: data.placements,
+      category,
     })
 
     if (result.success) {
-      toast.success("TTT results saved successfully!")
+      toast.success("Results saved successfully!")
       onSuccess()
     } else {
       const error = result.error as any
@@ -215,7 +231,7 @@ function TttEntrySection({ raceId, raceType, riders, onSuccess }: { raceId: numb
         setServerError(error._form[0])
         toast.error(error._form[0])
       } else {
-        toast.error("Failed to save TTT results")
+        toast.error("Failed to save results")
       }
     }
   }
@@ -232,9 +248,9 @@ function TttEntrySection({ raceId, raceType, riders, onSuccess }: { raceId: numb
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Enter TTT Results</CardTitle>
+        <CardTitle>Enter {categoryDisplayNames[category] || category} Results</CardTitle>
         <CardDescription>
-          Team Time Trial ({expectedGender === "M" ? "Men" : "Women"}) — Select up to 8 riders per position
+          {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"}) — Select up to 8 riders per position
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -350,7 +366,7 @@ function TttEntrySection({ raceId, raceType, riders, onSuccess }: { raceId: numb
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Submit TTT Results"}
+              {form.formState.isSubmitting ? "Saving..." : "Submit Results"}
             </Button>
           </div>
         </form>
@@ -382,8 +398,20 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
   }, [isDirty, onDirtyChange])
 
   useEffect(() => {
-    getScoringScale(raceId, category).then(setScoringScale).catch(() => {})
-  }, [raceId, category])
+    getScoringScale(raceId, category).then((scale) => {
+      setScoringScale(scale)
+      const scoringPositions = Object.keys(scale).length
+      if (scoringPositions > 0) {
+        const currentResults = form.getValues("results")
+        const hasExistingData = currentResults.some((r) => r.riderId !== 0)
+        if (!hasExistingData) {
+          form.reset({
+            results: Array.from({ length: scoringPositions }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
+          })
+        }
+      }
+    }).catch(() => {})
+  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch existing results for this race+category and pre-fill the form
   useEffect(() => {
@@ -404,18 +432,8 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
     name: "results",
   })
 
-  // --- TTT early return (after all hooks) ---
-  if (category === "ttt") {
-    if (!teams || teams.length === 0) {
-      return (
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">No teams available for TTT entry</p>
-          </CardContent>
-        </Card>
-      )
-    }
-    return <TttEntrySection raceId={raceId} raceType={raceType} riders={riders} onSuccess={onSuccess} />
+  if (category === "ttt" || category === "end_team") {
+    return <MultiRiderEntrySection raceId={raceId} raceType={raceType} riders={riders} category={category} onSuccess={onSuccess} />
   }
 
   const onSubmit = async (data: ResultFormData) => {
@@ -537,19 +555,6 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
                           {form.formState.errors.results[index]?.riderId?.message}
                         </p>
                       )}
-                    </div>
-
-                    {/* Time */}
-                    <div className="w-32">
-                      <Label htmlFor={`time-${index}`} className="text-xs">
-                        Time (optional)
-                      </Label>
-                      <Input
-                        id={`time-${index}`}
-                        placeholder="4h32m10s"
-                        {...form.register(`results.${index}.time`)}
-                        className="h-9"
-                      />
                     </div>
 
                     {/* Points preview */}

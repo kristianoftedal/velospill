@@ -482,7 +482,6 @@ export function ResultsClient({ races, riders }: Props) {
                                     </TableHead>
                                     <TableHead>Rider</TableHead>
                                     <TableHead>Team</TableHead>
-                                    <TableHead>Time</TableHead>
                                     <TableHead className="text-right">
                                       Points
                                     </TableHead>
@@ -502,9 +501,6 @@ export function ResultsClient({ races, riders }: Props) {
                                         </TableCell>
                                         <TableCell>
                                           {result.riderTeam}
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                          {result.time || "—"}
                                         </TableCell>
                                         <TableCell className="text-right">
                                           {result.points}

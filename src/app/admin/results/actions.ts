@@ -553,6 +553,7 @@ export async function getTeamNames(gender: "M" | "F"): Promise<string[]> {
 export async function previewTttResults(
   raceId: number,
   placements: Array<{ position: number; riderIds: (number | null)[] }>,
+  category: string = "ttt",
 ) {
   await checkAdminAuth();
 
@@ -589,7 +590,7 @@ export async function previewTttResults(
       .where(
         and(
           eq(scoringConfig.raceType, raceTypeForScoring),
-          eq(scoringConfig.category, "ttt"),
+          eq(scoringConfig.category, category),
         ),
       )
       .limit(1);
@@ -597,7 +598,7 @@ export async function previewTttResults(
     if (!scoringRules) {
       return {
         success: false,
-        error: `No TTT scoring config found for race type: ${raceTypeForScoring}`,
+        error: `No scoring config found for race type: ${raceTypeForScoring}, category: ${category}`,
       };
     }
 
@@ -619,11 +620,12 @@ export async function previewTttResults(
 export async function submitTttResults(formData: {
   raceId: number;
   placements: Array<{ position: number; riderIds: (number | null)[] }>;
+  category?: string;
 }) {
   const session = await checkAdminAuth();
 
   try {
-    const { raceId, placements } = formData;
+    const { raceId, placements, category = "ttt" } = formData;
 
     // Validate at least one placement
     if (!placements || placements.length === 0) {
@@ -713,7 +715,7 @@ export async function submitTttResults(formData: {
       .where(
         and(
           eq(scoringConfig.raceType, raceTypeForScoring),
-          eq(scoringConfig.category, "ttt"),
+          eq(scoringConfig.category, category),
         ),
       )
       .limit(1);
@@ -723,14 +725,14 @@ export async function submitTttResults(formData: {
         success: false,
         error: {
           _form: [
-            `No TTT scoring config found for race type: ${raceTypeForScoring}`,
+            `No scoring config found for race type: ${raceTypeForScoring}, category: ${category}`,
           ],
         },
       };
     }
 
-    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt')`);
-    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = 'ttt'`);
+    await db.execute(sql`DELETE FROM result_audit WHERE "resultId" IN (SELECT id FROM race_results WHERE "raceId" = ${raceId} AND category = ${category})`);
+    await db.execute(sql`DELETE FROM race_results WHERE "raceId" = ${raceId} AND category = ${category}`);
 
     await db.transaction(async (tx) => {
       for (const { position, riderIds } of placements) {
@@ -742,7 +744,7 @@ export async function submitTttResults(formData: {
           await tx.insert(raceResults).values({
             raceId,
             riderId,
-            category: "ttt",
+            category,
             position,
             slot,
             time: null,
@@ -756,7 +758,7 @@ export async function submitTttResults(formData: {
         raceId,
         changeType: "BATCH_INSERT",
         changedBy: session.user.id,
-        newData: { category: "ttt", placements },
+        newData: { category, placements },
       });
     });
 

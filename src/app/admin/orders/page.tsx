@@ -4,6 +4,7 @@ import { leagues } from "@/db/schema/leagues"
 import { getPendingOrders, getOrderHistory, approveOrder, rejectOrder, setBonusPoints, getActivatedUnoXOrders, getBonusRiderDraftState } from "./actions"
 import { getLeagueOrdersSummary } from "@/lib/order-queries"
 import { OrderActions } from "./order-actions"
+import { BonusPointsEditor } from "./bonus-points-editor"
 import { BonusRiderDraft } from "./bonus-rider-draft"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -230,7 +231,12 @@ export default async function OrdersPage() {
                         {order.adminNote ?? "-"}
                       </TableCell>
                       <TableCell className="text-center">
-                        {order.bonusPoints != null ? order.bonusPoints : "-"}
+                        <BonusPointsEditor
+                          orderId={order.orderId}
+                          orderTypeEffect={order.orderTypeEffect as object}
+                          currentBonusPoints={order.bonusPoints}
+                          setBonusPoints={setBonusPoints}
+                        />
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {order.resolvedAt

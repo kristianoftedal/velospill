@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -9,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { ChevronDownIcon, ChevronRightIcon } from "lucide-react"
 
 type OrderAdjustmentRow = {
   raceId: number
@@ -29,6 +32,8 @@ interface OrdersSummaryProps {
 }
 
 export function OrdersSummary({ adjustments }: OrdersSummaryProps) {
+  const [detailsOpen, setDetailsOpen] = useState(false)
+
   if (adjustments.length === 0) {
     return null
   }
@@ -91,9 +96,18 @@ export function OrdersSummary({ adjustments }: OrdersSummaryProps) {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Order Effects Overview</CardTitle>
+        <CardHeader
+          className="cursor-pointer select-none"
+          onClick={() => setDetailsOpen(!detailsOpen)}
+        >
+          <div className="flex items-center justify-between">
+            <CardTitle>Order Effects Overview</CardTitle>
+            <Button variant="ghost" size="icon" className="h-6 w-6" tabIndex={-1}>
+              {detailsOpen ? <ChevronDownIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
+            </Button>
+          </div>
         </CardHeader>
+        {detailsOpen && (
         <CardContent className="space-y-6">
         {Array.from(groupedByRace.entries()).map(([raceName, rows]) => (
           <div key={raceName}>
@@ -112,7 +126,7 @@ export function OrdersSummary({ adjustments }: OrdersSummaryProps) {
               <TableBody>
                 {rows.map((row, i) => (
                   <TableRow key={i}>
-                    <TableCell className="text-sm">{row.description}</TableCell>
+                    <TableCell className="text-sm">{row.orderTypeDisplayName}</TableCell>
                     <TableCell className="text-sm">{row.teamName}</TableCell>
                     <TableCell className="text-sm">{row.riderName ?? "—"}</TableCell>
                     <TableCell className="text-right text-sm font-mono">{row.basePoints}</TableCell>
@@ -127,6 +141,7 @@ export function OrdersSummary({ adjustments }: OrdersSummaryProps) {
           </div>
         ))}
       </CardContent>
+        )}
       </Card>
     </>
   )

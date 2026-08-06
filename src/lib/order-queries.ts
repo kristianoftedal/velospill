@@ -1103,7 +1103,9 @@ export async function getLeagueOrdersSummary(
     ),
   ];
 
-  const [raceRows, teamRows, riderRows] = await Promise.all([
+  const orderTypeNames = [...new Set(allAdjustments.map((a) => a.orderTypeName))];
+
+  const [raceRows, teamRows, riderRows, orderTypeRows] = await Promise.all([
     db
       .select({ id: races.id, name: races.name })
       .from(races)
@@ -1118,17 +1120,22 @@ export async function getLeagueOrdersSummary(
           .from(riders)
           .where(inArray(riders.id, riderIds))
       : Promise.resolve([]),
+    db
+      .select({ name: orderTypes.name, displayName: orderTypes.displayName })
+      .from(orderTypes)
+      .where(inArray(orderTypes.name, orderTypeNames)),
   ]);
 
   const raceMap = new Map(raceRows.map((r) => [r.id, r.name]));
   const teamMap = new Map(teamRows.map((t) => [t.id, t.name]));
   const riderMap = new Map(riderRows.map((r) => [r.id, r.name]));
+  const orderTypeDisplayMap = new Map(orderTypeRows.map((o) => [o.name, o.displayName]));
 
   return allAdjustments.map((adj) => ({
     raceId: adj.raceId,
     raceName: raceMap.get(adj.raceId) ?? `Race #${adj.raceId}`,
     orderTypeName: adj.orderTypeName,
-    orderTypeDisplayName: adj.orderTypeName.replace(/_/g, " "),
+    orderTypeDisplayName: orderTypeDisplayMap.get(adj.orderTypeName) ?? adj.orderTypeName,
     teamName: teamMap.get(adj.teamId) ?? `Team #${adj.teamId}`,
     riderId: adj.riderId,
     riderName: adj.riderId ? (riderMap.get(adj.riderId) ?? null) : null,

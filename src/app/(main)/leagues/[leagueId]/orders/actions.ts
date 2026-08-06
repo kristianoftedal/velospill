@@ -144,6 +144,10 @@ export async function submitOrder(formData: {
       restrictionValid = false
     } else if (restriction.startsWith("vuelta_only") && !raceName.toLowerCase().includes("vuelta")) {
       restrictionValid = false
+    } else if (restriction === "mens_road_race_only" && !(raceName.toLowerCase().includes("men") && !raceName.toLowerCase().includes("women") && raceName.toLowerCase().includes("road race"))) {
+      restrictionValid = false
+    } else if (restriction === "womens_road_race_only" && !(raceName.toLowerCase().includes("women") && raceName.toLowerCase().includes("road race"))) {
+      restrictionValid = false
     }
 
     if (!restrictionValid) {

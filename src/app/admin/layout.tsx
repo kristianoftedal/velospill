@@ -72,6 +72,12 @@ export default async function AdminLayout({
             >
               Injured Reserve
             </Link>
+            <Link
+              href="/admin/vuelta-slots"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Vuelta Slots
+            </Link>
           </nav>
           <Link
             href="/home"

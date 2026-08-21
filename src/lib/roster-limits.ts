@@ -1,15 +1,13 @@
 import { db } from "@/lib/db"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { riders } from "@/db/schema/riders"
+import { appSettings } from "@/db/schema/settings"
 import { eq, and, count } from "drizzle-orm"
 
 export const MAX_MEN_ROSTER = 18
 export const MAX_WOMEN_ROSTER = 6
+export const MAX_VUELTA_SLOTS = 2
 
-/**
- * Returns the count of active (non-IR) roster slots for a team, split by gender.
- * Only counts slots with status = 'active' — IR riders are excluded.
- */
 export async function getActiveRosterCountByGender(
   teamId: number,
   leagueId: number
@@ -25,7 +23,8 @@ export async function getActiveRosterCountByGender(
       and(
         eq(rosterSlots.teamId, teamId),
         eq(rosterSlots.leagueId, leagueId),
-        eq(rosterSlots.status, "active")
+        eq(rosterSlots.status, "active"),
+        eq(rosterSlots.isVueltaSlot, false)
       )
     )
     .groupBy(riders.gender)
@@ -40,10 +39,6 @@ export async function getActiveRosterCountByGender(
   return { men, women }
 }
 
-/**
- * Checks whether adding a rider of the given gender would exceed the roster limit.
- * Returns null if allowed, or an error message string if blocked.
- */
 export async function checkRosterLimit(
   teamId: number,
   leagueId: number,
@@ -67,20 +62,53 @@ export type RosterOverage = {
   menOver: number
   womenOver: number
   isOver: boolean
+  hasDisabledVueltaSlotRiders: boolean
+}
+
+export async function getVueltaSlotsEnabled(): Promise<boolean> {
+  const [row] = await db
+    .select({ enabled: appSettings.enabled })
+    .from(appSettings)
+    .where(eq(appSettings.key, "vuelta_slots_enabled"))
+    .limit(1)
+  return row?.enabled ?? false
+}
+
+export async function getTeamVueltaSlotCount(
+  teamId: number,
+  leagueId: number
+): Promise<number> {
+  const [result] = await db
+    .select({ value: count() })
+    .from(rosterSlots)
+    .where(
+      and(
+        eq(rosterSlots.teamId, teamId),
+        eq(rosterSlots.leagueId, leagueId),
+        eq(rosterSlots.isVueltaSlot, true)
+      )
+    )
+  return Number(result?.value ?? 0)
 }
 
 export async function getRosterOverage(
   teamId: number,
   leagueId: number
 ): Promise<RosterOverage> {
-  const counts = await getActiveRosterCountByGender(teamId, leagueId)
+  const [counts, vueltaSlotCount, vueltaSlotsEnabled] = await Promise.all([
+    getActiveRosterCountByGender(teamId, leagueId),
+    getTeamVueltaSlotCount(teamId, leagueId),
+    getVueltaSlotsEnabled(),
+  ])
   const menOver = Math.max(0, counts.men - MAX_MEN_ROSTER)
   const womenOver = Math.max(0, counts.women - MAX_WOMEN_ROSTER)
+  const hasDisabledVueltaSlotRiders = !vueltaSlotsEnabled && vueltaSlotCount > 0
   return {
     men: counts.men,
     women: counts.women,
     menOver,
     womenOver,
-    isOver: menOver > 0 || womenOver > 0,
+    isOver: menOver > 0 || womenOver > 0 || hasDisabledVueltaSlotRiders,
+    hasDisabledVueltaSlotRiders,
   }
 }

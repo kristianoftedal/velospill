@@ -2,7 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getLeagueDetails } from "../actions"
 import { getTeamRoster } from "@/lib/transfer-queries"
-import { getRosterOverage } from "@/lib/roster-limits"
+import { getRosterOverage, getVueltaSlotsEnabled, getTeamVueltaSlotCount } from "@/lib/roster-limits"
 import { RosterClient } from "./roster-client"
 
 interface PageProps {
@@ -48,70 +48,55 @@ export default async function RosterPage({ params }: PageProps) {
 
   const { league, userTeamId } = details
 
-  // Guard: roster management only available for active leagues
   if (league.status !== "active") {
     return (
       <div className="container mx-auto max-w-5xl px-4 py-8 space-y-4">
         <nav className="text-sm text-gray-500">
-          <Link href="/leagues" className="hover:text-gray-700 hover:underline">
-            Leagues
-          </Link>
+          <Link href="/leagues" className="hover:text-gray-700 hover:underline">Leagues</Link>
           <span className="mx-2">&rsaquo;</span>
-          <Link href={`/leagues/${leagueId}`} className="hover:text-gray-700 hover:underline">
-            {league.name}
-          </Link>
+          <Link href={`/leagues/${leagueId}`} className="hover:text-gray-700 hover:underline">{league.name}</Link>
           <span className="mx-2">&rsaquo;</span>
           <span className="text-gray-900">Manage Roster</span>
         </nav>
         <p className="text-gray-600">
           Roster management is only available for active leagues.{" "}
-          <Link href={`/leagues/${leagueId}`} className="text-blue-600 hover:underline">
-            Back to League
-          </Link>
+          <Link href={`/leagues/${leagueId}`} className="text-blue-600 hover:underline">Back to League</Link>
         </p>
       </div>
     )
   }
 
-  // Guard: user must have a team
   if (userTeamId == null) {
     return (
       <div className="container mx-auto max-w-5xl px-4 py-8 space-y-4">
         <nav className="text-sm text-gray-500">
-          <Link href="/leagues" className="hover:text-gray-700 hover:underline">
-            Leagues
-          </Link>
+          <Link href="/leagues" className="hover:text-gray-700 hover:underline">Leagues</Link>
           <span className="mx-2">&rsaquo;</span>
-          <Link href={`/leagues/${leagueId}`} className="hover:text-gray-700 hover:underline">
-            {league.name}
-          </Link>
+          <Link href={`/leagues/${leagueId}`} className="hover:text-gray-700 hover:underline">{league.name}</Link>
           <span className="mx-2">&rsaquo;</span>
           <span className="text-gray-900">Manage Roster</span>
         </nav>
         <p className="text-gray-600">
           You need a team to manage your roster.{" "}
-          <Link href={`/leagues/${leagueId}`} className="text-blue-600 hover:underline">
-            Back to League
-          </Link>
+          <Link href={`/leagues/${leagueId}`} className="text-blue-600 hover:underline">Back to League</Link>
         </p>
       </div>
     )
   }
 
-  const roster = await getTeamRoster(userTeamId, leagueId)
-  const overage = await getRosterOverage(userTeamId, leagueId)
+  const [roster, overage, vueltaSlotsEnabled, vueltaSlotCount] = await Promise.all([
+    getTeamRoster(userTeamId, leagueId),
+    getRosterOverage(userTeamId, leagueId),
+    getVueltaSlotsEnabled(),
+    getTeamVueltaSlotCount(userTeamId, leagueId),
+  ])
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
-      {/* Breadcrumb */}
       <nav className="text-sm text-gray-500">
-        <Link href="/leagues" className="hover:text-gray-700 hover:underline">
-          Leagues
-        </Link>
+        <Link href="/leagues" className="hover:text-gray-700 hover:underline">Leagues</Link>
         <span className="mx-2">&rsaquo;</span>
-        <Link href={`/leagues/${leagueId}`} className="hover:text-gray-700 hover:underline">
-          {league.name}
-        </Link>
+        <Link href={`/leagues/${leagueId}`} className="hover:text-gray-700 hover:underline">{league.name}</Link>
         <span className="mx-2">&rsaquo;</span>
         <span className="text-gray-900">Manage Roster</span>
       </nav>
@@ -123,7 +108,15 @@ export default async function RosterPage({ params }: PageProps) {
         </p>
       </div>
 
-      <RosterClient roster={roster} leagueId={leagueId} overGenders={overage.isOver ? { men: overage.menOver > 0, women: overage.womenOver > 0 } : null} />
+      <RosterClient
+        roster={roster}
+        leagueId={leagueId}
+        teamId={userTeamId}
+        overGenders={overage.isOver ? { men: overage.menOver > 0, women: overage.womenOver > 0 } : null}
+        vueltaSlotsEnabled={vueltaSlotsEnabled}
+        vueltaSlotCount={vueltaSlotCount}
+        hasDisabledVueltaSlotRiders={overage.hasDisabledVueltaSlotRiders}
+      />
     </div>
   )
 }

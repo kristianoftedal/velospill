@@ -120,6 +120,7 @@ export default async function LineupRacePage({ params }: PageProps) {
           riderName: r.riderName,
           riderTeam: r.riderTeam,
           gender: r.gender,
+          isVueltaSlot: r.isVueltaSlot,
         }))}
         currentLineup={currentLineup.map((r) => ({ riderId: r.riderId, lineupPeriod: r.lineupPeriod }))}
         periods={lineupPeriodInfo ? {

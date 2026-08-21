@@ -59,6 +59,7 @@ export async function getTeamRoster(teamId: number, leagueId: number) {
         sql<boolean>`${rosterSlots.status} IN ('on_ir', 'return_eligible')`.as(
           "isOnIR",
         ),
+      isVueltaSlot: rosterSlots.isVueltaSlot,
     })
     .from(rosterSlots)
     .innerJoin(riders, eq(riders.id, rosterSlots.riderId))

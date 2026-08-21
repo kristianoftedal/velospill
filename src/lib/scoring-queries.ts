@@ -285,6 +285,7 @@ export async function getTeamRiderScores(
       riderName: riders.name,
       riderTeam: riders.team,
       gender: riders.gender,
+      isVueltaSlot: rosterSlots.isVueltaSlot,
       totalPoints: sql<number>`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilterSlots} THEN ${raceResults.points} ELSE 0 END), 0)`,
     })
     .from(rosterSlots)
@@ -307,7 +308,7 @@ export async function getTeamRiderScores(
     .where(
       and(eq(rosterSlots.teamId, teamId), eq(rosterSlots.leagueId, leagueId)),
     )
-    .groupBy(rosterSlots.riderId, riders.name, riders.team, riders.gender)
+    .groupBy(rosterSlots.riderId, riders.name, riders.team, riders.gender, rosterSlots.isVueltaSlot)
     .orderBy(
       desc(
         sql`COALESCE(SUM(CASE WHEN ${races.id} IS NOT NULL AND ${lineupFilterSlots} THEN ${raceResults.points} ELSE 0 END), 0)`,
@@ -321,6 +322,7 @@ export async function getTeamRiderScores(
     gender: row.gender,
     totalPoints: Number(row.totalPoints),
     isBonus: false,
+    isVueltaSlot: row.isVueltaSlot,
   }));
 
   // Add bonus riders for this team
@@ -387,6 +389,7 @@ export type TeamRiderScore = {
   gender: "M" | "F";
   totalPoints: number;
   isBonus?: boolean;
+  isVueltaSlot?: boolean;
 };
 
 /**

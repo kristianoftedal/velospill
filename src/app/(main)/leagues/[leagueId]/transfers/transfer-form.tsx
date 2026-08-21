@@ -73,8 +73,8 @@ export function TransferForm({
 
   const menRoster = roster.filter((r) => r.gender === "M")
   const womenRoster = roster.filter((r) => r.gender === "F")
-  const activeMenRoster = menRoster.filter((r) => !r.isOnIR)
-  const activeWomenRoster = womenRoster.filter((r) => !r.isOnIR)
+  const activeMenRoster = menRoster.filter((r) => !r.isOnIR && !r.isVueltaSlot)
+  const activeWomenRoster = womenRoster.filter((r) => !r.isOnIR && !r.isVueltaSlot)
 
   const hasMenSlot = activeMenRoster.length < MAX_MEN_ROSTER
   const hasWomenSlot = activeWomenRoster.length < MAX_WOMEN_ROSTER

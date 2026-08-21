@@ -23,6 +23,7 @@ import { getLeagueStandingsWithOrders, getTeamRiderScores, getLeagueRacesWithSco
 import { getUpcomingRacesWithLineups, getRecentRaceResults, UpcomingRaceWithLineups, RecentRaceResult, RecentTeamResult } from "@/lib/league-overview-queries"
 import { getEligibleToReturnCount } from "@/lib/ir-queries"
 import { getActiveTransferWindow } from "@/lib/transfer-queries"
+import { getRosterOverage } from "@/lib/roster-limits"
 import { StandingsClient } from "./standings/standings-client"
 import { LeagueConfig } from "@/db/schema/leagues"
 
@@ -173,8 +174,12 @@ export default async function LeagueDetailPage({ params }: PageProps) {
 
   // Check IR return banner when league is active and user has a team
   let eligibleToReturnCount = 0
+  let rosterOverage = { men: 0, women: 0, menOver: 0, womenOver: 0, isOver: false }
   if (league.status === "active" && userTeamId != null) {
-    eligibleToReturnCount = await getEligibleToReturnCount(userTeamId, leagueId)
+    ;[eligibleToReturnCount, rosterOverage] = await Promise.all([
+      getEligibleToReturnCount(userTeamId, leagueId),
+      getRosterOverage(userTeamId, leagueId),
+    ])
   }
 
   // Fetch active transfer window for banner
@@ -277,6 +282,28 @@ export default async function LeagueDetailPage({ params }: PageProps) {
               </div>
               <Button asChild variant="destructive" size="sm" className="shrink-0">
                 <Link href={`/leagues/${leagueId}/ir`}>Go to IR page</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Roster Overage Banner */}
+      {league.status === "active" && rosterOverage.isOver && (
+        <Card className="border-orange-300 bg-orange-50">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <p className="font-semibold text-orange-800">Action required: Roster over limit</p>
+                <p className="text-sm text-orange-700 mt-0.5">
+                  {rosterOverage.menOver > 0 && `${rosterOverage.menOver} men over the ${18} rider limit`}
+                  {rosterOverage.menOver > 0 && rosterOverage.womenOver > 0 && ", "}
+                  {rosterOverage.womenOver > 0 && `${rosterOverage.womenOver} women over the ${6} rider limit`}
+                  . Lineups and transfers are blocked until you drop riders.
+                </p>
+              </div>
+              <Button asChild variant="destructive" size="sm" className="shrink-0">
+                <Link href={`/leagues/${leagueId}/roster`}>Drop Riders</Link>
               </Button>
             </div>
           </CardContent>

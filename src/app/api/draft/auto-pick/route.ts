@@ -3,6 +3,7 @@ import { teams, leagues } from "@/db/schema/leagues";
 import { rosterSlots } from "@/db/schema/roster-slots";
 import { db } from "@/lib/db";
 import { emitRosterEvent } from "@/lib/roster-events";
+import { checkRosterLimit } from "@/lib/roster-limits";
 import {
   computeNextDraftState,
   getBestAvailableRider,
@@ -95,6 +96,15 @@ async function handler(request: NextRequest) {
       { error: "No available riders for auto-pick" },
       { status: 500 },
     );
+  }
+
+  const rosterLimitError = await checkRosterLimit(
+    draftSession.currentTeamId!,
+    leagueId,
+    draftSession.currentGender as "M" | "F",
+  );
+  if (rosterLimitError) {
+    return NextResponse.json({ skipped: true, reason: "roster limit reached" });
   }
 
   // Fetch teams for next state computation

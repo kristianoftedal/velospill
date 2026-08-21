@@ -15,6 +15,7 @@ import { buildDraftOrder } from "@/lib/draft-snake-order";
 import { checkLeagueMembership, checkLeagueOwnership } from "@/lib/league-auth";
 import { pusherServer } from "@/lib/pusher-server";
 import { emitRosterEvent } from "@/lib/roster-events";
+import { checkRosterLimit } from "@/lib/roster-limits";
 import { Client } from "@upstash/qstash";
 import { and, asc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -198,6 +199,11 @@ export async function makePick(leagueId: number, riderId: number) {
       success: false,
       error: `Must pick a ${draftSession.currentGender === "M" ? "male" : "female"} rider during ${draftSession.currentGender === "M" ? "men's" : "women's"} draft`,
     };
+  }
+
+  const rosterLimitError = await checkRosterLimit(team.id, leagueId, rider.gender);
+  if (rosterLimitError) {
+    return { success: false, error: rosterLimitError };
   }
 
   // Verify rider not already picked in this league

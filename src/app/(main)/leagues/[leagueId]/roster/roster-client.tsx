@@ -20,16 +20,24 @@ interface RosterRider {
   riderName: string
   riderTeam: string
   gender: string
+  isOnIR: boolean
 }
 
 interface RosterClientProps {
   roster: RosterRider[]
   leagueId: number
+  overGenders: { men: boolean; women: boolean } | null
 }
 
-export function RosterClient({ roster, leagueId }: RosterClientProps) {
+export function RosterClient({ roster, leagueId, overGenders }: RosterClientProps) {
   const [confirmRiderId, setConfirmRiderId] = useState<number | null>(null)
   const [isPending, startTransition] = useTransition()
+
+  const filteredRoster = overGenders
+    ? roster.filter((r) =>
+        (r.gender === "M" && overGenders.men) || (r.gender === "F" && overGenders.women)
+      )
+    : roster
 
   const confirmRider = roster.find((r) => r.riderId === confirmRiderId) ?? null
 
@@ -59,14 +67,14 @@ export function RosterClient({ roster, leagueId }: RosterClientProps) {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Your Roster ({roster.length} riders)</CardTitle>
+          <CardTitle className="text-lg">Your Roster ({filteredRoster.length} riders)</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {roster.map((r) => (
+            {filteredRoster.map((r) => (
               <div
                 key={r.riderId}
-                className="flex items-center justify-between gap-3 py-2 border-b last:border-0 border-gray-100"
+                className={`flex items-center justify-between gap-3 py-2 border-b last:border-0 border-gray-100 ${r.isOnIR ? "opacity-60" : ""}`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="font-medium text-gray-900 truncate">{r.riderName}</span>
@@ -76,16 +84,25 @@ export function RosterClient({ roster, leagueId }: RosterClientProps) {
                   <Badge variant="outline" className="text-xs shrink-0">
                     {r.gender === "M" ? "Men" : "Women"}
                   </Badge>
+                  {r.isOnIR && (
+                    <Badge variant="outline" className="text-xs shrink-0 border-orange-200 text-orange-600 bg-orange-50">
+                      On IR
+                    </Badge>
+                  )}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isPending}
-                  onClick={() => setConfirmRiderId(r.riderId)}
-                  className="shrink-0"
-                >
-                  Drop
-                </Button>
+                {r.isOnIR ? (
+                  <span className="text-xs text-gray-400 shrink-0">Cannot drop</span>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isPending}
+                    onClick={() => setConfirmRiderId(r.riderId)}
+                    className="shrink-0"
+                  >
+                    Drop
+                  </Button>
+                )}
               </div>
             ))}
           </div>

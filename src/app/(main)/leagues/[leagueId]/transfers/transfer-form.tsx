@@ -11,8 +11,7 @@ import { submitTransferBid, cancelTransferBid } from "./actions"
 import { formatDate, formatDateTime } from "@/lib/format-date"
 import type { TeamRosterEntry, TeamBid, ActiveTransferWindow, FreeAgent, LeagueTransfer } from "@/lib/transfer-queries"
 
-const MAX_MEN_RIDERS = 18
-const MAX_WOMEN_RIDERS = 6
+import { MAX_MEN_ROSTER, MAX_WOMEN_ROSTER } from "@/lib/roster-limits"
 
 interface TransferFormProps {
   roster: TeamRosterEntry[]
@@ -77,8 +76,8 @@ export function TransferForm({
   const activeMenRoster = menRoster.filter((r) => !r.isOnIR)
   const activeWomenRoster = womenRoster.filter((r) => !r.isOnIR)
 
-  const hasMenSlot = activeMenRoster.length < MAX_MEN_RIDERS
-  const hasWomenSlot = activeWomenRoster.length < MAX_WOMEN_RIDERS
+  const hasMenSlot = activeMenRoster.length < MAX_MEN_ROSTER
+  const hasWomenSlot = activeWomenRoster.length < MAX_WOMEN_ROSTER
   const hasAnyFreeSlot = hasMenSlot || hasWomenSlot
   const rosterIsFull = !hasAnyFreeSlot
 
@@ -330,10 +329,10 @@ export function TransferForm({
             {hasAnyFreeSlot && (
               <div className="rounded-md bg-blue-50 border border-blue-200 px-3 py-2 text-sm text-blue-800">
                 {hasMenSlot && hasWomenSlot
-                  ? `You have available roster spots (${activeMenRoster.length}/${MAX_MEN_RIDERS} men, ${activeWomenRoster.length}/${MAX_WOMEN_RIDERS} women). You can pick up a rider without dropping one.`
+                  ? `You have available roster spots (${activeMenRoster.length}/${MAX_MEN_ROSTER} men, ${activeWomenRoster.length}/${MAX_WOMEN_ROSTER} women). You can pick up a rider without dropping one.`
                   : hasMenSlot
-                  ? `You have ${MAX_MEN_RIDERS - activeMenRoster.length} available men's roster spot${MAX_MEN_RIDERS - activeMenRoster.length !== 1 ? "s" : ""}. You can pick up a man without dropping one.`
-                  : `You have ${MAX_WOMEN_RIDERS - activeWomenRoster.length} available women's roster spot${MAX_WOMEN_RIDERS - activeWomenRoster.length !== 1 ? "s" : ""}. You can pick up a woman without dropping one.`
+                  ? `You have ${MAX_MEN_ROSTER - activeMenRoster.length} available men's roster spot${MAX_MEN_ROSTER - activeMenRoster.length !== 1 ? "s" : ""}. You can pick up a man without dropping one.`
+                  : `You have ${MAX_WOMEN_ROSTER - activeWomenRoster.length} available women's roster spot${MAX_WOMEN_ROSTER - activeWomenRoster.length !== 1 ? "s" : ""}. You can pick up a woman without dropping one.`
                 }
               </div>
             )}

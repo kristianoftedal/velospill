@@ -12,6 +12,7 @@ import {
   getAuthenticatedUser,
   checkLeagueMembership,
 } from "@/lib/league-auth"
+import { getRosterOverage } from "@/lib/roster-limits"
 
 const MENS_RACE_TYPES = ["grand_tour", "high_priority_one_day", "low_priority_one_day", "mini_tour", "world_championship"]
 const WOMENS_RACE_TYPES = ["womens_grand_tour", "womens_one_day"]
@@ -34,6 +35,14 @@ export async function setLineup(
   const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
   if (!isMember || !team) {
     return { success: false, error: "You are not a member of this league" }
+  }
+
+  const overage = await getRosterOverage(team.id, leagueId)
+  if (overage.isOver) {
+    return {
+      success: false,
+      error: `You must drop riders before submitting lineups (${overage.menOver > 0 ? `${overage.menOver} men over limit` : ""}${overage.menOver > 0 && overage.womenOver > 0 ? ", " : ""}${overage.womenOver > 0 ? `${overage.womenOver} women over limit` : ""})`,
+    }
   }
 
   // 3. Fetch race — verify exists, check deadline

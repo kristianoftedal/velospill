@@ -2,6 +2,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getLeagueDetails } from "../actions"
 import { getTeamRoster } from "@/lib/transfer-queries"
+import { getRosterOverage } from "@/lib/roster-limits"
 import { RosterClient } from "./roster-client"
 
 interface PageProps {
@@ -98,6 +99,7 @@ export default async function RosterPage({ params }: PageProps) {
   }
 
   const roster = await getTeamRoster(userTeamId, leagueId)
+  const overage = await getRosterOverage(userTeamId, leagueId)
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -121,7 +123,7 @@ export default async function RosterPage({ params }: PageProps) {
         </p>
       </div>
 
-      <RosterClient roster={roster} leagueId={leagueId} />
+      <RosterClient roster={roster} leagueId={leagueId} overGenders={overage.isOver ? { men: overage.menOver > 0, women: overage.womenOver > 0 } : null} />
     </div>
   )
 }

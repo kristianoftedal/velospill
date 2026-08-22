@@ -161,6 +161,18 @@ const categoryPrefillCounts: Record<string, number> = {
 
 export { categoryDisplayNames }
 
+/**
+ * Highest position that awards points, or null when the category has no scale.
+ * Scales are not guaranteed contiguous, so this takes the max key rather than
+ * the number of keys.
+ */
+function scoredPositionLimit(scale: Record<string, number>): number | null {
+  const positions = Object.keys(scale)
+    .map(Number)
+    .filter((n) => Number.isInteger(n) && n > 0)
+  return positions.length > 0 ? Math.max(...positions) : null
+}
+
 function TttEntrySection({ raceId, teams, raceType, riders, onSuccess, onRequestUciLink }: { raceId: number; teams: string[]; raceType: string; riders: Rider[]; onSuccess: () => void; onRequestUciLink?: () => void }) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [teamSearchQueries, setTeamSearchQueries] = useState<Record<number, string>>({})
@@ -403,12 +415,18 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
-  const prefillCount = categoryPrefillCounts[category] ?? 1
+  // Used until the scoring scale arrives, and when a category has no scale.
+  const fallbackCount = categoryPrefillCounts[category] ?? 1
+
+  // Only positions that award points are worth entering, and the scale differs
+  // per race type (6 for a mini-tour stage, 10 for a grand tour stage, 20 for a
+  // high-priority one-day race), so the form is sized from the scale itself.
+  const rowLimit = scoredPositionLimit(scoringScale) ?? fallbackCount
 
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
     defaultValues: {
-      results: Array.from({ length: prefillCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
+      results: Array.from({ length: fallbackCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
     },
   })
 
@@ -417,62 +435,79 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
-  useEffect(() => {
-    getScoringScale(raceId, category).then(setScoringScale).catch(() => {})
-  }, [raceId, category])
-
-  // Load whatever is already saved for this race+category; when nothing is saved
-  // and the tour is linked to UCI, fall back to prefilling from UCI so the admin
-  // sees suggestions without an extra click.
+  // Sequenced on purpose: the scoring scale decides how many positions are worth
+  // entering, so it has to land before any rows are built or imported.
   useEffect(() => {
     let cancelled = false
 
-    const prefillFromUci = async () => {
-      // TTT has its own team-shaped importer inside TttEntrySection.
-      if (!uciLinked || category === "ttt" || !canImportFromUci(category)) return
-      const res = await importUciResults({ raceId, category })
-      if (cancelled || !res.success || res.kind !== "individual") return
+    void (async () => {
+      const scale = await getScoringScale(raceId, category).catch(
+        () => ({}) as Record<string, number>,
+      )
+      if (cancelled) return
+      setScoringScale(scale)
 
-      // Riders outside the roster cannot be scored, so they are skipped rather
-      // than left as blank rows — a blank row would read as a duplicate to the
-      // "each rider only once" check. UCI's own positions are kept, so a skip
-      // leaves a visible gap the admin can correct.
-      const matched: Array<{ position: number; riderId: number; time: string }> = []
-      let scanned = 0
-      for (const row of res.rows) {
-        if (matched.length >= prefillCount) break
-        scanned++
-        if (!row.matchedRider) continue
-        matched.push({ position: row.position, riderId: row.matchedRider.id, time: "" })
+      const limit = scoredPositionLimit(scale) ?? (categoryPrefillCounts[category] ?? 1)
+
+      const allResults = await getResultsForRace(raceId).catch(
+        () => [] as Awaited<ReturnType<typeof getResultsForRace>>,
+      )
+      if (cancelled) return
+
+      const categoryResults = allResults.filter(
+        (r) => r.category === category && r.instance === (instance ?? 1),
+      )
+      if (categoryResults.length > 0) {
+        form.reset({
+          results: categoryResults
+            .sort((a, b) => a.position - b.position)
+            .map((r) => ({ position: r.position, riderId: r.riderId, time: r.time ?? "" })),
+        })
+        return
       }
-      if (matched.length === 0) return
 
-      form.reset({ results: matched })
-      setUciPrefill({
-        sectionLabel: res.meta.sectionLabel,
-        resultTitle: res.meta.resultTitle,
-        matched: matched.length,
-        skipped: scanned - matched.length,
-      })
-    }
-
-    getResultsForRace(raceId)
-      .then((allResults: Awaited<ReturnType<typeof getResultsForRace>>) => {
+      // Nothing saved yet — prefill from UCI when the tour is linked.
+      // TTT has its own team-shaped importer inside TttEntrySection.
+      if (uciLinked && category !== "ttt" && canImportFromUci(category)) {
+        const res = await importUciResults({ raceId, category })
         if (cancelled) return
-        const categoryResults = allResults.filter(
-          (r) => r.category === category && r.instance === (instance ?? 1),
-        )
-        if (categoryResults.length > 0) {
-          form.reset({
-            results: categoryResults
-              .sort((a, b) => a.position - b.position)
-              .map((r) => ({ position: r.position, riderId: r.riderId, time: r.time ?? "" })),
-          })
-          return
+        if (res.success && res.kind === "individual") {
+          // Only scoring positions matter, and a rider outside the roster
+          // forfeits their place rather than promoting whoever came next —
+          // so a skip leaves a visible gap the admin can correct.
+          const scoring = res.rows.filter((r) => r.position <= limit)
+          const matched = scoring.filter((r) => r.matchedRider)
+          if (matched.length > 0) {
+            form.reset({
+              results: matched.map((r) => ({
+                position: r.position,
+                riderId: r.matchedRider!.id,
+                time: "",
+              })),
+            })
+            setUciPrefill({
+              sectionLabel: res.meta.sectionLabel,
+              resultTitle: res.meta.resultTitle,
+              matched: matched.length,
+              skipped: scoring.length - matched.length,
+            })
+            return
+          }
         }
-        return prefillFromUci()
-      })
-      .catch(() => {})
+      }
+
+      // No prefill: just size the blank rows to the scale, leaving anything the
+      // admin has already typed alone.
+      if (limit !== fallbackCount && !form.formState.isDirty) {
+        form.reset({
+          results: Array.from({ length: limit }, (_, i) => ({
+            position: i + 1,
+            riderId: 0,
+            time: "",
+          })),
+        })
+      }
+    })()
 
     return () => {
       cancelled = true
@@ -543,7 +578,9 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
                 {" "}({expectedGender === "M" ? "Men" : "Women"})
                 {LEADER_ONLY_CATEGORIES.has(category)
                   ? " · leader only — the rider who wore the jersey on this stage"
-                  : ""}
+                  : scoredPositionLimit(scoringScale)
+                    ? ` · positions 1–${scoredPositionLimit(scoringScale)} score`
+                    : ""}
               </CardDescription>
             </div>
             {canImportFromUci(category) ? (
@@ -562,7 +599,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
               raceId={raceId}
               category={category}
               riders={filteredRiders}
-              defaultCount={prefillCount}
+              defaultCount={rowLimit}
               open={importOpen}
               onOpenChange={setImportOpen}
               onNeedsLink={onRequestUciLink}

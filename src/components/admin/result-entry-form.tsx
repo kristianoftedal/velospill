@@ -435,24 +435,23 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
-  // Sequenced on purpose: the scoring scale decides how many positions are worth
-  // entering, so it has to land before any rows are built or imported.
+  // The scoring scale decides how many positions are worth entering, so it has
+  // to land before rows are built — but it does not depend on the saved results,
+  // so the two are fetched together.
   useEffect(() => {
     let cancelled = false
 
     void (async () => {
-      const scale = await getScoringScale(raceId, category).catch(
-        () => ({}) as Record<string, number>,
-      )
+      const [scale, allResults] = await Promise.all([
+        getScoringScale(raceId, category).catch(() => ({}) as Record<string, number>),
+        getResultsForRace(raceId).catch(
+          () => [] as Awaited<ReturnType<typeof getResultsForRace>>,
+        ),
+      ])
       if (cancelled) return
       setScoringScale(scale)
 
       const limit = scoredPositionLimit(scale) ?? (categoryPrefillCounts[category] ?? 1)
-
-      const allResults = await getResultsForRace(raceId).catch(
-        () => [] as Awaited<ReturnType<typeof getResultsForRace>>,
-      )
-      if (cancelled) return
 
       const categoryResults = allResults.filter(
         (r) => r.category === category && r.instance === (instance ?? 1),

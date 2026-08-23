@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, timestamp, pgEnum, index, uniqueIndex } from "drizzle-orm/pg-core"
+import { pgTable, serial, integer, timestamp, pgEnum, index, uniqueIndex, boolean } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 import { leagues, teams } from "./leagues"
 import { riders } from "./riders"
@@ -15,6 +15,7 @@ export const rosterSlots = pgTable("roster_slots", {
   teamId: integer("teamId").notNull().references(() => teams.id),
   riderId: integer("riderId").notNull().references(() => riders.id),
   status: rosterSlotStatusEnum("status").notNull().default("active"),
+  isVueltaSlot: boolean("isVueltaSlot").notNull().default(false),
   addedAt: timestamp("addedAt", { withTimezone: true }).notNull().defaultNow()
 }, (table) => ({
   riderLeagueUnique: uniqueIndex("roster_slots_rider_league_unique").on(table.leagueId, table.riderId),

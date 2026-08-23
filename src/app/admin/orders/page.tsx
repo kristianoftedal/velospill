@@ -1,7 +1,10 @@
 import { db } from "@/lib/db"
 import { orderTypes } from "@/db/schema/config"
+import { leagues } from "@/db/schema/leagues"
 import { getPendingOrders, getOrderHistory, approveOrder, rejectOrder, setBonusPoints, getActivatedUnoXOrders, getBonusRiderDraftState } from "./actions"
+import { getLeagueOrdersSummary } from "@/lib/order-queries"
 import { OrderActions } from "./order-actions"
+import { BonusPointsEditor } from "./bonus-points-editor"
 import { BonusRiderDraft } from "./bonus-rider-draft"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -36,12 +39,29 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default async function OrdersPage() {
-  const [pendingOrders, orderHistory, allOrderTypes, activatedUnoXOrders] = await Promise.all([
+  const [pendingOrders, orderHistory, allOrderTypes, activatedUnoXOrders, allLeagues] = await Promise.all([
     getPendingOrders(),
     getOrderHistory(),
     db.select().from(orderTypes).orderBy(orderTypes.name),
     getActivatedUnoXOrders(),
+    db.select({ id: leagues.id, config: leagues.config }).from(leagues),
   ])
+
+  const allAdjustments = (
+    await Promise.all(
+      allLeagues.map((l) => {
+        const config = l.config as { seasonYear?: number } | null
+        const season = config?.seasonYear ?? 2026
+        return getLeagueOrdersSummary(l.id, season)
+      })
+    )
+  ).flat()
+
+  const deltaByOrderKey = new Map<string, number>()
+  for (const adj of allAdjustments) {
+    const key = `${adj.submitterTeamId}::${adj.orderTypeName}::${adj.raceId}`
+    deltaByOrderKey.set(key, (deltaByOrderKey.get(key) ?? 0) + adj.delta)
+  }
 
   // Group activated Uno-X orders by league+race for display
   const uniqueUnoXDrafts = Array.from(
@@ -179,6 +199,7 @@ export default async function OrdersPage() {
                     <TableHead>Order Type</TableHead>
                     <TableHead>Target</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Points</TableHead>
                     <TableHead>Admin Note</TableHead>
                     <TableHead>Bonus Pts</TableHead>
                     <TableHead>Resolved</TableHead>
@@ -195,11 +216,27 @@ export default async function OrdersPage() {
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
+                      <TableCell className="text-right">
+                        {(() => {
+                          const delta = deltaByOrderKey.get(`${order.teamId}::${order.orderTypeName}::${order.raceId}`)
+                          if (delta == null || delta === 0) return <span className="text-muted-foreground">—</span>
+                          return (
+                            <span className={`font-mono font-semibold ${delta > 0 ? "text-green-600" : "text-red-600"}`}>
+                              {delta > 0 ? `+${delta}` : delta}
+                            </span>
+                          )
+                        })()}
+                      </TableCell>
                       <TableCell className="text-sm text-muted-foreground max-w-[200px] truncate">
                         {order.adminNote ?? "-"}
                       </TableCell>
                       <TableCell className="text-center">
-                        {order.bonusPoints != null ? order.bonusPoints : "-"}
+                        <BonusPointsEditor
+                          orderId={order.orderId}
+                          orderTypeEffect={order.orderTypeEffect as object}
+                          currentBonusPoints={order.bonusPoints}
+                          setBonusPoints={setBonusPoints}
+                        />
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {order.resolvedAt

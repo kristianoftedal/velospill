@@ -3,7 +3,6 @@ import {
   getRaceDetail,
   getResultsForRace,
   getRiders,
-  getTeamNames,
 } from "../actions";
 import { RaceResultsClient } from "./race-results-client";
 import Link from "next/link";
@@ -34,13 +33,10 @@ export default async function RaceResultsPage({
     redirect(`/admin/results/${firstStage.id}`);
   }
 
-  const expectedGender = detail.root.raceType.startsWith("womens_") ? "F" : "M";
-
-  const [riders, results, auditTrail, teamNames] = await Promise.all([
+  const [riders, results, auditTrail] = await Promise.all([
     getRiders(),
     getResultsForRace(raceId),
     getAuditTrail(raceId),
-    getTeamNames(expectedGender),
   ]);
 
   return (
@@ -56,7 +52,6 @@ export default async function RaceResultsPage({
         riders={riders}
         results={results}
         auditTrail={auditTrail}
-        teamNames={teamNames}
       />
     </div>
   );

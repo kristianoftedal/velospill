@@ -51,15 +51,14 @@ const resultSchema = z.object({
 })
 
 const tttSchema = z.object({
-  teamPlacements: z
+  placements: z
     .array(
       z.object({
         position: z.number().min(1),
-        teamName: z.string().min(1, "Select a team"),
-        riderIds: z.array(z.number()).min(1, "Select at least one rider"),
+        riderIds: z.array(z.number().nullable()).max(8),
       })
     )
-    .min(1, "Enter at least one team placement")
+    .min(1, "Enter at least one placement")
     .refine(
       (placements) => {
         const positions = placements.map((p) => p.position)
@@ -69,10 +68,10 @@ const tttSchema = z.object({
     )
     .refine(
       (placements) => {
-        const teamNames = placements.map((p) => p.teamName)
-        return teamNames.length === new Set(teamNames).size
+        const allRiderIds = placements.flatMap((p) => p.riderIds.filter((id): id is number => id !== null))
+        return allRiderIds.length === new Set(allRiderIds).size
       },
-      { message: "Team names must be unique" }
+      { message: "Each rider can only appear once" }
     ),
 })
 
@@ -94,7 +93,6 @@ type Props = {
   category: string
   instance?: number
   instanceLabel?: string
-  teams?: string[]
   onSuccess: () => void
   onDirtyChange?: (isDirty: boolean) => void
   /** Opens the UCI competition picker when the race has no link yet. */
@@ -173,33 +171,97 @@ function scoredPositionLimit(scale: Record<string, number>): number | null {
   return positions.length > 0 ? Math.max(...positions) : null
 }
 
-function TttEntrySection({ raceId, teams, raceType, riders, onSuccess, onRequestUciLink }: { raceId: number; teams: string[]; raceType: string; riders: Rider[]; onSuccess: () => void; onRequestUciLink?: () => void }) {
+/** Rider slots offered per position in the multi-rider categories (TTT, team GC). */
+const MULTI_RIDER_SLOTS = 8
+
+const emptyRiderSlots = (): (number | null)[] =>
+  Array.from({ length: MULTI_RIDER_SLOTS }, () => null)
+
+function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess, onRequestUciLink }: { raceId: number; raceType: string; riders: Rider[]; category: string; onSuccess: () => void; onRequestUciLink?: () => void }) {
   const [serverError, setServerError] = useState<string | null>(null)
-  const [teamSearchQueries, setTeamSearchQueries] = useState<Record<number, string>>({})
+  const [riderSearchQueries, setRiderSearchQueries] = useState<Record<string, string>>({})
+  const [scoringScale, setScoringScale] = useState<Record<string, number>>({})
   const [importOpen, setImportOpen] = useState(false)
+
+  const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
+  const filteredRiders = riders.filter((r) => r.gender === expectedGender)
 
   const form = useForm<TttFormData>({
     resolver: zodResolver(tttSchema),
     defaultValues: {
-      teamPlacements: [{ position: 1, teamName: "", riderIds: [] }],
+      placements: [{ position: 1, riderIds: emptyRiderSlots() }],
     },
   })
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "teamPlacements",
+    name: "placements",
   })
+
+  // The scale decides how many positions are worth entering and the saved
+  // results decide what fills them, so both land in one reset — fetching them
+  // separately let two resets race and drop whichever arrived first.
+  useEffect(() => {
+    let cancelled = false
+
+    void (async () => {
+      const [scale, allResults] = await Promise.all([
+        getScoringScale(raceId, category).catch(() => ({}) as Record<string, number>),
+        getResultsForRace(raceId).catch(
+          () => [] as Awaited<ReturnType<typeof getResultsForRace>>,
+        ),
+      ])
+      if (cancelled) return
+
+      setScoringScale(scale)
+
+      const categoryResults = allResults.filter((r) => r.category === category)
+      if (categoryResults.length > 0) {
+        const positionMap = new Map<number, number[]>()
+        for (const r of categoryResults) {
+          if (!positionMap.has(r.position)) positionMap.set(r.position, [])
+          positionMap.get(r.position)!.push(r.riderId)
+        }
+
+        form.reset({
+          placements: Array.from(positionMap.entries())
+            .sort(([a], [b]) => a - b)
+            .map(([position, riderIds]) => {
+              const padded: (number | null)[] = [...riderIds]
+              while (padded.length < MULTI_RIDER_SLOTS) padded.push(null)
+              return { position, riderIds: padded }
+            }),
+        })
+        return
+      }
+
+      const rowLimit = scoredPositionLimit(scale)
+      if (rowLimit) {
+        form.reset({
+          placements: Array.from({ length: rowLimit }, (_, i) => ({
+            position: i + 1,
+            riderIds: emptyRiderSlots(),
+          })),
+        })
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = async (data: TttFormData) => {
     setServerError(null)
 
     const result = await submitTttResults({
       raceId,
-      teamPlacements: data.teamPlacements,
+      placements: data.placements,
+      category,
     })
 
     if (result.success) {
-      toast.success("TTT results saved successfully!")
+      toast.success("Results saved successfully!")
       onSuccess()
     } else {
       const error = result.error as any
@@ -207,191 +269,179 @@ function TttEntrySection({ raceId, teams, raceType, riders, onSuccess, onRequest
         setServerError(error._form[0])
         toast.error(error._form[0])
       } else {
-        toast.error("Failed to save TTT results")
+        toast.error("Failed to save results")
       }
     }
   }
 
   const handleAddPlacement = () => {
     const nextPosition = fields.length + 1
-    append({ position: nextPosition, teamName: "", riderIds: [] })
+    append({ position: nextPosition, riderIds: emptyRiderSlots() })
   }
 
-  const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
+  const allSelectedRiderIds = new Set(
+    form.watch("placements").flatMap((p) => p.riderIds.filter((id): id is number => id !== null))
+  )
 
   return (
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle>Enter TTT Results</CardTitle>
+            <CardTitle>Enter {categoryDisplayNames[category] || category} Results</CardTitle>
             <CardDescription>
-              Team Time Trial ({expectedGender === "M" ? "Men" : "Women"})
+              {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"}) — Select up to {MULTI_RIDER_SLOTS} riders per position
             </CardDescription>
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-            <DownloadIcon className="h-4 w-4 mr-2" />
-            Import from UCI
-          </Button>
+          {canImportFromUci(category) ? (
+            <Button type="button" variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+              <DownloadIcon className="h-4 w-4 mr-2" />
+              Import from UCI
+            </Button>
+          ) : (
+            <p className="text-xs text-muted-foreground max-w-[16rem] text-right">
+              {UCI_UNSUPPORTED_REASONS[category] ?? "No UCI import for this category."}
+            </p>
+          )}
         </div>
-        <UciImportDialog
-          raceId={raceId}
-          category="ttt"
-          riders={riders.filter((r) => r.gender === expectedGender)}
-          defaultCount={25}
-          open={importOpen}
-          onOpenChange={setImportOpen}
-          onNeedsLink={onRequestUciLink}
-          onApplyTtt={(placements) => {
-            if (placements.length === 0) return
-            form.reset({ teamPlacements: placements })
-          }}
-        />
+        {canImportFromUci(category) && (
+          <UciImportDialog
+            raceId={raceId}
+            category={category}
+            riders={filteredRiders}
+            defaultCount={scoredPositionLimit(scoringScale) ?? 25}
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            onNeedsLink={onRequestUciLink}
+            onApplyTtt={(imported) => {
+              if (imported.length === 0) return
+              // The team name is not part of the stored result — a placement is
+              // just its riders — so only the rider list carries over.
+              form.reset({
+                placements: imported.map(({ position, riderIds }) => {
+                  const padded: (number | null)[] = riderIds.slice(0, MULTI_RIDER_SLOTS)
+                  while (padded.length < MULTI_RIDER_SLOTS) padded.push(null)
+                  return { position, riderIds: padded }
+                }),
+              })
+            }}
+          />
+        )}
       </CardHeader>
       <CardContent>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Team placements */}
-          <div className="space-y-3">
-            {fields.map((field, index) => {
-              const teamName = form.watch(`teamPlacements.${index}.teamName`)
-
-              return (
-                <div key={field.id} className="flex items-start gap-3">
-                  {/* Position */}
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {fields.map((field, posIndex) => (
+            <div key={field.id} className="border rounded-md p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
                   <div className="w-20">
-                    <Label htmlFor={`ttt-position-${index}`} className="text-xs">
+                    <Label htmlFor={`ttt-position-${posIndex}`} className="text-xs">
                       Pos.
                     </Label>
                     <Input
-                      id={`ttt-position-${index}`}
+                      id={`ttt-position-${posIndex}`}
                       type="number"
                       min="1"
-                      {...form.register(`teamPlacements.${index}.position`, {
-                        valueAsNumber: true,
-                      })}
+                      {...form.register(`placements.${posIndex}.position`, { valueAsNumber: true })}
                       className="h-9"
                     />
                   </div>
-
-                  {/* Team selector */}
-                  <div className="flex-1">
-                    <Label htmlFor={`ttt-team-${index}`} className="text-xs">
-                      Team
-                    </Label>
-                    <Combobox
-                      value={teamName || undefined}
-                      onValueChange={(value) => {
-                        if (value) {
-                          form.setValue(`teamPlacements.${index}.teamName`, value, {
-                            shouldValidate: true,
-                          })
-                          // Reset riderIds to all riders for the selected team
-                          const teamRiders = riders
-                            .filter((r) => r.team === value && r.gender === expectedGender)
-                            .map((r) => r.id)
-                          form.setValue(`teamPlacements.${index}.riderIds`, teamRiders, { shouldValidate: true })
-                          setTeamSearchQueries((prev) => ({ ...prev, [index]: "" }))
-                        }
-                      }}
-                      onInputValueChange={(inputValue) => {
-                        setTeamSearchQueries((prev) => ({ ...prev, [index]: inputValue }))
-                      }}
-                    >
-                      <ComboboxInput
-                        id={`ttt-team-${index}`}
-                        placeholder={teamName || "Select team..."}
-                        className="h-9"
-                      />
-                      <ComboboxContent>
-                        <ComboboxList>
-                          <ComboboxEmpty>No teams found</ComboboxEmpty>
-                          {(() => {
-                            const q = (teamSearchQueries[index] ?? "").toLowerCase()
-                            const filtered = q ? teams.filter((t) => t.toLowerCase().includes(q)) : teams
-                            return filtered.map((team) => (
-                              <ComboboxItem key={team} value={team}>
-                                {team}
-                              </ComboboxItem>
-                            ))
-                          })()}
-                        </ComboboxList>
-                      </ComboboxContent>
-                    </Combobox>
-                    {form.formState.errors.teamPlacements?.[index]?.teamName && (
-                      <p className="text-xs text-destructive mt-1">
-                        {form.formState.errors.teamPlacements[index]?.teamName?.message}
-                      </p>
-                    )}
-                    {teamName && (() => {
-                      const teamRiders = riders.filter((r) => r.team === teamName && r.gender === expectedGender)
-                      const riderIds = form.watch(`teamPlacements.${index}.riderIds`) as number[]
-                      return teamRiders.length > 0 ? (
-                        <div className="mt-2 space-y-1 border rounded-md p-2 max-h-40 overflow-y-auto">
-                          {teamRiders.map((rider) => {
-                            const checked = riderIds.includes(rider.id)
-                            return (
-                              <label key={rider.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={checked}
-                                  onChange={(e) => {
-                                    const next = e.target.checked
-                                      ? [...riderIds, rider.id]
-                                      : riderIds.filter((id) => id !== rider.id)
-                                    form.setValue(`teamPlacements.${index}.riderIds`, next, { shouldValidate: true })
-                                  }}
-                                />
-                                {rider.name}
-                              </label>
-                            )
-                          })}
-                        </div>
-                      ) : null
-                    })()}
-                    {form.formState.errors.teamPlacements?.[index]?.riderIds && (
-                      <p className="text-xs text-destructive mt-1">
-                        {form.formState.errors.teamPlacements[index]?.riderIds?.message}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Remove button */}
-                  <div className="pt-5">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                      disabled={fields.length === 1}
-                      className="h-9 w-9"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </Button>
+                  <div className="w-16">
+                    <Label className="text-xs">Pts</Label>
+                    <div className="h-9 flex items-center text-sm text-muted-foreground font-mono">
+                      {scoringScale[String(form.watch(`placements.${posIndex}.position`))] ?? "—"}
+                    </div>
                   </div>
                 </div>
-              )
-            })}
-          </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => remove(posIndex)}
+                  disabled={fields.length === 1}
+                  className="h-9 w-9"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </Button>
+              </div>
 
-          {/* Form-level errors */}
-          {form.formState.errors.teamPlacements?.message && (
-            <p className="text-sm text-destructive">{form.formState.errors.teamPlacements.message}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {Array.from({ length: MULTI_RIDER_SLOTS }, (_, slotIndex) => {
+                  const key = `${posIndex}-${slotIndex}`
+                  const riderId = form.watch(`placements.${posIndex}.riderIds.${slotIndex}`)
+                  const selectedRider = riderId ? filteredRiders.find((r) => r.id === riderId) : null
+
+                  return (
+                    <div key={slotIndex}>
+                      <Label className="text-xs text-muted-foreground">Rider {slotIndex + 1}</Label>
+                      <Combobox
+                        value={selectedRider?.name ?? ""}
+                        onValueChange={(name) => {
+                          if (name === "") {
+                            form.setValue(`placements.${posIndex}.riderIds.${slotIndex}`, null, { shouldValidate: true })
+                          } else {
+                            const rider = filteredRiders.find((r) => r.name === name)
+                            form.setValue(`placements.${posIndex}.riderIds.${slotIndex}`, rider?.id ?? null, { shouldValidate: true })
+                          }
+                          setRiderSearchQueries((prev) => ({ ...prev, [key]: "" }))
+                        }}
+                        onInputValueChange={(inputValue) => {
+                          setRiderSearchQueries((prev) => ({ ...prev, [key]: inputValue }))
+                        }}
+                      >
+                        <ComboboxInput
+                          placeholder={selectedRider?.name || "Search rider..."}
+                          className="h-8 text-sm"
+                        />
+                        <ComboboxContent>
+                          <ComboboxList>
+                            <ComboboxEmpty>No riders found</ComboboxEmpty>
+                            {(() => {
+                              const q = (riderSearchQueries[key] ?? "").toLowerCase()
+                              const available = filteredRiders.filter(
+                                (r) => r.id === riderId || !allSelectedRiderIds.has(r.id)
+                              )
+                              const visible = q
+                                ? available.filter((r) => r.name.toLowerCase().includes(q) || r.team.toLowerCase().includes(q))
+                                : available
+                              return visible.map((rider) => (
+                                <ComboboxItem key={rider.id} value={rider.name}>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm">{rider.name}</span>
+                                    <span className="text-xs text-muted-foreground">{rider.team}</span>
+                                  </div>
+                                </ComboboxItem>
+                              ))
+                            })()}
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {form.formState.errors.placements?.[posIndex]?.riderIds && (
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.placements[posIndex]?.riderIds?.message}
+                </p>
+              )}
+            </div>
+          ))}
+
+          {form.formState.errors.placements?.message && (
+            <p className="text-sm text-destructive">{form.formState.errors.placements.message}</p>
           )}
           {serverError && <p className="text-sm text-destructive">{serverError}</p>}
 
-          {/* Add team placement button */}
           <Button type="button" variant="outline" onClick={handleAddPlacement} className="w-full">
             <PlusIcon className="h-4 w-4 mr-2" />
-            Add Team Placement
+            Add Position
           </Button>
 
-          {/* Submit */}
           <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? "Saving..." : "Submit TTT Results"}
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Saving..." : "Submit Results"}
             </Button>
           </div>
         </form>
@@ -400,7 +450,7 @@ function TttEntrySection({ raceId, teams, raceType, riders, onSuccess, onRequest
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, instance, instanceLabel, teams, onSuccess, onDirtyChange, onRequestUciLink, uciLinked }: Props) {
+export function ResultEntryForm({ raceId, riders, raceType, category, instance, instanceLabel, onSuccess, onDirtyChange, onRequestUciLink, uciLinked }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
@@ -466,7 +516,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
       }
 
       // Nothing saved yet — prefill from UCI when the tour is linked.
-      // TTT has its own team-shaped importer inside TttEntrySection.
+      // TTT and team GC have their own importer inside MultiRiderEntrySection.
       if (uciLinked && category !== "ttt" && canImportFromUci(category)) {
         const res = await importUciResults({ raceId, category })
         if (cancelled) return
@@ -518,18 +568,9 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
     name: "results",
   })
 
-  // --- TTT early return (after all hooks) ---
-  if (category === "ttt") {
-    if (!teams || teams.length === 0) {
-      return (
-        <Card>
-          <CardContent className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">No teams available for TTT entry</p>
-          </CardContent>
-        </Card>
-      )
-    }
-    return <TttEntrySection raceId={raceId} teams={teams} raceType={raceType} riders={riders} onSuccess={onSuccess} onRequestUciLink={onRequestUciLink} />
+  // --- multi-rider early return (after all hooks) ---
+  if (category === "ttt" || category === "end_team") {
+    return <MultiRiderEntrySection raceId={raceId} raceType={raceType} riders={riders} category={category} onSuccess={onSuccess} onRequestUciLink={onRequestUciLink} />
   }
 
   const onSubmit = async (data: ResultFormData) => {

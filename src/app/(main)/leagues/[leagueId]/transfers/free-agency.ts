@@ -9,6 +9,7 @@ import { irRequests } from "@/db/schema/ir"
 import { eq, and, inArray } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { emitRosterEvent } from "@/lib/roster-events"
+import { checkRosterLimit } from "@/lib/roster-limits"
 
 /**
  * Executes an immediate free agency transfer — no bid queuing.
@@ -25,6 +26,26 @@ export async function approveFreeAgencyTransfer(data: {
   const { leagueId, teamId, outRiderId, inRiderId, userId } = data
 
   try {
+    const inRiderRecord = await db.query.riders.findFirst({
+      where: eq(riders.id, inRiderId),
+    })
+    if (!inRiderRecord) {
+      return { success: false, error: "Incoming rider not found" }
+    }
+
+    const rosterLimitError = await checkRosterLimit(teamId, leagueId, inRiderRecord.gender as "M" | "F")
+    if (rosterLimitError && outRiderId == null) {
+      return { success: false, error: rosterLimitError }
+    }
+    if (rosterLimitError && outRiderId != null) {
+      const outRiderRecord = await db.query.riders.findFirst({
+        where: eq(riders.id, outRiderId),
+      })
+      if (!outRiderRecord || outRiderRecord.gender !== inRiderRecord.gender) {
+        return { success: false, error: rosterLimitError }
+      }
+    }
+
     await db.transaction(async (tx) => {
       // Re-verify inRider is still a free agent
       const existingSlot = await tx.query.rosterSlots.findFirst({

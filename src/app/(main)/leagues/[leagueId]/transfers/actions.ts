@@ -12,6 +12,7 @@ import {
   getAuthenticatedUser,
   checkLeagueMembership,
 } from "@/lib/league-auth"
+import { getRosterOverage } from "@/lib/roster-limits"
 import {
   getActiveTransferWindow,
   getTeamBudget,
@@ -52,6 +53,14 @@ export async function submitTransferBid(formData: {
   const { isMember, team } = await checkLeagueMembership(session.user.id, leagueId)
   if (!isMember || !team) {
     return { success: false, error: "You are not a member of this league" }
+  }
+
+  const overage = await getRosterOverage(team.id, leagueId)
+  if (overage.isOver) {
+    return {
+      success: false,
+      error: `You must drop riders before making transfers (${overage.menOver > 0 ? `${overage.menOver} men over limit` : ""}${overage.menOver > 0 && overage.womenOver > 0 ? ", " : ""}${overage.womenOver > 0 ? `${overage.womenOver} women over limit` : ""})`,
+    }
   }
 
   // 3. League status guard
@@ -134,28 +143,10 @@ export async function submitTransferBid(formData: {
       }
     }
   } else {
-    // Pickup without drop: verify team has an available roster slot for this gender.
-    const MAX_MEN = 18
-    const MAX_WOMEN = 6
-    const [genderCountResult] = await db
-      .select({ value: count() })
-      .from(rosterSlots)
-      .innerJoin(riders, eq(riders.id, rosterSlots.riderId))
-      .where(
-        and(
-          eq(rosterSlots.teamId, team.id),
-          eq(rosterSlots.leagueId, leagueId),
-          eq(rosterSlots.status, "active"),
-          eq(riders.gender, inRiderRecord.gender)
-        )
-      )
-    const activeCount = Number(genderCountResult?.value ?? 0)
-    const max = inRiderRecord.gender === "M" ? MAX_MEN : MAX_WOMEN
-    if (activeCount >= max) {
-      return {
-        success: false,
-        error: `Your roster is full for ${inRiderRecord.gender === "M" ? "men" : "women"} (${max} max). Drop a rider first.`,
-      }
+    const { checkRosterLimit: checkLimit } = await import("@/lib/roster-limits")
+    const limitError = await checkLimit(team.id, leagueId, inRiderRecord.gender as "M" | "F")
+    if (limitError) {
+      return { success: false, error: limitError }
     }
   }
 

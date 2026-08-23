@@ -13,6 +13,7 @@ interface RosterRider {
   riderName: string
   riderTeam: string
   gender: string
+  isVueltaSlot?: boolean
 }
 
 interface LineupEntry {
@@ -349,7 +350,14 @@ export function LineupForm({
                             : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
                         }`}
                       >
-                        <p className="text-sm font-medium text-gray-900">{rider.riderName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-gray-900">{rider.riderName}</p>
+                          {rider.isVueltaSlot && (
+                            <span className="inline-flex items-center rounded-full bg-amber-100 border border-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-800">
+                              Vuelta
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500">{rider.riderTeam}</p>
                       </button>
                     )

@@ -67,7 +67,6 @@ type Props = {
   riders: Rider[];
   results: RaceResult[];
   auditTrail: AuditTrailEntry[];
-  teamNames: string[];
 };
 
 export function RaceResultsClient({
@@ -75,7 +74,6 @@ export function RaceResultsClient({
   riders,
   results,
   auditTrail,
-  teamNames,
 }: Props) {
   const router = useRouter();
   const { race, root, stages } = detail;
@@ -387,7 +385,6 @@ export function RaceResultsClient({
                           instanceLabel={
                             isMulti && state.label ? state.label : undefined
                           }
-                          teams={teamNames}
                           onSuccess={refresh}
                           onRequestUciLink={() => setLinkDialogOpen(true)}
                           uciLinked={!!linkedId}

@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { transferBids, transferWindows, transferAudit } from "@/db/schema/transfers"
 import { rosterSlots } from "@/db/schema/roster-slots"
 import { emitRosterEvent } from "@/lib/roster-events"
+import { checkRosterLimit } from "@/lib/roster-limits"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
 import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
@@ -151,6 +152,19 @@ async function _approveBidInternal(bidId: number, actorId: string) {
       })
       if (!inRiderRecord) {
         throw new Error("Incoming rider not found")
+      }
+
+      const rosterLimitError = await checkRosterLimit(bid.teamId, bid.leagueId, inRiderRecord.gender as "M" | "F")
+      if (rosterLimitError && bid.outRiderId == null) {
+        throw new Error(rosterLimitError)
+      }
+      if (rosterLimitError && bid.outRiderId != null) {
+        const outRiderRecord = await tx.query.riders.findFirst({
+          where: eq(riders.id, bid.outRiderId),
+        })
+        if (!outRiderRecord || outRiderRecord.gender !== inRiderRecord.gender) {
+          throw new Error(rosterLimitError)
+        }
       }
 
       // Step 5: Drop outgoing rider

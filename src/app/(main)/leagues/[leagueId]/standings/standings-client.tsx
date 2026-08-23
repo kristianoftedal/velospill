@@ -131,7 +131,19 @@ export function StandingsClient({
               {myTeamRiders.map((rider) => (
                 <TableRow key={rider.riderId}>
                   <TableCell className="font-medium">
-                    {rider.riderName}
+                    <span className="flex items-center gap-2">
+                      {rider.riderName}
+                      {rider.isVueltaSlot && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 border border-amber-200 px-1.5 py-0.5 text-[10px] font-medium text-amber-800">
+                          Vuelta
+                        </span>
+                      )}
+                      {rider.isBonus && (
+                        <span className="inline-flex items-center rounded-full bg-purple-100 border border-purple-200 px-1.5 py-0.5 text-[10px] font-medium text-purple-800">
+                          Bonus
+                        </span>
+                      )}
+                    </span>
                   </TableCell>
                   <TableCell className="text-gray-600">
                     {rider.riderTeam}

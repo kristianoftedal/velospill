@@ -204,6 +204,8 @@ export async function setBonusPoints(orderId: number, bonusPoints: number) {
 
     revalidatePath("/admin/orders")
     revalidatePath(`/leagues/${order.leagueId}/orders`)
+    revalidatePath(`/leagues/${order.leagueId}/standings`)
+    revalidatePath(`/leagues/${order.leagueId}`)
 
     return { success: true }
   } catch (error) {

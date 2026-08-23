@@ -90,26 +90,29 @@ export function OrdersClient({
   const selectedRace = upcomingRaces.find((r) => r.id === selectedRaceId)
   const selectedOrderType = allOrderTypes.find((ot) => ot.id === selectedOrderTypeId)
 
-  // Filter order types based on the selected race's effective type
-  // For stages, use the parent race type
-  // For women's one-day races (womens_one_day), kaptein is now applicable (as of v1.1)
-  const effectiveRaceType = selectedRace?.parentRaceId
-    ? (upcomingRaces.find((r) => r.id === selectedRace.parentRaceId)?.raceType ?? selectedRace.raceType)
-    : selectedRace?.raceType
+  const playedOrderNames = new Set(teamOrders.map((o) => o.orderTypeName))
 
-  const filteredOrderTypes = selectedRace
-    ? allOrderTypes.filter((ot) => {
-        const applicable = ot.applicableRaceTypes as string[]
-        return applicable.includes(effectiveRaceType ?? "")
+  const applicableRaces = selectedOrderType
+    ? upcomingRaces.filter((race) => {
+        const applicable = selectedOrderType.applicableRaceTypes as string[]
+        const effectiveRaceType = race.parentRaceId
+          ? (upcomingRaces.find((r) => r.id === race.parentRaceId)?.raceType ?? race.raceType)
+          : race.raceType
+        if (!applicable.includes(effectiveRaceType)) return false
+        const restriction = (selectedOrderType.effect as Record<string, unknown>)?.restriction as string | undefined
+        const nameLower = race.name.toLowerCase()
+        if (restriction === "mens_road_race_only" && !(nameLower.includes("men") && !nameLower.includes("women") && nameLower.includes("road race"))) return false
+        if (restriction === "womens_road_race_only" && !(nameLower.includes("women") && nameLower.includes("road race"))) return false
+        return true
       })
     : []
 
   const effect = selectedOrderType ? (selectedOrderType.effect as Record<string, unknown>) : null
   const effectTarget = effect?.target as string | undefined
 
-  function handleRaceSelect(raceId: number) {
-    setSelectedRaceId(raceId)
-    setSelectedOrderTypeId(null)
+  function handleOrderTypeSelect(orderTypeId: number) {
+    setSelectedOrderTypeId(orderTypeId)
+    setSelectedRaceId(null)
     setTargetRiderId(null)
     setTargetTeamId(null)
     setTargetProTeam("")
@@ -118,8 +121,8 @@ export function OrdersClient({
     setStep(2)
   }
 
-  function handleOrderTypeSelect(orderTypeId: number) {
-    setSelectedOrderTypeId(orderTypeId)
+  function handleRaceSelect(raceId: number) {
+    setSelectedRaceId(raceId)
     setTargetRiderId(null)
     setTargetTeamId(null)
     setTargetProTeam("")
@@ -212,24 +215,77 @@ export function OrdersClient({
               </div>
             ))}
             <span className="ml-2 text-gray-500">
-              {step === 1 && "Select race"}
-              {step === 2 && "Select order type"}
+              {step === 1 && "Select order"}
+              {step === 2 && "Select race"}
               {step === 3 && "Configure target"}
               {step === 4 && "Confirm & submit"}
             </span>
           </div>
 
-          {/* Step 1: Select Race */}
+          {/* Step 1: Select Order Type */}
           {step >= 1 && (
+            <div className="space-y-5">
+              <h3 className="text-sm font-semibold text-gray-700">
+                Step 1: Select an order
+              </h3>
+              {([
+                { label: "One-Day Races", filter: (types: string[]) => types.some(t => t.includes("one_day") || t === "world_championship") && !types.some(t => t.includes("womens")) },
+                { label: "Grand Tours", filter: (types: string[]) => types.some(t => t === "grand_tour" || t === "mini_tour") },
+                { label: "Women's Races", filter: (types: string[]) => types.some(t => t.includes("womens")) },
+              ] as { label: string; filter: (types: string[]) => boolean }[]).map(({ label, filter }) => {
+                const groupOrders = allOrderTypes.filter((ot) => filter(ot.applicableRaceTypes as string[]))
+                if (groupOrders.length === 0) return null
+                return (
+                  <div key={label} className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{label}</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {groupOrders.map((ot) => {
+                        const isPlayed = playedOrderNames.has(ot.name)
+                        return (
+                          <button
+                            key={ot.id}
+                            type="button"
+                            disabled={isPlayed}
+                            onClick={() => !isPlayed && handleOrderTypeSelect(ot.id)}
+                            className={`text-left rounded-lg border px-3 py-3 transition-colors ${
+                              isPlayed
+                                ? "border-gray-100 bg-gray-50 opacity-50 cursor-not-allowed"
+                                : selectedOrderTypeId === ot.id
+                                ? "border-purple-500 bg-purple-50"
+                                : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-semibold text-gray-900">{ot.displayName}</p>
+                              {isPlayed && (
+                                <span className="text-xs text-gray-400 font-normal">(played)</span>
+                              )}
+                            </div>
+                            {ot.description && (
+                              <p className="text-xs text-gray-500 mt-0.5">{ot.description}</p>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Step 2: Select Race */}
+          {step >= 2 && selectedOrderType && (
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-700">
-                Step 1: Select a race
+                Step 2: Select a race{" "}
+                <span className="text-gray-400 font-normal">for {selectedOrderType.displayName}</span>
               </h3>
-              {upcomingRaces.length === 0 ? (
-                <p className="text-sm text-gray-500">No upcoming races available.</p>
+              {applicableRaces.length === 0 ? (
+                <p className="text-sm text-gray-500">No upcoming races available for this order type.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {upcomingRaces.map((race) => (
+                  {applicableRaces.map((race) => (
                     <button
                       key={race.id}
                       type="button"
@@ -250,41 +306,8 @@ export function OrdersClient({
                   ))}
                 </div>
               )}
-            </div>
-          )}
-
-          {/* Step 2: Select Order Type */}
-          {step >= 2 && selectedRace && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-700">
-                Step 2: Select order type{" "}
-                <span className="text-gray-400 font-normal">for {selectedRace.displayName}</span>
-              </h3>
-              {filteredOrderTypes.length === 0 ? (
-                <p className="text-sm text-gray-500">No order types available for this race type.</p>
-              ) : (
-                <div className="grid grid-cols-1 gap-2">
-                  {filteredOrderTypes.map((ot) => (
-                    <button
-                      key={ot.id}
-                      type="button"
-                      onClick={() => handleOrderTypeSelect(ot.id)}
-                      className={`text-left rounded-lg border px-3 py-3 transition-colors ${
-                        selectedOrderTypeId === ot.id
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-gray-900">{ot.displayName}</p>
-                      {ot.description && (
-                        <p className="text-xs text-gray-500 mt-0.5">{ot.description}</p>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-              <Button variant="outline" size="sm" onClick={() => { setStep(1); setSelectedOrderTypeId(null) }}>
-                Back to races
+              <Button variant="outline" size="sm" onClick={() => { setStep(1); setSelectedRaceId(null) }}>
+                Back to orders
               </Button>
             </div>
           )}
@@ -376,79 +399,6 @@ export function OrdersClient({
                 </div>
               )}
 
-              {effectTarget === "own_rider_or_country" && (
-                <div className="space-y-4">
-                  <p className="text-xs text-gray-500">Choose your Kaptein strategy</p>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setKapteinChoice("single_rider")}
-                      className={`flex-1 rounded-lg border px-3 py-3 text-left transition-colors ${
-                        kapteinChoice === "single_rider"
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-gray-900">Single Rider (x2)</p>
-                      <p className="text-xs text-gray-500">Double the points for one rider</p>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setKapteinChoice("country_all")}
-                      className={`flex-1 rounded-lg border px-3 py-3 text-left transition-colors ${
-                        kapteinChoice === "country_all"
-                          ? "border-purple-500 bg-purple-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-gray-900">All from Country (x1.5)</p>
-                      <p className="text-xs text-gray-500">1.5x points for all riders from a country</p>
-                    </button>
-                  </div>
-
-                  {kapteinChoice === "single_rider" && (
-                    <div className="space-y-2">
-                      <p className="text-xs text-gray-500">Select your Kaptein rider</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                        {teamRiders.map((r) => (
-                          <button
-                            key={r.riderId}
-                            type="button"
-                            onClick={() => { setTargetRiderId(r.riderId); setStep(4) }}
-                            className={`text-left rounded-lg border px-3 py-2 transition-colors ${
-                              targetRiderId === r.riderId
-                                ? "border-purple-500 bg-purple-50"
-                                : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
-                            }`}
-                          >
-                            <p className="text-sm font-medium text-gray-900">{r.riderName}</p>
-                            <p className="text-xs text-gray-500">{r.riderTeam}</p>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {kapteinChoice === "country_all" && (
-                    <div className="space-y-2">
-                      <label className="text-xs text-gray-500">Country name</label>
-                      <input
-                        type="text"
-                        value={targetCountry}
-                        onChange={(e) => setTargetCountry(e.target.value)}
-                        placeholder="e.g. Norway"
-                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                      {targetCountry.trim() && (
-                        <Button className="bg-purple-600 hover:bg-purple-700 text-white" size="sm" onClick={() => setStep(4)}>
-                          Continue to confirm
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
               {effectTarget === "unowned_gc_top10" && (
                 <div className="space-y-2">
                   <p className="text-xs text-gray-500">
@@ -502,7 +452,7 @@ export function OrdersClient({
               )}
 
               <Button variant="outline" size="sm" onClick={() => { setStep(2); setTargetRiderId(null); setTargetTeamId(null) }}>
-                Back to order types
+                Back to races
               </Button>
             </div>
           )}

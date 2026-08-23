@@ -17,7 +17,11 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import { submitRaceResults, submitTttResults, getScoringScale, getResultsForRace } from "@/app/admin/results/actions"
-import { TrashIcon, PlusIcon } from "lucide-react"
+import { importUciResults } from "@/app/admin/results/uci-actions"
+import { UciImportDialog } from "@/components/admin/uci-import-dialog"
+import { LEADER_ONLY_CATEGORIES } from "@/app/admin/results/categories"
+import { canImportFromUci, UCI_UNSUPPORTED_REASONS } from "@/lib/uci/category-map"
+import { TrashIcon, PlusIcon, DownloadIcon } from "lucide-react"
 import { useState, useEffect } from "react"
 
 const resultSchema = z.object({
@@ -89,9 +93,12 @@ type Props = {
   category: string
   instance?: number
   instanceLabel?: string
-  teams?: string[]
   onSuccess: () => void
   onDirtyChange?: (isDirty: boolean) => void
+  /** Opens the UCI competition picker when the race has no link yet. */
+  onRequestUciLink?: () => void
+  /** When true, an empty category prefills itself from UCI on mount. */
+  uciLinked?: boolean
 }
 
 const categoryDisplayNames: Record<string, string> = {
@@ -107,18 +114,21 @@ const categoryDisplayNames: Record<string, string> = {
   "mountain_highest": "Mountain: Highest Category",
   "mountain_2nd_highest": "Mountain: 2nd Highest Category",
   "mountain_1_2cat": "Mountain: 1st/2nd Category",
-  "jersey_gc": "Jersey: GC Leader",
-  "jersey_points": "Jersey: Points Leader",
-  "jersey_kom": "Jersey: KOM Leader",
-  "jersey_combative": "Jersey: Most Combative",
+  // Scored on the jersey wearer (rank 1) but named for the classification the
+  // jersey represents, which is what UCI publishes and what admins look for.
+  "jersey_gc": "General Classification",
+  "jersey_points": "Points Classification",
+  "jersey_kom": "Mountains Classification",
+  "jersey_combative": "Most Combative",
   "ttt": "Team Time Trial",
-  "end_gc": "End of Tour: GC",
-  "end_points": "End of Tour: Points",
-  "end_kom": "End of Tour: KOM",
-  "end_youth": "End of Tour: Youth",
-  "end_combative": "End of Tour: Combative",
-  "end_team": "End of Tour: Team",
-  "end_other": "End of Tour: Other",
+  // Only shown under the "End of tour" heading, so the prefix is redundant.
+  "end_gc": "General Classification",
+  "end_points": "Points Classification",
+  "end_kom": "Mountains Classification",
+  "end_youth": "Youth Classification",
+  "end_combative": "Most Combative",
+  "end_team": "Team Classification",
+  "end_other": "Other",
 }
 
 const categoryPrefillCounts: Record<string, number> = {
@@ -149,10 +159,29 @@ const categoryPrefillCounts: Record<string, number> = {
 
 export { categoryDisplayNames }
 
-function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess }: { raceId: number; raceType: string; riders: Rider[]; category: string; onSuccess: () => void }) {
+/**
+ * Highest position that awards points, or null when the category has no scale.
+ * Scales are not guaranteed contiguous, so this takes the max key rather than
+ * the number of keys.
+ */
+function scoredPositionLimit(scale: Record<string, number>): number | null {
+  const positions = Object.keys(scale)
+    .map(Number)
+    .filter((n) => Number.isInteger(n) && n > 0)
+  return positions.length > 0 ? Math.max(...positions) : null
+}
+
+/** Rider slots offered per position in the multi-rider categories (TTT, team GC). */
+const MULTI_RIDER_SLOTS = 8
+
+const emptyRiderSlots = (): (number | null)[] =>
+  Array.from({ length: MULTI_RIDER_SLOTS }, () => null)
+
+function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess, onRequestUciLink }: { raceId: number; raceType: string; riders: Rider[]; category: string; onSuccess: () => void; onRequestUciLink?: () => void }) {
   const [serverError, setServerError] = useState<string | null>(null)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<string, string>>({})
   const [scoringScale, setScoringScale] = useState<Record<string, number>>({})
+  const [importOpen, setImportOpen] = useState(false)
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
@@ -160,7 +189,7 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess 
   const form = useForm<TttFormData>({
     resolver: zodResolver(tttSchema),
     defaultValues: {
-      placements: [{ position: 1, riderIds: [null, null, null, null, null, null, null, null] }],
+      placements: [{ position: 1, riderIds: emptyRiderSlots() }],
     },
   })
 
@@ -169,49 +198,58 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess 
     name: "placements",
   })
 
+  // The scale decides how many positions are worth entering and the saved
+  // results decide what fills them, so both land in one reset — fetching them
+  // separately let two resets race and drop whichever arrived first.
   useEffect(() => {
-    getScoringScale(raceId, category).then((scale) => {
+    let cancelled = false
+
+    void (async () => {
+      const [scale, allResults] = await Promise.all([
+        getScoringScale(raceId, category).catch(() => ({}) as Record<string, number>),
+        getResultsForRace(raceId).catch(
+          () => [] as Awaited<ReturnType<typeof getResultsForRace>>,
+        ),
+      ])
+      if (cancelled) return
+
       setScoringScale(scale)
-      const scoringPositions = Object.keys(scale).length
-      if (scoringPositions > 0) {
-        const currentPlacements = form.getValues("placements")
-        const hasExistingData = currentPlacements.some((p) => p.riderIds.some((id) => id !== null))
-        if (!hasExistingData) {
-          form.reset({
-            placements: Array.from({ length: scoringPositions }, (_, i) => ({
-              position: i + 1,
-              riderIds: [null, null, null, null, null, null, null, null] as (number | null)[],
-            })),
-          })
-        }
-      }
-    }).catch(() => {})
-  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    getResultsForRace(raceId).then((allResults) => {
       const categoryResults = allResults.filter((r) => r.category === category)
-      if (categoryResults.length === 0) return
-
-      const positionMap = new Map<number, (number | null)[]>()
-      for (const r of categoryResults) {
-        if (!positionMap.has(r.position)) {
-          positionMap.set(r.position, [])
+      if (categoryResults.length > 0) {
+        const positionMap = new Map<number, number[]>()
+        for (const r of categoryResults) {
+          if (!positionMap.has(r.position)) positionMap.set(r.position, [])
+          positionMap.get(r.position)!.push(r.riderId)
         }
-        positionMap.get(r.position)!.push(r.riderId)
+
+        form.reset({
+          placements: Array.from(positionMap.entries())
+            .sort(([a], [b]) => a - b)
+            .map(([position, riderIds]) => {
+              const padded: (number | null)[] = [...riderIds]
+              while (padded.length < MULTI_RIDER_SLOTS) padded.push(null)
+              return { position, riderIds: padded }
+            }),
+        })
+        return
       }
 
-      const placements = Array.from(positionMap.entries())
-        .sort(([a], [b]) => a - b)
-        .map(([position, riderIds]) => {
-          const padded: (number | null)[] = [...riderIds]
-          while (padded.length < 8) padded.push(null)
-          return { position, riderIds: padded }
+      const rowLimit = scoredPositionLimit(scale)
+      if (rowLimit) {
+        form.reset({
+          placements: Array.from({ length: rowLimit }, (_, i) => ({
+            position: i + 1,
+            riderIds: emptyRiderSlots(),
+          })),
         })
+      }
+    })()
 
-      form.reset({ placements })
-    }).catch(() => {})
-  }, [raceId]) // eslint-disable-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true
+    }
+  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = async (data: TttFormData) => {
     setServerError(null)
@@ -238,7 +276,7 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess 
 
   const handleAddPlacement = () => {
     const nextPosition = fields.length + 1
-    append({ position: nextPosition, riderIds: [null, null, null, null, null, null, null, null] })
+    append({ position: nextPosition, riderIds: emptyRiderSlots() })
   }
 
   const allSelectedRiderIds = new Set(
@@ -248,10 +286,47 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Enter {categoryDisplayNames[category] || category} Results</CardTitle>
-        <CardDescription>
-          {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"}) — Select up to 8 riders per position
-        </CardDescription>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle>Enter {categoryDisplayNames[category] || category} Results</CardTitle>
+            <CardDescription>
+              {categoryDisplayNames[category] || category} ({expectedGender === "M" ? "Men" : "Women"}) — Select up to {MULTI_RIDER_SLOTS} riders per position
+            </CardDescription>
+          </div>
+          {canImportFromUci(category) ? (
+            <Button type="button" variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+              <DownloadIcon className="h-4 w-4 mr-2" />
+              Import from UCI
+            </Button>
+          ) : (
+            <p className="text-xs text-muted-foreground max-w-[16rem] text-right">
+              {UCI_UNSUPPORTED_REASONS[category] ?? "No UCI import for this category."}
+            </p>
+          )}
+        </div>
+        {canImportFromUci(category) && (
+          <UciImportDialog
+            raceId={raceId}
+            category={category}
+            riders={filteredRiders}
+            defaultCount={scoredPositionLimit(scoringScale) ?? 25}
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            onNeedsLink={onRequestUciLink}
+            onApplyTtt={(imported) => {
+              if (imported.length === 0) return
+              // The team name is not part of the stored result — a placement is
+              // just its riders — so only the rider list carries over.
+              form.reset({
+                placements: imported.map(({ position, riderIds }) => {
+                  const padded: (number | null)[] = riderIds.slice(0, MULTI_RIDER_SLOTS)
+                  while (padded.length < MULTI_RIDER_SLOTS) padded.push(null)
+                  return { position, riderIds: padded }
+                }),
+              })
+            }}
+          />
+        )}
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -291,7 +366,7 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess 
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {Array.from({ length: 8 }, (_, slotIndex) => {
+                {Array.from({ length: MULTI_RIDER_SLOTS }, (_, slotIndex) => {
                   const key = `${posIndex}-${slotIndex}`
                   const riderId = form.watch(`placements.${posIndex}.riderIds.${slotIndex}`)
                   const selectedRider = riderId ? filteredRiders.find((r) => r.id === riderId) : null
@@ -375,20 +450,33 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess 
   )
 }
 
-export function ResultEntryForm({ raceId, riders, raceType, category, instance, instanceLabel, teams, onSuccess, onDirtyChange }: Props) {
+export function ResultEntryForm({ raceId, riders, raceType, category, instance, instanceLabel, onSuccess, onDirtyChange, onRequestUciLink, uciLinked }: Props) {
   // --- ALL HOOKS FIRST (rules of hooks: no hooks after conditional returns) ---
   const [serverError, setServerError] = useState<string | null>(null)
   const [riderSearchQueries, setRiderSearchQueries] = useState<Record<number, string>>({})
   const [scoringScale, setScoringScale] = useState<Record<string, number>>({})
+  const [importOpen, setImportOpen] = useState(false)
+  const [uciPrefill, setUciPrefill] = useState<{
+    sectionLabel: string
+    resultTitle: string
+    matched: number
+    skipped: number
+  } | null>(null)
 
   const expectedGender = raceType.startsWith("womens_") ? "F" : "M"
   const filteredRiders = riders.filter((r) => r.gender === expectedGender)
-  const prefillCount = categoryPrefillCounts[category] ?? 1
+  // Used until the scoring scale arrives, and when a category has no scale.
+  const fallbackCount = categoryPrefillCounts[category] ?? 1
+
+  // Only positions that award points are worth entering, and the scale differs
+  // per race type (6 for a mini-tour stage, 10 for a grand tour stage, 20 for a
+  // high-priority one-day race), so the form is sized from the scale itself.
+  const rowLimit = scoredPositionLimit(scoringScale) ?? fallbackCount
 
   const form = useForm<ResultFormData>({
     resolver: zodResolver(resultSchema),
     defaultValues: {
-      results: Array.from({ length: prefillCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
+      results: Array.from({ length: fallbackCount }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
     },
   })
 
@@ -397,43 +485,92 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
 
+  // The scoring scale decides how many positions are worth entering, so it has
+  // to land before rows are built — but it does not depend on the saved results,
+  // so the two are fetched together.
   useEffect(() => {
-    getScoringScale(raceId, category).then((scale) => {
-      setScoringScale(scale)
-      const scoringPositions = Object.keys(scale).length
-      if (scoringPositions > 0) {
-        const currentResults = form.getValues("results")
-        const hasExistingData = currentResults.some((r) => r.riderId !== 0)
-        if (!hasExistingData) {
-          form.reset({
-            results: Array.from({ length: scoringPositions }, (_, i) => ({ position: i + 1, riderId: 0, time: "" })),
-          })
-        }
-      }
-    }).catch(() => {})
-  }, [raceId, category]) // eslint-disable-line react-hooks/exhaustive-deps
+    let cancelled = false
 
-  // Fetch existing results for this race+category and pre-fill the form
-  useEffect(() => {
-    getResultsForRace(raceId).then((allResults: Awaited<ReturnType<typeof getResultsForRace>>) => {
-      const categoryResults = allResults.filter((r) => r.category === category && r.instance === (instance ?? 1))
+    void (async () => {
+      const [scale, allResults] = await Promise.all([
+        getScoringScale(raceId, category).catch(() => ({}) as Record<string, number>),
+        getResultsForRace(raceId).catch(
+          () => [] as Awaited<ReturnType<typeof getResultsForRace>>,
+        ),
+      ])
+      if (cancelled) return
+      setScoringScale(scale)
+
+      const limit = scoredPositionLimit(scale) ?? (categoryPrefillCounts[category] ?? 1)
+
+      const categoryResults = allResults.filter(
+        (r) => r.category === category && r.instance === (instance ?? 1),
+      )
       if (categoryResults.length > 0) {
         form.reset({
           results: categoryResults
             .sort((a, b) => a.position - b.position)
             .map((r) => ({ position: r.position, riderId: r.riderId, time: r.time ?? "" })),
         })
+        return
       }
-    }).catch(() => {})
-  }, [raceId, category, instance]) // eslint-disable-line react-hooks/exhaustive-deps
+
+      // Nothing saved yet — prefill from UCI when the tour is linked.
+      // TTT and team GC have their own importer inside MultiRiderEntrySection.
+      if (uciLinked && category !== "ttt" && canImportFromUci(category)) {
+        const res = await importUciResults({ raceId, category })
+        if (cancelled) return
+        if (res.success && res.kind === "individual") {
+          // Only scoring positions matter, and a rider outside the roster
+          // forfeits their place rather than promoting whoever came next —
+          // so a skip leaves a visible gap the admin can correct.
+          const scoring = res.rows.filter((r) => r.position <= limit)
+          const matched = scoring.filter((r) => r.matchedRider)
+          if (matched.length > 0) {
+            form.reset({
+              results: matched.map((r) => ({
+                position: r.position,
+                riderId: r.matchedRider!.id,
+                time: "",
+              })),
+            })
+            setUciPrefill({
+              sectionLabel: res.meta.sectionLabel,
+              resultTitle: res.meta.resultTitle,
+              matched: matched.length,
+              skipped: scoring.length - matched.length,
+            })
+            return
+          }
+        }
+      }
+
+      // No prefill: just size the blank rows to the scale, leaving anything the
+      // admin has already typed alone.
+      if (limit !== fallbackCount && !form.formState.isDirty) {
+        form.reset({
+          results: Array.from({ length: limit }, (_, i) => ({
+            position: i + 1,
+            riderId: 0,
+            time: "",
+          })),
+        })
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [raceId, category, instance, uciLinked]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "results",
   })
 
+  // --- multi-rider early return (after all hooks) ---
   if (category === "ttt" || category === "end_team") {
-    return <MultiRiderEntrySection raceId={raceId} raceType={raceType} riders={riders} category={category} onSuccess={onSuccess} />
+    return <MultiRiderEntrySection raceId={raceId} raceType={raceType} riders={riders} category={category} onSuccess={onSuccess} onRequestUciLink={onRequestUciLink} />
   }
 
   const onSubmit = async (data: ResultFormData) => {
@@ -471,16 +608,67 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
       {/* Main entry form */}
       <Card>
         <CardHeader>
-          <CardTitle>Enter Race Results</CardTitle>
-          <CardDescription>
-            {categoryDisplayNames[category] || category}
-            {instance && instance > 1 ? ` #${instance}` : ""}
-            {instanceLabel ? ` — ${instanceLabel}` : ""}
-            {" "}({expectedGender === "M" ? "Men" : "Women"})
-          </CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Enter Race Results</CardTitle>
+              <CardDescription>
+                {categoryDisplayNames[category] || category}
+                {instance && instance > 1 ? ` #${instance}` : ""}
+                {instanceLabel ? ` — ${instanceLabel}` : ""}
+                {" "}({expectedGender === "M" ? "Men" : "Women"})
+                {LEADER_ONLY_CATEGORIES.has(category)
+                  ? " · leader only — the rider who wore the jersey on this stage"
+                  : scoredPositionLimit(scoringScale)
+                    ? ` · positions 1–${scoredPositionLimit(scoringScale)} score`
+                    : ""}
+              </CardDescription>
+            </div>
+            {canImportFromUci(category) ? (
+              <Button type="button" variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+                <DownloadIcon className="h-4 w-4 mr-2" />
+                Import from UCI
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground max-w-xs text-right">
+                {UCI_UNSUPPORTED_REASONS[category] ?? "No UCI equivalent — enter manually."}
+              </p>
+            )}
+          </div>
+          {canImportFromUci(category) && (
+            <UciImportDialog
+              raceId={raceId}
+              category={category}
+              riders={filteredRiders}
+              defaultCount={rowLimit}
+              open={importOpen}
+              onOpenChange={setImportOpen}
+              onNeedsLink={onRequestUciLink}
+              onApplyIndividual={(imported) => {
+                if (imported.length === 0) return
+                setUciPrefill(null)
+                form.reset(
+                  { results: imported.map((r) => ({ ...r, time: "" })) },
+                  { keepDefaultValues: true },
+                )
+                // reset() clears the dirty flag; the prefill is unsaved, so re-mark it.
+                form.setValue(`results.0.position`, imported[0].position, { shouldDirty: true })
+              }}
+            />
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {uciPrefill && (
+              <div className="rounded-md border border-blue-500/40 bg-blue-500/5 px-3 py-2 text-sm">
+                Prefilled from UCI · {uciPrefill.sectionLabel} ·{" "}
+                <span className="font-medium">{uciPrefill.resultTitle}</span> —{" "}
+                {uciPrefill.matched} rider{uciPrefill.matched === 1 ? "" : "s"} matched
+                {uciPrefill.skipped > 0
+                  ? `, ${uciPrefill.skipped} skipped (not on a roster)`
+                  : ""}
+                . Check it, then submit — nothing is saved yet.
+              </div>
+            )}
             {/* Field array */}
             <div className="space-y-3">
               {fields.map((field, index) => {

@@ -74,6 +74,7 @@ export async function getRacesForResults() {
       startDate: races.startDate,
       parentRaceId: races.parentRaceId,
       stageNumber: races.stageNumber,
+      uciCompetitionId: races.uciCompetitionId,
       hasResults: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id}) THEN 1 ELSE 0 END`,
       stagesTotal: sql<number>`(SELECT COUNT(*) FROM races AS s WHERE s."parentRaceId" = ${races.id})::int`,
       stagesWithResults: sql<number>`(SELECT COUNT(*) FROM races AS s WHERE s."parentRaceId" = ${races.id} AND EXISTS(SELECT 1 FROM race_results rr WHERE rr."raceId" = s.id))::int`,
@@ -87,6 +88,65 @@ export async function getRacesForResults() {
     stagesTotal: Number(r.stagesTotal ?? 0),
     stagesWithResults: Number(r.stagesWithResults ?? 0),
   }));
+}
+
+/**
+ * Everything the per-race results page needs: the race, its parent (for stages),
+ * and the sibling stages with per-stage completion counts.
+ */
+export async function getRaceDetail(raceId: number) {
+  await checkAdminAuth();
+
+  const race = await db.query.races.findFirst({ where: eq(races.id, raceId) });
+  if (!race) return null;
+
+  const parent = race.parentRaceId
+    ? await db.query.races.findFirst({ where: eq(races.id, race.parentRaceId) })
+    : null;
+
+  // Stages of whichever race is the tour root.
+  const rootId = race.parentRaceId ?? race.id;
+  const stageRows = await db
+    .select({
+      id: races.id,
+      name: races.name,
+      stageNumber: races.stageNumber,
+      startDate: races.startDate,
+      isRestDay: races.isRestDay,
+      resultCount: sql<number>`(SELECT COUNT(*) FROM race_results rr WHERE rr."raceId" = ${races.id})::int`,
+      categoryCount: sql<number>`(SELECT COUNT(DISTINCT rr.category) FROM race_results rr WHERE rr."raceId" = ${races.id})::int`,
+    })
+    .from(races)
+    .where(eq(races.parentRaceId, rootId))
+    .orderBy(asc(races.stageNumber));
+
+  const root = parent ?? race;
+
+  return {
+    race: {
+      id: race.id,
+      name: race.name,
+      raceType: race.raceType,
+      startDate: race.startDate,
+      parentRaceId: race.parentRaceId,
+      stageNumber: race.stageNumber,
+      season: race.season,
+      uciCompetitionId: race.uciCompetitionId,
+    },
+    root: {
+      id: root.id,
+      name: root.name,
+      raceType: root.raceType,
+      startDate: root.startDate,
+      season: root.season,
+      uciCompetitionId: root.uciCompetitionId,
+    },
+    stages: stageRows.map((s) => ({
+      ...s,
+      resultCount: Number(s.resultCount ?? 0),
+      categoryCount: Number(s.categoryCount ?? 0),
+    })),
+  };
 }
 
 export async function getRiders() {

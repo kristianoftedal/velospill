@@ -181,8 +181,7 @@ export function ResultCorrectionDialog({
               <p className="font-medium">Original values:</p>
               <p>
                 Position: <span className="font-mono">{result.position}</span> | Rider:{" "}
-                <span className="font-mono">{result.riderName}</span> | Time:{" "}
-                <span className="font-mono">{result.time || "—"}</span> | Points:{" "}
+                <span className="font-mono">{result.riderName}</span> | Points:{" "}
                 <span className="font-mono">{result.points}</span>
               </p>
             </div>
@@ -237,12 +236,6 @@ export function ResultCorrectionDialog({
                   {form.formState.errors.riderId.message}
                 </p>
               )}
-            </div>
-
-            {/* Time field */}
-            <div>
-              <Label htmlFor="time">Time (optional)</Label>
-              <Input id="time" placeholder="4h32m10s" {...form.register("time")} />
             </div>
 
             {/* Reason field */}

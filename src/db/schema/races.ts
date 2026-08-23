@@ -21,6 +21,8 @@ export const races = pgTable("races", {
   stageNumber: integer("stageNumber"),
   isRestDay: boolean("isRestDay").notNull().default(false),
   season: integer("season").notNull(),
+  // UCI competition reference, e.g. "2026/ROA/76940" — used to import results
+  uciCompetitionId: text("uciCompetitionId"),
   createdAt: timestamp("createdAt", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).notNull().defaultNow()
 }, (table) => ({

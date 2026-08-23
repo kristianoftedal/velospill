@@ -1,8 +1,8 @@
-import { getRacesForResults, getRiders } from "./actions"
+import { getRacesForResults } from "./actions"
 import { ResultsClient } from "./results-client"
 
 export default async function ResultsPage() {
-  const [races, riders] = await Promise.all([getRacesForResults(), getRiders()])
+  const races = await getRacesForResults()
 
   return (
     <div className="space-y-6">
@@ -12,7 +12,7 @@ export default async function ResultsPage() {
           Enter race results and manage finishing positions
         </p>
       </div>
-      <ResultsClient races={races} riders={riders} />
+      <ResultsClient races={races} />
     </div>
   )
 }

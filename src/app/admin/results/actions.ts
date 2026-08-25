@@ -132,6 +132,7 @@ export async function getRaceDetail(raceId: number) {
       stageNumber: race.stageNumber,
       season: race.season,
       uciCompetitionId: race.uciCompetitionId,
+      tissotCompetitionCode: race.tissotCompetitionCode,
     },
     root: {
       id: root.id,
@@ -140,6 +141,7 @@ export async function getRaceDetail(raceId: number) {
       startDate: root.startDate,
       season: root.season,
       uciCompetitionId: root.uciCompetitionId,
+      tissotCompetitionCode: root.tissotCompetitionCode,
     },
     stages: stageRows.map((s) => ({
       ...s,

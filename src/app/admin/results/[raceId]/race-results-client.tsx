@@ -18,6 +18,8 @@ import {
   ResultEntryForm,
   categoryDisplayNames,
 } from "@/components/admin/result-entry-form";
+import { TissotImportDialog } from "@/components/admin/tissot-import-dialog";
+import { TissotLinkDialog } from "@/components/admin/tissot-link-dialog";
 import { UciLinkDialog } from "@/components/admin/uci-link-dialog";
 import {
   Accordion,
@@ -44,6 +46,7 @@ import {
   CheckIcon,
   ExternalLinkIcon,
   LinkIcon,
+  MountainIcon,
   PencilIcon,
   PlusIcon,
 } from "lucide-react";
@@ -82,6 +85,11 @@ export function RaceResultsClient({
     race.uciCompetitionId ?? root.uciCompetitionId ?? null,
   );
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [tissotCode, setTissotCode] = useState(
+    race.tissotCompetitionCode ?? root.tissotCompetitionCode ?? null,
+  );
+  const [tissotLinkOpen, setTissotLinkOpen] = useState(false);
+  const [tissotImportOpen, setTissotImportOpen] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [selectedResult, setSelectedResult] = useState<RaceResult | null>(null);
   /** Selected instance + label per multi-instance category. */
@@ -170,6 +178,31 @@ export function RaceResultsClient({
               Link UCI competition
             </Button>
           )}
+
+          {tissotCode ? (
+            <>
+              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CheckIcon className="h-3.5 w-3.5 text-green-600" />
+                Tissot <span className="font-mono">{tissotCode}</span>
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTissotLinkOpen(true)}
+              >
+                Change
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setTissotLinkOpen(true)}
+            >
+              <LinkIcon className="h-4 w-4 mr-2" />
+              Link Tissot competition
+            </Button>
+          )}
         </div>
       </div>
 
@@ -183,6 +216,26 @@ export function RaceResultsClient({
           setLinkedId(id);
           refresh();
         }}
+      />
+
+      <TissotLinkDialog
+        raceId={race.id}
+        raceName={root.name}
+        linkedCompetitionId={tissotCode}
+        open={tissotLinkOpen}
+        onOpenChange={setTissotLinkOpen}
+        onLinked={(code) => {
+          setTissotCode(code);
+          refresh();
+        }}
+      />
+
+      <TissotImportDialog
+        raceId={race.id}
+        open={tissotImportOpen}
+        onOpenChange={setTissotImportOpen}
+        onApplied={refresh}
+        onNeedsLink={() => setTissotLinkOpen(true)}
       />
 
       {/* Stage selector */}
@@ -260,6 +313,28 @@ export function RaceResultsClient({
 
         {/* --- Enter results: category accordion --- */}
         <TabsContent value="enter" className="mt-4 space-y-6">
+          {isStage && (
+            <div className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+              <div>
+                <p className="text-sm font-medium">Sprints &amp; climbs</p>
+                <p className="text-xs text-muted-foreground">
+                  {tissotCode
+                    ? "Import every intermediate sprint and classified climb for this stage in one pass."
+                    : "Link a Tissot competition to import intermediate sprints and per-climb points — UCI does not publish them."}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  tissotCode ? setTissotImportOpen(true) : setTissotLinkOpen(true)
+                }
+              >
+                <MountainIcon className="h-4 w-4 mr-2" />
+                {tissotCode ? "Import from Tissot" : "Link Tissot"}
+              </Button>
+            </div>
+          )}
           {isTour && (
             <p className="text-sm text-muted-foreground">
               These are the end-of-tour classifications. Pick a stage above to

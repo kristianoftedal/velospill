@@ -23,6 +23,9 @@ export const races = pgTable("races", {
   season: integer("season").notNull(),
   // UCI competition reference, e.g. "2026/ROA/76940" — used to import results
   uciCompetitionId: text("uciCompetitionId"),
+  // Tissot Timing competition code, e.g. "vue2026" — used to import the
+  // per-climb and per-sprint points UCI does not publish
+  tissotCompetitionCode: text("tissotCompetitionCode"),
   createdAt: timestamp("createdAt", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { withTimezone: true }).notNull().defaultNow()
 }, (table) => ({

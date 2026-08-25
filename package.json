@@ -17,7 +17,8 @@
     "db:seed-scoring": "dotenv -e .env.local -- npx tsx src/db/seed-scoring.ts",
     "rankings:scrape": "npx tsx scripts/scrape-projected-rankings.ts",
     "rankings:import": "dotenv -e .env.local -- npx tsx scripts/import-projected-rankings.ts",
-    "db:migrate-uci": "dotenv -e .env.local -- npx tsx scripts/apply-uci-competition-id-migration.ts"
+    "db:migrate-uci": "dotenv -e .env.local -- npx tsx scripts/apply-uci-competition-id-migration.ts",
+    "db:migrate-tissot": "dotenv -e .env.local -- npx tsx scripts/apply-tissot-competition-code-migration.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",

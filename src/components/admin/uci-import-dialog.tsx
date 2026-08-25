@@ -15,21 +15,17 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  AlertTriangleIcon,
-  DownloadIcon,
-  ExternalLinkIcon,
-} from "lucide-react";
+  ResponsivePanel,
+  ResponsivePanelBody,
+  ResponsivePanelDescription,
+  ResponsivePanelFooter,
+  ResponsivePanelHeader,
+  ResponsivePanelTitle,
+} from "@/components/ui/responsive-panel";
+import { AlertTriangleIcon, DownloadIcon, ExternalLinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Rider = { id: number; name: string; team: string };
@@ -45,7 +41,7 @@ type Props = {
   raceId: number;
   category: string;
   riders: Rider[];
-  /** How many positions to pre-select — matches the form's prefill count. */
+  /** How many positions to pre-select — matches the form's row count. */
   defaultCount: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,11 +49,7 @@ type Props = {
     rows: Array<{ position: number; riderId: number; time: string }>,
   ) => void;
   onApplyTtt?: (
-    placements: Array<{
-      position: number;
-      teamName: string;
-      riderIds: number[];
-    }>,
+    placements: Array<{ position: number; teamName: string; riderIds: number[] }>,
   ) => void;
   onNeedsLink?: () => void;
 };
@@ -66,16 +58,14 @@ type Props = {
 const CONFIDENT = 0.9;
 
 /**
- * Radix unmounts DialogContent when closed, so the body remounts on every open
- * and starts from a clean loading state — no effect has to reset it.
+ * Content is unmounted while the panel is closed, so the body remounts on every
+ * open and starts from a clean loading state.
  */
 export function UciImportDialog(props: Props) {
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
-        <ImportBody {...props} />
-      </DialogContent>
-    </Dialog>
+    <ResponsivePanel open={props.open} onOpenChange={props.onOpenChange}>
+      <ImportBody {...props} />
+    </ResponsivePanel>
   );
 }
 
@@ -154,10 +144,7 @@ function ImportBody({
           ? { position: row.position, riderId: rider.id, time: row.time ?? "" }
           : null;
       })
-      .filter(
-        (r): r is { position: number; riderId: number; time: string } =>
-          r !== null,
-      );
+      .filter((r): r is { position: number; riderId: number; time: string } => r !== null);
     onApplyIndividual?.(resolved);
     onOpenChange(false);
   };
@@ -178,15 +165,16 @@ function ImportBody({
   };
 
   const isTtt = teamRows !== null;
+  const maxRows = (rows ?? teamRows ?? []).length;
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <DownloadIcon className="h-4 w-4" />
+      <ResponsivePanelHeader>
+        <ResponsivePanelTitle>
+          <DownloadIcon className="h-4 w-4 shrink-0" />
           Import from UCI
-        </DialogTitle>
-        <DialogDescription>
+        </ResponsivePanelTitle>
+        <ResponsivePanelDescription>
           {meta ? (
             <>
               {meta.competitionName} · {meta.sectionLabel} ·{" "}
@@ -203,249 +191,238 @@ function ImportBody({
           ) : (
             "Nothing is saved until you submit the form."
           )}
-        </DialogDescription>
-      </DialogHeader>
+        </ResponsivePanelDescription>
+      </ResponsivePanelHeader>
 
-      {loading && (
-        <p className="text-sm text-muted-foreground py-8 text-center">
-          Fetching results from UCI…
-        </p>
-      )}
+      <ResponsivePanelBody>
+        {loading && (
+          <p className="text-muted-foreground py-8 text-center text-sm">
+            Fetching results from UCI…
+          </p>
+        )}
 
-      {error && (
-        <div className="space-y-3">
-          <div className="flex gap-2 rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2">
-            <AlertTriangleIcon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-            <p className="text-sm text-destructive">{error}</p>
-          </div>
-          {needsLink && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                onOpenChange(false);
-                onNeedsLink?.();
-              }}
-            >
-              Link a UCI competition
-            </Button>
-          )}
-        </div>
-      )}
-
-      {!loading && !error && (rows || teamRows) && (
-        <div className="space-y-4">
-          <div className="flex items-end justify-between gap-4 flex-wrap">
-            <div className="space-y-1">
-              <Label htmlFor="uci-take" className="text-xs">
-                Import positions 1–
-              </Label>
-              <Input
-                id="uci-take"
-                type="number"
-                min={1}
-                max={(rows ?? teamRows ?? []).length}
-                value={takeCount}
-                onChange={(e) =>
-                  setTakeCount(
-                    Math.max(
-                      1,
-                      Math.min(
-                        (rows ?? teamRows ?? []).length,
-                        Number(e.target.value) || 1,
-                      ),
-                    ),
-                  )
-                }
-                className="h-9 w-24"
-              />
+        {error && (
+          <div className="space-y-3">
+            <div className="border-destructive/40 bg-destructive/5 flex gap-2 rounded-md border px-3 py-2">
+              <AlertTriangleIcon className="text-destructive mt-0.5 h-4 w-4 shrink-0" />
+              <p className="text-destructive text-sm">{error}</p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              UCI published{" "}
-              {isTtt
-                ? `${teamRows!.length} team placements`
-                : `${totalRanked} ranked riders`}
-              {!isTtt && totalRanked > rows!.length
-                ? ` (first ${rows!.length} fetched)`
-                : ""}
-              .
-            </p>
+            {needsLink && (
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => {
+                  onOpenChange(false);
+                  onNeedsLink?.();
+                }}
+              >
+                Link a UCI competition
+              </Button>
+            )}
           </div>
+        )}
 
-          {(unresolved.length > 0 || lowConfidence.length > 0) && (
-            <div className="flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2">
-              <AlertTriangleIcon className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-sm">
-                {unresolved.length > 0 && (
-                  <>
-                    {unresolved.length} rider
-                    {unresolved.length === 1 ? "" : "s"} could not be matched
-                    and will be skipped.{" "}
-                  </>
-                )}
-                {lowConfidence.length > 0 && (
-                  <>
-                    {lowConfidence.length} match
-                    {lowConfidence.length === 1 ? "" : "es"} need checking.
-                  </>
-                )}
+        {!loading && !error && (rows || teamRows) && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="uci-take" className="text-xs">
+                  Import positions 1–
+                </Label>
+                <Input
+                  id="uci-take"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={maxRows}
+                  value={takeCount}
+                  onChange={(e) =>
+                    setTakeCount(
+                      Math.max(1, Math.min(maxRows, Number(e.target.value) || 1)),
+                    )
+                  }
+                  className="h-11 w-24 sm:h-9"
+                />
+              </div>
+              <p className="text-muted-foreground text-xs">
+                UCI published{" "}
+                {isTtt
+                  ? `${teamRows!.length} team placements`
+                  : `${totalRanked} ranked riders`}
+                {!isTtt && totalRanked > rows!.length
+                  ? ` (first ${rows!.length} fetched)`
+                  : ""}
+                .
               </p>
             </div>
-          )}
 
-          {/* Individual classification */}
-          {rows && (
-            <div className="space-y-1.5">
-              {visibleRows.map((row) => {
-                const rider = riderFor(row);
-                const overridden = !!overrides[row.position];
-                const confident = overridden || row.matchScore >= CONFIDENT;
-                return (
-                  <div
-                    key={row.position}
-                    className="flex items-center gap-3 rounded-md border px-3 py-2"
-                  >
-                    <span className="w-8 text-sm font-medium tabular-nums">
-                      {row.position}
-                    </span>
-                    <div className="w-56 shrink-0">
-                      <div className="text-sm">{row.uciName}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {row.uciTeam}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <Combobox
-                        value={rider?.name ?? ""}
-                        onValueChange={(name) => {
-                          const found = riders.find((r) => r.name === name);
-                          if (found)
-                            setOverrides((prev) => ({
-                              ...prev,
-                              [row.position]: found.id,
-                            }));
-                          setSearch((prev) => ({
-                            ...prev,
-                            [row.position]: "",
-                          }));
-                        }}
-                        onInputValueChange={(v) =>
-                          setSearch((prev) => ({ ...prev, [row.position]: v }))
-                        }
-                      >
-                        <ComboboxInput
-                          placeholder={rider?.name || "No match — pick a rider"}
-                          className="h-9"
-                        />
-                        <ComboboxContent>
-                          <ComboboxList>
-                            <ComboboxEmpty>No riders found</ComboboxEmpty>
-                            {(() => {
-                              const q = (
-                                search[row.position] ?? ""
-                              ).toLowerCase();
-                              const list = q
-                                ? riders.filter(
-                                    (r) =>
-                                      r.name.toLowerCase().includes(q) ||
-                                      r.team.toLowerCase().includes(q),
-                                  )
-                                : [
-                                    ...(row.matchedRider
-                                      ? [row.matchedRider]
-                                      : []),
-                                    ...row.alternatives,
-                                    ...riders,
-                                  ].filter(
-                                    (r, i, arr) =>
-                                      arr.findIndex((x) => x.id === r.id) === i,
-                                  );
-                              return list.slice(0, 200).map((r) => (
-                                <ComboboxItem key={r.id} value={r.name}>
-                                  <div className="flex flex-col">
-                                    <span>{r.name}</span>
-                                    <span className="text-xs text-muted-foreground">
-                                      {r.team}
-                                    </span>
-                                  </div>
-                                </ComboboxItem>
-                              ));
-                            })()}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
-                    </div>
-                    <div className="w-24 text-right shrink-0">
-                      {!rider ? (
-                        <Badge variant="destructive" className="text-xs">
-                          no match
-                        </Badge>
-                      ) : overridden ? (
-                        <Badge variant="secondary" className="text-xs">
-                          manual
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant={confident ? "secondary" : "outline"}
-                          className="text-xs"
-                        >
-                          {Math.round(row.matchScore * 100)}%
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+            {(unresolved.length > 0 || lowConfidence.length > 0) && (
+              <div className="flex gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2">
+                <AlertTriangleIcon className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+                <p className="text-sm">
+                  {unresolved.length > 0 && (
+                    <>
+                      {unresolved.length} rider
+                      {unresolved.length === 1 ? "" : "s"} could not be matched and
+                      will be skipped.{" "}
+                    </>
+                  )}
+                  {lowConfidence.length > 0 && (
+                    <>
+                      {lowConfidence.length} match
+                      {lowConfidence.length === 1 ? "" : "es"} need checking.
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
 
-          {/* Team time trial */}
-          {teamRows && (
-            <div className="space-y-1.5">
-              {visibleTeamRows.map((team) => {
-                const missing = team.riders.filter((r) => !r.matchedRider);
-                return (
-                  <div
-                    key={team.position}
-                    className="rounded-md border px-3 py-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 text-sm font-medium tabular-nums">
-                        {team.position}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm">{team.uciTeam}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {team.matchedTeamName
-                            ? `→ ${team.matchedTeamName}`
-                            : "no roster team matched — will be skipped"}
-                          {team.time ? ` · ${team.time}` : ""}
+            {/* Individual classification */}
+            {rows && (
+              <div className="space-y-2">
+                {visibleRows.map((row) => {
+                  const rider = riderFor(row);
+                  const overridden = !!overrides[row.position];
+                  const confident = overridden || row.matchScore >= CONFIDENT;
+                  return (
+                    <div
+                      key={row.position}
+                      className="rounded-md border p-3 sm:flex sm:items-center sm:gap-3 sm:py-2"
+                    >
+                      {/* `sm:contents` flattens this wrapper into the row on
+                          desktop, so one markup tree serves both layouts. */}
+                      <div className="flex items-start gap-3 sm:contents">
+                        <span className="w-6 shrink-0 text-sm font-medium tabular-nums sm:w-8">
+                          {row.position}
+                        </span>
+                        <div className="min-w-0 flex-1 sm:w-44 sm:flex-none lg:w-56">
+                          <div className="truncate text-sm">{row.uciName}</div>
+                          <div className="text-muted-foreground truncate text-xs">
+                            {row.uciTeam}
+                          </div>
+                        </div>
+                        <div className="shrink-0 sm:order-last sm:w-20 sm:text-right">
+                          {!rider ? (
+                            <Badge variant="destructive" className="text-xs">
+                              no match
+                            </Badge>
+                          ) : overridden ? (
+                            <Badge variant="secondary" className="text-xs">
+                              manual
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant={confident ? "secondary" : "outline"}
+                              className="text-xs"
+                            >
+                              {Math.round(row.matchScore * 100)}%
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                      <Badge
-                        variant={
-                          team.matchedTeamName ? "secondary" : "destructive"
-                        }
-                        className="text-xs shrink-0"
-                      >
-                        {team.riders.length - missing.length}/
-                        {team.riders.length} riders
-                      </Badge>
-                    </div>
-                    {missing.length > 0 && (
-                      <p className="text-xs text-muted-foreground mt-1 pl-11">
-                        Not on the roster:{" "}
-                        {missing.map((r) => r.uciName).join(", ")}
-                      </p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
 
-      <DialogFooter>
+                      <div className="mt-2 min-w-0 sm:mt-0 sm:flex-1">
+                        <Combobox
+                          value={rider?.name ?? ""}
+                          onValueChange={(name) => {
+                            const found = riders.find((r) => r.name === name);
+                            if (found)
+                              setOverrides((prev) => ({
+                                ...prev,
+                                [row.position]: found.id,
+                              }));
+                            setSearch((prev) => ({ ...prev, [row.position]: "" }));
+                          }}
+                          onInputValueChange={(v) =>
+                            setSearch((prev) => ({ ...prev, [row.position]: v }))
+                          }
+                        >
+                          <ComboboxInput
+                            placeholder={rider?.name || "No match — pick a rider"}
+                            className="h-11 sm:h-9"
+                          />
+                          <ComboboxContent>
+                            <ComboboxList>
+                              <ComboboxEmpty>No riders found</ComboboxEmpty>
+                              {(() => {
+                                const q = (search[row.position] ?? "").toLowerCase();
+                                const list = q
+                                  ? riders.filter(
+                                      (r) =>
+                                        r.name.toLowerCase().includes(q) ||
+                                        r.team.toLowerCase().includes(q),
+                                    )
+                                  : [
+                                      ...(row.matchedRider ? [row.matchedRider] : []),
+                                      ...row.alternatives,
+                                      ...riders,
+                                    ].filter(
+                                      (r, i, arr) =>
+                                        arr.findIndex((x) => x.id === r.id) === i,
+                                    );
+                                return list.slice(0, 200).map((r) => (
+                                  <ComboboxItem key={r.id} value={r.name}>
+                                    <div className="flex flex-col">
+                                      <span>{r.name}</span>
+                                      <span className="text-muted-foreground text-xs">
+                                        {r.team}
+                                      </span>
+                                    </div>
+                                  </ComboboxItem>
+                                ));
+                              })()}
+                            </ComboboxList>
+                          </ComboboxContent>
+                        </Combobox>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Team time trial */}
+            {teamRows && (
+              <div className="space-y-2">
+                {visibleTeamRows.map((team) => {
+                  const missing = team.riders.filter((r) => !r.matchedRider);
+                  return (
+                    <div key={team.position} className="rounded-md border p-3">
+                      <div className="flex items-start gap-3">
+                        <span className="w-6 shrink-0 text-sm font-medium tabular-nums">
+                          {team.position}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm">{team.uciTeam}</div>
+                          <div className="text-muted-foreground text-xs">
+                            {team.matchedTeamName
+                              ? `→ ${team.matchedTeamName}`
+                              : "no roster team matched — will be skipped"}
+                            {team.time ? ` · ${team.time}` : ""}
+                          </div>
+                        </div>
+                        <Badge
+                          variant={team.matchedTeamName ? "secondary" : "destructive"}
+                          className="shrink-0 text-xs"
+                        >
+                          {team.riders.length - missing.length}/{team.riders.length}
+                        </Badge>
+                      </div>
+                      {missing.length > 0 && (
+                        <p className="text-muted-foreground mt-1 pl-9 text-xs">
+                          Not on the roster: {missing.map((r) => r.uciName).join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </ResponsivePanelBody>
+
+      <ResponsivePanelFooter>
         <Button variant="ghost" onClick={() => onOpenChange(false)}>
           Cancel
         </Button>
@@ -457,11 +434,11 @@ function ImportBody({
         )}
         {!loading && !error && teamRows && (
           <Button onClick={applyTtt} disabled={visibleTeamRows.length === 0}>
-            Prefill {visibleTeamRows.filter((t) => t.matchedTeamName).length}{" "}
-            team placements
+            Prefill {visibleTeamRows.filter((t) => t.matchedTeamName).length} team
+            placements
           </Button>
         )}
-      </DialogFooter>
+      </ResponsivePanelFooter>
     </>
   );
 }

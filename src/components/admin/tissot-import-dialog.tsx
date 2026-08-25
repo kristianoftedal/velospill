@@ -7,13 +7,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsivePanel,
+  ResponsivePanelBody,
+  ResponsivePanelDescription,
+  ResponsivePanelFooter,
+  ResponsivePanelHeader,
+  ResponsivePanelTitle,
+} from "@/components/ui/responsive-panel";
 import { categoryDisplayNames } from "@/components/admin/result-entry-form";
 import { AlertTriangleIcon, MountainIcon, TimerIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -32,11 +32,9 @@ const CONFIDENT = 0.9;
 
 export function TissotImportDialog(props: Props) {
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
-        <ImportBody {...props} />
-      </DialogContent>
-    </Dialog>
+    <ResponsivePanel open={props.open} onOpenChange={props.onOpenChange}>
+      <ImportBody {...props} />
+    </ResponsivePanel>
   );
 }
 
@@ -130,17 +128,19 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <MountainIcon className="h-4 w-4" />
-          Import sprints & climbs from Tissot
-        </DialogTitle>
-        <DialogDescription>
+      <ResponsivePanelHeader>
+        <ResponsivePanelTitle>
+          <MountainIcon className="h-4 w-4 shrink-0" />
+          Import sprints &amp; climbs from Tissot
+        </ResponsivePanelTitle>
+        <ResponsivePanelDescription>
           {preview
             ? `${preview.competitionCode} · stage ${preview.stageNumber} · ${preview.stageName}`
             : "Intermediate sprints and per-climb mountain points, which UCI does not publish."}
-        </DialogDescription>
-      </DialogHeader>
+        </ResponsivePanelDescription>
+      </ResponsivePanelHeader>
+
+      <ResponsivePanelBody>
 
       {loading && (
         <p className="text-sm text-muted-foreground py-8 text-center">
@@ -157,6 +157,7 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
           {needsLink && (
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => {
                 onOpenChange(false);
                 onNeedsLink?.();
@@ -203,13 +204,14 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
                 key={group.key}
                 className={`rounded-md border px-3 py-2.5 ${canImport ? "" : "opacity-60"}`}
               >
-                <label className="flex items-start gap-3 cursor-pointer">
+                <label className="flex cursor-pointer items-start gap-3">
                   <input
                     type="checkbox"
                     checked={isOn}
                     disabled={!canImport || saving}
                     onChange={() => toggle(group.key)}
-                    className="mt-1 h-4 w-4"
+                    // 24px is the WCAG 2.5.8 (AA) floor for a pointer target.
+                    className="mt-0.5 size-6 shrink-0 sm:mt-1 sm:size-4"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -252,13 +254,15 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
                       {group.rows.map((r) => (
                         <div
                           key={`${group.key}-${r.position}`}
-                          className="flex items-center gap-2 text-xs"
+                          className="flex items-baseline gap-2 text-xs"
                         >
-                          <span className="w-5 tabular-nums text-muted-foreground">
+                          <span className="text-muted-foreground w-4 shrink-0 tabular-nums">
                             {r.position}
                           </span>
-                          <span className="w-52 truncate">{r.tissotName}</span>
-                          <span className="flex-1 truncate">
+                          <span className="w-28 shrink-0 truncate sm:w-44 lg:w-52">
+                            {r.tissotName}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate">
                             {r.matchedRider ? (
                               <>
                                 → {r.matchedRider.name}
@@ -298,7 +302,9 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
         </div>
       )}
 
-      <DialogFooter>
+      </ResponsivePanelBody>
+
+      <ResponsivePanelFooter>
         <Button
           variant="ghost"
           onClick={() => onOpenChange(false)}
@@ -313,7 +319,7 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
               : `Import ${chosen.length} of ${importable.length}`}
           </Button>
         )}
-      </DialogFooter>
+      </ResponsivePanelFooter>
     </>
   );
 }

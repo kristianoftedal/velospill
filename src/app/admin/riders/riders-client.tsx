@@ -96,7 +96,7 @@ export function RidersClient({ riders }: RidersClientProps) {
       />
 
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add Rider</DialogTitle>
             <DialogDescription>
@@ -113,7 +113,7 @@ export function RidersClient({ riders }: RidersClientProps) {
       </Dialog>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Rider</DialogTitle>
             <DialogDescription>Update rider details.</DialogDescription>
@@ -130,7 +130,7 @@ export function RidersClient({ riders }: RidersClientProps) {
       </Dialog>
 
       <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Import Riders from CSV</DialogTitle>
             <DialogDescription>

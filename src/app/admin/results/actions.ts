@@ -66,6 +66,10 @@ type ResultInput = z.infer<typeof resultSchema>;
 export async function getRacesForResults() {
   await checkAdminAuth();
 
+  // Returned alongside the races so the list can bucket by time without
+  // reading the clock during render.
+  const now = Date.now();
+
   const allRaces = await db
     .select({
       id: races.id,
@@ -75,19 +79,29 @@ export async function getRacesForResults() {
       parentRaceId: races.parentRaceId,
       stageNumber: races.stageNumber,
       uciCompetitionId: races.uciCompetitionId,
+      endDate: races.endDate,
       hasResults: sql<number>`CASE WHEN EXISTS(SELECT 1 FROM race_results WHERE race_results."raceId" = ${races.id}) THEN 1 ELSE 0 END`,
       stagesTotal: sql<number>`(SELECT COUNT(*) FROM races AS s WHERE s."parentRaceId" = ${races.id})::int`,
       stagesWithResults: sql<number>`(SELECT COUNT(*) FROM races AS s WHERE s."parentRaceId" = ${races.id} AND EXISTS(SELECT 1 FROM race_results rr WHERE rr."raceId" = s.id))::int`,
+      // A tour's endDate is often null, so the last stage stands in for it when
+      // deciding whether a race is underway, recent or long finished.
+      lastStageDate: sql<string | null>`(SELECT MAX(s."startDate") FROM races AS s WHERE s."parentRaceId" = ${races.id})`,
     })
     .from(races)
     .orderBy(asc(races.startDate));
 
-  return allRaces.map(r => ({
+  const rows = allRaces.map((r) => ({
     ...r,
-    hasResults: r.hasResults === 1,
+    // The driver has returned this as both a number and a string depending on
+    // the query path, and a strict === 1 silently made every race look
+    // incomplete — which is why "hide completed" filtered nothing.
+    hasResults: Number(r.hasResults) === 1,
     stagesTotal: Number(r.stagesTotal ?? 0),
     stagesWithResults: Number(r.stagesWithResults ?? 0),
+    lastStageDate: r.lastStageDate ? new Date(r.lastStageDate) : null,
   }));
+
+  return { races: rows, now };
 }
 
 /**

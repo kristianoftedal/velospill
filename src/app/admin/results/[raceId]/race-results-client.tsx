@@ -127,7 +127,7 @@ export function RaceResultsClient({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <div className="flex items-center gap-2">
             {isStage && (
@@ -139,7 +139,7 @@ export function RaceResultsClient({
               </Link>
             )}
             {isStage && <span className="text-muted-foreground">/</span>}
-            <h1 className="text-2xl font-bold tracking-tight">{race.name}</h1>
+            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{race.name}</h1>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {formatDate(race.startDate)} · {root.raceType.replace(/_/g, " ")}
@@ -147,7 +147,7 @@ export function RaceResultsClient({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {linkedId ? (
             <>
               <a
@@ -240,13 +240,13 @@ export function RaceResultsClient({
 
       {/* Stage selector */}
       {stages.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="gap-3 p-0 sm:gap-6 sm:p-6">
+          <CardHeader className="px-3 pt-3 pb-0 sm:px-6 sm:pt-0 sm:pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Stages
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3 sm:px-6 sm:pb-0">
             <div className="flex flex-wrap gap-1.5">
               {stages.map((stage) => {
                 const active = stage.id === race.id;
@@ -255,7 +255,7 @@ export function RaceResultsClient({
                   <Link
                     key={stage.id}
                     href={`/admin/results/${stage.id}`}
-                    className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs transition-colors ${
+                    className={`inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-md border px-2.5 text-xs transition-colors sm:min-h-0 sm:min-w-0 sm:py-1.5 ${
                       active
                         ? "border-primary bg-primary text-primary-foreground"
                         : "hover:bg-accent"
@@ -284,7 +284,7 @@ export function RaceResultsClient({
               })}
               <Link
                 href={`/admin/results/${root.id}?scope=tour`}
-                className={`inline-flex items-center rounded-md border px-2.5 py-1.5 text-xs transition-colors ${
+                className={`inline-flex min-h-11 items-center rounded-md border px-3 text-xs transition-colors sm:min-h-0 sm:py-1.5 ${
                   race.id === root.id
                     ? "border-primary bg-primary text-primary-foreground"
                     : "hover:bg-accent"
@@ -298,9 +298,9 @@ export function RaceResultsClient({
       )}
 
       <Tabs defaultValue="enter">
-        <TabsList>
-          <TabsTrigger value="enter">Enter results</TabsTrigger>
-          <TabsTrigger value="entered">
+        <TabsList className="w-full sm:w-auto">
+          <TabsTrigger value="enter" className="flex-1 sm:flex-none">Enter results</TabsTrigger>
+          <TabsTrigger value="entered" className="flex-1 sm:flex-none">
             Entered
             {results.length > 0 && (
               <Badge variant="secondary" className="ml-2 text-xs">
@@ -308,13 +308,13 @@ export function RaceResultsClient({
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="history">Change history</TabsTrigger>
+          <TabsTrigger value="history" className="flex-1 sm:flex-none">History</TabsTrigger>
         </TabsList>
 
         {/* --- Enter results: category accordion --- */}
         <TabsContent value="enter" className="mt-4 space-y-6">
           {isStage && (
-            <div className="flex items-center justify-between gap-3 rounded-md border px-3 py-2.5">
+            <div className="flex flex-col gap-3 rounded-md border px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-medium">Sprints &amp; climbs</p>
                 <p className="text-xs text-muted-foreground">
@@ -326,6 +326,7 @@ export function RaceResultsClient({
               <Button
                 variant="outline"
                 size="sm"
+                className="h-11 w-full shrink-0 sm:h-9 sm:w-auto"
                 onClick={() =>
                   tissotCode ? setTissotImportOpen(true) : setTissotLinkOpen(true)
                 }
@@ -362,7 +363,7 @@ export function RaceResultsClient({
                       value={category}
                       className="last:border-b-0"
                     >
-                      <AccordionTrigger className="px-4 hover:no-underline">
+                      <AccordionTrigger className="min-h-12 px-3 hover:no-underline sm:px-4">
                         <div className="flex flex-1 items-center justify-between gap-3 pr-2">
                           <span className="text-sm font-medium">
                             {categoryDisplayNames[category] ?? category}
@@ -387,7 +388,7 @@ export function RaceResultsClient({
                           </div>
                         </div>
                       </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-4">
+                      <AccordionContent className="px-2 pb-4 sm:px-4">
                         {/* Instance picker for per-climb / per-sprint categories */}
                         {isMulti && (
                           <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -481,13 +482,13 @@ export function RaceResultsClient({
             </p>
           )}
           {[...byCategory.entries()].map(([category, instMap]) => (
-            <Card key={category}>
-              <CardHeader>
+            <Card key={category} className="gap-4 p-0 sm:gap-6 sm:p-6">
+              <CardHeader className="px-3 pt-3 sm:px-6 sm:pt-0">
                 <CardTitle className="text-base">
                   {categoryDisplayNames[category] ?? category}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 px-3 pb-3 sm:px-6 sm:pb-0">
                 {[...instMap.entries()]
                   .sort((a, b) => a[0] - b[0])
                   .map(([instance, rows]) => (
@@ -504,6 +505,48 @@ export function RaceResultsClient({
                           )}
                         </div>
                       )}
+                      {/* Phones get one card per result — these are read a
+                          line at a time, not scanned across columns, so a
+                          sideways-scrolling table would be the wrong trade. */}
+                      <ul className="space-y-1.5 sm:hidden">
+                        {rows
+                          .slice()
+                          .sort((a, b) => a.position - b.position)
+                          .map((r) => (
+                            <li
+                              key={r.id}
+                              className="flex items-center gap-3 rounded-md border px-3 py-2"
+                            >
+                              <span className="w-6 shrink-0 text-sm font-medium tabular-nums">
+                                {r.position}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-sm">{r.riderName}</div>
+                                <div className="text-muted-foreground truncate text-xs">
+                                  {r.riderTeam}
+                                </div>
+                              </div>
+                              <span className="shrink-0 text-sm tabular-nums">
+                                {r.points}
+                                <span className="text-muted-foreground text-xs"> pts</span>
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label={`Correct position ${r.position}`}
+                                className="size-11 shrink-0"
+                                onClick={() => {
+                                  setSelectedResult(r);
+                                  setCorrectionOpen(true);
+                                }}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                              </Button>
+                            </li>
+                          ))}
+                      </ul>
+
+                      <div className="hidden sm:block">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -534,6 +577,7 @@ export function RaceResultsClient({
                                   <Button
                                     variant="ghost"
                                     size="icon"
+                                    aria-label={`Correct position ${r.position}`}
                                     onClick={() => {
                                       setSelectedResult(r);
                                       setCorrectionOpen(true);
@@ -546,6 +590,7 @@ export function RaceResultsClient({
                             ))}
                         </TableBody>
                       </Table>
+                      </div>
                     </div>
                   ))}
               </CardContent>

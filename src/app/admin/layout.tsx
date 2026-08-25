@@ -31,63 +31,65 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background">
       <div className="border-b border-border bg-card">
-        <div className="container flex items-center h-16 gap-6 px-4">
-          <Link href="/admin" className="font-semibold text-sm text-primary hover:text-primary/80 transition-colors">
+        {/* Seven links plus "Back to App" need ~650px; below that the strip
+            scrolls sideways rather than dragging the page with it. */}
+        <div className="container flex h-14 items-center gap-4 px-4 sm:h-16 sm:gap-6">
+          <Link href="/admin" className="shrink-0 font-semibold text-sm text-primary hover:text-primary/80 transition-colors">
             Admin
           </Link>
-          <nav className="flex gap-6">
+          <nav className="-mx-1 flex min-w-0 flex-1 gap-4 overflow-x-auto px-1 [scrollbar-width:none] sm:gap-6 [&::-webkit-scrollbar]:hidden">
             <Link
               href="/admin/riders"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Riders
             </Link>
             <Link
               href="/admin/races"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Races
             </Link>
             <Link
               href="/admin/results"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Results
             </Link>
             <Link
               href="/admin/transfers"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Transfers
             </Link>
             <Link
               href="/admin/orders"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Orders
             </Link>
             <Link
               href="/admin/ir"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Injured Reserve
             </Link>
             <Link
               href="/admin/vuelta-slots"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Vuelta Slots
             </Link>
           </nav>
           <Link
             href="/home"
-            className="ml-auto text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="shrink-0 whitespace-nowrap text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Back to App
           </Link>
         </div>
       </div>
-      <main className="container px-4 py-8 md:py-10">{children}</main>
+      <main className="container px-3 py-6 sm:px-4 sm:py-8 md:py-10">{children}</main>
     </div>
   )
 }

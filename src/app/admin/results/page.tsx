@@ -2,7 +2,7 @@ import { getRacesForResults } from "./actions"
 import { ResultsClient } from "./results-client"
 
 export default async function ResultsPage() {
-  const races = await getRacesForResults()
+  const { races, now } = await getRacesForResults()
 
   return (
     <div className="space-y-6">
@@ -12,7 +12,7 @@ export default async function ResultsPage() {
           Enter race results and manage finishing positions
         </p>
       </div>
-      <ResultsClient races={races} />
+      <ResultsClient races={races} now={now} />
     </div>
   )
 }

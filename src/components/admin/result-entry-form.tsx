@@ -20,6 +20,7 @@ import { submitRaceResults, submitTttResults, getScoringScale, getResultsForRace
 import { importUciResults } from "@/app/admin/results/uci-actions"
 import { UciImportDialog } from "@/components/admin/uci-import-dialog"
 import { LEADER_ONLY_CATEGORIES } from "@/app/admin/results/categories"
+import { scoredPositionLimit } from "@/lib/scoring-scale"
 import { canImportFromUci, UCI_UNSUPPORTED_REASONS } from "@/lib/uci/category-map"
 import { TrashIcon, PlusIcon, DownloadIcon } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -159,18 +160,6 @@ const categoryPrefillCounts: Record<string, number> = {
 
 export { categoryDisplayNames }
 
-/**
- * Highest position that awards points, or null when the category has no scale.
- * Scales are not guaranteed contiguous, so this takes the max key rather than
- * the number of keys.
- */
-function scoredPositionLimit(scale: Record<string, number>): number | null {
-  const positions = Object.keys(scale)
-    .map(Number)
-    .filter((n) => Number.isInteger(n) && n > 0)
-  return positions.length > 0 ? Math.max(...positions) : null
-}
-
 /** Rider slots offered per position in the multi-rider categories (TTT, team GC). */
 const MULTI_RIDER_SLOTS = 8
 
@@ -299,7 +288,7 @@ function MultiRiderEntrySection({ raceId, raceType, riders, category, onSuccess,
               Import from UCI
             </Button>
           ) : (
-            <p className="text-xs text-muted-foreground max-w-[16rem] text-right">
+            <p className="text-xs text-muted-foreground sm:max-w-[16rem] sm:text-right">
               {UCI_UNSUPPORTED_REASONS[category] ?? "No UCI import for this category."}
             </p>
           )}
@@ -606,9 +595,9 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
   return (
     <div className="space-y-4">
       {/* Main entry form */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
+      <Card className="gap-4 p-0 sm:gap-6 sm:p-6">
+        <CardHeader className="px-0 sm:px-6">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-3">
             <div>
               <CardTitle>Enter Race Results</CardTitle>
               <CardDescription>
@@ -629,7 +618,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
                 Import from UCI
               </Button>
             ) : (
-              <p className="text-xs text-muted-foreground max-w-xs text-right">
+              <p className="text-xs text-muted-foreground sm:max-w-xs sm:text-right">
                 {UCI_UNSUPPORTED_REASONS[category] ?? "No UCI equivalent — enter manually."}
               </p>
             )}
@@ -656,7 +645,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
             />
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0 sm:px-6">
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {uciPrefill && (
               <div className="rounded-md border border-blue-500/40 bg-blue-500/5 px-3 py-2 text-sm">
@@ -670,32 +659,52 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
               </div>
             )}
             {/* Field array */}
-            <div className="space-y-3">
+            <div className="space-y-3 sm:space-y-2">
+              {/* Labels once, instead of on every row. */}
+              <div className="hidden sm:grid sm:grid-cols-[5rem_1fr_3rem_2.25rem] sm:gap-3">
+                <span className="text-xs text-muted-foreground">Pos.</span>
+                <span className="text-xs text-muted-foreground">Rider</span>
+                <span className="text-xs text-muted-foreground">Pts</span>
+                <span />
+              </div>
               {fields.map((field, index) => {
                 const riderId = form.watch(`results.${index}.riderId`)
                 const selectedRider = filteredRiders.find((r) => r.id === riderId)
 
                 return (
-                  <div key={field.id} className="flex items-start gap-3">
+                  /* Two rows on a phone — pos/pts/remove, then the rider on its
+                     own line — collapsing to a single row from sm up. Explicit
+                     cell placement keeps one markup tree for both. */
+                  <div
+                    key={field.id}
+                    className="grid grid-cols-[4.5rem_1fr_2.75rem] items-end gap-2 rounded-md border p-3 sm:grid-cols-[5rem_1fr_3rem_2.25rem] sm:items-center sm:gap-3 sm:rounded-none sm:border-0 sm:p-0"
+                  >
                     {/* Position */}
-                    <div className="w-20">
-                      <Label htmlFor={`position-${index}`} className="text-xs">
+                    <div className="col-start-1 row-start-1">
+                      <Label
+                        htmlFor={`position-${index}`}
+                        className="text-xs sm:sr-only"
+                      >
                         Pos.
                       </Label>
                       <Input
                         id={`position-${index}`}
                         type="number"
+                        inputMode="numeric"
                         min="1"
                         {...form.register(`results.${index}.position`, {
                           valueAsNumber: true,
                         })}
-                        className="h-9"
+                        className="h-11 sm:h-9"
                       />
                     </div>
 
                     {/* Rider selector */}
-                    <div className="flex-1">
-                      <Label htmlFor={`rider-${index}`} className="text-xs">
+                    <div className="col-span-3 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
+                      <Label
+                        htmlFor={`rider-${index}`}
+                        className="text-xs sm:sr-only"
+                      >
                         Rider
                       </Label>
                       <Combobox
@@ -714,7 +723,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
                         <ComboboxInput
                           id={`rider-${index}`}
                           placeholder={selectedRider?.name || "Search rider..."}
-                          className="h-9"
+                          className="h-11 sm:h-9"
                         />
                         <ComboboxContent>
                           <ComboboxList>
@@ -746,22 +755,23 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
                     </div>
 
                     {/* Points preview */}
-                    <div className="w-16">
-                      <Label className="text-xs">Pts</Label>
-                      <div className="h-9 flex items-center text-sm text-muted-foreground font-mono">
+                    <div className="col-start-2 row-start-1 sm:col-start-3">
+                      <Label className="text-xs sm:sr-only">Pts</Label>
+                      <div className="flex h-11 items-center font-mono text-sm text-muted-foreground sm:h-9">
                         {scoringScale[String(form.watch(`results.${index}.position`))] ?? "—"}
                       </div>
                     </div>
 
-                    {/* Remove button */}
-                    <div className="pt-5">
+                    {/* Remove */}
+                    <div className="col-start-3 row-start-1 sm:col-start-4">
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={() => remove(index)}
                         disabled={fields.length === 1}
-                        className="h-9 w-9"
+                        aria-label={`Remove position ${index + 1}`}
+                        className="size-11 sm:size-9"
                       >
                         <TrashIcon className="h-4 w-4" />
                       </Button>
@@ -788,6 +798,7 @@ export function ResultEntryForm({ raceId, riders, raceType, category, instance, 
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting}
+                className="w-full sm:w-auto"
               >
                 {form.formState.isSubmitting ? "Saving..." : "Submit Results"}
               </Button>

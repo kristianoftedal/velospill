@@ -12,10 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  linkUciCompetition,
-  searchUciCompetitions,
-  type UciCompetitionCandidate,
-} from "@/app/admin/results/uci-actions";
+  linkTissotCompetition,
+  searchTissotCompetitions,
+  type TissotCompetitionCandidate,
+} from "@/app/admin/results/tissot-actions";
 import { CheckIcon, ExternalLinkIcon, LinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ type Props = {
  * Radix unmounts DialogContent when closed, so the body remounts on every open
  * and searches once from a clean state.
  */
-export function UciLinkDialog(props: Props) {
+export function TissotLinkDialog(props: Props) {
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[85dvh] overflow-y-auto">
@@ -52,13 +52,15 @@ function LinkBody({
 }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [candidates, setCandidates] = useState<UciCompetitionCandidate[]>([]);
+  const [candidates, setCandidates] = useState<TissotCompetitionCandidate[]>(
+    [],
+  );
   const [manualId, setManualId] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    searchUciCompetitions(raceId)
+    searchTissotCompetitions(raceId)
       .then((res) => {
         if (cancelled) return;
         if (res.success) setCandidates(res.candidates);
@@ -77,14 +79,14 @@ function LinkBody({
 
   const save = async (competitionId: string | null) => {
     setSaving(true);
-    const res = await linkUciCompetition(raceId, competitionId);
+    const res = await linkTissotCompetition(raceId, competitionId);
     setSaving(false);
     if (!res.success) {
       toast.error(res.error);
       return;
     }
     toast.success(
-      competitionId ? "Linked to UCI competition" : "UCI link removed",
+      competitionId ? "Linked to Tissot competition" : "UCI link removed",
     );
     onLinked(competitionId);
     onOpenChange(false);
@@ -95,9 +97,10 @@ function LinkBody({
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2">
           <LinkIcon className="h-4 w-4" />
-          Link {raceName} to UCI
+          Link {raceName} to Tissot Timing
         </DialogTitle>
         <DialogDescription>
+          Tissot publishes each intermediate sprint and each climb separately.
           The link is stored on the tour so every stage can import from it.
         </DialogDescription>
       </DialogHeader>
@@ -107,7 +110,7 @@ function LinkBody({
           <div className="text-sm">
             <span className="text-muted-foreground">Currently linked: </span>
             <a
-              href={`https://www.uci.org/competition-details/${linkedCompetitionId}`}
+              href={`https://www.tissottiming.com/competition/${linkedCompetitionId}`}
               target="_blank"
               rel="noreferrer"
               className="font-mono hover:underline inline-flex items-center gap-1"
@@ -129,7 +132,7 @@ function LinkBody({
 
       {loading && (
         <p className="text-sm text-muted-foreground py-6 text-center">
-          Searching the UCI calendar…
+          Searching the Tissot calendar…
         </p>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
@@ -140,12 +143,12 @@ function LinkBody({
             Suggestions
           </p>
           {candidates.map((c) => {
-            const isLinked = c.competitionId === linkedCompetitionId;
+            const isLinked = c.competitionCode === linkedCompetitionId;
             return (
               <button
-                key={c.competitionId}
+                key={c.competitionCode}
                 disabled={saving}
-                onClick={() => save(c.competitionId)}
+                onClick={() => save(c.competitionCode)}
                 className="w-full min-h-14 text-left rounded-md border px-3 py-2 hover:bg-accent transition-colors disabled:opacity-50 sm:min-h-0"
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -163,8 +166,9 @@ function LinkBody({
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
-                  {c.dates} · {c.country} ·{" "}
-                  <span className="h-11 font-mono sm:h-9">{c.competitionId}</span>
+                  {c.start} → {c.end}
+                  {c.location ? ` · ${c.location}` : ""} ·{" "}
+                  <span className="h-11 font-mono sm:h-9">{c.competitionCode}</span>
                 </div>
               </button>
             );
@@ -174,18 +178,19 @@ function LinkBody({
 
       {!loading && !error && candidates.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No UCI competitions matched this race name for the season.
+          No Tissot competitions matched this race name for the season. Tissot
+          only times ASO, Unipublic and Swiss Cycling races.
         </p>
       )}
 
       <div className="border-t pt-4 space-y-2">
-        <Label htmlFor="uci-manual-id" className="text-xs">
-          Or paste a UCI competition id / URL
+        <Label htmlFor="tissot-manual-code" className="text-xs">
+          Or paste a Tissot competition code
         </Label>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
-            id="uci-manual-id"
-            placeholder="2026/ROA/76940"
+            id="tissot-manual-code"
+            placeholder="vue2026"
             value={manualId}
             onChange={(e) => setManualId(e.target.value)}
             className="font-mono"
@@ -194,12 +199,12 @@ function LinkBody({
             variant="outline"
             disabled={saving || !manualId.trim()}
             onClick={() => {
-              const match = manualId.trim().match(/(\d{4}\/[A-Z]{3}\/\d+)/);
-              if (!match) {
-                toast.error('Expected something like "2026/ROA/76940".');
+              const code = manualId.trim().toLowerCase();
+              if (!/^[a-z]{2,10}\d{4}$/.test(code)) {
+                toast.error('Expected something like "vue2026".');
                 return;
               }
-              save(match[1]);
+              save(code);
             }}
           >
             Link

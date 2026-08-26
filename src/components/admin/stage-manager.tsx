@@ -155,7 +155,7 @@ export function StageManager({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             Manage Stages: {parentRaceName}
@@ -236,7 +236,7 @@ export function StageManager({
           {showAddForm && (
             <div className="space-y-3 border rounded-lg p-4 bg-gray-50">
               <h4 className="font-semibold text-sm">Add Individual Stage</h4>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
                   <label className="text-sm font-medium">Stage Number</label>
                   <Input

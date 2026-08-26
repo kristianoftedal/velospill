@@ -61,12 +61,12 @@ export function DataTable<TData, TValue>({
             onChange={(event) =>
               table.getColumn(searchColumn)?.setFilterValue(event.target.value)
             }
-            className="max-w-sm"
+            className="h-11 w-full sm:h-9 sm:max-w-sm"
           />
         </div>
       )}
       <div className="rounded-md border bg-white">
-        <Table>
+        <Table className="min-w-[36rem]">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

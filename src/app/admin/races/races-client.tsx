@@ -174,7 +174,7 @@ export function RacesClient({ races }: RacesClientProps) {
 
       {/* CSV Import Dialog */}
       <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="sm:max-w-3xl max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Import Races</DialogTitle>
           </DialogHeader>

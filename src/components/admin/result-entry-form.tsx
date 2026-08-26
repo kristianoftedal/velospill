@@ -20,6 +20,7 @@ import { submitRaceResults, submitTttResults, getScoringScale, getResultsForRace
 import { importUciResults } from "@/app/admin/results/uci-actions"
 import { UciImportDialog } from "@/components/admin/uci-import-dialog"
 import { LEADER_ONLY_CATEGORIES } from "@/app/admin/results/categories"
+import { scoredPositionLimit } from "@/lib/scoring-scale"
 import { canImportFromUci, UCI_UNSUPPORTED_REASONS } from "@/lib/uci/category-map"
 import { TrashIcon, PlusIcon, DownloadIcon } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -158,18 +159,6 @@ const categoryPrefillCounts: Record<string, number> = {
 }
 
 export { categoryDisplayNames }
-
-/**
- * Highest position that awards points, or null when the category has no scale.
- * Scales are not guaranteed contiguous, so this takes the max key rather than
- * the number of keys.
- */
-function scoredPositionLimit(scale: Record<string, number>): number | null {
-  const positions = Object.keys(scale)
-    .map(Number)
-    .filter((n) => Number.isInteger(n) && n > 0)
-  return positions.length > 0 ? Math.max(...positions) : null
-}
 
 /** Rider slots offered per position in the multi-rider categories (TTT, team GC). */
 const MULTI_RIDER_SLOTS = 8

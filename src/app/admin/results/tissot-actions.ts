@@ -1,5 +1,6 @@
 "use server";
 
+import { scoringConfig } from "@/db/schema/config";
 import { races } from "@/db/schema/races";
 import { riders } from "@/db/schema/riders";
 import { user } from "@/db/schema/users";
@@ -12,6 +13,7 @@ import {
   isValidCompetitionCode,
 } from "@/lib/tissot/client";
 import type { TissotWaypoint } from "@/lib/tissot/types";
+import { clampToScoringPlaces, scoredPositionLimit } from "@/lib/scoring-scale";
 import {
   classifiedClimbs,
   climbTierLabel,
@@ -22,7 +24,7 @@ import {
   sprintCategoryFor,
   tiersUsedInRace,
 } from "@/lib/tissot/waypoints";
-import { eq } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, lte, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -240,6 +242,60 @@ export async function linkTissotCompetition(
 // Preview
 // ---------------------------------------------------------------------------
 
+/**
+ * Last scoring position for each category, so an import only writes rows that
+ * can actually earn points.
+ *
+ * Tissot ranks as deep as its own points scale pays, which is consistently
+ * deeper than velospill's — a Tour HC climb lists 8 riders where
+ * grand_tour_tdf/mountain_hc scores 4, and a Tour intermediate sprint lists 15
+ * against 5. Writing the rest would store rows worth zero and make a climb look
+ * like it paid more than it did.
+ *
+ * Mirrors getScoringScale's grand_tour_tdf -> grand_tour fallback.
+ */
+async function loadScoringLimits(
+  scoringRaceType: string,
+  categories: string[],
+): Promise<Map<string, number | null>> {
+  const limits = new Map<string, number | null>();
+  if (categories.length === 0) return limits;
+
+  const raceTypes =
+    scoringRaceType === "grand_tour_tdf"
+      ? ["grand_tour_tdf", "grand_tour"]
+      : [scoringRaceType];
+
+  const now = new Date();
+  const rows = await db
+    .select({
+      raceType: scoringConfig.raceType,
+      category: scoringConfig.category,
+      rules: scoringConfig.rules,
+    })
+    .from(scoringConfig)
+    .where(
+      and(
+        inArray(scoringConfig.raceType, raceTypes),
+        inArray(scoringConfig.category, categories),
+        lte(scoringConfig.validFrom, now),
+        or(isNull(scoringConfig.validUntil), gt(scoringConfig.validUntil, now)),
+      ),
+    );
+
+  for (const category of categories) {
+    // Prefer the exact race type over the fallback.
+    const row =
+      rows.find((r) => r.category === category && r.raceType === scoringRaceType) ??
+      rows.find((r) => r.category === category);
+    limits.set(
+      category,
+      row ? scoredPositionLimit(row.rules as Record<string, number>) : null,
+    );
+  }
+  return limits;
+}
+
 /** Race types whose mountain categories are relative to the rest of the race. */
 function scoringRaceTypeUsesRelativeTiers(raceType: string): boolean {
   return raceType === "mini_tour";
@@ -272,7 +328,12 @@ export type TissotImportGroup = {
   tierInferred: boolean;
   /** Reason the group cannot be imported, when category is null. */
   skipReason: string | null;
+  /** Rows that can score — already clamped to the scoring scale. */
   rows: TissotImportRow[];
+  /** Last scoring position for this category, null when none is configured. */
+  scoringPlaces: number | null;
+  /** How many riders Tissot ranked, before the clamp. */
+  rankedByTissot: number;
 };
 
 /**
@@ -373,11 +434,16 @@ export async function previewTissotStage(raceId: number) {
       };
     });
 
-  const groups: TissotImportGroup[] = [];
+  // Categories are resolved first so every scoring scale can be loaded in one
+  // query, then rows are clamped to it.
+  type DraftGroup = Omit<TissotImportGroup, "scoringPlaces" | "rankedByTissot"> & {
+    waypoint: TissotWaypoint;
+  };
+  const drafts: DraftGroup[] = [];
 
   const sprintCategory = sprintCategoryFor(scoringRaceType);
   intermediateSprints(stageWaypoints).forEach((w, i) => {
-    groups.push({
+    drafts.push({
       key: `sprint-${i}`,
       kind: "sprint",
       category: sprintCategory,
@@ -390,6 +456,7 @@ export async function previewTissotStage(raceId: number) {
         ? null
         : `${root.raceType.replace(/_/g, " ")} has no intermediate sprint category.`,
       rows: toRows(w),
+      waypoint: w,
     });
   });
 
@@ -406,7 +473,7 @@ export async function previewTissotStage(raceId: number) {
       perCategoryCount.set(category, instance);
     }
 
-    groups.push({
+    drafts.push({
       key: `climb-${i}`,
       kind: "mountain",
       category,
@@ -421,7 +488,41 @@ export async function previewTissotStage(raceId: number) {
           ? `${root.raceType.replace(/_/g, " ")} scores no category for ${climbTierLabel(tier)} climbs.`
           : null,
       rows: toRows(w),
+      waypoint: w,
     });
+  });
+
+  const limits = await loadScoringLimits(
+    scoringRaceType,
+    [...new Set(drafts.map((d) => d.category).filter((c): c is string => !!c))],
+  );
+
+  const groups: TissotImportGroup[] = drafts.map(({ waypoint, ...draft }) => {
+    const rankedByTissot = waypoint.results.length;
+    if (!draft.category) {
+      return { ...draft, scoringPlaces: null, rankedByTissot };
+    }
+
+    const scoringPlaces = limits.get(draft.category) ?? null;
+    if (scoringPlaces == null) {
+      // Without a scale nothing can be awarded, so offering the import would
+      // only write rows worth zero.
+      return {
+        ...draft,
+        category: null,
+        rows: [],
+        scoringPlaces: null,
+        rankedByTissot,
+        skipReason: `No scoring rules configured for ${draft.category} on a ${root.raceType.replace(/_/g, " ")}.`,
+      };
+    }
+
+    return {
+      ...draft,
+      rows: clampToScoringPlaces(draft.rows, scoringPlaces),
+      scoringPlaces,
+      rankedByTissot,
+    };
   });
 
   return {

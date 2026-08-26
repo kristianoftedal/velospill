@@ -242,6 +242,13 @@ function ImportBody({ raceId, onOpenChange, onApplied, onNeedsLink }: Props) {
                           {categoryDisplayNames[group.category] ??
                             group.category}{" "}
                           #{group.instance}
+                          {group.scoringPlaces != null &&
+                            group.rankedByTissot > group.scoringPlaces && (
+                              <>
+                                {" · "}top {group.scoringPlaces} of{" "}
+                                {group.rankedByTissot} ranked
+                              </>
+                            )}
                         </>
                       ) : (
                         <span className="text-amber-700 dark:text-amber-500">

@@ -686,7 +686,7 @@ async function seedScoring() {
     {
       name: "etappeseier",
       displayName: "Etappeseier",
-      applicableRaceTypes: ["grand_tour", "womens_grand_tour"],
+      applicableRaceTypes: ["grand_tour"],
       effect: {
         type: "multiply_finish_points",
         values: { grand_tour: 2.25, grand_tour_tdf: 2 },

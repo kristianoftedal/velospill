@@ -307,10 +307,12 @@ export function applyOrderEffects(
        }
 
        case "multiply_finish_points": {
-        // etappeseier — multiply ALL own riders' finish points by race-specific multiplier
-        // After migration: values: {grand_tour: 2.25, grand_tour_tdf: 2}
+        // etappeseier — multiplies only the stage_finish category (not sprint/
+        // mountain/jersey). baseScores are already lineup-filtered upstream.
         const multiplier = order.effectValues?.[raceType] ?? 2;
-        const ownRiders = baseScores.filter((s) => s.teamId === order.teamId);
+        const ownRiders = baseScores.filter(
+          (s) => s.teamId === order.teamId && s.category === "stage_finish",
+        );
          for (const entry of ownRiders) {
            if (entry.points > 0) {
              adjustments.push({

@@ -27,11 +27,23 @@ import { ownershipAtRaceTime } from "./roster-ownership";
  *
  * Period-aware: if lineup rows have lineupPeriod set, they only apply to stages in that period.
  * A stage's period = 1 + count(rest days with stageNumber < this stage's stageNumber).
- * If lineupPeriod is NULL on a lineup row, it applies to all stages (legacy behavior).
  *
- * Carry-forward: if no lineup exists for the current period, the most recent previous
- * period's lineup is used. This means a player who submits a Week 1 lineup but misses
- * Week 2 keeps their Week 1 lineup active rather than having all riders score.
+ * A stage resolves its lineup in this order:
+ *   1. the lineup for its own period
+ *   2. carry-forward — the most recent earlier period with a lineup
+ *   3. carry-backward — the earliest later period with a lineup
+ *   4. a NULL-period lineup (races that were never periodised)
+ * So a player who submits a Week 1 lineup and then misses Week 2 keeps Week 1 active
+ * rather than having their whole roster score, and one who submits only from Week 2
+ * onwards has Week 2 applied to Week 1 rather than scoring everyone.
+ *
+ * Results attached to the race itself rather than to a stage (final GC, jerseys) belong
+ * to no period, and resolve to the team's last period lineup — the one in effect when
+ * those points were awarded. Only if the team has no periodised lineup at all does a
+ * NULL-period row apply.
+ *
+ * A NULL-period row is therefore the lowest-precedence fallback, not a wildcard: it no
+ * longer scores alongside a per-period lineup.
  *
  * Accepts SQL expressions for leagueId, teamId, riderId to work with different source tables.
  */
@@ -51,12 +63,33 @@ export function makeLineupFilter(
     ELSE NULL END
   )`;
 
-  // Effective period: the period whose lineup should apply to the current stage.
-  // If a lineup exists for the exact period, use it. Otherwise fall back to the
-  // most recent previous period that has a lineup (carry-forward rule).
+  // Effective period: the period whose lineup should apply to the current stage,
+  // resolved in strict precedence order:
+  //   1. exact period match
+  //   2. carry-forward — most recent earlier period with a lineup
+  //   3. carry-backward — earliest later period with a lineup
+  // Carry-backward covers teams whose early-period lineup is absent (e.g. it was
+  // stored as a NULL-period row and later lost). Without it those stages resolve
+  // to no period at all and every rider on the roster scores, which silently
+  // inflates totals. Falling back to the team's own nearest later selection is
+  // wrong-but-bounded; "everyone scores" is unbounded.
   // For non-period races (stagePeriodExpr IS NULL), this is NULL — legacy rows match.
   const effectivePeriodExpr = sql`(
-    CASE WHEN ${stagePeriodExpr} IS NULL THEN NULL
+    CASE WHEN ${stagePeriodExpr} IS NULL THEN
+      -- No stage => results attached to the race itself (final GC, jerseys, combativity).
+      -- These sit outside every period, so only a NULL-period row could ever match them.
+      -- For a periodised race that leaves them matching nothing at all, which means the
+      -- whole roster scores. Resolve them to the team's LAST period lineup instead: these
+      -- points are awarded on the final classification, so the lineup in effect when they
+      -- were earned is the closing one. That mirrors how stage points already work.
+      -- (Use MIN for the opening lineup instead — one word, if you prefer treating GC as a
+      -- pre-race commitment.) Races with no periodised lineups yield NULL and keep the
+      -- legacy NULL-row behaviour untouched.
+      (SELECT MAX(rl0."lineupPeriod") FROM ${raceLineups} rl0
+       WHERE rl0."leagueId" = ${leagueIdExpr}
+         AND rl0."teamId" = ${teamIdExpr}
+         AND rl0."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
+         AND rl0."lineupPeriod" IS NOT NULL)
     ELSE COALESCE(
       -- Exact period lineup exists? Use it.
       (SELECT rl2."lineupPeriod" FROM ${raceLineups} rl2
@@ -71,15 +104,26 @@ export function makeLineupFilter(
          AND rl3."teamId" = ${teamIdExpr}
          AND rl3."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
          AND rl3."lineupPeriod" IS NOT NULL
-         AND rl3."lineupPeriod" < ${stagePeriodExpr})
+         AND rl3."lineupPeriod" < ${stagePeriodExpr}),
+      -- Still nothing — fall back to the earliest later period that has a lineup.
+      (SELECT MIN(rl4."lineupPeriod") FROM ${raceLineups} rl4
+       WHERE rl4."leagueId" = ${leagueIdExpr}
+         AND rl4."teamId" = ${teamIdExpr}
+         AND rl4."raceId" = COALESCE(${races.parentRaceId}, ${races.id})
+         AND rl4."lineupPeriod" IS NOT NULL
+         AND rl4."lineupPeriod" > ${stagePeriodExpr})
     ) END
   )`;
 
-  // Period match condition: lineup row matches if its lineupPeriod is NULL (legacy)
-  // OR if it matches the effective period for this stage (which may be a carry-forward).
+  // Period match condition. A NULL-period row is the lowest-precedence fallback:
+  // it applies only when no period lineup resolves for this stage at all. Previously
+  // it matched unconditionally, so a stale NULL row leaked riders into every period
+  // alongside the correct per-period lineup.
   const periodMatch = sql`(
-    ${raceLineups.lineupPeriod} IS NULL
-    OR ${raceLineups.lineupPeriod} = ${effectivePeriodExpr}
+    CASE WHEN ${effectivePeriodExpr} IS NULL
+      THEN ${raceLineups.lineupPeriod} IS NULL
+      ELSE ${raceLineups.lineupPeriod} = ${effectivePeriodExpr}
+    END
   )`;
 
   return sql`(

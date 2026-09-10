@@ -66,3 +66,6 @@ vendor/
 coverage/
 .cache/
 tmp/
+
+# lineup rebuild backups (scripts/rebuild-missing-lineups.ts)
+.lineup-backups/

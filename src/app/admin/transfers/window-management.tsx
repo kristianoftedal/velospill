@@ -69,7 +69,11 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
   const [selectedLeagueId, setSelectedLeagueId] = useState<number | null>(
     activeLeagues[0]?.id ?? null
   )
-  const [result, setResult] = useState<{ approved: number; rejected: number } | null>(null)
+  const [result, setResult] = useState<{
+    approved: number
+    rejected: number
+    windowsClosed: number
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -80,7 +84,11 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
     startTransition(async () => {
       const res = await resolveWaiverWire(selectedLeagueId)
       if (res.success) {
-        setResult({ approved: res.approved ?? 0, rejected: res.rejected ?? 0 })
+        setResult({
+          approved: res.approved ?? 0,
+          rejected: res.rejected ?? 0,
+          windowsClosed: res.windowsClosed ?? 0,
+        })
       } else {
         setError((res as any).error ?? "Unknown error")
       }
@@ -92,7 +100,8 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
       <CardHeader>
         <CardTitle>Waiver Wire Resolution</CardTitle>
         <CardDescription>
-          Batch-resolve all pending bids for a league using standings priority (lowest points wins)
+          Batch-resolve all pending bids for a league using standings priority (lowest points wins).
+          Also closes the open waiver window, so the next free agency window takes over.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -130,6 +139,10 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
         {result && (
           <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
             Resolution complete: {result.approved} approved, {result.rejected} rejected by priority
+            {result.windowsClosed > 0 &&
+              ` — ${result.windowsClosed} open waiver window${
+                result.windowsClosed === 1 ? "" : "s"
+              } closed`}
           </p>
         )}
         {error && (

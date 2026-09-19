@@ -12,7 +12,7 @@ import { user, SYSTEM_USER_ID } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { eq, and, ne, desc, isNull, sql, inArray } from "drizzle-orm"
+import { eq, and, ne, desc, isNull, lte, sql, inArray } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
 import { resolveConflictingBids, generateTransferWindows } from "@/lib/transfer-queries"
 import { irRequests } from "@/db/schema/ir"
@@ -365,6 +365,7 @@ export async function getTransferWindows(leagueId: number) {
  * 1. Reject conflicting non-winning bids first
  * 2. Approve winning bids in priority order (one per free agent)
  * 3. If approveBid throws (race condition), auto-reject with note
+ * 4. Close and stamp the waiver windows this resolution covered
  */
 export async function resolveWaiverWire(leagueId: number) {
   const session = await checkAdminAuth()
@@ -444,13 +445,51 @@ export async function resolveWaiverWire(leagueId: number) {
     }
   }
 
+  // Finally: settle the waiver windows this resolution covered. Manual resolution
+  // clears every pending bid in the league, so any waiver window that has already
+  // opened is done with:
+  //   - resolvedAt is stamped so the cron does not re-resolve it later (it picks up
+  //     closed windows with resolvedAt IS NULL), which would silently process bids
+  //     submitted after the admin had already resolved the round;
+  //   - closesAt is pulled back to now for a window that is still open, so players
+  //     stop bidding into a settled round and the calendar moves on to the next
+  //     free agency window.
+  // LEAST() guards against pushing an already-closed window's closesAt forward.
+  const now = new Date()
+  const coveredWindows = await db
+    .select({ id: transferWindows.id, closesAt: transferWindows.closesAt })
+    .from(transferWindows)
+    .where(
+      and(
+        eq(transferWindows.leagueId, leagueId),
+        eq(transferWindows.windowType, "waiver"),
+        lte(transferWindows.opensAt, now),
+        isNull(transferWindows.resolvedAt)
+      )
+    )
+
+  let windowsClosed = 0
+  if (coveredWindows.length > 0) {
+    await db
+      .update(transferWindows)
+      .set({
+        resolvedAt: now,
+        closesAt: sql`LEAST(${transferWindows.closesAt}, ${now.toISOString()}::timestamptz)`,
+      })
+      .where(inArray(transferWindows.id, coveredWindows.map((w) => w.id)))
+
+    windowsClosed = coveredWindows.filter((w) => new Date(w.closesAt) > now).length
+  }
+
   revalidatePath("/admin/transfers")
   revalidatePath(`/leagues/${leagueId}/transfers`)
+  revalidatePath(`/leagues/${leagueId}`)
 
   return {
     success: true,
     approved,
     rejected: rejectedBids.length + autoRejected,
+    windowsClosed,
   }
 }
 

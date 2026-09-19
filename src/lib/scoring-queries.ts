@@ -21,8 +21,10 @@ import {
 import { ownershipAtRaceTime } from "./roster-ownership";
 
 /**
- * Lineup filter factory: if a lineup exists for this team/race, only riders in the lineup score.
- * If no lineup exists, all riders score (backward compatible).
+ * Lineup filter factory: only riders in the lineup that applies to this race score.
+ * A team that submitted no lineup at all for the race scores nothing — missing the
+ * deadline is not rewarded with a whole-roster score, which is not even bounded by the
+ * race's roster size and can beat every team that actually committed to a lineup.
  * For stages, the lineup is looked up using the parent race ID.
  *
  * Period-aware: if lineup rows have lineupPeriod set, they only apply to stages in that period.
@@ -34,8 +36,9 @@ import { ownershipAtRaceTime } from "./roster-ownership";
  *   3. carry-backward — the earliest later period with a lineup
  *   4. a NULL-period lineup (races that were never periodised)
  * So a player who submits a Week 1 lineup and then misses Week 2 keeps Week 1 active
- * rather than having their whole roster score, and one who submits only from Week 2
- * onwards has Week 2 applied to Week 1 rather than scoring everyone.
+ * rather than scoring nothing for it, and one who submits only from Week 2 onwards has
+ * Week 2 applied to Week 1. Carry-over only helps within a race the team engaged with;
+ * a team that never submitted anything for that race still scores zero.
  *
  * Results attached to the race itself rather than to a stage (final GC, jerseys) belong
  * to no period, and resolve to the team's last period lineup — the one in effect when
@@ -69,17 +72,17 @@ export function makeLineupFilter(
   //   2. carry-forward — most recent earlier period with a lineup
   //   3. carry-backward — earliest later period with a lineup
   // Carry-backward covers teams whose early-period lineup is absent (e.g. it was
-  // stored as a NULL-period row and later lost). Without it those stages resolve
-  // to no period at all and every rider on the roster scores, which silently
-  // inflates totals. Falling back to the team's own nearest later selection is
-  // wrong-but-bounded; "everyone scores" is unbounded.
+  // stored as a NULL-period row and later lost). Without it those stages resolve to
+  // no period at all and the team silently scores zero for them. Falling back to the
+  // team's own nearest later selection is wrong-but-bounded; a silent zero for a team
+  // that did submit lineups is worse.
   // For non-period races (stagePeriodExpr IS NULL), this is NULL — legacy rows match.
   const effectivePeriodExpr = sql`(
     CASE WHEN ${stagePeriodExpr} IS NULL THEN
       -- No stage => results attached to the race itself (final GC, jerseys, combativity).
       -- These sit outside every period, so only a NULL-period row could ever match them.
-      -- For a periodised race that leaves them matching nothing at all, which means the
-      -- whole roster scores. Resolve them to the team's LAST period lineup instead: these
+      -- For a periodised race that leaves them matching nothing at all, which would zero
+      -- them out. Resolve them to the team's LAST period lineup instead: these
       -- points are awarded on the final classification, so the lineup in effect when they
       -- were earned is the closing one. That mirrors how stage points already work.
       -- (Use MIN for the opening lineup instead — one word, if you prefer treating GC as a
@@ -126,15 +129,10 @@ export function makeLineupFilter(
     END
   )`;
 
+  // A rider scores only if they are on the lineup that resolves for this race/period.
+  // There is deliberately no "no lineup submitted => everyone scores" escape hatch.
   return sql`(
-    NOT EXISTS (
-      SELECT 1 FROM ${raceLineups}
-      WHERE ${raceLineups.leagueId} = ${leagueIdExpr}
-        AND ${raceLineups.teamId} = ${teamIdExpr}
-        AND ${raceLineups.raceId} = COALESCE(${races.parentRaceId}, ${races.id})
-        AND ${periodMatch}
-    )
-    OR EXISTS (
+    EXISTS (
       SELECT 1 FROM ${raceLineups}
       WHERE ${raceLineups.leagueId} = ${leagueIdExpr}
         AND ${raceLineups.teamId} = ${teamIdExpr}

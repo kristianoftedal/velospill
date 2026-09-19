@@ -6,6 +6,7 @@ import { races } from "@/db/schema/races";
 import { raceResults } from "@/db/schema/results";
 import { riders } from "@/db/schema/riders";
 import { rosterSlots } from "@/db/schema/roster-slots";
+import { SYSTEM_USER_ID } from "@/db/schema/users";
 import { db } from "@/lib/db";
 import { and, desc, eq, gt, inArray, lte, ne, notInArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -1066,7 +1067,7 @@ export async function autoResolvePendingOrders(leagueId: number) {
 
   await db
     .update(orders)
-    .set({ status: "active", resolvedAt: now, resolvedBy: "system" })
+    .set({ status: "active", resolvedAt: now, resolvedBy: SYSTEM_USER_ID })
     .where(inArray(orders.id, ids));
 
   return { resolved: ids.length };

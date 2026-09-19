@@ -5,8 +5,8 @@ import { eq } from "drizzle-orm"
 import { autoResolveExpiredWaivers } from "@/lib/transfer-queries"
 
 /**
- * Vercel Cron handler — runs at 23:00 UTC daily.
- * Resolves expired waiver windows for all active leagues.
+ * Vercel Cron handler — runs at 02:00 UTC daily (see vercel.json).
+ * Resolves every closed-but-unresolved waiver window for all active leagues.
  *
  * Protected by CRON_SECRET to prevent unauthorized access.
  */

@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm"
 import { autoResolvePendingOrders } from "@/lib/order-queries"
 
 /**
- * Vercel Cron handler — runs at 23:00 UTC daily.
+ * Vercel Cron handler — runs at 02:00 UTC daily (see vercel.json).
  * Auto-activates pending orders whose race start date has passed.
  *
  * Protected by CRON_SECRET to prevent unauthorized access.

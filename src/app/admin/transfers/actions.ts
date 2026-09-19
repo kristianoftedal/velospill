@@ -8,7 +8,7 @@ import { checkRosterLimit } from "@/lib/roster-limits"
 import { riders } from "@/db/schema/riders"
 import { races } from "@/db/schema/races"
 import { leagues, teams, LeagueConfig } from "@/db/schema/leagues"
-import { user } from "@/db/schema/users"
+import { user, SYSTEM_USER_ID } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
@@ -107,7 +107,7 @@ export async function approveBid(bidId: number) {
  * System-level bid approval — no auth check. Used by auto-resolve.
  */
 export async function approveBidSystem(bidId: number) {
-  return _approveBidInternal(bidId, "system")
+  return _approveBidInternal(bidId, SYSTEM_USER_ID)
 }
 
 async function _approveBidInternal(bidId: number, actorId: string) {

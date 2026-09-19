@@ -73,6 +73,7 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
     approved: number
     rejected: number
     windowsClosed: number
+    freeAgencyOpened: boolean
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -88,6 +89,7 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
           approved: res.approved ?? 0,
           rejected: res.rejected ?? 0,
           windowsClosed: res.windowsClosed ?? 0,
+          freeAgencyOpened: res.freeAgencyOpened ?? false,
         })
       } else {
         setError((res as any).error ?? "Unknown error")
@@ -101,7 +103,8 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
         <CardTitle>Waiver Wire Resolution</CardTitle>
         <CardDescription>
           Batch-resolve all pending bids for a league using standings priority (lowest points wins).
-          Also closes the open waiver window, so the next free agency window takes over.
+          Also closes the open waiver window and starts the next free agency window
+          immediately, so signings reopen the moment bids are settled.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -143,6 +146,7 @@ export function WaiverWireResolution({ activeLeagues }: { activeLeagues: ActiveL
               ` — ${result.windowsClosed} open waiver window${
                 result.windowsClosed === 1 ? "" : "s"
               } closed`}
+            {result.freeAgencyOpened && " — free agency is now open"}
           </p>
         )}
         {error && (

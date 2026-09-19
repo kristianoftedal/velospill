@@ -12,9 +12,13 @@ import { user, SYSTEM_USER_ID } from "@/db/schema/users"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { eq, and, ne, desc, isNull, lte, sql, inArray } from "drizzle-orm"
+import { eq, and, ne, asc, desc, isNull, lte, gt, sql, inArray } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
-import { resolveConflictingBids, generateTransferWindows } from "@/lib/transfer-queries"
+import {
+  resolveConflictingBids,
+  generateTransferWindows,
+  getActiveTransferWindow,
+} from "@/lib/transfer-queries"
 import { irRequests } from "@/db/schema/ir"
 import { z } from "zod"
 
@@ -366,6 +370,7 @@ export async function getTransferWindows(leagueId: number) {
  * 2. Approve winning bids in priority order (one per free agent)
  * 3. If approveBid throws (race condition), auto-reject with note
  * 4. Close and stamp the waiver windows this resolution covered
+ * 5. Bring the next free agency window forward so it starts immediately
  */
 export async function resolveWaiverWire(leagueId: number) {
   const session = await checkAdminAuth()
@@ -481,6 +486,37 @@ export async function resolveWaiverWire(leagueId: number) {
     windowsClosed = coveredWindows.filter((w) => new Date(w.closesAt) > now).length
   }
 
+  // With the waiver round settled, free agency goes live immediately rather than
+  // leaving a dead gap until the next scheduled free agency window opens — closing
+  // the waiver window early is pointless if nobody can sign anyone until midnight.
+  // Only opensAt moves: closesAt stays where the calendar put it (13:00 UTC on race
+  // day), so free agency still ends before its race starts.
+  let freeAgencyOpened = false
+  const stillActive = await getActiveTransferWindow(leagueId)
+  if (!stillActive) {
+    const [nextFreeAgency] = await db
+      .select({ id: transferWindows.id })
+      .from(transferWindows)
+      .where(
+        and(
+          eq(transferWindows.leagueId, leagueId),
+          eq(transferWindows.windowType, "free_agency"),
+          gt(transferWindows.opensAt, now),
+          gt(transferWindows.closesAt, now)
+        )
+      )
+      .orderBy(asc(transferWindows.opensAt))
+      .limit(1)
+
+    if (nextFreeAgency) {
+      await db
+        .update(transferWindows)
+        .set({ opensAt: now })
+        .where(eq(transferWindows.id, nextFreeAgency.id))
+      freeAgencyOpened = true
+    }
+  }
+
   revalidatePath("/admin/transfers")
   revalidatePath(`/leagues/${leagueId}/transfers`)
   revalidatePath(`/leagues/${leagueId}`)
@@ -490,6 +526,7 @@ export async function resolveWaiverWire(leagueId: number) {
     approved,
     rejected: rejectedBids.length + autoRejected,
     windowsClosed,
+    freeAgencyOpened,
   }
 }
 

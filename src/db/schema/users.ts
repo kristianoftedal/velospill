@@ -1,5 +1,12 @@
 import { pgTable, text, boolean, timestamp } from "drizzle-orm/pg-core"
 
+/**
+ * Actor id used for writes performed by cron jobs rather than a signed-in admin.
+ * A real row with this id exists in the user table (migration 0012) because
+ * resolvedBy / performedBy columns are foreign keys to user.id.
+ */
+export const SYSTEM_USER_ID = "system"
+
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

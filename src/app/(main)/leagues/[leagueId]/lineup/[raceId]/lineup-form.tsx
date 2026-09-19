@@ -285,7 +285,7 @@ export function LineupForm({
           <CardContent>
             {selected.size === 0 ? (
               <p className="text-sm text-gray-500 text-center py-4">
-                No lineup was submitted for this {hasPeriods ? "week" : "race"}.
+                No lineup was submitted for this {hasPeriods ? "week" : "race"} — no points scored.
               </p>
             ) : (
               <>

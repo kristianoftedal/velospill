@@ -3,6 +3,7 @@ import { races } from "@/db/schema/races";
 import { riders } from "@/db/schema/riders";
 import { rosterSlots } from "@/db/schema/roster-slots";
 import { transferBids, transferWindows } from "@/db/schema/transfers";
+import { SYSTEM_USER_ID } from "@/db/schema/users";
 import { db } from "@/lib/db";
 import { getLeagueStandings } from "@/lib/scoring-queries";
 import {
@@ -10,8 +11,8 @@ import {
   asc,
   desc,
   eq,
-  gte,
   gt,
+  inArray,
   isNull,
   lte,
   notInArray,
@@ -124,21 +125,22 @@ export async function getActiveTransferWindow(leagueId: number) {
 }
 
 /**
- * Checks for recently closed waiver windows that still have pending bids,
- * and auto-resolves them. Called lazily on transfers page load.
+ * Resolves every waiver window that has closed and not yet been resolved.
  *
- * Only resolves windows that closed within the last 7 days (avoid re-processing ancient windows).
- * Uses the resolveConflicts pure function + approveBid for execution.
+ * Eligibility is `closesAt <= now AND resolvedAt IS NULL` — not proximity to the
+ * cron's scheduled time. The previous ±3h match only lined up with the 02:00 UTC
+ * cron because auto-generated windows close at 23:59:59, and never matched windows
+ * closed early from the admin UI. Windows are stamped with resolvedAt afterwards,
+ * so a window is processed exactly once however often the cron runs.
+ *
+ * Uses the resolveConflicts pure function + approveBidSystem for execution.
  */
 export async function autoResolveExpiredWaivers(
   leagueId: number,
   season: number,
 ) {
   const now = new Date();
-  const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-  const threeHoursFromNow = new Date(now.getTime() + 3 * 60 * 60 * 1000);
 
-  // Find waiver windows closing within ±3 hours of now to tolerate cron scheduling jitter
   const closedWaiverWindows = await db
     .select({ id: transferWindows.id, closesAt: transferWindows.closesAt })
     .from(transferWindows)
@@ -146,12 +148,23 @@ export async function autoResolveExpiredWaivers(
       and(
         eq(transferWindows.leagueId, leagueId),
         eq(transferWindows.windowType, "waiver"),
-        gte(transferWindows.closesAt, threeHoursAgo),
-        lte(transferWindows.closesAt, threeHoursFromNow),
+        lte(transferWindows.closesAt, now),
+        isNull(transferWindows.resolvedAt),
       ),
     );
 
   if (closedWaiverWindows.length === 0) return { resolved: 0 };
+
+  const windowIds = closedWaiverWindows.map((w) => w.id);
+
+  // Stamp the windows before doing any work. Bid resolution below is best-effort
+  // per bid, so a window must not be retried on the next run just because one of
+  // its bids failed — that would re-resolve the bids that did succeed.
+  const markWindowsResolved = () =>
+    db
+      .update(transferWindows)
+      .set({ resolvedAt: new Date() })
+      .where(inArray(transferWindows.id, windowIds));
 
   // Check if there are any pending bids for this league
   const pendingBids = await db
@@ -165,7 +178,10 @@ export async function autoResolveExpiredWaivers(
     )
     .limit(1);
 
-  if (pendingBids.length === 0) return { resolved: 0 };
+  if (pendingBids.length === 0) {
+    await markWindowsResolved();
+    return { resolved: 0 };
+  }
 
   // There are pending bids and a recently-closed waiver window — resolve them
   const { getLeagueStandings } = await import("@/lib/scoring-queries");
@@ -204,7 +220,7 @@ export async function autoResolveExpiredWaivers(
       .set({
         status: "rejected",
         resolvedAt: new Date(),
-        resolvedBy: "system",
+        resolvedBy: SYSTEM_USER_ID,
         adminNote: note,
       })
       .where(eq(transferBids.id, bidId));
@@ -225,7 +241,7 @@ export async function autoResolveExpiredWaivers(
         .set({
           status: "rejected",
           resolvedAt: new Date(),
-          resolvedBy: "system",
+          resolvedBy: SYSTEM_USER_ID,
           adminNote:
             "Auto-rejected: " +
             (result.error ?? "rider claimed by higher-priority team"),
@@ -233,6 +249,8 @@ export async function autoResolveExpiredWaivers(
         .where(eq(transferBids.id, bidId));
     }
   }
+
+  await markWindowsResolved();
 
   return { resolved: approved + rejectedBids.length };
 }

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import { formatDate } from "@/lib/format-date"
+import { genderForOrder, genderLabel } from "@/lib/race-gender"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -92,12 +93,18 @@ export function OrdersClient({
 
   const playedOrderNames = new Set(teamOrders.map((o) => o.orderTypeName))
 
+  // Stages inherit their parent's race type — both order eligibility and rider
+  // gender are properties of the tour, not of the individual stage.
+  function effectiveRaceTypeOf(race: UpcomingRace) {
+    return race.parentRaceId
+      ? (upcomingRaces.find((r) => r.id === race.parentRaceId)?.raceType ?? race.raceType)
+      : race.raceType
+  }
+
   const applicableRaces = selectedOrderType
     ? upcomingRaces.filter((race) => {
         const applicable = selectedOrderType.applicableRaceTypes as string[]
-        const effectiveRaceType = race.parentRaceId
-          ? (upcomingRaces.find((r) => r.id === race.parentRaceId)?.raceType ?? race.raceType)
-          : race.raceType
+        const effectiveRaceType = effectiveRaceTypeOf(race)
         if (!applicable.includes(effectiveRaceType)) return false
         const restriction = (selectedOrderType.effect as Record<string, unknown>)?.restriction as string | undefined
         const nameLower = race.name.toLowerCase()
@@ -109,6 +116,23 @@ export function OrdersClient({
 
   const effect = selectedOrderType ? (selectedOrderType.effect as Record<string, unknown>) : null
   const effectTarget = effect?.target as string | undefined
+
+  // A rider can only be targeted if they ride the selected race: no men in a women's
+  // race and vice versa. Until a race is picked there is nothing to filter against.
+  const requiredGender =
+    selectedRace && selectedOrderType
+      ? genderForOrder(
+          effectiveRaceTypeOf(selectedRace),
+          (selectedOrderType.effect as Record<string, unknown>)?.restriction as string | undefined,
+        )
+      : null
+
+  const eligibleTeamRiders = requiredGender
+    ? teamRiders.filter((r) => r.gender === requiredGender)
+    : teamRiders
+  const eligibleOpponentRiders = requiredGender
+    ? opponentRiders.filter((r) => r.gender === requiredGender)
+    : opponentRiders
 
   function handleOrderTypeSelect(orderTypeId: number) {
     setSelectedOrderTypeId(orderTypeId)
@@ -322,9 +346,18 @@ export function OrdersClient({
 
               {effectTarget === "own_rider" && (
                 <div className="space-y-2">
-                  <p className="text-xs text-gray-500">Select one of your riders</p>
+                  <p className="text-xs text-gray-500">
+                    Select one of your riders
+                    {requiredGender && ` — ${genderLabel(requiredGender)} riders only`}
+                  </p>
+                  {eligibleTeamRiders.length === 0 ? (
+                    <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                      You have no {requiredGender ? genderLabel(requiredGender) : ""} riders on your
+                      roster for this race.
+                    </p>
+                  ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                    {teamRiders.map((r) => (
+                    {eligibleTeamRiders.map((r) => (
                       <button
                         key={r.riderId}
                         type="button"
@@ -340,14 +373,24 @@ export function OrdersClient({
                       </button>
                     ))}
                   </div>
+                  )}
                 </div>
               )}
 
               {effectTarget === "opponent_rider" && (
                 <div className="space-y-2">
-                  <p className="text-xs text-gray-500">Select an opponent&apos;s rider</p>
+                  <p className="text-xs text-gray-500">
+                    Select an opponent&apos;s rider
+                    {requiredGender && ` — ${genderLabel(requiredGender)} riders only`}
+                  </p>
+                  {eligibleOpponentRiders.length === 0 ? (
+                    <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                      No opponent has {requiredGender ? genderLabel(requiredGender) : ""} riders for
+                      this race.
+                    </p>
+                  ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto">
-                    {opponentRiders.map((r) => (
+                    {eligibleOpponentRiders.map((r) => (
                       <button
                         key={r.riderId}
                         type="button"
@@ -363,6 +406,7 @@ export function OrdersClient({
                       </button>
                     ))}
                   </div>
+                  )}
                 </div>
               )}
 

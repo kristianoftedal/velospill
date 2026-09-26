@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
 import { formatDateTime } from "@/lib/format-date"
+import { genderForRaceType } from "@/lib/race-gender"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,8 +34,7 @@ interface LineupFormProps {
   periods: { count: number; editable: number[]; deadlines: Record<number, string> } | null
 }
 
-const MENS_RACE_TYPES = ["grand_tour", "high_priority_one_day", "low_priority_one_day", "mini_tour", "world_championship"]
-const WOMENS_RACE_TYPES = ["womens_grand_tour", "womens_one_day"]
+
 
 const raceTypeLabels: Record<string, string> = {
   grand_tour: "Grand Tour",
@@ -126,11 +126,7 @@ export function LineupForm({
   const selected = selectionsByPeriod.get(periodKey) ?? new Set<number>()
 
   // Filter by gender matching the race type
-  const requiredGender = MENS_RACE_TYPES.includes(raceType)
-    ? "M"
-    : WOMENS_RACE_TYPES.includes(raceType)
-    ? "F"
-    : null
+  const requiredGender = genderForRaceType(raceType)
 
   const eligibleRiders = requiredGender
     ? roster.filter((r) => r.gender === requiredGender)

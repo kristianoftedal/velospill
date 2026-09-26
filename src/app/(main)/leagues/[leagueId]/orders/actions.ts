@@ -6,6 +6,8 @@ import { orderTypes } from "@/db/schema/config"
 import { races } from "@/db/schema/races"
 import { leagues, teams } from "@/db/schema/leagues"
 import { rosterSlots } from "@/db/schema/roster-slots"
+import { riders } from "@/db/schema/riders"
+import { genderForOrder, genderLabel } from "@/lib/race-gender"
 import { eq, and, ne } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
@@ -115,9 +117,11 @@ export async function submitOrder(formData: {
     }
   }
 
-  // 8. World Championship guard — only kaptein is allowed for world championship races
+  // 8. World Championship guard — only Kaptein is allowed for world championship races.
+  // The order types are named kaptein_men / kaptein_women; matching the bare name
+  // "kaptein" matched neither, so this guard used to reject every WC order.
   if (effectiveRaceType === "world_championship") {
-    if (orderType.name !== "kaptein") {
+    if (!orderType.name.startsWith("kaptein")) {
       return { success: false, error: "Only the Kaptein order is allowed for World Championship races" }
     }
   }
@@ -159,6 +163,28 @@ export async function submitOrder(formData: {
 
     // Note: restriction enforcement is based on name matching (e.g. "giro_only" checks for "giro" in race name)
     console.log(`[order-action] GT restriction "${restriction}" validated against race name: "${raceName}"`)
+  }
+
+  // 10b. Target rider must ride this race. The client filters the pickable riders
+  // by gender, but that is presentation only — a stale form or a hand-rolled request
+  // could still name a rider of the wrong gender, which would then score (or zero)
+  // someone who was never at the race.
+  const requiredGender = genderForOrder(effectiveRaceType, effect.restriction as string | undefined)
+  if (requiredGender && targetRiderId) {
+    const [targetRider] = await db
+      .select({ gender: riders.gender })
+      .from(riders)
+      .where(eq(riders.id, targetRiderId))
+      .limit(1)
+    if (!targetRider) {
+      return { success: false, error: "Target rider not found" }
+    }
+    if (targetRider.gender !== requiredGender) {
+      return {
+        success: false,
+        error: `This race is ${genderLabel(requiredGender)} — pick a ${genderLabel(requiredGender)} rider`,
+      }
+    }
   }
 
   // 11. Target validation based on effect.target

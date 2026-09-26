@@ -13,9 +13,9 @@ import {
   checkLeagueMembership,
 } from "@/lib/league-auth"
 import { getRosterOverage } from "@/lib/roster-limits"
+import { genderForRaceType } from "@/lib/race-gender"
 
-const MENS_RACE_TYPES = ["grand_tour", "high_priority_one_day", "low_priority_one_day", "mini_tour", "world_championship"]
-const WOMENS_RACE_TYPES = ["womens_grand_tour", "womens_one_day"]
+
 
 export async function setLineup(
   leagueId: number,
@@ -120,11 +120,7 @@ export async function setLineup(
   }
 
   // 6. Validate gender matches race type
-  const requiredGender = MENS_RACE_TYPES.includes(race.raceType)
-    ? "M"
-    : WOMENS_RACE_TYPES.includes(race.raceType)
-    ? "F"
-    : null
+  const requiredGender = genderForRaceType(race.raceType)
 
   if (requiredGender) {
     const selectedRiders = await db

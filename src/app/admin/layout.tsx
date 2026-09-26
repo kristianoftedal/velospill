@@ -69,6 +69,12 @@ export default async function AdminLayout({
               Orders
             </Link>
             <Link
+              href="/admin/lineups"
+              className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Lineups
+            </Link>
+            <Link
               href="/admin/ir"
               className="flex shrink-0 items-center whitespace-nowrap py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
